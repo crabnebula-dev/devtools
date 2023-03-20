@@ -1,0 +1,83 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Greet from "../components/Greet.svelte";
+---
+
+<Layout title="Welcome to Astro.">
+	<main>
+		<div class="row">
+			<a href="https://tauri.app" target="_blank">
+				<img src="/tauri.svg" class="logo tauri" alt="Tauri logo" />
+			</a>
+			<a href="https://astro.build" ,target="_blank">
+				<img
+					src="/astro-dark.svg"
+					class="logo astro dark-mode-only"
+					alt="Astro logo"
+				/>
+				<img
+					src="/astro-light.svg"
+					class="logo astro light-mode-only"
+					alt="Astro logo"
+				/>
+			</a>
+		</div>
+		<p>Click on the Tauri and Astro logos to learn more.</p>
+		<p>
+			Recommended IDE setup:
+			<a href="https://code.visualstudio.com/" target="_blank">VS Code</a>
+			+
+			<a
+				href="https://github.com/tauri-apps/tauri-vscode"
+				target="_blank"
+			>
+				Tauri
+			</a>
+			+
+			<a
+				href="https://github.com/rust-lang/rust-analyzer"
+				,target="_blank"
+			>
+				rust-analyzer
+			</a>
+		</p>
+		<div class="row">
+			<Greet client:visible />
+		</div>
+	</main>
+</Layout>
+
+<style>
+	main {
+		margin: 0;
+		padding-top: 10vh;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		text-align: center;
+	}
+
+	.logo.tauri:hover {
+		filter: drop-shadow(0 0 2em #24c8db);
+	}
+
+	.logo.astro:hover {
+		filter: drop-shadow(0 0 2em rgb(184, 81, 34));
+	}
+
+	#greet-input {
+		margin-right: 5px;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.logo.light-mode-only {
+			display: none;
+		}
+	}
+
+	@media (prefers-color-scheme: light) {
+		.logo.dark-mode-only {
+			display: none;
+		}
+	}
+</style>
