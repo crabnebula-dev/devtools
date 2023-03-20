@@ -12,7 +12,7 @@
   
 </div>
 
-> Note: This project is under active development, features might have big, be only partially implemented or outright missing. 
+> **Note**: This project is under active development, features might have big, be only partially implemented or outright missing. 
 > Almost everything about this project is work in progress even the name! If you're interested in improving the Tauri debug experience:
 >
 > Contributions are very welcome, get in touch!
