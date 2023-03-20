@@ -5,7 +5,7 @@
   <p>
     <strong>Inspect and Debug your Tauri applications in style 💃</strong>
     <br />
-    <strong>Work In Progress</strong>
+    <strong><i>Work In Progress</i></strong>
   </p>
     
 [![License](https://img.shields.io/badge/License-PolyForm%20Shield%201.0.0-%23F5B793)](https://polyformproject.org/licenses/shield/1.0.0)
