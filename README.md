@@ -8,7 +8,7 @@
     <strong><i>Work In Progress</i></strong>
   </p>
     
-[![License](https://img.shields.io/badge/License-PolyForm%20Shield%201.0.0-%23F5B793)](https://polyformproject.org/licenses/shield/1.0.0)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
   
 </div>
 
