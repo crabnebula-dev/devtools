@@ -1,0 +1,38 @@
+@use "platform";
+
+// Breakpoints
+$xs-bp: 380px;
+$sm-bp: 640px;
+$md-bp: 768px;
+$lg-bp: 1024px;
+$xl-bp: 1280px;
+$xxl-bp: 1536px;
+
+// Consistent Spacing
+$edge-padding: 1rem;
+$border-radius: 1.5rem;
+
+$body: default !default; // 20px
+$body-big: default !default; // 32px
+
+$headline-big: default !default; // 64px
+$headline-medium: default !default; // 56px
+$headline-small: default !default; // 39px
+
+@if platform.desktop() {
+    $body: 1.25rem; // 20px
+    $body-big: 2rem; // 32px
+
+    $headline-big: 4rem; // 64px
+    $headline-medium: 3.5rem; // 56px
+    $headline-small: 2.45rem; // 39px
+}
+
+@if platform.mobile() {
+    $body: 1rem; // 16px
+    $body-big: 1.5rem; // 24px
+
+    $headline-big: 3.25rem; // 52px
+    $headline-medium: 3rem; //48px
+    $headline-small: 1.5rem; // 24px
+}

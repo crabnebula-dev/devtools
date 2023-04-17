@@ -1,0 +1,60 @@
+@use 'sass:meta';
+@use 'env';
+
+@mixin win32 {
+  @if env.$TAURI_PLATFORM == 'windows' {
+    @content;
+  }
+}
+
+@mixin macos {
+  @if env.$TAURI_PLATFORM == 'macos' {
+    @content;
+  }
+}
+
+@mixin linux {
+  @if env.$TAURI_PLATFORM == 'linux' {
+    @content;
+  }
+}
+
+@mixin ios {
+    @if env.$TAURI_PLATFORM == 'ios' {
+        @content;
+    }
+}
+
+@mixin ios {
+    @if env.$TAURI_PLATFORM == 'android' {
+        @content;
+    }
+}
+
+@function desktop() {
+    @if env.$TAURI_PLATFORM == 'macos' or env.$TAURI_PLATFORM == 'windows' or env.$TAURI_PLATFORM == 'linux' {
+        @return true;
+    } @else {
+        @return false;
+    }
+}
+
+@mixin desktop {
+    @if desktop() {
+        @content;
+    }
+}
+
+@function mobile() {
+    @if env.$TAURI_PLATFORM == 'ios' or env.$TAURI_PLATFORM == 'android' {
+        @return true;
+    } @else {
+        @return false;
+    }
+}
+
+@mixin mobile {
+    @if mobile() {
+        @content;
+    }
+}

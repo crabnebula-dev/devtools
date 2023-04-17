@@ -1,8 +1,16 @@
+---
+import Toolbar from "../components/Toolbar.astro"
+---
+
 <!DOCTYPE html>
 <html lang="en">
 	<body>
+		<Toolbar />
 		<slot />
 	</body>
 </html>
-<style is:global>
+
+<style lang="scss" is:global>
+	@use "../styles/_reset.scss";
+	@use "../styles/_typography.scss";
 </style>
