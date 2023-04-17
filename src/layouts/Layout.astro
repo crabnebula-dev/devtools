@@ -1,16 +1,14 @@
----
-import Toolbar from "../components/Toolbar.astro"
----
-
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+    </head>
 	<body>
-		<Toolbar />
 		<slot />
 	</body>
 </html>
 
-<style lang="scss" is:global>
-	@use "../styles/_reset.scss";
-	@use "../styles/_typography.scss";
+<style lang="scss">
+    @use "../styles/_reset.scss"
 </style>

@@ -1,12 +1,13 @@
 {
+  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "build": {
-    "beforeBuildCommand": "pnpm build",
-    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm run build",
+    "beforeDevCommand": "pnpm run dev",
     "devPath": "http://localhost:3000",
     "distDir": "../dist"
   },
   "package": {
-    "productName": "tauri-astro",
+    "productName": "CN devtools",
     "version": "0.1.0"
   },
   "tauri": {
@@ -28,7 +29,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.deev",
+      "identifier": "com.tauri.dev",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
@@ -47,11 +48,7 @@
       }
     },
     "security": {
-      "freezePrototype": true,
-      "csp": {
-        "default-src": "'none'",
-        "img-src": "'self'"
-      }
+      "csp": null
     },
     "updater": {
       "active": false
@@ -61,8 +58,10 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "Tauri + Astro",
-        "width": 800
+        "title": "",
+        "width": 800,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
       }
     ]
   }
