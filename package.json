@@ -10,14 +10,17 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/solid-js": "^2.1.0",
+    "@astrojs/svelte": "^2.1.0",
     "@tauri-apps/api": "^1.2.0",
     "astro": "^2.3.0",
-    "solid-js": "^1.4.3"
+    "svelte": "^3.57.0"
   },
   "devDependencies": {
+    "@astrojs/svelte": "^2.1.0",
     "@tauri-apps/cli": "^1.2.3",
     "astro-compress": "^1.1.35",
-    "sass": "^1.62.0"
+    "sass": "^1.62.0",
+    "typescript": "^5.0.4",
+    "vite": "^4.2.1"
   }
 }

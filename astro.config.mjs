@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import solid from '@astrojs/solid-js';
+import svelte from '@astrojs/svelte';
 import compress from 'astro-compress'
 
 import { writeFileSync } from 'fs'
@@ -19,7 +19,7 @@ writeFileSync(
 // https://astro.build/config
 export default defineConfig({
     // Enable Solid to support Solid JSX components.
-    integrations: [solid(), compress()],
+    integrations: [svelte(), compress()],
     vite: {
         envPrefix: ['VITE_', 'TAURI_'],
         build: {
