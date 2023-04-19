@@ -1,0 +1,115 @@
+@use "variables" as *;
+
+html,
+body {
+    font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    line-height: 1.5;
+}
+
+input,
+button,
+textarea,
+select {
+    font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+
+.large-title {
+    font-weight: 400;
+    font-size: 26pt;
+    line-height: 32pt;
+    letter-spacing: +0.22pt;
+}
+
+h1,
+.title-1 {
+    font-weight: 400;
+    font-size: 22pt;
+    line-height: 26pt;
+    letter-spacing: -0.26pt;
+}
+
+h2,
+.title-2 {
+    font-weight: 400;
+    font-size: 17pt;
+    line-height: 22pt;
+    letter-spacing: +0.43pt;
+}
+
+h3,
+.title-3 {
+    font-weight: 400;
+    font-size: 15pt;
+    line-height: 20pt;
+    letter-spacing: -0.23pt;
+}
+
+.headline {
+    font-weight: 700;
+    font-size: 13pt;
+    line-height: 16pt;
+    letter-spacing: -0.08pt;
+}
+
+.subheadline {
+    font-weight: 400;
+    font-weight: 11pt;
+    line-height: 14pt;
+    letter-spacing: +0.06pt;
+}
+
+p,
+body,
+html {
+    font-weight: 400;
+    font-size: 13pt;
+    line-height: 16pt;
+    letter-spacing: -0.08pt;
+}
+
+blockquote,
+.callout {
+    font-weight: 400;
+    font-size: 12pt;
+    line-height: 15pt;
+}
+
+.footnote {
+    font-weight: 400;
+    font-size: 10pt;
+    line-height: 13pt;
+    letter-spacing: +0.12pt;
+}
+
+caption,
+figcaption,
+.caption-1 {
+    font-weight: 400;
+    font-size: 10pt;
+    line-height: 13pt;
+    letter-spacing: +0.12pt;
+}
+
+.caption-2 {
+    font-weight: 500;
+    font-size: 10pt;
+    line-height: 13pt;
+    letter-spacing: +0.12pt;
+}

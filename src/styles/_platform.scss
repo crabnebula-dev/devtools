@@ -1,59 +1,31 @@
 @use 'env';
 
+@function win32() {
+    @return env.$PLATFORM == 'windows';
+}
+
+@function macos() {
+    @return env.$PLATFORM == 'macos';
+}
+
+@function linux() {
+    @return env.$PLATFORM == 'linux';
+}
+
 @mixin win32 {
-  @if env.$TAURI_PLATFORM == 'windows' {
+  @if win32() {
     @content;
   }
 }
 
 @mixin macos {
-  @if env.$TAURI_PLATFORM == 'macos' {
+  @if macos() {
     @content;
   }
 }
 
 @mixin linux {
-  @if env.$TAURI_PLATFORM == 'linux' {
+  @if linux() {
     @content;
   }
-}
-
-@mixin ios {
-    @if env.$TAURI_PLATFORM == 'ios' {
-        @content;
-    }
-}
-
-@mixin ios {
-    @if env.$TAURI_PLATFORM == 'android' {
-        @content;
-    }
-}
-
-@function desktop() {
-    @if env.$TAURI_PLATFORM == 'macos' or env.$TAURI_PLATFORM == 'windows' or env.$TAURI_PLATFORM == 'linux' {
-        @return true;
-    } @else {
-        @return false;
-    }
-}
-
-@mixin desktop {
-    @if desktop() {
-        @content;
-    }
-}
-
-@function mobile() {
-    @if env.$TAURI_PLATFORM == 'ios' or env.$TAURI_PLATFORM == 'android' {
-        @return true;
-    } @else {
-        @return false;
-    }
-}
-
-@mixin mobile {
-    @if mobile() {
-        @content;
-    }
 }

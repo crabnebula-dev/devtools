@@ -1,0 +1,17 @@
+[package]
+name = "subscriber"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+api = { path = "../api" }
+tokio = { version = "^1.21", features = ["sync", "time", "macros", "tracing"] }
+tonic = { version = "0.9.2", features = ["transport"] }
+tracing-core = "0.1.24"
+tracing = "0.1.26"
+tracing-subscriber = { version = "0.3.11", default-features = false, features = ["fmt", "registry"] }
+tokio-stream = { version = "0.1", features = ["net"] }
+futures = "0.3.28"
+prost-types = "0.11.9"

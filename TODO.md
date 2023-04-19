@@ -1,0 +1,4 @@
+- [ ] track dropped events
+- [ ] support triggering flushing before interval has elapsed
+- [ ] Drop old watchers
+- [ ] ThreadId

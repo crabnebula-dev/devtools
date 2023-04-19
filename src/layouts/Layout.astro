@@ -1,3 +1,7 @@
+---
+import Titlebar from "../components/Titlebar.astro"
+---
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -5,10 +9,12 @@
 		<meta name="viewport" content="width=device-width" />
     </head>
 	<body>
+        <Titlebar title="CN Devtools"/>
 		<slot />
 	</body>
 </html>
 
-<style lang="scss">
-    @use "../styles/_reset.scss"
+<style lang="scss" is:global>
+    @use "../styles/reset";
+	@use "../styles/type";
 </style>
