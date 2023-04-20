@@ -9,22 +9,19 @@ import "trace.proto";
 service Instrument {
     // Produces a stream of updates representing the behavior of the instrumented async runtime.
     rpc WatchUpdates(InstrumentRequest) returns (stream Update) {}
-    // Registers that the console observer wants to pause the stream.
-    rpc Pause(PauseRequest) returns (PauseResponse) {}
-    // Registers that the console observer wants to resume the stream.
-    rpc Resume(ResumeRequest) returns (ResumeResponse) {}
+    rpc UpdateInterests(UpdateInterestsRequest) returns (UpdateInterestsResponse) {}
+    // // Registers that the console observer wants to pause the stream.
+    // rpc Pause(PauseRequest) returns (PauseResponse) {}
+    // // Registers that the console observer wants to resume the stream.
+    // rpc Resume(ResumeRequest) returns (ResumeResponse) {}
 }
 
 message InstrumentRequest {
-    uint32 sources = 1;
+    uint32 interests = 1;
 }
 
-message PauseRequest {
-    uint32 sources = 1;
-}
-
-message ResumeRequest {
-    uint32 sources = 1;
+message UpdateInterestsRequest {
+    uint32 interests = 1;
 }
 
 message Update {
@@ -36,6 +33,4 @@ message Update {
     common.RegisterMetadata new_metadata = 3;
 }
 
-message PauseResponse {}
-
-message ResumeResponse {}
+message UpdateInterestsResponse {}

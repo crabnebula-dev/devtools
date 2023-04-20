@@ -11,40 +11,24 @@ pub use generated::*;
 
 impl InstrumentRequest {
     pub fn new() -> Self {
-        Self { sources: Sources::All.bits() }
+        Self { interests: Interests::all().bits() }
     }
 
-    pub fn new_with_sources(sources: Sources) -> Self {
-        Self { sources: sources.bits() }
-    }
-}
-
-impl PauseRequest {
-    pub fn new() -> Self {
-        Self { sources: Sources::All.bits() }
-    }
-
-    pub fn new_with_sources(sources: Sources) -> Self {
-        Self { sources: sources.bits() }
+    pub fn new_with_interests(interests: Interests) -> Self {
+        Self { interests: interests.bits() }
     }
 }
 
-impl ResumeRequest {
-    pub fn new() -> Self {
-        Self { sources: Sources::All.bits() }
-    }
-
-    pub fn new_with_sources(sources: Sources) -> Self {
-        Self { sources: sources.bits() }
+impl UpdateInterestsRequest {
+    pub fn new(interests: Interests) -> Self {
+        Self { interests: interests.bits() }
     }
 }
 
 bitflags::bitflags! {
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-    pub struct Sources: u32 {
+    pub struct Interests: u32 {
         const Trace = 0b0001;
         const Metadata = 0b0010;
-
-        const All = Self::Trace.bits() | Self::Metadata.bits();
     }
 }

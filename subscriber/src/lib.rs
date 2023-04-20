@@ -1,4 +1,4 @@
-use api::instrument::Sources;
+use api::instrument::Interests;
 use futures::FutureExt;
 use std::{
     mem,
@@ -71,9 +71,8 @@ struct Aggregator {
     /// timestamp that can be sent over the wire.
     base_time: TimeAnchor,
 
-    /// Which sources should be tracked
-    enabled: Sources,
-
+    // /// Which sources should be tracked
+    // enabled: Sources,
     watchers: Vec<Watch<api::instrument::Update>>,
 
     /// *All* metadata for task spans and user-defined spans that we care about.
@@ -122,15 +121,13 @@ enum Event {
 }
 
 #[derive(Debug)]
-struct Watch<T>(mpsc::Sender<Result<T, tonic::Status>>);
+struct Watch<T> {
+    tx: mpsc::Sender<Result<T, tonic::Status>>,
+    interests: Interests,
+}
 
 enum Command {
-    Instrument {
-        watcher: Watch<api::instrument::Update>,
-        sources: Sources,
-    },
-    Pause(Sources),
-    Resume(Sources),
+    Instrument(Watch<api::instrument::Update>),
 }
 
 enum Include {
@@ -284,7 +281,7 @@ impl Aggregator {
             events,
             rpcs,
             base_time: TimeAnchor::new(),
-            enabled: Sources::empty(),
+            // enabled: Sources::empty(),
             watchers: Vec::new(),
             all_metadata: Vec::new(),
             new_metadata: Vec::new(),
@@ -296,33 +293,33 @@ impl Aggregator {
         let mut interval = tokio::time::interval(Self::DEFAULT_PUBLISH_INTERVAL);
 
         loop {
-            let sources_for_publish = tokio::select! {
-                _ = interval.tick() => self.enabled,
+            let should_publish = tokio::select! {
+                _ = interval.tick() => true,
 
                 _ = self.shared.flush.should_flush.notified() => {
                     tracing::debug!("approaching capacity; draining buffer");
 
-                    Sources::empty()
+                    false
                 }
 
                 cmd = self.rpcs.recv() => {
                     match cmd {
-                        Some(Command::Instrument { watcher, sources }) => {
-                            self.add_instrument_watcher(watcher, sources)
+                        Some(Command::Instrument(watcher)) => {
+                            self.add_instrument_watcher(watcher)
                         },
-                        Some(Command::Pause(sources)) => {
-                            self.enabled.remove(sources);
-                        },
-                        Some(Command::Resume(sources)) => {
-                            self.enabled.insert(sources);
-                        },
+                        // Some(Command::Pause(sources)) => {
+                        //     self.enabled.remove(sources);
+                        // },
+                        // Some(Command::Resume(sources)) => {
+                        //     self.enabled.insert(sources);
+                        // },
                         None => {
                             tracing::debug!("rpc channel closed, terminating");
                             return;
                         },
                     };
 
-                    Sources::empty()
+                    false
                 }
             };
 
@@ -346,7 +343,7 @@ impl Aggregator {
 
             // flush data to clients, if there are any currently subscribed
             // watchers and we should send a new update.
-            if !self.watchers.is_empty() && !sources_for_publish.is_empty() {
+            if !self.watchers.is_empty() && should_publish {
                 self.publish();
             }
             // self.cleanup_closed();
@@ -356,21 +353,20 @@ impl Aggregator {
         }
     }
 
-    fn add_instrument_watcher(
-        &mut self,
-        watcher: Watch<api::instrument::Update>,
-        sources: Sources,
-    ) {
+    fn add_instrument_watcher(&mut self, watcher: Watch<api::instrument::Update>) {
         tracing::debug!("new instrument watcher");
 
-        let new_metadata = sources
-            .contains(Sources::Metadata)
-            .then_some(api::RegisterMetadata {
-                metadata: self.all_metadata.clone(),
-            });
+        let new_metadata =
+            watcher
+                .interests
+                .contains(Interests::Metadata)
+                .then_some(api::RegisterMetadata {
+                    metadata: self.all_metadata.clone(),
+                });
 
-        let trace_update = sources
-            .contains(Sources::Trace)
+        let trace_update = watcher
+            .interests
+            .contains(Interests::Trace)
             .then_some(self.trace_update(Include::All));
 
         let now = Instant::now();
@@ -384,7 +380,7 @@ impl Aggregator {
         // Send the initial state --- if this fails, the watcher is already dead
         if watcher.update(update) {
             self.watchers.push(watcher);
-            self.enabled |= sources;
+            // self.enabled |= sources;
         }
     }
 
@@ -436,17 +432,15 @@ impl Aggregator {
     }
 
     fn publish(&mut self) {
-        let new_metadata =
-            if !self.new_metadata.is_empty() && self.enabled.contains(Sources::Metadata) {
-                Some(api::RegisterMetadata {
-                    metadata: mem::take(&mut self.new_metadata),
-                })
-            } else {
-                None
-            };
+        let new_metadata = if !self.new_metadata.is_empty() {
+            Some(api::RegisterMetadata {
+                metadata: mem::take(&mut self.new_metadata),
+            })
+        } else {
+            None
+        };
 
-        let trace_update = if !self.trace_events.is_empty() && self.enabled.contains(Sources::Trace)
-        {
+        let trace_update = if !self.trace_events.is_empty() {
             Some(self.trace_update(Include::Update))
         } else {
             None
@@ -525,13 +519,10 @@ impl api::instrument::instrument_server::Instrument for Server {
         // create output channel and send tx to the aggregator for tracking
         let (tx, rx) = mpsc::channel(DEFAULT_CLIENT_BUFFER_CAPACITY);
 
-        let sources = Sources::from_bits(req.into_inner().sources)
+        let interests = Interests::from_bits(req.into_inner().interests)
             .ok_or(tonic::Status::invalid_argument("could not parse sources"))?;
 
-        permit.send(Command::Instrument {
-            watcher: Watch(tx),
-            sources,
-        });
+        permit.send(Command::Instrument(Watch { tx, interests }));
 
         tracing::debug!("watch started");
 
@@ -539,33 +530,48 @@ impl api::instrument::instrument_server::Instrument for Server {
         Ok(tonic::Response::new(stream))
     }
 
-    async fn pause(
+    async fn update_interests(
         &self,
-        req: tonic::Request<api::instrument::PauseRequest>,
-    ) -> Result<tonic::Response<api::instrument::PauseResponse>, tonic::Status> {
-        let sources = Sources::from_bits(req.into_inner().sources)
-            .ok_or(tonic::Status::invalid_argument("could not parse sources"))?;
+        _req: tonic::Request<api::instrument::UpdateInterestsRequest>,
+    ) -> Result<tonic::Response<api::instrument::UpdateInterestsResponse>, tonic::Status> {
+        todo!()
+        // let sources = Interests::from_bits(req.into_inner().interests)
+        //     .ok_or(tonic::Status::invalid_argument("could not parse sources"))?;
 
-        self.tx.send(Command::Pause(sources)).await.map_err(|_| {
-            tonic::Status::internal("cannot pause, aggregation task is not running")
-        })?;
+        // self.tx.send(Command::Pause(sources)).await.map_err(|_| {
+        //     tonic::Status::internal("cannot update interests, aggregation task is not running")
+        // })?;
 
-        Ok(tonic::Response::new(api::instrument::PauseResponse {}))
+        // Ok(tonic::Response::new(api::instrument::UpdateInterestsResponse {}))
     }
 
-    async fn resume(
-        &self,
-        req: tonic::Request<api::instrument::ResumeRequest>,
-    ) -> Result<tonic::Response<api::instrument::ResumeResponse>, tonic::Status> {
-        let sources = Sources::from_bits(req.into_inner().sources)
-            .ok_or(tonic::Status::invalid_argument("could not parse sources"))?;
+    // async fn pause(
+    //     &self,
+    //     req: tonic::Request<api::instrument::PauseRequest>,
+    // ) -> Result<tonic::Response<api::instrument::PauseResponse>, tonic::Status> {
+    //     let sources = Sources::from_bits(req.into_inner().sources)
+    //         .ok_or(tonic::Status::invalid_argument("could not parse sources"))?;
 
-        self.tx.send(Command::Resume(sources)).await.map_err(|_| {
-            tonic::Status::internal("cannot pause, aggregation task is not running")
-        })?;
+    //     self.tx.send(Command::Pause(sources)).await.map_err(|_| {
+    //         tonic::Status::internal("cannot pause, aggregation task is not running")
+    //     })?;
 
-        Ok(tonic::Response::new(api::instrument::ResumeResponse {}))
-    }
+    //     Ok(tonic::Response::new(api::instrument::PauseResponse {}))
+    // }
+
+    // async fn resume(
+    //     &self,
+    //     req: tonic::Request<api::instrument::ResumeRequest>,
+    // ) -> Result<tonic::Response<api::instrument::ResumeResponse>, tonic::Status> {
+    //     let sources = Sources::from_bits(req.into_inner().sources)
+    //         .ok_or(tonic::Status::invalid_argument("could not parse sources"))?;
+
+    //     self.tx.send(Command::Resume(sources)).await.map_err(|_| {
+    //         tonic::Status::internal("cannot pause, aggregation task is not running")
+    //     })?;
+
+    //     Ok(tonic::Response::new(api::instrument::ResumeResponse {}))
+    // }
 }
 
 impl Flush {
@@ -592,7 +598,7 @@ impl Flush {
 impl<T: Clone> Watch<T> {
     // TODO make return type more meaningful
     fn update(&self, update: &T) -> bool {
-        if let Ok(reserve) = self.0.try_reserve() {
+        if let Ok(reserve) = self.tx.try_reserve() {
             reserve.send(Ok(update.clone()));
             true
         } else {
