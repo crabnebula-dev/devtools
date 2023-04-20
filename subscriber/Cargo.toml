@@ -11,7 +11,12 @@ tokio = { version = "^1.21", features = ["sync", "time", "macros", "tracing"] }
 tonic = { version = "0.9.2", features = ["transport"] }
 tracing-core = "0.1.24"
 tracing = "0.1.26"
-tracing-subscriber = { version = "0.3.11", default-features = false, features = ["fmt", "registry"] }
-tokio-stream = { version = "0.1", features = ["net"] }
+tracing-subscriber = { version = "0.3.11", default-features = false, features = ["fmt", "registry", "env-filter"] }
+tokio-stream = { version = "0.1", features = ["net", "sync"] }
 futures = "0.3.28"
 prost-types = "0.11.9"
+futures-util = "0.3.28"
+
+[dev-dependencies]
+axum = { version = "0.6.16", features = ["tracing"] }
+tokio = { version = "^1.21", features = ["full"] }
