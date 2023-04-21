@@ -495,43 +495,7 @@ impl api::instrument::instrument_server::Instrument for Server {
         _req: tonic::Request<api::instrument::UpdateInterestsRequest>,
     ) -> Result<tonic::Response<api::instrument::UpdateInterestsResponse>, tonic::Status> {
         todo!()
-        // let sources = Interests::from_bits(req.into_inner().interests)
-        //     .ok_or(tonic::Status::invalid_argument("could not parse sources"))?;
-
-        // self.tx.send(Command::Pause(sources)).await.map_err(|_| {
-        //     tonic::Status::internal("cannot update interests, aggregation task is not running")
-        // })?;
-
-        // Ok(tonic::Response::new(api::instrument::UpdateInterestsResponse {}))
     }
-
-    // async fn pause(
-    //     &self,
-    //     req: tonic::Request<api::instrument::PauseRequest>,
-    // ) -> Result<tonic::Response<api::instrument::PauseResponse>, tonic::Status> {
-    //     let sources = Sources::from_bits(req.into_inner().sources)
-    //         .ok_or(tonic::Status::invalid_argument("could not parse sources"))?;
-
-    //     self.tx.send(Command::Pause(sources)).await.map_err(|_| {
-    //         tonic::Status::internal("cannot pause, aggregation task is not running")
-    //     })?;
-
-    //     Ok(tonic::Response::new(api::instrument::PauseResponse {}))
-    // }
-
-    // async fn resume(
-    //     &self,
-    //     req: tonic::Request<api::instrument::ResumeRequest>,
-    // ) -> Result<tonic::Response<api::instrument::ResumeResponse>, tonic::Status> {
-    //     let sources = Sources::from_bits(req.into_inner().sources)
-    //         .ok_or(tonic::Status::invalid_argument("could not parse sources"))?;
-
-    //     self.tx.send(Command::Resume(sources)).await.map_err(|_| {
-    //         tonic::Status::internal("cannot pause, aggregation task is not running")
-    //     })?;
-
-    //     Ok(tonic::Response::new(api::instrument::ResumeResponse {}))
-    // }
 }
 
 impl Flush {
