@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly-thread-id", feature(thread_id_value))]
+
 use api::instrument::Interests;
 use futures::FutureExt;
 use std::{
@@ -56,6 +58,10 @@ struct Layer {
     /// When the channel capacity goes under this number, a flush in the aggregator
     /// will be triggered.
     flush_threshold: usize,
+
+    /// Used to anchor monotonic timestamps to a base `SystemTime`, to produce a
+    /// timestamp that can be sent over the wire.
+    base_time: TimeAnchor,
 }
 
 struct Aggregator {
@@ -95,29 +101,6 @@ struct Server {
 
 enum Event {
     Metadata(&'static tracing_core::Metadata<'static>),
-    Event {
-        at: Instant,
-        // fields
-        // metadata?
-    },
-    NewSpan {
-        id: tracing_core::span::Id,
-        at: Instant,
-        // fields
-        // metadata?
-    },
-    EnterSpan {
-        id: tracing_core::span::Id,
-        at: Instant,
-    },
-    ExitSpan {
-        id: tracing_core::span::Id,
-        at: Instant,
-    },
-    CloseSpan {
-        id: tracing_core::span::Id,
-        at: Instant,
-    },
 }
 
 #[derive(Debug)]
@@ -141,6 +124,7 @@ impl Layer {
             shared,
             tx,
             flush_threshold: DEFAULT_EVENT_BUFFER_CAPACITY / 2,
+            base_time: TimeAnchor::new(),
         }
     }
 
@@ -195,10 +179,15 @@ where
     ) {
         let at = Instant::now();
 
-        self.send_event(&self.shared.dropped_trace_events, || Event::NewSpan {
-            id: id.clone(),
-            at,
-        })
+        println!(
+            "trace event {:?}",
+            api::trace::TraceEvent::new_span(api::Span {
+                id: Some(id.clone().into()),
+                metadata_id: None,
+                fields: Vec::new(),
+                at: Some(self.base_time.to_timestamp(at))
+            })
+        )
     }
 
     fn on_record(
@@ -222,9 +211,8 @@ where
         _event: &tracing::Event<'_>,
         _ctx: tracing_subscriber::layer::Context<'_, S>,
     ) {
-        let at = Instant::now();
-
-        self.send_event(&self.shared.dropped_trace_events, || Event::Event { at })
+        // event.record(visitor)
+        // println!("received event {:?} \n metadata {:?} \n fields {:?}", event, event.metadata(), event.fields().collect::<Vec<_>>());
     }
 
     fn on_enter(
@@ -232,12 +220,17 @@ where
         id: &tracing_core::span::Id,
         _ctx: tracing_subscriber::layer::Context<'_, S>,
     ) {
+        let thread_id = api::thread_id::get_thread_id();
         let at = Instant::now();
 
-        self.send_event(&self.shared.dropped_trace_events, || Event::EnterSpan {
-            id: id.clone(),
-            at,
-        })
+        println!(
+            "trace event {:?}",
+            api::trace::TraceEvent::enter_span(
+                id.clone().into(),
+                thread_id,
+                self.base_time.to_timestamp(at)
+            )
+        )
     }
 
     fn on_exit(
@@ -245,12 +238,17 @@ where
         id: &tracing_core::span::Id,
         _ctx: tracing_subscriber::layer::Context<'_, S>,
     ) {
+        let thread_id = api::thread_id::get_thread_id();
         let at = Instant::now();
 
-        self.send_event(&self.shared.dropped_trace_events, || Event::ExitSpan {
-            id: id.clone(),
-            at,
-        })
+        println!(
+            "trace event {:?}",
+            api::trace::TraceEvent::exit_span(
+                id.clone().into(),
+                thread_id,
+                self.base_time.to_timestamp(at)
+            )
+        )
     }
 
     fn on_close(
@@ -260,10 +258,10 @@ where
     ) {
         let at = Instant::now();
 
-        self.send_event(&self.shared.dropped_trace_events, || Event::CloseSpan {
-            id,
-            at,
-        })
+        println!(
+            "trace event {:?}",
+            api::trace::TraceEvent::close_span(id.into(), self.base_time.to_timestamp(at))
+        )
     }
 }
 
@@ -386,44 +384,6 @@ impl Aggregator {
 
     fn update_state(&mut self, event: Event) {
         match event {
-            Event::NewSpan { id, at } => {
-                let span = api::Span {
-                    id: Some(id.into()),
-                    metadata_id: None,
-                    fields: Vec::new(),
-                    at: Some(self.base_time.to_timestamp(at)),
-                };
-
-                self.trace_events
-                    .push(api::trace::TraceEvent::new_span(span));
-            }
-            Event::EnterSpan { id, at } => {
-                let event =
-                    api::trace::TraceEvent::enter_span(id.into(), self.base_time.to_timestamp(at));
-
-                self.trace_events.push(event);
-            }
-            Event::ExitSpan { id, at } => {
-                let event =
-                    api::trace::TraceEvent::exit_span(id.into(), self.base_time.to_timestamp(at));
-
-                self.trace_events.push(event);
-            }
-            Event::CloseSpan { id, at } => {
-                let event =
-                    api::trace::TraceEvent::close_span(id.into(), self.base_time.to_timestamp(at));
-
-                self.trace_events.push(event);
-            }
-            Event::Event { at } => {
-                let event = api::trace::TraceEvent::event(api::trace::trace_event::Event {
-                    metadata_id: None,
-                    fields: Vec::new(),
-                    at: Some(self.base_time.to_timestamp(at)),
-                });
-
-                self.trace_events.push(event);
-            }
             Event::Metadata(meta) => {
                 self.all_metadata.push(meta.into());
                 self.new_metadata.push(meta.into());

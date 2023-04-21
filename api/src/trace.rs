@@ -1,4 +1,4 @@
-use crate::common;
+use crate::{common, thread_id::ThreadId};
 
 mod generated {
     #![allow(warnings)]
@@ -26,22 +26,20 @@ impl TraceEvent {
             inner: Some(trace_event::Inner::NewSpan(span)),
         }
     }
-    pub fn enter_span(span_id: common::SpanId, at: prost_types::Timestamp) -> Self {
+    pub fn enter_span(span_id: common::SpanId, thread_id: ThreadId, at: prost_types::Timestamp) -> Self {
         Self {
             inner: Some(trace_event::Inner::EnterSpan(trace_event::Enter {
                 span_id: Some(span_id),
-                // TODO `ThreadId::as_u64` is currently nightly only. Reenable once stable
-                thread_id: Some(0),
+                thread_id: Some(thread_id.as_u64().into()),
                 at: Some(at),
             })),
         }
     }
-    pub fn exit_span(span_id: common::SpanId, at: prost_types::Timestamp) -> Self {
+    pub fn exit_span(span_id: common::SpanId, thread_id: ThreadId, at: prost_types::Timestamp) -> Self {
         Self {
             inner: Some(trace_event::Inner::ExitSpan(trace_event::Exit {
                 span_id: Some(span_id),
-                // TODO `ThreadId::as_u64` is currently nightly only. Reenable once stable
-                thread_id: Some(0),
+                thread_id: Some(thread_id.as_u64().into()),
                 at: Some(at),
             })),
         }

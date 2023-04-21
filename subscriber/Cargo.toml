@@ -20,3 +20,6 @@ futures-util = "0.3.28"
 [dev-dependencies]
 axum = { version = "0.6.16", features = ["tracing"] }
 tokio = { version = "^1.21", features = ["full"] }
+
+[features]
+nightly-thread-id = ["api/nightly-thread-id"]
