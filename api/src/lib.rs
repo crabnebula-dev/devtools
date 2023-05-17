@@ -1,9 +1,10 @@
 #![cfg_attr(feature = "nightly-thread-id", feature(thread_id_value))]
 
 mod common;
+pub use common::*;
 pub mod instrument;
 pub mod trace;
-pub use common::*;
+pub mod application;
 
 #[cfg(not(feature = "nightly-thread-id"))]
 pub mod thread_id {

@@ -10,17 +10,18 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/svelte": "^2.1.0",
-    "@tauri-apps/api": "^1.2.0",
-    "astro": "^2.3.0",
-    "svelte": "^3.57.0"
+    "@astrojs/tailwind": "^3.1.2",
+    "@tauri-apps/api": "https://gitpkg.now.sh/tauri-apps/tauri/tooling/api?next",
+    "astro": "^2.3.4",
+    "svelte": "^3.58.0",
+    "tailwindcss": "^3.3.2"
   },
   "devDependencies": {
-    "@astrojs/svelte": "^2.1.0",
-    "@tauri-apps/cli": "^1.2.3",
-    "astro-compress": "^1.1.35",
-    "sass": "^1.62.0",
+    "@astrojs/svelte": "^2.1.1",
+    "@tauri-apps/cli": "^2.0.0-alpha.8",
+    "astro-compress": "^1.1.42",
+    "sass": "^1.62.1",
     "typescript": "^5.0.4",
-    "vite": "^4.2.1"
+    "vite": "^4.3.4"
   }
 }
