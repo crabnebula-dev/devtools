@@ -34,7 +34,12 @@ flowchart LR
     Ag[Aggregator]
     S[Server]
     end
+    subgraph Devtools
     C[Client]
+    P[State]
+    U[UI]
+    end
+
 
     A -->|tracing Event| L
     L -->|Event| Ag
@@ -48,6 +53,10 @@ flowchart LR
         tokio::AsyncOpUpdate
     "| S
     S <-->|gRPC| C
+
+    C -->|mutation| P
+    P -->|render| U
+    U -->|command| C
 ```
 
 ## Subscriber
