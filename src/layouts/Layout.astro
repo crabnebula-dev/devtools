@@ -1,20 +1,31 @@
 ---
-import Titlebar from "../components/Titlebar.astro"
+import Titlebar from "../components/Titlebar.astro";
+
+interface Props {
+    titlebar?: boolean
+    title?: string
+}
+
+const { titlebar = true, title = "CN Devtools" } = Astro.props
 ---
 
 <!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+        <meta name="viewport" content="width=device-width" />
     </head>
-	<body>
-        <Titlebar title="CN Devtools"/>
-		<slot />
-	</body>
+    <body>
+        { titlebar && <Titlebar title={title} /> }
+        <main class="container mx-auto px-4">
+            <slot />
+        </main>
+    </body>
 </html>
 
-<style lang="scss" is:global>
-    @use "../styles/reset";
-	@use "../styles/type";
+<style>
+    main {
+        padding-top: calc(52px + .75em);
+        height: 100vh;
+    }
 </style>

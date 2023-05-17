@@ -64,7 +64,8 @@
         "title": "",
         "width": 800,
         "titleBarStyle": "Overlay",
-        "hiddenTitle": true
+        "hiddenTitle": true,
+        "url": "/new-session"
       }
     ]
   }

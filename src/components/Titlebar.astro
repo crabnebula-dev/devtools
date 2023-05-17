@@ -11,8 +11,6 @@ const { title } = Astro.props;
 </header>
 
 <style lang="scss">
-	@use "../styles/_platform";
-
 	$titlebar-background-light: rgba(246, 241, 249, 0.9);
 	$titlebar-background-dark: rgba(55, 51, 58, 0.9);
 
@@ -33,9 +31,9 @@ const { title } = Astro.props;
 		padding: 0 10px;
 		box-sizing: border-box;
 
-		@if platform.macos() {
+		// @if platform.macos() {
 			padding-left: 100px;
-		}
+		// }
 
 		@debug padding-left;
 
