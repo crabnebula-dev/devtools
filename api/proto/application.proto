@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package rs.tauri.devtools.application;
+
+service Application {
+    rpc GetPackageInfo(GetPackageInfoRequest) returns (PackageInfo) {}
+}
+
+message GetPackageInfoRequest {}
+
+message PackageInfo {
+    string name = 1;
+    string version = 2;
+    string authors = 3;
+    string description = 4;
+}
