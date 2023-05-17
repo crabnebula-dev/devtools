@@ -2,6 +2,7 @@
 
 use api::instrument::Interests;
 use futures::FutureExt;
+use mdns_sd::{ServiceDaemon, ServiceInfo};
 use std::{
     mem,
     net::{IpAddr, Ipv4Addr, SocketAddr},
@@ -152,6 +153,7 @@ impl Layer {
         };
 
         let capacity = self.tx.capacity();
+        println!("event channel cap {}", capacity);
         if capacity <= self.flush_threshold {
             self.shared.flush.trigger();
         }
@@ -267,7 +269,7 @@ where
 
 impl Aggregator {
     /// Default frequency for publishing events to clients.
-    const DEFAULT_PUBLISH_INTERVAL: Duration = Duration::from_secs(1);
+    const DEFAULT_PUBLISH_INTERVAL: Duration = Duration::from_millis(250);
 
     pub fn new(
         shared: Arc<Shared>,
@@ -432,7 +434,7 @@ impl Aggregator {
 }
 
 impl Server {
-    pub const DEFAULT_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
+    pub const DEFAULT_IP: IpAddr = IpAddr::V4(Ipv4Addr::UNSPECIFIED);
 
     pub const DEFAULT_PORT: u16 = 6669;
 
@@ -498,6 +500,19 @@ impl api::instrument::instrument_server::Instrument for Server {
     }
 }
 
+#[cfg(feature = "tauri")]
+#[tonic::async_trait]
+impl api::application::application_server::Application for Server {
+    async fn get_package_info(
+        &self,
+        _req: tonic::Request<api::application::GetPackageInfoRequest>,
+    ) -> Result<tonic::Response<api::application::PackageInfo>, tonic::Status> {
+        // let ctx = tauri::generate_context!();
+
+        todo!()
+    }
+}
+
 impl Flush {
     pub(crate) fn trigger(&self) {
         if self
@@ -531,7 +546,74 @@ impl<T: Clone> Watch<T> {
     }
 }
 
-pub fn init() {
+struct Beacon {
+    hostname: String,
+    grpc_port: u16,
+    os: &'static str,
+    arch: &'static str,
+}
+
+impl Beacon {
+    pub fn new_from_env(grpc_port: u16) -> Result<Self, Box<dyn std::error::Error>> {
+        let hostname = hostname::get()?;
+        Ok(Self {
+            grpc_port,
+            hostname: hostname.to_string_lossy().to_string(),
+            os: std::env::consts::OS,
+            arch: std::env::consts::ARCH,
+        })
+    }
+
+    pub async fn run(self) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+        // Create a daemon
+        let mdns = ServiceDaemon::new()?;
+
+        // Create a service info.
+        let service_type = "_cn-devtools._udp.local.";
+        let instance_name = "my_instance";
+
+        let host_ipv4 = if_addrs::get_if_addrs()?
+            .iter()
+            .filter_map(|if_addr| match if_addr.addr.ip() {
+                IpAddr::V4(ipv4) => Some(ipv4.to_string()),
+                IpAddr::V6(_) => None,
+            })
+            .collect::<Vec<_>>()
+            .join(",");
+
+        println!("ip addresses if service {:?}", host_ipv4);
+
+        let properties = [("OS", self.os), ("ARCH", self.arch)];
+
+        let my_service = ServiceInfo::new(
+            service_type,
+            instance_name,
+            &self.hostname,
+            host_ipv4,
+            self.grpc_port,
+            &properties[..],
+        )
+        .unwrap();
+
+        // Register with the daemon, which publishes the service.
+        mdns.register(my_service)
+            .expect("Failed to register our service");
+
+        let receiver = mdns.monitor().unwrap();
+
+        while let Ok(event) = receiver.recv_async().await {
+            println!("mdns deamon event {:?}", event);
+        }
+
+        println!("mdns done");
+
+        Ok(())
+    }
+}
+
+pub fn init<A: tauri::Assets>(ctx: &tauri::Context<A>) {
+    dbg!(ctx);
+
     let shared = Arc::new(Shared::default());
 
     let (event_tx, events) = mpsc::channel(DEFAULT_EVENT_BUFFER_CAPACITY);
@@ -540,6 +622,7 @@ pub fn init() {
     let layer = Layer::new(shared.clone(), event_tx);
     let aggregator = Aggregator::new(shared.clone(), events, rpcs);
     let server = Server::new(command_tx);
+    let beacon = Beacon::new_from_env(Server::DEFAULT_PORT).unwrap();
 
     thread::Builder::new()
         .name("console_subscriber".into())
@@ -556,6 +639,8 @@ pub fn init() {
                 .expect("console subscriber runtime initialization failed");
 
             runtime.block_on(async move {
+                let mdns = spawn_named(beacon.run(), "devtools::mdns");
+
                 let aggregate = spawn_named(aggregator.run(), "devtools::aggregate");
 
                 spawn_named(server.serve(), "devtools::serve")
@@ -564,6 +649,7 @@ pub fn init() {
                     .unwrap();
 
                 aggregate.abort();
+                mdns.abort();
             });
         })
         .expect("console subscriber could not spawn thread");
