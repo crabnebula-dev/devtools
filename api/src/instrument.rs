@@ -1,5 +1,5 @@
 use crate::common;
-use crate::trace;
+use crate::log;
 
 mod generated {
     #![allow(warnings)]

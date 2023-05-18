@@ -11,18 +11,19 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-tauri-build = { git = "https://github.com/tauri-apps/tauri", branch = "next", features = [] }
+tauri-build.workspace = true
 
 [dependencies]
-subscriber = { path = "../subscriber" }
+api = { path = "../api" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { git = "https://github.com/tauri-apps/tauri", branch = "next" }
+tauri.workspace = true
 mdns-sd.workspace = true
 tracing.workspace = true
-tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", rev = "d02432df065eaf9510d08f67bcff90cf618b6098", features = ["colored"] }
+tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "next", features = ["colored"] }
 env_logger = "0.10.0"
 log = "0.4.17"
+futures = "0.3.28"
 
 [features]
 # by default Tauri runs in production mode

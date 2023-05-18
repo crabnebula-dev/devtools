@@ -11,12 +11,6 @@
     "version": "0.1.0"
   },
   "tauri": {
-    "allowlist": {
-      "all": false,
-      "window": {
-        "startDragging": true
-      }
-    },
     "bundle": {
       "active": true,
       "category": "DeveloperTool",
@@ -53,9 +47,6 @@
     "security": {
       "csp": null
     },
-    "updater": {
-      "active": false
-    },
     "windows": [
       {
         "fullscreen": false,
@@ -63,7 +54,6 @@
         "resizable": true,
         "title": "",
         "width": 800,
-        "titleBarStyle": "Overlay",
         "hiddenTitle": true,
         "url": "/new-session"
       }

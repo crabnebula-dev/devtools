@@ -4,15 +4,14 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "build": "astro build"
   },
   "dependencies": {
     "@astrojs/tailwind": "^3.1.2",
-    "@tauri-apps/api": "https://gitpkg.now.sh/tauri-apps/tauri/tooling/api?next",
+    "@nanostores/query": "^0.1.1",
+    "@tauri-apps/api": "^2.0.0-alpha.3",
     "astro": "^2.3.4",
+    "nanostores": "^0.8.1",
     "svelte": "^3.58.0",
     "tailwindcss": "^3.3.2"
   },

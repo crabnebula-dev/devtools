@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package rs.tauri.devtools.common;
 
-import "google/protobuf/timestamp.proto";
-
 // A Rust source code location.
 message Location {
     // The file path
@@ -14,18 +12,6 @@ message Location {
     optional uint32 line = 3;
     // The character in `line`.
     optional uint32 column = 4;
-}
-
-// Unique identifier for spans.
-message SpanId {
-    // The unique identifier's concrete value.
-    uint64 id = 1;
-}
-
-// Unique identifier for metadata.
-message MetaId {
-    // The unique identifier's concrete value.
-    uint64 id = 1;
 }
 
 // A message representing a key-value pair of data associated with a `Span`
@@ -58,20 +44,10 @@ message Field {
     MetaId metadata_id = 8;
 }
 
-// Represents a period of time in which a program was executing in a particular context.
-//
-// Corresponds to `Span` in the `tracing` crate.
-message Span {
-    // An Id that uniquely identifies it in relation to other spans.
-    SpanId id = 1;
-    // Identifier for metadata describing static characteristics of all spans originating
-    // from that callsite, such as its name, source code location, verbosity level, and
-    // the names of its fields.
-    MetaId metadata_id = 2;
-    // User-defined key-value pairs of arbitrary data that describe the context the span represents,
-    repeated Field fields = 3;
-    // Timestamp for the span.
-    google.protobuf.Timestamp at = 4;
+// Unique identifier for metadata.
+message MetaId {
+    // The unique identifier's concrete value.
+    uint64 id = 1;
 }
 
 // Any new metadata that was registered since the last update.

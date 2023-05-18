@@ -4,16 +4,13 @@ package rs.tauri.devtools.instrument;
 
 import "google/protobuf/timestamp.proto";
 import "common.proto";
-import "trace.proto";
+import "log.proto";
 
+// Real time updates about components of an instrumented application 
 service Instrument {
     // Produces a stream of updates representing the behavior of the instrumented async runtime.
     rpc WatchUpdates(InstrumentRequest) returns (stream Update) {}
     rpc UpdateInterests(UpdateInterestsRequest) returns (UpdateInterestsResponse) {}
-    // // Registers that the console observer wants to pause the stream.
-    // rpc Pause(PauseRequest) returns (PauseResponse) {}
-    // // Registers that the console observer wants to resume the stream.
-    // rpc Resume(ResumeRequest) returns (ResumeResponse) {}
 }
 
 message InstrumentRequest {
@@ -27,9 +24,9 @@ message UpdateInterestsRequest {
 message Update {
     // The system time when this update was recorded.
     google.protobuf.Timestamp now = 1;
-    // Any new span events that were emitted since the last update.
-    trace.TraceUpdate trace_update = 2;
-    // Any new span metadata that was registered since the last update.
+    // Any new log events that were emitted since the last update.
+    log.LogUpdate log_update = 2;
+    // Any new metadata that was registered since the last update.
     common.RegisterMetadata new_metadata = 3;
 }
 

@@ -2,15 +2,21 @@ syntax = "proto3";
 
 package rs.tauri.devtools.application;
 
+// Application metadata and methods to control a running instrumented app
 service Application {
     rpc GetPackageInfo(GetPackageInfoRequest) returns (PackageInfo) {}
 }
 
 message GetPackageInfoRequest {}
 
+// Metadata about the instrumented app
 message PackageInfo {
+    // The applications name
     string name = 1;
+    // The applications version
     string version = 2;
+    // The applications authors
     string authors = 3;
+    // The applications description
     string description = 4;
 }

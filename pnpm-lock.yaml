@@ -4,12 +4,18 @@ dependencies:
   '@astrojs/tailwind':
     specifier: ^3.1.2
     version: 3.1.2(astro@2.3.4)(tailwindcss@3.3.2)
+  '@nanostores/query':
+    specifier: ^0.1.1
+    version: 0.1.1(nanostores@0.8.1)
   '@tauri-apps/api':
-    specifier: https://gitpkg.now.sh/tauri-apps/tauri/tooling/api?next
-    version: '@gitpkg.now.sh/tauri-apps/tauri/tooling/api?next'
+    specifier: ^2.0.0-alpha.3
+    version: 2.0.0-alpha.3
   astro:
     specifier: ^2.3.4
     version: 2.3.4(sass@1.62.1)
+  nanostores:
+    specifier: ^0.8.1
+    version: 0.8.1
   svelte:
     specifier: ^3.58.0
     version: 3.58.0
@@ -800,6 +806,16 @@ packages:
   /@ljharb/has-package-exports-patterns@0.0.2:
     resolution: {integrity: sha512-4/RWEeXDO6bocPONheFe6gX/oQdP/bEpv0oL4HqjPP5DCenBSt0mHgahppY49N0CpsaqffdwPq+TlX9CYOq2Dw==}
 
+  /@nanostores/query@0.1.1(nanostores@0.8.1):
+    resolution: {integrity: sha512-jGTrbV/uMph00ae10xtX5zvquUjfSl4pb8ZqS0SXU257MPhLtDDUDqP5gVxKI1BrGGz63Oo3Ar9m6obhVN+VfA==}
+    engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
+    peerDependencies:
+      nanostores: '>0.7'
+    dependencies:
+      nanoevents: 7.0.1
+      nanostores: 0.8.1
+    dev: false
+
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -854,6 +870,11 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@tauri-apps/api@2.0.0-alpha.3:
+    resolution: {integrity: sha512-F6seMDlcaxeCPy4gS0zJdp6Tet+0rd1qJi/fbKrOrhLM6Y5UtkiG1aSDnMPi+1udThSfadjhUwrLHINvfMCjzQ==}
+    engines: {node: '>= 14.6.0', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
+    dev: false
 
   /@tauri-apps/cli-darwin-arm64@2.0.0-alpha.8:
     resolution: {integrity: sha512-ZF9nkkYCDiAEKZFwjEbuqTcFVp+DBgem3edKjsZDYPQpWg0VcZOSYr0o3/RPC81T1/FAy1lq478mkcMe0efvEw==}
@@ -2731,10 +2752,20 @@ packages:
       thenify-all: 1.6.0
     dev: false
 
+  /nanoevents@7.0.1:
+    resolution: {integrity: sha512-o6lpKiCxLeijK4hgsqfR6CNToPyRU3keKyyI6uwuHRvpRTbZ0wXw51WRgyldVugZqoJfkGFrjrIenYH3bfEO3Q==}
+    engines: {node: ^14.0.0 || ^16.0.0 || >=18.0.0}
+    dev: false
+
   /nanoid@3.3.6:
     resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
+
+  /nanostores@0.8.1:
+    resolution: {integrity: sha512-1ZCfQtII2XeFDrtqXL2cdQ/diGrLxzRB3YMyQjn8m7GSGQrJfGST2iuqMpWnS/ZlifhtjgR/SX0Jy6Uij6lRLA==}
+    engines: {node: ^16.0.0 || >=18.0.0}
+    dev: false
 
   /napi-build-utils@1.0.2:
     resolution: {integrity: sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==}
@@ -3936,10 +3967,3 @@ packages:
 
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
-
-  '@gitpkg.now.sh/tauri-apps/tauri/tooling/api?next':
-    resolution: {tarball: https://gitpkg.now.sh/tauri-apps/tauri/tooling/api?next}
-    name: '@tauri-apps/api'
-    version: 2.0.0-alpha.3
-    engines: {node: '>= 14.6.0', npm: '>= 6.6.0', yarn: '>= 1.19.1'}
-    dev: false
