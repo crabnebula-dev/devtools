@@ -92,6 +92,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-log",
+ "tonic",
  "tracing",
 ]
 
@@ -3308,6 +3309,8 @@ dependencies = [
  "subscriber",
  "tauri",
  "tauri-build",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]

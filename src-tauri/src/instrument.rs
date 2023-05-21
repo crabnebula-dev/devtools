@@ -15,6 +15,7 @@ struct State<R: Runtime>(Mutex<StateInner<R>>);
 
 #[derive(Debug)]
 struct StateInner<R: Runtime> {
+    connected: bool,
     metas: HashMap<u64, Metadata>,
     last_updated_at: Option<SystemTime>,
 
@@ -87,6 +88,8 @@ async fn get_string_map<R: Runtime>(
 ) -> Result<HashMap<usize, String>, ()> {
     let state = state.0.lock().await;
 
+    println!("str2idx {:?}", state.strings.string2idx);
+
     let out = state
         .strings
         .string2idx
@@ -94,18 +97,35 @@ async fn get_string_map<R: Runtime>(
         .map(|(str, idx)| (*idx, str.to_string()))
         .collect();
 
+    println!("out {:?}", out);
+
+
     Ok(out)
 }
 
 #[tauri::command]
 async fn connect<R: Runtime>(
     app_handle: tauri::AppHandle<R>,
-    state: tauri::State<'_, State<R>>,
-    socket_addr: String,
+    _state: tauri::State<'_, State<R>>,
+    addrs: String,
+    port: u16,
 ) -> Result<(), ()> {
-    let mut state = state.0.lock().await;
+    let mut state = _state.0.lock().await;
 
-    let mut instrument_client = InstrumentClient::connect(socket_addr).await.unwrap();
+    if state.connected {
+        return Ok(());
+    }
+
+    let mut addrs = addrs.split(',');
+    let first_addr = addrs.next().unwrap().to_string();
+
+    let mut instrument_client = InstrumentClient::connect(format!("http://{first_addr}:{port}")).await.unwrap();
+
+    state.connected = true;
+
+    drop(state);
+
+    log::info!("instrument client connected");
 
     let mut stream = instrument_client
         .watch_updates(InstrumentRequest::new())
@@ -114,6 +134,7 @@ async fn connect<R: Runtime>(
         .into_inner();
 
     while let Some(instrument_update) = stream.next().await {
+        let mut state = _state.0.lock().await;
         state.update(instrument_update.unwrap());
 
         // render
@@ -138,6 +159,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
         .invoke_handler(tauri::generate_handler![connect, get_string_map])
         .setup(|app_handle, _| {
             app_handle.manage(State(Mutex::new(StateInner {
+                connected: false,
                 metas: HashMap::default(),
                 last_updated_at: None,
                 logs_state: LogsState::default(),
@@ -193,11 +215,12 @@ impl<R: Runtime> InternedStrings<R> {
         let idx = self.strings.len();
         self.strings.push(string.clone());
 
-        self.app_handle
-            .emit_all("intern-str", (idx, &*string))
-            .unwrap();
+        let _ = self.app_handle
+            .emit_all("intern-str", (idx, &*string));
 
         self.string2idx.insert(string, idx);
+
+        println!("{:?}", self.strings.len());
 
         idx
     }
