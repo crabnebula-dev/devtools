@@ -11,8 +11,15 @@ fn main() {
 
     subscriber::init(&context);
 
+    tracing::trace!("trace");
+    tracing::debug!("debug");
+    tracing::info!("info");
+    tracing::warn!("warn");
+    tracing::error!("error");
+    
     tauri::Builder::default()
         .setup(|_| {
+
             tauri::async_runtime::spawn(async {
                 loop {
                     tokio::time::sleep(Duration::from_millis(500)).await;
