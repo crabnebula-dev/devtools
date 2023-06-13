@@ -88,17 +88,12 @@ async fn get_string_map<R: Runtime>(
 ) -> Result<HashMap<usize, String>, ()> {
     let state = state.0.lock().await;
 
-    println!("str2idx {:?}", state.strings.string2idx);
-
     let out = state
         .strings
         .string2idx
         .iter()
         .map(|(str, idx)| (*idx, str.to_string()))
         .collect();
-
-    println!("out {:?}", out);
-
 
     Ok(out)
 }
@@ -119,7 +114,9 @@ async fn connect<R: Runtime>(
     let mut addrs = addrs.split(',');
     let first_addr = addrs.next().unwrap().to_string();
 
-    let mut instrument_client = InstrumentClient::connect(format!("http://{first_addr}:{port}")).await.unwrap();
+    let mut instrument_client = InstrumentClient::connect(format!("http://{first_addr}:{port}"))
+        .await
+        .unwrap();
 
     state.connected = true;
 
@@ -157,7 +154,7 @@ async fn connect<R: Runtime>(
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
     Builder::new("instrument")
         .invoke_handler(tauri::generate_handler![connect, get_string_map])
-        .setup(|app_handle, _| {
+        .setup(|app_handle| {
             app_handle.manage(State(Mutex::new(StateInner {
                 connected: false,
                 metas: HashMap::default(),
@@ -190,7 +187,7 @@ impl<R: Runtime> StateInner<R> {
         }
 
         if let Some(log_update) = update.log_update {
-            self.logs_state.new_events += log_update.new_events.len();
+            let old = self.logs_state.events.len();
 
             self.logs_state
                 .events
@@ -199,6 +196,8 @@ impl<R: Runtime> StateInner<R> {
 
                     LogRecord::from_proto(ev, meta, &mut self.strings)
                 }));
+            
+            self.logs_state.new_events = self.logs_state.events.len() - old;
 
             self.logs_state.dropped_events = log_update.dropped_events;
         }
@@ -215,12 +214,9 @@ impl<R: Runtime> InternedStrings<R> {
         let idx = self.strings.len();
         self.strings.push(string.clone());
 
-        let _ = self.app_handle
-            .emit_all("intern-str", (idx, &*string));
+        let _ = self.app_handle.emit_all("intern-str", (idx, &*string));
 
         self.string2idx.insert(string, idx);
-
-        println!("{:?}", self.strings.len());
 
         idx
     }

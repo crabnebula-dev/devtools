@@ -1,5 +1,5 @@
 use mdns_sd::{ServiceDaemon, ServiceEvent};
-use std::{collections::{HashMap, HashSet}, net::{IpAddr, Ipv4Addr}};
+use std::{collections::{HashMap, HashSet}, net::Ipv4Addr};
 use tauri::{
     async_runtime::Mutex,
     plugin::{Builder, TauriPlugin},
@@ -82,7 +82,7 @@ async fn start_browse<R: Runtime>(
             ServiceEvent::ServiceFound(service_type, fullname) => {
                 tracing::debug!("found service {} {}", service_type, fullname)
             }
-            other_event => {
+            _other_event => {
                 // tracin g::debug!("Received other event: {:?}", &other_event);
             }
         }
@@ -99,7 +99,7 @@ fn stop_browse(daemon: State<'_, ServiceDaemon>) {
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
     Builder::new("zeroconf")
         .invoke_handler(tauri::generate_handler![network_sessions, start_browse, stop_browse])
-        .setup(|app, _| {
+        .setup(|app| {
             app.manage(NetworkSessions(Default::default()));
 
             app.manage(ServiceDaemon::new().expect("Failed to create daemon"));
