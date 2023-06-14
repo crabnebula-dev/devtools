@@ -32,24 +32,21 @@ message IPCUpdate {
 
 // Data recorded when a new IPC Request is initiated
 message Request {
+    // The numeric ID ID of the request.
     common.Id id = 1;
-
-    string cmd = 2;
-
+    // The command name that was invoked    
+    string cmd = 4;
+    Kind kind = 5;
     // The numeric ID of the request's `Metadata`.
     //
     // This identifies the `Metadata` that describes the `tracing` span
     // corresponding to this request. The metadata for this ID will have been sent
     // in a prior `RegisterMetadata` message.
-    common.MetaId metadata = 3;
-
+    common.MetaId metadata = 6;
     // A list of `Field` objects attached to this request.
-    repeated common.Field fields = 4;
-
-    Kind kind = 5;
-
+    repeated common.Field fields = 7;
     // The location in code where the request handler is defined.
-    common.Location handler = 6;
+    common.Location handler = 8;
 
     enum Kind {
         SYNC = 0;
@@ -61,19 +58,46 @@ message Request {
 // IPC Request performance statistics.
 message Stats {
     // Timestamp of when the request was initiated.
-    google.protobuf.Timestamp initiated_at = 1;
+    google.protobuf.Timestamp initiated_at = 2;
     // Timestamp of when the request was completed.
-    google.protobuf.Timestamp completed_at = 2;
-    // The time it took to deserialize the request.
-    // This is `None` if the handler does not accept any arguments.
-    optional google.protobuf.Duration deserialize_time = 3;
-    // The time it took to serialize the response.
-    // This is `None` if the handler does not return any results.
-    optional google.protobuf.Duration serialize_time = 4;
-    // The time spent in the actual request handler. 
-    google.protobuf.Duration inner_time = 5;
+    google.protobuf.Timestamp completed_at = 3;
+
+    // Performance data for request deserialization.
+    Timestamps deserialize_request = 4;
+
+    // Performance data for response serialization.
+    Timestamps serialize_reponse = 5;
+
+    // Performance data for the actual request handler.
+    Timestamps inner = 6;
 
     // Contains task performance statistics if the request is being handled by the async runtime (i.e. the request handler is async)
     // `None` when the request handler is sync.
-    optional tasks.Stats task_stats = 6;
+    optional tasks.Stats task_stats = 7;
+}
+
+message Timestamps {
+    optional google.protobuf.Timestamp first_enter = 1;
+    optional google.protobuf.Timestamp last_enter_started = 2;
+    optional google.protobuf.Timestamp last_enter_ended = 3;
+    google.protobuf.Duration waiting_time = 4;
+    google.protobuf.Duration busy_time = 5;
+    DurationHistogram waiting_times_histogram = 6;
+    DurationHistogram busy_times_histogram = 7;
+}
+
+message DurationHistogram {
+
+    // HdrHistogram.rs `Histogram` serialized to binary in the V2 format
+    bytes raw_histogram = 1;
+
+    // The histogram's maximum value.
+    uint64 max_value = 2;
+
+    // The number of outliers which have exceeded the histogram's maximum value.
+    uint64 high_outliers = 3;
+
+    // The highest recorded outlier. This is only present if `high_outliers` is
+    // greater than zero.
+    optional uint64 highest_outlier = 4;
 }

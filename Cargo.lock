@@ -3046,7 +3046,7 @@ checksum = "fd1ba337640d60c3e96bc6f0638a939b9c9a7f2c316a1598c279828b3d1dc8c5"
 [[package]]
 name = "tauri"
 version = "1.2.4"
-source = "git+https://github.com/tauri-apps/tauri?branch=feat/tracing2#93452b791a03d6d6ab3831ec6dbba0418fe29bb2"
+source = "git+https://github.com/CrabNejonas/tauri?branch=feat/tracing2#f826af8a2bb4514d2a443c4af53ed6956db61e8f"
 dependencies = [
  "anyhow",
  "cocoa",
@@ -3080,6 +3080,8 @@ dependencies = [
  "tempfile",
  "thiserror",
  "tokio",
+ "tracing",
+ "tracing-core",
  "url",
  "uuid",
  "webkit2gtk",
@@ -3090,7 +3092,7 @@ dependencies = [
 [[package]]
 name = "tauri-build"
 version = "1.2.1"
-source = "git+https://github.com/tauri-apps/tauri?branch=feat/tracing2#93452b791a03d6d6ab3831ec6dbba0418fe29bb2"
+source = "git+https://github.com/CrabNejonas/tauri?branch=feat/tracing2#f826af8a2bb4514d2a443c4af53ed6956db61e8f"
 dependencies = [
  "anyhow",
  "cargo_toml",
@@ -3106,7 +3108,7 @@ dependencies = [
 [[package]]
 name = "tauri-codegen"
 version = "1.2.1"
-source = "git+https://github.com/tauri-apps/tauri?branch=feat/tracing2#93452b791a03d6d6ab3831ec6dbba0418fe29bb2"
+source = "git+https://github.com/CrabNejonas/tauri?branch=feat/tracing2#f826af8a2bb4514d2a443c4af53ed6956db61e8f"
 dependencies = [
  "base64 0.21.2",
  "brotli",
@@ -3130,7 +3132,7 @@ dependencies = [
 [[package]]
 name = "tauri-macros"
 version = "1.2.1"
-source = "git+https://github.com/tauri-apps/tauri?branch=feat/tracing2#93452b791a03d6d6ab3831ec6dbba0418fe29bb2"
+source = "git+https://github.com/CrabNejonas/tauri?branch=feat/tracing2#f826af8a2bb4514d2a443c4af53ed6956db61e8f"
 dependencies = [
  "heck 0.4.1",
  "proc-macro2",
@@ -3143,7 +3145,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime"
 version = "0.12.1"
-source = "git+https://github.com/tauri-apps/tauri?branch=feat/tracing2#93452b791a03d6d6ab3831ec6dbba0418fe29bb2"
+source = "git+https://github.com/CrabNejonas/tauri?branch=feat/tracing2#f826af8a2bb4514d2a443c4af53ed6956db61e8f"
 dependencies = [
  "gtk",
  "http",
@@ -3163,7 +3165,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime-wry"
 version = "0.12.2"
-source = "git+https://github.com/tauri-apps/tauri?branch=feat/tracing2#93452b791a03d6d6ab3831ec6dbba0418fe29bb2"
+source = "git+https://github.com/CrabNejonas/tauri?branch=feat/tracing2#f826af8a2bb4514d2a443c4af53ed6956db61e8f"
 dependencies = [
  "cocoa",
  "gtk",
@@ -3182,7 +3184,7 @@ dependencies = [
 [[package]]
 name = "tauri-utils"
 version = "1.2.1"
-source = "git+https://github.com/tauri-apps/tauri?branch=feat/tracing2#93452b791a03d6d6ab3831ec6dbba0418fe29bb2"
+source = "git+https://github.com/CrabNejonas/tauri?branch=feat/tracing2#f826af8a2bb4514d2a443c4af53ed6956db61e8f"
 dependencies = [
  "brotli",
  "ctor",

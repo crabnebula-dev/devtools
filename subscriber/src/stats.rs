@@ -10,23 +10,27 @@ use std::{
 
 use crate::{ToProto, Unsent};
 
+#[derive(Debug)]
 pub(crate) struct IPCRequestStats {
     is_dirty: AtomicBool,
 
     pub(crate) initiated_at: Instant,
     completed_at: Mutex<Option<Instant>>,
 
-    timestamps: Mutex<IPCRequestTimestamps>,
+    deserialize_request: Mutex<Timestamps>,
+    serialize_response: Mutex<Timestamps>,
+    inner: Mutex<Timestamps>,
 }
 
 #[derive(Debug)]
-struct IPCRequestTimestamps {
-    deserialize_start: Option<Instant>,
-    deserialize_end: Option<Instant>,
-    serialize_start: Option<Instant>,
-    serialize_end: Option<Instant>,
-    inner_start: Option<Instant>,
-    inner_end: Option<Instant>,
+struct Timestamps {
+    first_enter: Option<Instant>,
+    last_enter_started: Option<Instant>,
+    last_enter_ended: Option<Instant>,
+    busy_time: Duration,
+    waiting_time: Duration,
+    busy_histogram: Histogram,
+    waiting_histogram: Histogram,
 }
 
 #[derive(Debug)]
@@ -39,8 +43,8 @@ struct Histogram {
 
 impl IPCRequestStats {
     pub(crate) fn new(
-        poll_duration_max: u64,
-        scheduled_duration_max: u64,
+        busy_duration_max: u64,
+        waiting_duration_max: u64,
         initiated_at: Instant,
     ) -> Self {
         Self {
@@ -48,55 +52,52 @@ impl IPCRequestStats {
             initiated_at,
             completed_at: Mutex::new(None),
             // task_stats: TaskStats::new(poll_duration_max, scheduled_duration_max, initiated_at),
-            timestamps: Mutex::new(IPCRequestTimestamps {
-                deserialize_start: None,
-                deserialize_end: None,
-                serialize_start: None,
-                serialize_end: None,
-                inner_start: None,
-                inner_end: None,
-            }),
+            deserialize_request: Mutex::new(Timestamps::new(
+                busy_duration_max,
+                waiting_duration_max,
+            )),
+            serialize_response: Mutex::new(Timestamps::new(
+                busy_duration_max,
+                waiting_duration_max,
+            )),
+            inner: Mutex::new(Timestamps::new(
+                busy_duration_max,
+                waiting_duration_max,
+            )),
         }
     }
 
     pub(crate) fn start_deserialize(&self, at: Instant) {
-        dbg!("lock timestamps for deserialize_start");
-        self.timestamps.lock().deserialize_start = Some(at);
+        self.deserialize_request.lock().start_execution(at);
         self.make_dirty();
     }
 
     pub(crate) fn end_deserialize(&self, at: Instant) {
-        dbg!("lock timestamps for deserialize_end");
-        self.timestamps.lock().deserialize_end = Some(at);
+        self.deserialize_request.lock().stop_execution(at);
         self.make_dirty();
     }
 
     pub(crate) fn start_serialize(&self, at: Instant) {
-        dbg!("lock timestamps for serialize_start");
-        self.timestamps.lock().serialize_start = Some(at);
+        self.serialize_response.lock().start_execution(at);
         self.make_dirty();
     }
 
     pub(crate) fn end_serialize(&self, at: Instant) {
-        dbg!("lock timestamps for serialize_end");
-        self.timestamps.lock().serialize_end = Some(at);
+        self.serialize_response.lock().stop_execution(at);
         self.make_dirty();
     }
 
     pub(crate) fn start_inner(&self, at: Instant) {
-        dbg!("lock timestamps for inner_start");
-        self.timestamps.lock().inner_start = Some(at);
+        self.inner.lock().start_execution(at);
         self.make_dirty();
     }
 
     pub(crate) fn end_inner(&self, at: Instant) {
-        dbg!("lock timestamps for inner_end");
-        self.timestamps.lock().inner_end = Some(at);
+        self.inner.lock().stop_execution(at);
         self.make_dirty();
     }
 
     pub(crate) fn complete(&self, at: Instant) {
-        dbg!("lock completed_at");
         *self.completed_at.lock() = Some(at);
         self.make_dirty();
     }
@@ -104,6 +105,20 @@ impl IPCRequestStats {
     #[inline]
     fn make_dirty(&self) {
         self.is_dirty.swap(true, Ordering::AcqRel);
+    }
+}
+
+impl Timestamps {
+    pub fn new(busy_duration_max: u64, waiting_duration_max: u64) -> Self {
+        Self {
+            first_enter: None,
+            last_enter_started: None,
+            last_enter_ended: None,
+            busy_time: Duration::ZERO,
+            waiting_time: Duration::ZERO,
+            busy_histogram: Histogram::new(busy_duration_max),
+            waiting_histogram: Histogram::new(waiting_duration_max),
+        }
     }
 }
 
@@ -121,28 +136,79 @@ impl ToProto for IPCRequestStats {
     type Output = api::ipc::Stats;
 
     fn to_proto(&self, base_time: &crate::util::TimeAnchor) -> Self::Output {
-        dbg!("lock timestamps");
-        let ts = self.timestamps.lock();
-
-        println!("timestamps {:?}", ts);
-
-        dbg!("lock completed_at");
         api::ipc::Stats {
             initiated_at: Some(base_time.to_timestamp(self.initiated_at)),
-            completed_at: self.completed_at.lock().map(|t: Instant| base_time.to_timestamp(t)),
-            deserialize_time: match (ts.deserialize_start, ts.deserialize_end) {
-                (Some(start), Some(end)) => prost_types::Duration::try_from(end.duration_since(start)).ok(),
-                _ => None
-            },
-            serialize_time:  match (ts.serialize_start, ts.serialize_end) {
-                (Some(start), Some(end)) => prost_types::Duration::try_from(end.duration_since(start)).ok(),
-                _ => None
-            },
-            inner_time:  match (ts.inner_start, ts.inner_end) {
-                (Some(start), Some(end)) => prost_types::Duration::try_from(end.duration_since(start)).ok(),
-                _ => None
-            },
-            task_stats: None
+            completed_at: self
+                .completed_at
+                .lock()
+                .map(|t: Instant| base_time.to_timestamp(t)),
+            deserialize_request: Some(self.deserialize_request.lock().to_proto(base_time)),
+            serialize_reponse: Some(self.serialize_response.lock().to_proto(base_time)),
+            inner: Some(self.inner.lock().to_proto(base_time)),
+            task_stats: None,
+        }
+    }
+}
+
+impl Timestamps {
+    pub fn start_execution(&mut self, at: Instant) {
+        if self.first_enter.is_none() {
+            self.first_enter = Some(at)
+        }
+
+        self.last_enter_started = Some(at);
+
+        if let Some(last_enter_ended) = self.last_enter_ended {
+            let waiting = at.saturating_duration_since(last_enter_ended);
+
+            self.waiting_histogram.record_duration(waiting);
+
+            self.waiting_time += waiting;
+        }
+    }
+
+    pub fn stop_execution(&mut self, at: Instant) {
+        let started = match self.last_enter_started {
+            Some(last_poll) => last_poll,
+            None => {
+                eprintln!(
+                    "a poll ended, but start timestamp was recorded. \
+                     this is probably a `console-subscriber` bug"
+                );
+                return;
+            }
+        };
+
+        self.last_enter_ended = Some(at);
+        let busy = match at.checked_duration_since(started) {
+            Some(elapsed) => elapsed,
+            None => {
+                eprintln!(
+                    "possible Instant clock skew detected: a poll's end timestamp \
+                    was before its start timestamp\nstart = {:?}\n  end = {:?}",
+                    started, at
+                );
+                return;
+            }
+        };
+
+        self.busy_histogram.record_duration(busy);
+        self.busy_time += busy;
+    }
+}
+
+impl ToProto for Timestamps {
+    type Output = api::ipc::Timestamps;
+
+    fn to_proto(&self, base_time: &crate::util::TimeAnchor) -> Self::Output {
+        api::ipc::Timestamps {
+            first_enter: self.first_enter.map(|t| base_time.to_timestamp(t)),
+            last_enter_started: self.last_enter_started.map(|t| base_time.to_timestamp(t)),
+            last_enter_ended: self.last_enter_ended.map(|t| base_time.to_timestamp(t)),
+            waiting_time: self.waiting_time.try_into().ok(),
+            busy_time: self.busy_time.try_into().ok(),
+            waiting_times_histogram: Some(self.waiting_histogram.to_proto(base_time)),
+            busy_times_histogram: Some(self.busy_histogram.to_proto(base_time))
         }
     }
 }
@@ -278,20 +344,6 @@ impl Histogram {
         }
     }
 
-    fn to_proto(&self) -> api::tasks::DurationHistogram {
-        let mut serializer = V2Serializer::new();
-        let mut raw_histogram = Vec::new();
-        serializer
-            .serialize(&self.histogram, &mut raw_histogram)
-            .expect("histogram failed to serialize");
-        api::tasks::DurationHistogram {
-            raw_histogram,
-            max_value: self.max,
-            high_outliers: self.outliers,
-            highest_outlier: self.max_outlier,
-        }
-    }
-
     fn record_duration(&mut self, duration: Duration) {
         let mut duration_ns = duration.as_nanos() as u64;
 
@@ -305,5 +357,23 @@ impl Histogram {
         self.histogram
             .record(duration_ns)
             .expect("duration has already been clamped to histogram max value")
+    }
+}
+
+impl ToProto for Histogram {
+    type Output = api::ipc::DurationHistogram;
+
+    fn to_proto(&self, _: &crate::util::TimeAnchor) -> Self::Output {
+        let mut serializer = V2Serializer::new();
+        let mut raw_histogram = Vec::new();
+        serializer
+            .serialize(&self.histogram, &mut raw_histogram)
+            .expect("histogram failed to serialize");
+        api::ipc::DurationHistogram {
+            raw_histogram,
+            max_value: self.max,
+            high_outliers: self.outliers,
+            highest_outlier: self.max_outlier,
+        }
     }
 }
