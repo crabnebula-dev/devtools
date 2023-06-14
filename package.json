@@ -9,6 +9,7 @@
   "dependencies": {
     "@astrojs/tailwind": "^3.1.2",
     "@nanostores/query": "^0.1.1",
+    "@sveltejs/svelte-virtual-list": "^3.0.1",
     "@tauri-apps/api": "^2.0.0-alpha.3",
     "astro": "^2.3.4",
     "nanostores": "^0.8.1",

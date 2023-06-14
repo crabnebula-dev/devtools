@@ -91,8 +91,8 @@ pub fn try_init<A: tauri::Assets>(
         });
 
     tracing_subscriber::registry()
-        .with(layer)
-        .with(tracing_subscriber::fmt::layer().with_filter(fmt_filter))
+        .with(tracing_subscriber::fmt::layer().with_filter(fmt_filter.clone()))
+        .with(layer.with_filter(tracing_subscriber::filter::LevelFilter::DEBUG))
         .try_init()?;
 
     Ok(())

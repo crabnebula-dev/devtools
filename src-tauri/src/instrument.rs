@@ -43,7 +43,7 @@ pub struct Metadata {
     column: u32,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 struct Field {
     name: InternedStr,
     value: FieldValue,
@@ -70,6 +70,7 @@ struct LogRecord {
     at: SystemTime,
     message: FieldValue,
     metadata_id: u64,
+    fields: Vec<Field>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -191,12 +192,12 @@ impl<R: Runtime> StateInner<R> {
 
             self.logs_state
                 .events
-                .extend(log_update.new_events.iter().filter_map(|ev| {
+                .extend(log_update.new_events.into_iter().filter_map(|ev| {
                     let meta = self.metas.get(&ev.metadata_id.as_ref()?.id)?;
 
                     LogRecord::from_proto(ev, meta, &mut self.strings)
                 }));
-            
+
             self.logs_state.new_events = self.logs_state.events.len() - old;
 
             self.logs_state.dropped_events = log_update.dropped_events;
@@ -251,7 +252,7 @@ impl Metadata {
 
 impl LogRecord {
     pub fn from_proto<R: Runtime>(
-        proto: &api::log::Event,
+        proto: api::log::Event,
         meta: &Metadata,
         strings: &mut InternedStrings<R>,
     ) -> Option<Self> {
@@ -263,10 +264,27 @@ impl LogRecord {
             }
         })?;
 
+        let fields = proto
+            .fields
+            .into_iter()
+            .filter_map(|field| {
+                let name = match field.name? {
+                    api::field::Name::StrName(str) => strings.intern_str(&str),
+                    api::field::Name::NameIdx(idx) => meta.field_names[idx as usize],
+                };
+
+                Some(Field {
+                    name,
+                    value: FieldValue::from_proto(field.value.as_ref()?, strings),
+                })
+            })
+            .collect();
+
         Some(Self {
             at: proto.at.clone()?.try_into().ok()?,
             message,
             metadata_id: meta.id,
+            fields,
         })
     }
 }

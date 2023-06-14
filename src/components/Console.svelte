@@ -1,10 +1,16 @@
 <script lang="ts">
     import { invoke } from "@tauri-apps/api";
     import { listen } from "@tauri-apps/api/event";
+    import VirtualList from './VirtualList.svelte';
 
     interface Timestamp {
         secs_since_epoch: number;
         nanos_since_epoch: number;
+    }
+
+    interface Field {
+        name: number,
+        value: FieldValue
     }
 
     interface FieldValue {
@@ -19,6 +25,7 @@
         at: Timestamp;
         message: FieldValue;
         metadata_id: number;
+        fields: Field[]
     }
 
     interface Metadata {
@@ -34,7 +41,7 @@
 
     interface RenderRecords {
         at: Date;
-        message: string | null;
+        message: string | undefined;
         level: string;
         file: string;
         line: number;
@@ -69,7 +76,7 @@
         port: parseInt(search.get("port")!),
     });
 
-    function messageToString(value: FieldValue): string | null {
+    function liftFieldValue(value: FieldValue): string | number | boolean | null {
         if (value.Debug) {
             return strings.get(value.Debug);
         }
@@ -77,59 +84,83 @@
             return strings.get(value.Str);
         }
         if (value.U64) {
-            return value.U64.toString();
+            return value.U64
         }
         if (value.I64) {
-            return value.I64.toString();
+            return value.I64
         }
         if (value.Bool) {
-            return value.Bool.toString();
+            return value.Bool
         }
         return null;
     }
 
     listen<[LogRecord, Metadata]>("log_event", (ev) => {
         console.log(ev);
-
+        
         const payload = ev.payload;
 
         const at = new Date(payload[0].at.secs_since_epoch * 1000);
+
+        const fields: Record<string, FieldValue> = Object.fromEntries(payload[0].fields.map(field => [strings.get(field.name), liftFieldValue(field.value)]))
+
+        let file = strings.get(payload[1].file) || fields['log.file'] as unknown as string
+        let line = payload[1].line || fields['log.line'] as unknown as number
 
         records = [
             ...records,
             {
                 at,
-                message: messageToString(payload[0].message),
+                message: liftFieldValue(payload[0].message)?.toString(),
                 level: payload[1].level,
-                file: strings.get(payload[1].file),
-                line: payload[1].line,
+                file,
+                line
             },
         ];
+
+        // end = records.length
     });
+
+    let start = 0, end = 0
 </script>
 
 <output>
-    <ol>
-        {#each records as record}
-            {#if record.level == "Trace" || record.level == "Debug" || record.level == "Info"}
+    <VirtualList itemHeight={25} items={records} autoscroll let:item bind:start bind:end>
+        <!-- this will be rendered for each currently visible item -->
+        {#if item.level == "Trace" || item.level == "Debug" || item.level == "Info"}
                 <li class="border-b border-gray-200">
-                    <span class="">{record.message}</span
-                    >
-                    <span class="float-right">{record.file}:{record.line}</span>
+                    <span class="">{item.message}</span>
+                    <span class="float-right">{item.file}:{item.line}</span>
                 </li>
-            {:else if record.level == "Warn"}
+            {:else if item.level == "Warn"}
                 <li class="bg-yellow-200 border-b border-yellow-400">
-                    <span class="text-orange-800">{record.message}</span
+                    <span class="text-orange-800">{item.message}</span
                     >
-                    <span class="float-right">{record.file}:{record.line}</span>
+                    <span class="float-right">{item.file}:{item.line}</span>
                 </li>
             {:else}
                 <li class="bg-red-200 border-b border-red-400">
-                    <span class="text-red-600">{record.message}</span
+                    <span class="text-red-600">{item.message}</span
                     >
-                    <span class="float-right">{record.file}:{record.line}</span>
+                    <span class="float-right">{item.file}:{item.line}</span>
                 </li>
             {/if}
-        {/each}
-    </ol>
+      </VirtualList>
+      <p>showing {start}-{end} of {records.length} rows</p>
 </output>
+
+<style>
+    output {
+        overflow: none;
+        position: relative;
+        width: 100%;
+        height: 800px;
+    }
+
+    output ol {
+        overflow-y: auto;
+        position: absolute;
+        bottom: 0;
+        max-height: 800px;
+    }
+</style>
