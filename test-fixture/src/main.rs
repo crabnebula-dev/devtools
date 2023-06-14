@@ -4,31 +4,27 @@
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::time::Duration;
+#[tauri::command]
+fn test(foo: &str) -> &str { foo }
+
+#[tauri::command]
+async fn test2() {}
+
+#[tauri::command(async)]
+fn test3() {}
+
+#[tauri::command]
+fn test4() -> Result<(), String> {
+    Ok(())
+}
 
 fn main() {
     let context = tauri::generate_context!();
 
     subscriber::init(&context);
 
-    tracing::trace!("trace");
-    tracing::debug!("debug");
-    tracing::info!("info");
-    tracing::warn!("warn");
-    tracing::error!("error");
-    
     tauri::Builder::default()
-        .setup(|_| {
-
-            tauri::async_runtime::spawn(async {
-                loop {
-                    tokio::time::sleep(Duration::from_millis(500)).await;
-                    tracing::debug!("foobar");
-                }
-            });
-
-            Ok(())
-        })
+        .invoke_handler(tauri::generate_handler![test, test2, test3, test4])
         .run(context)
         .expect("error while running tauri application");
 }

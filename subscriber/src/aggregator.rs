@@ -1,3 +1,8 @@
+use crate::{
+    id_map::IdMap, stats, util::TimeAnchor, Command, Event, Include, Shared, ToProto, Unsent, Watch,
+};
+use api::instrument::Interests;
+use futures::FutureExt;
 use std::{
     mem,
     sync::{
@@ -6,12 +11,7 @@ use std::{
     },
     time::{Duration, Instant},
 };
-
-use api::instrument::Interests;
-use futures::FutureExt;
 use tokio::sync::{mpsc, Notify};
-
-use crate::{util::TimeAnchor, Command, Event, Include, Shared, Watch};
 
 pub struct Aggregator {
     events: mpsc::Receiver<Event>,
@@ -34,6 +34,9 @@ pub struct Aggregator {
 
     log_events: Vec<api::log::Event>,
 
+    ipc_requests: IdMap<IPCRequest>,
+    ipc_request_stats: IdMap<Arc<stats::IPCRequestStats>>,
+
     /// Used to anchor monotonic timestamps to a base `SystemTime`, to produce a
     /// timestamp that can be sent over the wire.
     base_time: TimeAnchor,
@@ -43,6 +46,16 @@ pub struct Aggregator {
 pub struct Flush {
     should_flush: Notify,
     triggered: AtomicBool,
+}
+
+struct IPCRequest {
+    id: tracing_core::span::Id,
+    is_dirty: AtomicBool,
+    metadata: &'static tracing_core::Metadata<'static>,
+    cmd: String,
+    kind: api::ipc::request::Kind,
+    fields: Vec<api::Field>,
+    handler: Option<api::Location>,
 }
 
 impl Aggregator {
@@ -63,6 +76,8 @@ impl Aggregator {
             all_metadata: Vec::new(),
             new_metadata: Vec::new(),
             log_events: Vec::new(),
+            ipc_requests: IdMap::new(),
+            ipc_request_stats: IdMap::new(),
         }
     }
 
@@ -125,6 +140,8 @@ impl Aggregator {
     fn add_instrument_watcher(&mut self, watcher: Watch<api::instrument::Update>) {
         tracing::debug!("new instrument watcher");
 
+        let now = Instant::now();
+
         let new_metadata =
             watcher
                 .interests
@@ -138,11 +155,12 @@ impl Aggregator {
             .contains(Interests::Trace)
             .then_some(self.log_update(Include::All));
 
-        let now = Instant::now();
+        let ipc_update = Some(self.ipc_update(Include::All));
 
         let update = &api::instrument::Update {
             new_metadata,
             log_update,
+            ipc_update,
             now: Some(self.base_time.to_timestamp(now)),
         };
 
@@ -159,16 +177,6 @@ impl Aggregator {
                 self.all_metadata.push(meta.into());
                 self.new_metadata.push(meta.into());
             }
-            Event::RequestSerialized => todo!(),
-            Event::RequestInitiated => todo!(),
-            Event::RequestSent => todo!(),
-            Event::RequestReceived => todo!(),
-            Event::RequestDeserialized => todo!(),
-            Event::ResponseSerialized => todo!(),
-            Event::ResponseSent => todo!(),
-            Event::ResponseReceived => todo!(),
-            Event::ResponseDeserialized => todo!(),
-            Event::RequestCompleted => todo!(),
             Event::LogEvent {
                 metadata,
                 fields,
@@ -178,10 +186,36 @@ impl Aggregator {
                 fields,
                 at: Some(self.base_time.to_timestamp(at)),
             }),
+            Event::IPCRequestInitiated {
+                id,
+                stats,
+                metadata,
+                fields,
+                handler,
+                cmd,
+                kind,
+            } => {
+                self.ipc_requests.insert(
+                    id.clone(),
+                    IPCRequest {
+                        id: id.clone(),
+                        is_dirty: AtomicBool::new(true),
+                        cmd,
+                        metadata,
+                        fields,
+                        kind,
+                        handler: Some(handler),
+                    },
+                );
+
+                self.ipc_request_stats.insert(id, stats);
+            }
         }
     }
 
     fn publish(&mut self) {
+        let now = Instant::now();
+
         let new_metadata = if !self.new_metadata.is_empty() {
             Some(api::RegisterMetadata {
                 metadata: mem::take(&mut self.new_metadata),
@@ -191,16 +225,17 @@ impl Aggregator {
         };
 
         let log_update = if !self.log_events.is_empty() {
-            Some(self.log_update(Include::Update))
+            Some(self.log_update(Include::UpdateOnly))
         } else {
             None
         };
 
-        let now = Instant::now();
+        let ipc_update = Some(self.ipc_update(Include::UpdateOnly));
 
         let update = &api::instrument::Update {
             now: Some(self.base_time.to_timestamp(now)),
             log_update,
+            ipc_update,
             new_metadata,
         };
 
@@ -211,11 +246,19 @@ impl Aggregator {
     fn log_update(&mut self, include: Include) -> api::log::LogUpdate {
         let new_events = match include {
             Include::All => self.log_events.clone(),
-            Include::Update => mem::take(&mut self.log_events),
+            Include::UpdateOnly => mem::take(&mut self.log_events),
         };
 
         api::log::LogUpdate {
             new_events,
+            dropped_events: self.shared.dropped_log_events.swap(0, Ordering::AcqRel) as u64,
+        }
+    }
+
+    fn ipc_update(&mut self, include: Include) -> api::ipc::IpcUpdate {
+        api::ipc::IpcUpdate {
+            new_requests: self.ipc_requests.to_proto_list(include, &self.base_time),
+            stats_update: self.ipc_request_stats.to_proto_map(include, &self.base_time),
             dropped_events: self.shared.dropped_log_events.swap(0, Ordering::AcqRel) as u64,
         }
     }
@@ -239,5 +282,30 @@ impl Flush {
         let _ = self
             .triggered
             .compare_exchange(true, false, Ordering::AcqRel, Ordering::Acquire);
+    }
+}
+
+impl Unsent for IPCRequest {
+    fn take_unsent(&self) -> bool {
+        self.is_dirty.swap(false, Ordering::AcqRel)
+    }
+
+    fn is_unsent(&self) -> bool {
+        self.is_dirty.load(Ordering::Acquire)
+    }
+}
+
+impl ToProto for IPCRequest {
+    type Output = api::ipc::Request;
+
+    fn to_proto(&self, _base_time: &TimeAnchor) -> Self::Output {
+        api::ipc::Request {
+            id: Some(self.id.clone().into()),
+            cmd: self.cmd.clone(),
+            metadata: Some(self.metadata.into()),
+            fields: self.fields.clone(),
+            kind: self.kind as i32,
+            handler: self.handler.clone()
+        }
     }
 }

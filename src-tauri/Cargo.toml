@@ -20,7 +20,7 @@ serde = { version = "1.0", features = ["derive"] }
 tauri.workspace = true
 mdns-sd.workspace = true
 tracing.workspace = true
-tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "next", features = ["colored"] }
+# tauri-plugin-log = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "next", features = ["colored"] }
 env_logger = "0.10.0"
 log = "0.4.17"
 futures = "0.3.28"

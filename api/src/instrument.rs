@@ -1,5 +1,6 @@
 use crate::common;
 use crate::log;
+use crate::ipc;
 
 mod generated {
     #![allow(warnings)]

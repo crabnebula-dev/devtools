@@ -5,6 +5,18 @@ mod generated {
 
 pub use generated::*;
 
+impl From<tracing_core::span::Id> for SpanId {
+    fn from(value: tracing_core::span::Id) -> Self {
+        SpanId { id: value.into_u64() }
+    }
+}
+
+impl From<tracing_core::span::Id> for Id {
+    fn from(value: tracing_core::span::Id) -> Self {
+        Id { id: value.into_u64() }
+    }
+}
+
 impl From<tracing_core::Level> for metadata::Level {
     fn from(level: tracing_core::Level) -> Self {
         match level {

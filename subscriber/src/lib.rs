@@ -4,6 +4,9 @@ mod layer;
 mod server;
 mod util;
 mod visitors;
+mod callsites;
+mod stats;
+mod id_map;
 
 use aggregator::{Aggregator, Flush};
 use api::instrument::Interests;
@@ -16,7 +19,7 @@ use std::{
 };
 use tokio::{runtime, sync::mpsc};
 use tracing_subscriber::{filter, prelude::*};
-use util::spawn_named;
+use util::{spawn_named, TimeAnchor};
 
 const FILTER_ENV_VAR: &str = "RUST_LOG";
 
@@ -103,6 +106,9 @@ struct Shared {
 
     /// A counter of how many trace events were dropped because the event buffer was at capacity
     dropped_log_events: AtomicUsize,
+
+    /// A counter of how many IPC events were dropped because the event buffer was at capacity
+    dropped_ipc_events: AtomicUsize,
 }
 
 enum Event {
@@ -112,25 +118,25 @@ enum Event {
         fields: Vec<api::Field>,
         at: Instant
     },
-    RequestSerialized,
-    RequestInitiated,
-    RequestSent,
-    RequestReceived,
-    RequestDeserialized,
-    ResponseSerialized,
-    ResponseSent,
-    ResponseReceived,
-    ResponseDeserialized,
-    RequestCompleted,
+    IPCRequestInitiated {
+        id: tracing_core::span::Id,
+        cmd: String,
+        kind: api::ipc::request::Kind,
+        stats: Arc<stats::IPCRequestStats>,
+        metadata: &'static tracing_core::Metadata<'static>,
+        fields: Vec<api::Field>,
+        handler: api::Location
+    }
 }
 
 enum Command {
     Instrument(Watch<api::instrument::Update>),
 }
 
+#[derive(Debug, Clone, Copy)]
 enum Include {
     All,
-    Update,
+    UpdateOnly,
 }
 
 #[derive(Debug)]
@@ -148,5 +154,38 @@ impl<T: Clone> Watch<T> {
         } else {
             false
         }
+    }
+}
+
+pub(crate) trait ToProto {
+    type Output;
+    fn to_proto(&self, base_time: &TimeAnchor) -> Self::Output;
+}
+
+pub trait FromProto {
+    type Input;
+    fn from_proto(proto: Self::Input) -> Self;
+}
+
+pub trait Unsent {
+    fn take_unsent(&self) -> bool;
+    fn is_unsent(&self) -> bool;
+}
+
+impl<T: ToProto> ToProto for Arc<T> {
+    type Output = T::Output;
+
+    fn to_proto(&self, base_time: &TimeAnchor) -> Self::Output {
+        self.as_ref().to_proto(base_time)
+    }
+}
+
+impl<T: Unsent> Unsent for Arc<T> {
+    fn take_unsent(&self) -> bool {
+        self.as_ref().take_unsent()
+    }
+
+    fn is_unsent(&self) -> bool {
+        self.as_ref().is_unsent()
     }
 }

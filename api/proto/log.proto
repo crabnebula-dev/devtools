@@ -11,7 +11,7 @@ message LogUpdate {
     //
     // If this is empty, no new events were emitted.
     repeated Event new_events = 1;
-    // A count of how many task events were not
+    // A count of how many log events were not
     // recorded because the application's event buffer was at capacity.
     //
     // If everything is working normally, this should be 0. If it is greater

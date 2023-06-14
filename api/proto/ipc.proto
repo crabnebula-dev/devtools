@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package rs.tauri.devtools.ipc;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "common.proto";
+import "tasks.proto";
+
+message IPCUpdate {
+    // A list of new ipc requests that happened since the last `IPCUpdate` was
+    // sent.
+    //
+    // If this is empty, no new events were emitted.
+    repeated Request new_requests = 1;
+
+    map<uint64, Stats> stats_update = 3;
+
+    // A count of how many ipc request events were not
+    // recorded because the application's event buffer was at capacity.
+    //
+    // If everything is working normally, this should be 0. If it is greater
+    // than 0, that may indicate that some data is missing from this update, and
+    // it may be necessary to increase the number of events buffered by the
+    // application to ensure that data loss is avoided.
+    //
+    // If the application's instrumentation ensures reliable delivery of events,
+    // this will always be 0.
+    uint64 dropped_events = 2;
+}
+
+
+// Data recorded when a new IPC Request is initiated
+message Request {
+    common.Id id = 1;
+
+    string cmd = 2;
+
+    // The numeric ID of the request's `Metadata`.
+    //
+    // This identifies the `Metadata` that describes the `tracing` span
+    // corresponding to this request. The metadata for this ID will have been sent
+    // in a prior `RegisterMetadata` message.
+    common.MetaId metadata = 3;
+
+    // A list of `Field` objects attached to this request.
+    repeated common.Field fields = 4;
+
+    Kind kind = 5;
+
+    // The location in code where the request handler is defined.
+    common.Location handler = 6;
+
+    enum Kind {
+        SYNC = 0;
+        SYNC_THREADPOOL = 1;
+        ASYNC = 2;
+    }
+}
+
+// IPC Request performance statistics.
+message Stats {
+    // Timestamp of when the request was initiated.
+    google.protobuf.Timestamp initiated_at = 1;
+    // Timestamp of when the request was completed.
+    google.protobuf.Timestamp completed_at = 2;
+    // The time it took to deserialize the request.
+    // This is `None` if the handler does not accept any arguments.
+    optional google.protobuf.Duration deserialize_time = 3;
+    // The time it took to serialize the response.
+    // This is `None` if the handler does not return any results.
+    optional google.protobuf.Duration serialize_time = 4;
+    // The time spent in the actual request handler. 
+    google.protobuf.Duration inner_time = 5;
+
+    // Contains task performance statistics if the request is being handled by the async runtime (i.e. the request handler is async)
+    // `None` when the request handler is sync.
+    optional tasks.Stats task_stats = 6;
+}

@@ -201,6 +201,8 @@ impl<R: Runtime> StateInner<R> {
 
             self.logs_state.dropped_events = log_update.dropped_events;
         }
+
+        println!("{:?}", update.ipc_update);
     }
 }
 

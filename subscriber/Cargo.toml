@@ -19,3 +19,5 @@ tracing-subscriber = { version = "0.3.11", default-features = false, features = 
 futures = "0.3.28"
 hostname = "0.3.1"
 if-addrs = "0.10.1"
+hdrhistogram = "7.5.2"
+parking_lot = "0.12.1"

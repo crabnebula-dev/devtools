@@ -13,3 +13,4 @@ tauri.workspace = true
 subscriber = { path = "../subscriber" }
 tracing.workspace = true
 tokio = { version = "^1.21", features = ["time"] }
+tracing-subscriber = "0.3.17"
