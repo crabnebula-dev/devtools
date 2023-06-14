@@ -47,13 +47,7 @@
         line: number;
     }
 
-    let records: RenderRecords[] = [
-//        {at: new Date(), message: 'trace', level: 'Trace', file: 'test', line: 0 },
-//        {at: new Date(), message: 'debug', level: 'Debug', file: 'test', line: 0 },
-//        {at: new Date(), message: 'info', level: 'Info', file: 'test', line: 0 },
-//        {at: new Date(), message: 'warn', level: 'Warn', file: 'test', line: 0 },
-//        {at: new Date(), message: 'error', level: 'Error', file: 'test', line: 0 }
-    ];
+    let records: RenderRecords[] = [];
 
     const strings = new Map();
     listen<[number, string]>("intern-str", (event) => {
@@ -117,8 +111,6 @@
                 line
             },
         ];
-
-        // end = records.length
     });
 
     let start = 0, end = 0

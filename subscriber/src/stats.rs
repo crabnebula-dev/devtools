@@ -1,3 +1,4 @@
+use crate::{ToProto, Unsent};
 use hdrhistogram::{
     self,
     serialization::{Serializer, V2Serializer},
@@ -7,8 +8,6 @@ use std::{
     sync::atomic::{AtomicBool, Ordering},
     time::{Duration, Instant},
 };
-
-use crate::{ToProto, Unsent};
 
 #[derive(Debug)]
 pub(crate) struct IPCRequestStats {
@@ -60,10 +59,7 @@ impl IPCRequestStats {
                 busy_duration_max,
                 waiting_duration_max,
             )),
-            inner: Mutex::new(Timestamps::new(
-                busy_duration_max,
-                waiting_duration_max,
-            )),
+            inner: Mutex::new(Timestamps::new(busy_duration_max, waiting_duration_max)),
         }
     }
 
@@ -208,7 +204,7 @@ impl ToProto for Timestamps {
             waiting_time: self.waiting_time.try_into().ok(),
             busy_time: self.busy_time.try_into().ok(),
             waiting_times_histogram: Some(self.waiting_histogram.to_proto(base_time)),
-            busy_times_histogram: Some(self.busy_histogram.to_proto(base_time))
+            busy_times_histogram: Some(self.busy_histogram.to_proto(base_time)),
         }
     }
 }
