@@ -25,7 +25,7 @@ This project consists of two parts: The instrumentation library and the visualiz
 
 The instrumentation library can be used like any regular Rust `log` or `tracing` frontend. Add it to your crate's dependencies:
 
-```
+```toml
 subscriber = { git = "https://github.com/crabnebula-dev/devtools" }
 ```
 
