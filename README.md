@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./src-tauri/icons/128x128@2x.png" width="120">
+  <img src="./icon.png" width="120">
 </p>
 <h3 align="center"><code>CN devtools</code></h3>
 <p align="center">
@@ -12,7 +12,7 @@
 
 </p>
 
-> **Note**: This project is under active development, features might have big, be only partially implemented or outright missing. 
+> **Note**: This project is under active development, features might have big, be only partially implemented or outright missing.
 > Almost everything about this project is work in progress even the name! If you're interested in improving the Tauri debug experience:
 >
 > Contributions are very welcome, get in touch!
