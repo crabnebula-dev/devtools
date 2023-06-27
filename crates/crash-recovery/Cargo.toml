@@ -1,0 +1,16 @@
+[package]
+name = "crash-recovery"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+crash-context = "0.6.1"
+crash-handler = "0.6.0"
+thiserror = "1.0.40"
+cfg-if = "1.0"
+
+[[examples]]
+name = "simple"
+crate-type = ["bin"]
