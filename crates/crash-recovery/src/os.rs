@@ -18,6 +18,7 @@ cfg_if::cfg_if! {
         use std::{mem, slice};
 
         // TODO @fabianlars give these proper types
+        // both must implement `io::Read + io::Write`
         pub type Stream = ();
         pub type Listener = ();
 
