@@ -498,6 +498,7 @@ dependencies = [
  "crash-context",
  "crash-handler",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]

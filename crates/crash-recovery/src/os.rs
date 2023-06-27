@@ -2,12 +2,13 @@ use std::path::Path;
 
 cfg_if::cfg_if! {
     if #[cfg(unix)] {
-        pub type Stream = std::os::unix::net::UnixStream;
-        pub type Listener = std::os::unix::net::UnixListener;
+        pub type Stream = tokio::net::UnixStream;
+        pub type Listener = tokio::net::UnixListener;
 
-        pub fn connect(path: &Path) -> crate::Result<Stream> {
-            let socket = Stream::connect(path)?;
-            socket.set_nonblocking(true)?;
+        pub async fn connect(path: &Path) -> crate::Result<Stream> {
+            // let socket = std::os::unix::net::UnixStream::connect(path)?;
+            // socket.set_nonblocking(true)?;
+            let socket = Stream::connect(path).await?;
             Ok(socket)
         }
 

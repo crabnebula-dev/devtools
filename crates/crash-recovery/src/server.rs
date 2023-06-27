@@ -1,10 +1,10 @@
 use std::{
     fs,
-    io::Read,
-    mem,
     path::{Path, PathBuf},
     time::Duration,
 };
+
+use tokio::io::AsyncReadExt;
 
 use crate::{Error, MessageHeader, MessageKind};
 
@@ -45,14 +45,13 @@ impl Server {
         })
     }
 
-    pub fn run(mut self) -> crate::Result<()> {
-        println!("server ready");
-        if let Ok((socket, addr)) = self.listener.accept() {
+    pub async fn run(mut self) -> crate::Result<()> {
+        if let Ok((socket, addr)) = self.listener.accept().await {
             let mut conn = ClientConnection { socket };
 
             println!("client connected {addr:?}");
 
-            while let Some((kind, body)) = conn.recv() {
+            while let Some((kind, body)) = conn.recv().await {
                 println!("got {kind:?} message");
 
                 #[allow(unreachable_patterns)]
@@ -133,9 +132,11 @@ impl Drop for Server {
 }
 
 impl ClientConnection {
-    pub fn recv(&mut self) -> Option<(MessageKind, Vec<u8>)> {
-        let mut hdr_buf = [0u8; mem::size_of::<MessageHeader>()];
-        let bytes_read = self.socket.read(&mut hdr_buf).ok()?;
+    pub async fn recv(&mut self) -> Option<(MessageKind, Vec<u8>)> {
+        let mut hdr_buf = [0u8; std::mem::size_of::<MessageHeader>()];
+        let bytes_read = self.socket.read(&mut hdr_buf).await.ok()?;
+
+        println!("read bytes {bytes_read}");
 
         if bytes_read == 0 {
             return None;
@@ -143,12 +144,14 @@ impl ClientConnection {
 
         let header = MessageHeader::from_bytes(&hdr_buf)?;
 
+        println!("read header {header:?}");
+
         if header.len == 0 {
             Some((header.kind, Vec::new()))
         } else {
             let mut buf = Vec::with_capacity(header.len);
 
-            let bytes_read = self.socket.read(&mut buf).ok()?;
+            let bytes_read = self.socket.read_buf(&mut buf).await.unwrap();
             assert_eq!(bytes_read, header.len);
 
             Some((header.kind, buf))

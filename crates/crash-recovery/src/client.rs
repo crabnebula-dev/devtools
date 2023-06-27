@@ -1,8 +1,4 @@
-use std::{
-    io::{IoSlice, Write},
-    path::Path,
-    time::Duration,
-};
+use std::{io::IoSlice, path::Path, time::Duration};
 
 use crate::{Error, MessageHeader, MessageKind};
 
@@ -13,8 +9,8 @@ pub struct Client {
 }
 
 impl Client {
-    pub fn connect(path: &Path) -> crate::Result<Self> {
-        let socket = crate::os::connect(path)?;
+    pub async fn connect(path: &Path) -> crate::Result<Self> {
+        let socket = crate::os::connect(path).await?;
 
         #[cfg(target_os = "macos")]
         let port = {
@@ -44,7 +40,7 @@ impl Client {
                 Some(Duration::from_secs(5)),
             )?;
 
-            &[]
+            &std::process::id().to_ne_bytes()
         };
         #[cfg(target_os = "windows")]
         let crash_ctx_buf = {
@@ -79,6 +75,7 @@ impl Client {
     }
 
     fn send_impl(&mut self, kind: MessageKind, buf: &[u8]) -> crate::Result<()> {
+        println!("sending message {kind:?} with buf {buf:?}");
         let header = MessageHeader {
             kind,
             len: buf.len(),
@@ -86,8 +83,11 @@ impl Client {
 
         let hdr_buf = header.as_bytes();
 
-        self.socket
-            .write_vectored(&[IoSlice::new(hdr_buf), IoSlice::new(buf)])?;
+        let res = self
+            .socket
+            .try_write_vectored(&[IoSlice::new(hdr_buf), IoSlice::new(buf)]);
+
+        println!("send res {res:?}");
 
         Ok(())
     }

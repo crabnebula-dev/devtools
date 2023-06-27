@@ -10,7 +10,6 @@ use std::{
     path::Path,
     process, slice,
     sync::{Arc, Mutex},
-    thread,
     time::Duration,
 };
 
@@ -20,43 +19,64 @@ const SOCKET_NAME: &str = "/tmp/minidumper-disk-example";
 pub use error::Error;
 type Result<T> = std::result::Result<T, Error>;
 
-pub fn init() -> crash_handler::CrashHandler {
-    try_init().unwrap()
+pub fn init<T>(inner: impl FnOnce(crash_handler::CrashHandler) -> T) -> T {
+    try_init(inner).unwrap()
 }
 
 /// This function initializes the crash observer process and attaches a crash handler
-pub fn try_init() -> Result<crash_handler::CrashHandler> {
+pub fn try_init<T>(inner: impl FnOnce(crash_handler::CrashHandler) -> T) -> Result<T> {
     if env::vars().any(|(k, v)| k == OBSERVER_ENV_VAR && v == "true") {
+        let runtime = tokio::runtime::Builder::new_multi_thread()
+            .enable_io()
+            .build()?;
+        let _enter = runtime.enter();
+
         let server = Server::bind(Path::new(SOCKET_NAME))?;
 
-        server.run()?;
+        runtime.block_on(async move {
+            server.run().await.unwrap();
+        });
 
         process::exit(0);
     } else {
         let exe = std::env::current_exe()?;
 
-        process::Command::new(exe)
+        println!("spawning observer process...");
+        let mut observer = process::Command::new(exe)
             .env(OBSERVER_ENV_VAR, "true")
             .spawn()?;
 
-        let client = loop {
-            if let Ok(client) = Client::connect(Path::new(SOCKET_NAME)) {
-                break client;
-            }
+        let runtime = tokio::runtime::Handle::current();
 
-            thread::sleep(Duration::from_millis(50));
-        };
+        let client = runtime.block_on(async move {
+            loop {
+                println!("connecting to server...");
+                if let Ok(client) = Client::connect(Path::new(SOCKET_NAME)).await {
+                    println!("connected to server");
+                    break client;
+                }
+                println!("failed to connect, going to sleep");
+
+                tokio::time::sleep(Duration::from_millis(50)).await
+            }
+        });
+
         let client = Arc::new(Mutex::new(client));
 
         #[allow(unsafe_code)]
         let handler = crash_handler::CrashHandler::attach(unsafe {
             crash_handler::make_crash_event(move |ctx| {
+                println!("got crash");
                 let mut client = client.lock().unwrap();
                 crash_handler::CrashEventResult::Handled(client.send_crash_context(ctx).is_ok())
             })
         })?;
 
-        Ok(handler)
+        let res = inner(handler);
+
+        observer.wait()?;
+
+        Ok(res)
     }
 }
 

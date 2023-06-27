@@ -10,6 +10,7 @@ crash-context = "0.6.1"
 crash-handler = "0.6.0"
 thiserror = "1.0.40"
 cfg-if = "1.0"
+tokio = { version = "1.28.2", features = ["time", "rt", "rt-multi-thread", "net", "io-util"] }
 
 [[examples]]
 name = "simple"
