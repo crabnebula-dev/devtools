@@ -1,8 +1,0 @@
-{
-  "extends": "astro/tsconfigs/strictest",
-  "compilerOptions": {
-    "jsx": "preserve",
-    "jsxImportSource": "solid-js"
-  },
-  "exclude": ["test-fixture", "src-tauri", "target"]
-}

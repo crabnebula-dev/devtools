@@ -1,40 +1,40 @@
 use tracing_core::field::Visit;
 
 pub struct FieldVisitor {
-    fields: Vec<api::Field>,
-    meta_id: api::MetaId,
+    fields: Vec<wire::Field>,
+    meta_id: wire::MetaId,
 }
 
 pub struct IPCVisitor {
     field_visitor: FieldVisitor,
     cmd: Option<String>,
-    kind: Option<api::ipc::request::Kind>,
+    kind: Option<wire::ipc::request::Kind>,
     line: Option<u32>,
     column: Option<u32>,
 }
 
 pub struct IPCVisitorResult {
-    pub fields: Vec<api::Field>,
+    pub fields: Vec<wire::Field>,
     pub cmd: String,
-    pub kind: api::ipc::request::Kind,
+    pub kind: wire::ipc::request::Kind,
     pub line: Option<u32>,
     pub column: Option<u32>,
 }
 
 impl FieldVisitor {
-    pub(crate) fn new(meta_id: api::MetaId) -> Self {
+    pub(crate) fn new(meta_id: wire::MetaId) -> Self {
         FieldVisitor {
             fields: Vec::default(),
             meta_id,
         }
     }
-    pub(crate) fn result(self) -> Vec<api::Field> {
+    pub(crate) fn result(self) -> Vec<wire::Field> {
         self.fields
     }
 }
 
 impl IPCVisitor {
-    pub(crate) fn new(meta_id: api::MetaId) -> Self {
+    pub(crate) fn new(meta_id: wire::MetaId) -> Self {
         IPCVisitor {
             field_visitor: FieldVisitor::new(meta_id),
             cmd: None,
@@ -62,7 +62,7 @@ impl IPCVisitor {
 
 impl Visit for FieldVisitor {
     fn record_debug(&mut self, field: &tracing_core::Field, value: &dyn std::fmt::Debug) {
-        self.fields.push(api::Field {
+        self.fields.push(wire::Field {
             metadata_id: Some(self.meta_id.clone()),
             name: Some(field.name().into()),
             value: Some(value.into()),
@@ -88,9 +88,9 @@ impl Visit for IPCVisitor {
             "cmd" => self.cmd = Some(value.to_string()),
             "kind" => {
                 let kind = match value {
-                    "sync" => api::ipc::request::Kind::Sync,
-                    "sync_threadpool" => api::ipc::request::Kind::SyncThreadpool,
-                    "async" => api::ipc::request::Kind::Async,
+                    "sync" => wire::ipc::request::Kind::Sync,
+                    "sync_threadpool" => wire::ipc::request::Kind::SyncThreadpool,
+                    "async" => wire::ipc::request::Kind::Async,
                     _ => panic!(),
                 };
                 self.kind = Some(kind);

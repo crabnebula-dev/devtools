@@ -14,7 +14,7 @@ edition = "2021"
 tauri-build.workspace = true
 
 [dependencies]
-api = { path = "../api" }
+wire = { path = "../wire" }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri.workspace = true

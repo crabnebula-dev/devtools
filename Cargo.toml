@@ -1,5 +1,5 @@
 [workspace]
-members = ["api", "subscriber", "src-tauri", "test-fixture"]
+members = ["crates/*", "examples/*"]
 resolver = "2"
 
 [workspace.dependencies]

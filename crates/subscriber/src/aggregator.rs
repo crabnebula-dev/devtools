@@ -1,7 +1,7 @@
 use crate::{
     id_map::IdMap, stats, util::TimeAnchor, Command, Event, Include, Shared, ToProto, Unsent, Watch,
 };
-use api::instrument::Interests;
+use wire::instrument::Interests;
 use futures::FutureExt;
 use std::{
     mem,
@@ -20,19 +20,19 @@ pub struct Aggregator {
 
     /// Which sources should be tracked
     /// enabled: Sources,
-    watchers: Vec<Watch<api::instrument::Update>>,
+    watchers: Vec<Watch<wire::instrument::Update>>,
 
     /// *All* metadata for task spans and user-defined spans that we care about.
     ///
     /// This is sent to new clients as part of the initial state.
-    all_metadata: Vec<api::register_metadata::NewMetadata>,
+    all_metadata: Vec<wire::register_metadata::NewMetadata>,
 
     /// *New* metadata that was registered since the last state update.
     ///
     /// This is emptied on every state update.
-    new_metadata: Vec<api::register_metadata::NewMetadata>,
+    new_metadata: Vec<wire::register_metadata::NewMetadata>,
 
-    log_events: Vec<api::log::Event>,
+    log_events: Vec<wire::log::Event>,
 
     ipc_requests: IdMap<IPCRequest>,
     ipc_request_stats: IdMap<Arc<stats::IPCRequestStats>>,
@@ -53,9 +53,9 @@ struct IPCRequest {
     is_dirty: AtomicBool,
     metadata: &'static tracing_core::Metadata<'static>,
     cmd: String,
-    kind: api::ipc::request::Kind,
-    fields: Vec<api::Field>,
-    handler: Option<api::Location>,
+    kind: wire::ipc::request::Kind,
+    fields: Vec<wire::Field>,
+    handler: Option<wire::Location>,
 }
 
 impl Aggregator {
@@ -137,7 +137,7 @@ impl Aggregator {
         }
     }
 
-    fn add_instrument_watcher(&mut self, watcher: Watch<api::instrument::Update>) {
+    fn add_instrument_watcher(&mut self, watcher: Watch<wire::instrument::Update>) {
         tracing::debug!("new instrument watcher");
 
         let now = Instant::now();
@@ -146,7 +146,7 @@ impl Aggregator {
             watcher
                 .interests
                 .contains(Interests::Metadata)
-                .then_some(api::RegisterMetadata {
+                .then_some(wire::RegisterMetadata {
                     metadata: self.all_metadata.clone(),
                 });
 
@@ -157,7 +157,7 @@ impl Aggregator {
 
         let ipc_update = Some(self.ipc_update(Include::All));
 
-        let update = &api::instrument::Update {
+        let update = &wire::instrument::Update {
             new_metadata,
             log_update,
             ipc_update,
@@ -181,7 +181,7 @@ impl Aggregator {
                 metadata,
                 fields,
                 at,
-            } => self.log_events.push(api::log::Event {
+            } => self.log_events.push(wire::log::Event {
                 metadata_id: Some(metadata.into()),
                 fields,
                 at: Some(self.base_time.to_timestamp(at)),
@@ -217,7 +217,7 @@ impl Aggregator {
         let now = Instant::now();
 
         let new_metadata = if !self.new_metadata.is_empty() {
-            Some(api::RegisterMetadata {
+            Some(wire::RegisterMetadata {
                 metadata: mem::take(&mut self.new_metadata),
             })
         } else {
@@ -232,7 +232,7 @@ impl Aggregator {
 
         let ipc_update = Some(self.ipc_update(Include::UpdateOnly));
 
-        let update = &api::instrument::Update {
+        let update = &wire::instrument::Update {
             now: Some(self.base_time.to_timestamp(now)),
             log_update,
             ipc_update,
@@ -243,20 +243,20 @@ impl Aggregator {
         self.watchers.shrink_to_fit();
     }
 
-    fn log_update(&mut self, include: Include) -> api::log::LogUpdate {
+    fn log_update(&mut self, include: Include) -> wire::log::LogUpdate {
         let new_events = match include {
             Include::All => self.log_events.clone(),
             Include::UpdateOnly => mem::take(&mut self.log_events),
         };
 
-        api::log::LogUpdate {
+        wire::log::LogUpdate {
             new_events,
             dropped_events: self.shared.dropped_log_events.swap(0, Ordering::AcqRel) as u64,
         }
     }
 
-    fn ipc_update(&mut self, include: Include) -> api::ipc::IpcUpdate {
-        api::ipc::IpcUpdate {
+    fn ipc_update(&mut self, include: Include) -> wire::ipc::IpcUpdate {
+        wire::ipc::IpcUpdate {
             new_requests: self.ipc_requests.to_proto_list(include, &self.base_time),
             stats_update: self.ipc_request_stats.to_proto_map(include, &self.base_time),
             dropped_events: self.shared.dropped_log_events.swap(0, Ordering::AcqRel) as u64,
@@ -296,10 +296,10 @@ impl Unsent for IPCRequest {
 }
 
 impl ToProto for IPCRequest {
-    type Output = api::ipc::Request;
+    type Output = wire::ipc::Request;
 
     fn to_proto(&self, _base_time: &TimeAnchor) -> Self::Output {
-        api::ipc::Request {
+        wire::ipc::Request {
             id: Some(self.id.clone().into()),
             cmd: self.cmd.clone(),
             metadata: Some(self.metadata.into()),

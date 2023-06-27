@@ -129,10 +129,10 @@ impl Unsent for IPCRequestStats {
 }
 
 impl ToProto for IPCRequestStats {
-    type Output = api::ipc::Stats;
+    type Output = wire::ipc::Stats;
 
     fn to_proto(&self, base_time: &crate::util::TimeAnchor) -> Self::Output {
-        api::ipc::Stats {
+        wire::ipc::Stats {
             initiated_at: Some(base_time.to_timestamp(self.initiated_at)),
             completed_at: self
                 .completed_at
@@ -194,10 +194,10 @@ impl Timestamps {
 }
 
 impl ToProto for Timestamps {
-    type Output = api::ipc::Timestamps;
+    type Output = wire::ipc::Timestamps;
 
     fn to_proto(&self, base_time: &crate::util::TimeAnchor) -> Self::Output {
-        api::ipc::Timestamps {
+        wire::ipc::Timestamps {
             first_enter: self.first_enter.map(|t| base_time.to_timestamp(t)),
             last_enter_started: self.last_enter_started.map(|t| base_time.to_timestamp(t)),
             last_enter_ended: self.last_enter_ended.map(|t| base_time.to_timestamp(t)),
@@ -357,7 +357,7 @@ impl Histogram {
 }
 
 impl ToProto for Histogram {
-    type Output = api::ipc::DurationHistogram;
+    type Output = wire::ipc::DurationHistogram;
 
     fn to_proto(&self, _: &crate::util::TimeAnchor) -> Self::Output {
         let mut serializer = V2Serializer::new();
@@ -365,7 +365,7 @@ impl ToProto for Histogram {
         serializer
             .serialize(&self.histogram, &mut raw_histogram)
             .expect("histogram failed to serialize");
-        api::ipc::DurationHistogram {
+        wire::ipc::DurationHistogram {
             raw_histogram,
             max_value: self.max,
             high_outliers: self.outliers,

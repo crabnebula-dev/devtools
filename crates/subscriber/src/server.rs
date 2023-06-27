@@ -1,6 +1,6 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
-use api::instrument::Interests;
+use wire::instrument::Interests;
 use tokio::sync::mpsc;
 
 use crate::{Command, Watch};
@@ -41,11 +41,11 @@ impl Server {
 
     pub async fn serve(self) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
         tonic::transport::Server::builder()
-            .add_service(api::instrument::instrument_server::InstrumentServer::new(
+            .add_service(wire::instrument::instrument_server::InstrumentServer::new(
                 self.instrument,
             ))
             .add_service(
-                api::application::application_server::ApplicationServer::new(self.application),
+                wire::application::application_server::ApplicationServer::new(self.application),
             )
             .serve(self.addr)
             .await?;
@@ -55,13 +55,13 @@ impl Server {
 }
 
 #[tonic::async_trait]
-impl api::instrument::instrument_server::Instrument for InstrumentServer {
+impl wire::instrument::instrument_server::Instrument for InstrumentServer {
     type WatchUpdatesStream =
-        tokio_stream::wrappers::ReceiverStream<Result<api::instrument::Update, tonic::Status>>;
+        tokio_stream::wrappers::ReceiverStream<Result<wire::instrument::Update, tonic::Status>>;
 
     async fn watch_updates(
         &self,
-        req: tonic::Request<api::instrument::InstrumentRequest>,
+        req: tonic::Request<wire::instrument::InstrumentRequest>,
     ) -> Result<tonic::Response<Self::WatchUpdatesStream>, tonic::Status> {
         match req.remote_addr() {
             Some(addr) => tracing::debug!(client.addr = %addr, "starting a new watch"),
@@ -89,19 +89,19 @@ impl api::instrument::instrument_server::Instrument for InstrumentServer {
 
     async fn update_interests(
         &self,
-        _req: tonic::Request<api::instrument::UpdateInterestsRequest>,
-    ) -> Result<tonic::Response<api::instrument::UpdateInterestsResponse>, tonic::Status> {
+        _req: tonic::Request<wire::instrument::UpdateInterestsRequest>,
+    ) -> Result<tonic::Response<wire::instrument::UpdateInterestsResponse>, tonic::Status> {
         todo!()
     }
 }
 
 #[tonic::async_trait]
-impl api::application::application_server::Application for ApplicationServer {
+impl wire::application::application_server::Application for ApplicationServer {
     async fn get_package_info(
         &self,
-        _req: tonic::Request<api::application::GetPackageInfoRequest>,
-    ) -> Result<tonic::Response<api::application::PackageInfo>, tonic::Status> {
-        let info = api::application::PackageInfo {
+        _req: tonic::Request<wire::application::GetPackageInfoRequest>,
+    ) -> Result<tonic::Response<wire::application::PackageInfo>, tonic::Status> {
+        let info = wire::application::PackageInfo {
             name: self.package_info.name.clone(),
             version: self.package_info.version.to_string(),
             authors: self.package_info.authors.to_string(),

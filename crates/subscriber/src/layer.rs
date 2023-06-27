@@ -189,7 +189,7 @@ where
                         stats: stats.clone(),
                         metadata: meta,
                         fields: result.fields,
-                        handler: api::Location {
+                        handler: wire::Location {
                             file: meta.file().map(ToString::to_string),
                             module_path: meta.module_path().map(ToString::to_string),
                             line: result.line.or(meta.line()),

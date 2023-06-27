@@ -10,7 +10,7 @@ tauri-build.workspace = true
 
 [dependencies]
 tauri.workspace = true
-subscriber = { path = "../subscriber" }
+subscriber = { path = "../../crates/subscriber" }
 tracing.workspace = true
 tokio = { version = "^1.21", features = ["full"] }
 tracing-subscriber = "0.3.17"

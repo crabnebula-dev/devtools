@@ -9,7 +9,7 @@ mod stats;
 mod id_map;
 
 use aggregator::{Aggregator, Flush};
-use api::instrument::Interests;
+use wire::instrument::Interests;
 use zeroconf::Zeroconf;
 use layer::Layer;
 use server::Server;
@@ -115,22 +115,22 @@ enum Event {
     Metadata(&'static tracing_core::Metadata<'static>),
     LogEvent {
         metadata: &'static tracing_core::Metadata<'static>,
-        fields: Vec<api::Field>,
+        fields: Vec<wire::Field>,
         at: Instant
     },
     IPCRequestInitiated {
         id: tracing_core::span::Id,
         cmd: String,
-        kind: api::ipc::request::Kind,
+        kind: wire::ipc::request::Kind,
         stats: Arc<stats::IPCRequestStats>,
         metadata: &'static tracing_core::Metadata<'static>,
-        fields: Vec<api::Field>,
-        handler: api::Location
+        fields: Vec<wire::Field>,
+        handler: wire::Location
     }
 }
 
 enum Command {
-    Instrument(Watch<api::instrument::Update>),
+    Instrument(Watch<wire::instrument::Update>),
 }
 
 #[derive(Debug, Clone, Copy)]

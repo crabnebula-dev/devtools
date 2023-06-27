@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc, time::SystemTime};
 
-use api::instrument::{instrument_client::InstrumentClient, InstrumentRequest};
+use wire::instrument::{instrument_client::InstrumentClient, InstrumentRequest};
 use futures::StreamExt;
 use serde::Serialize;
 use tauri::{
@@ -174,7 +174,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
 }
 
 impl<R: Runtime> StateInner<R> {
-    pub fn update(&mut self, update: api::instrument::Update) {
+    pub fn update(&mut self, update: wire::instrument::Update) {
         if let Some(now) = update.now.map(|v| v.try_into().unwrap()) {
             self.last_updated_at = Some(now);
         }
@@ -227,7 +227,7 @@ impl<R: Runtime> InternedStrings<R> {
 
 impl Metadata {
     fn from_proto<R: Runtime>(
-        proto: api::register_metadata::NewMetadata,
+        proto: wire::register_metadata::NewMetadata,
         strings: &mut InternedStrings<R>,
     ) -> Option<Self> {
         let meta = proto.metadata?;
@@ -252,7 +252,7 @@ impl Metadata {
 
 impl LogRecord {
     pub fn from_proto<R: Runtime>(
-        proto: api::log::Event,
+        proto: wire::log::Event,
         meta: &Metadata,
         strings: &mut InternedStrings<R>,
     ) -> Option<Self> {
@@ -269,8 +269,8 @@ impl LogRecord {
             .into_iter()
             .filter_map(|field| {
                 let name = match field.name? {
-                    api::field::Name::StrName(str) => strings.intern_str(&str),
-                    api::field::Name::NameIdx(idx) => meta.field_names[idx as usize],
+                    wire::field::Name::StrName(str) => strings.intern_str(&str),
+                    wire::field::Name::NameIdx(idx) => meta.field_names[idx as usize],
                 };
 
                 Some(Field {
@@ -291,15 +291,15 @@ impl LogRecord {
 
 impl FieldValue {
     pub fn from_proto<R: Runtime>(
-        proto: &api::field::Value,
+        proto: &wire::field::Value,
         strings: &mut InternedStrings<R>,
     ) -> Self {
         match proto {
-            api::field::Value::DebugVal(str) => Self::Debug(strings.intern_str(str)),
-            api::field::Value::StrVal(str) => Self::Str(strings.intern_str(str)),
-            api::field::Value::U64Val(v) => Self::U64(*v),
-            api::field::Value::I64Val(v) => Self::I64(*v),
-            api::field::Value::BoolVal(v) => Self::Bool(*v),
+            wire::field::Value::DebugVal(str) => Self::Debug(strings.intern_str(str)),
+            wire::field::Value::StrVal(str) => Self::Str(strings.intern_str(str)),
+            wire::field::Value::U64Val(v) => Self::U64(*v),
+            wire::field::Value::I64Val(v) => Self::I64(*v),
+            wire::field::Value::BoolVal(v) => Self::Bool(*v),
         }
     }
 }
