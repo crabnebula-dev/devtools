@@ -21,19 +21,23 @@ pub use error::Error;
 type Result<T> = std::result::Result<T, Error>;
 
 pub fn init() -> crash_handler::CrashHandler {
-    if env::vars().any(|(k, v)| k == OBSERVER_ENV_VAR && v == "true") {
-        let server = Server::bind(Path::new(SOCKET_NAME)).unwrap();
+    try_init().unwrap()
+}
 
-        server.run().unwrap();
+/// This function initializes the crash observer process and attaches a crash handler
+pub fn try_init() -> Result<crash_handler::CrashHandler> {
+    if env::vars().any(|(k, v)| k == OBSERVER_ENV_VAR && v == "true") {
+        let server = Server::bind(Path::new(SOCKET_NAME))?;
+
+        server.run()?;
 
         process::exit(0);
     } else {
-        let exe = std::env::current_exe().expect("unable to find ourselves");
+        let exe = std::env::current_exe()?;
 
         process::Command::new(exe)
             .env(OBSERVER_ENV_VAR, "true")
-            .spawn()
-            .expect("unable to spawn server process");
+            .spawn()?;
 
         let client = loop {
             if let Ok(client) = Client::connect(Path::new(SOCKET_NAME)) {
@@ -50,10 +54,9 @@ pub fn init() -> crash_handler::CrashHandler {
                 let mut client = client.lock().unwrap();
                 crash_handler::CrashEventResult::Handled(client.send_crash_context(ctx).is_ok())
             })
-        })
-        .expect("failed to attach signal handler");
+        })?;
 
-        handler
+        Ok(handler)
     }
 }
 
