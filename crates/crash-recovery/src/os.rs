@@ -18,9 +18,8 @@ cfg_if::cfg_if! {
         use std::{mem, slice};
 
         // TODO @fabianlars give these proper types
-        // both must implement `io::Read + io::Write`
-        pub type Stream = ();
-        pub type Listener = ();
+        pub type Stream = (); // must implement `io::Read + io::Write`
+        pub type Listener = (); // must implement an `accept()` method that returns Result<(Stream, Address)> like the unix counterpart
 
         pub fn connect(path: &Path) -> crate::Result<Stream> {
             // TODO @fabianlars init & connect the client-side socket
