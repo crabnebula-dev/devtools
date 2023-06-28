@@ -10,8 +10,16 @@ crash-context = "0.6.1"
 crash-handler = "0.6.0"
 thiserror = "1.0.40"
 cfg-if = "1.0"
-tokio = { version = "1.28.2", features = ["time", "rt", "rt-multi-thread", "net", "io-util"] }
+tokio = { version = "1.28.2", features = ["rt", "net", "io-util"] }
+interprocess = { version = "1.2.1", features = ["tokio_support"] }
+
+[dev-dependencies]
+sadness-generator = "0.5.0"
 
 [[examples]]
 name = "simple"
+crate-type = ["bin"]
+
+[[examples]]
+name = "other"
 crate-type = ["bin"]

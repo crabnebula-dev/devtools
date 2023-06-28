@@ -25,7 +25,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
     let proto_files = match proto_files {
         Ok(files) => files,
-        Err(error) => panic!("failed to list proto files: {}", error),
+        Err(error) => panic!("failed to list proto files: {error}"),
     };
 
     tonic_build::configure()
@@ -33,7 +33,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build_server(true)
         .protoc_arg("--experimental_allow_proto3_optional")
         .enum_attribute("rs.tauri.devtools.common.Field.name", "#[derive(Hash, Eq)]")
-        // .type_attribute()
         .compile(&proto_files, &[proto_dir])?;
 
     Ok(())

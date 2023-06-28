@@ -1,5 +1,7 @@
 mod generated {
+    #![allow(clippy::all)]
     #![allow(warnings)]
+
     tonic::include_proto!("rs.tauri.devtools.common");
 }
 
@@ -7,13 +9,17 @@ pub use generated::*;
 
 impl From<tracing_core::span::Id> for SpanId {
     fn from(value: tracing_core::span::Id) -> Self {
-        SpanId { id: value.into_u64() }
+        SpanId {
+            id: value.into_u64(),
+        }
     }
 }
 
 impl From<tracing_core::span::Id> for Id {
     fn from(value: tracing_core::span::Id) -> Self {
-        Id { id: value.into_u64() }
+        Id {
+            id: value.into_u64(),
+        }
     }
 }
 

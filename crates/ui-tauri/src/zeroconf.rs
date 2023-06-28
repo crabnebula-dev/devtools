@@ -1,5 +1,8 @@
 use mdns_sd::{ServiceDaemon, ServiceEvent};
-use std::{collections::{HashMap, HashSet}, net::Ipv4Addr};
+use std::{
+    collections::{HashMap, HashSet},
+    net::Ipv4Addr,
+};
 use tauri::{
     async_runtime::Mutex,
     plugin::{Builder, TauriPlugin},
@@ -21,7 +24,7 @@ struct SessionInfo {
     name: String,
     version: String,
     authors: String,
-    description: String
+    description: String,
 }
 
 /// Retrieve all network sessions we have discovered so far
@@ -61,7 +64,10 @@ async fn start_browse<R: Runtime>(
                     name: name.to_string(),
                     version: info.get_property_val_str("VERSION").unwrap().to_string(),
                     authors: info.get_property_val_str("AUTHORS").unwrap().to_string(),
-                    description: info.get_property_val_str("DESCRIPTION").unwrap().to_string(),
+                    description: info
+                        .get_property_val_str("DESCRIPTION")
+                        .unwrap()
+                        .to_string(),
                 };
                 network_sessions.insert(info.get_fullname().to_string(), session_info.clone());
 
@@ -98,7 +104,11 @@ fn stop_browse(daemon: State<'_, ServiceDaemon>) {
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
     Builder::new("zeroconf")
-        .invoke_handler(tauri::generate_handler![network_sessions, start_browse, stop_browse])
+        .invoke_handler(tauri::generate_handler![
+            network_sessions,
+            start_browse,
+            stop_browse
+        ])
         .setup(|app| {
             app.manage(NetworkSessions(Default::default()));
 

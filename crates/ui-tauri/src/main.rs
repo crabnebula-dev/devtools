@@ -3,8 +3,8 @@
     windows_subsystem = "windows"
 )]
 
-mod zeroconf;
 mod instrument;
+mod zeroconf;
 
 // use log::LevelFilter;
 // use tauri_plugin_log::{LogTarget, fern::colors::ColoredLevelConfig, Builder as LoggerBuilder};
