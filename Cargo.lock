@@ -1832,6 +1832,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
+name = "legacy-wire"
+version = "0.1.0"
+dependencies = [
+ "bitflags 2.3.3",
+ "prost",
+ "prost-types",
+ "tonic",
+ "tonic-build",
+ "tracing-core",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.147"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3836,6 +3848,12 @@ checksum = "497961ef93d974e23eb6f433eb5fe1b7930b659f06d12dec6fc44a8f554c0bba"
 [[package]]
 name = "ui"
 version = "0.1.0"
+dependencies = [
+ "futures",
+ "tokio",
+ "tonic",
+ "wire",
+]
 
 [[package]]
 name = "unicode-bidi"

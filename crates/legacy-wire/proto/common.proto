@@ -5,6 +5,18 @@ package rs.tauri.devtools.common;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
+// Unique identifier.
+message Id {
+    // The unique identifier's concrete value.
+    uint64 id = 1;
+}
+
+// Unique identifier for spans.
+message SpanId {
+    // The unique identifier's concrete value.
+    uint64 id = 1;
+}
+
 // Unique identifier for metadata.
 message MetaId {
     // The unique identifier's concrete value.
@@ -27,7 +39,7 @@ message Location {
 message Field {
     // The key of the key-value pair.
     //
-    // This is either represented as a string, or as an index into a `Metadata`'s
+    // This is either represented as a string, or as an index into a `Metadata`'s 
     // array of field name strings.
     oneof name {
         // The string representation of the name.
@@ -117,4 +129,43 @@ message Metadata {
         // Designates very low priority, often extremely verbose, information.
         TRACE = 4;
     }
+}
+
+// Contains stats about objects that can be polled. Currently these can be:
+// - tasks that have been spawned
+// - async operations on resources that are performed within the context of a task
+message PollStats {
+    // The total number of times this object has been polled.
+    uint64 polls = 1;
+    // The timestamp of the first time this object was polled.
+    //
+    // If this is `None`, the object has not yet been polled.
+    //
+    // Subtracting this timestamp from `created_at` can be used to calculate the
+    // time to first poll for this object, a measurement of executor latency.
+    optional google.protobuf.Timestamp first_poll = 3;
+    // The timestamp of the most recent time this objects's poll method was invoked.
+    //
+    // If this is `None`, the object has not yet been polled.
+    //
+    // If the object has only been polled a single time, then this value may be
+    // equal to the `first_poll` timestamp.
+    //
+    optional google.protobuf.Timestamp last_poll_started = 4;
+    // The timestamp of the most recent time this objects's poll method finished execution.
+    //
+    // If this is `None`, the object has not yet been polled or is currently being polled.
+    //
+    // If the object does not exist anymore, then this is the time the final invocation of
+    // its poll method has completed.
+    optional google.protobuf.Timestamp last_poll_ended = 5;
+    // The total duration this object was being *actively polled*, summed across
+    // all polls.
+    //
+    // Note that this includes only polls that have completed, and does not
+    // reflect any in-progress polls. Subtracting `busy_time` from the
+    // total lifetime of the polled object results in the amount of time it
+    // has spent *waiting* to be polled (including the `scheduled_time` value
+    // from `TaskStats`, if this is a task).
+    google.protobuf.Duration busy_time = 6;
 }

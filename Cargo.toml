@@ -9,3 +9,10 @@ tauri = { git = "https://github.com/CrabNejonas/tauri", branch = "feat/tracing2"
 tauri-build = { git = "https://github.com/CrabNejonas/tauri", branch = "feat/tracing2" }
 # tauri = "2.0.0-alpha.8"
 # tauri-build = "2.0.0-alpha.4"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

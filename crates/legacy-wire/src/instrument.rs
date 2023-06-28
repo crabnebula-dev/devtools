@@ -36,7 +36,7 @@ impl UpdateInterestsRequest {
 bitflags::bitflags! {
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     pub struct Interests: u32 {
-        const Metadata = 0b0001;
-        // const Trace = 0b0001;
+        const Trace = 0b0001;
+        const Metadata = 0b0010;
     }
 }
