@@ -16,7 +16,7 @@ pub struct Server {
 }
 
 struct ClientConnection {
-    socket: crate::os::Stream,
+    socket: crate::os::AsyncStream,
 }
 
 impl Server {
@@ -46,10 +46,10 @@ impl Server {
     }
 
     pub async fn run(mut self) -> crate::Result<()> {
-        if let Ok((socket, addr)) = self.listener.accept().await {
+        if let Ok(socket) = self.listener.accept().await {
             let mut conn = ClientConnection { socket };
 
-            println!("client connected {addr:?}");
+            println!("client connected");
 
             while let Some((kind, body)) = conn.recv().await {
                 println!("got {kind:?} message");
@@ -69,6 +69,9 @@ impl Server {
                         }
 
                         return Ok(());
+                    }
+                    MessageKind::Bytes => {
+                        println!("got message {body:?}");
                     }
                     _ => {}
                 }

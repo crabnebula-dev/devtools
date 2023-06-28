@@ -6,10 +6,10 @@ mod server;
 use client::Client;
 use server::Server;
 use std::{
-    env, mem,
+    env,
+    mem::{self},
     path::Path,
-    process, slice,
-    sync::{Arc, Mutex},
+    process, slice, thread,
     time::Duration,
 };
 
@@ -19,12 +19,13 @@ const SOCKET_NAME: &str = "/tmp/minidumper-disk-example";
 pub use error::Error;
 type Result<T> = std::result::Result<T, Error>;
 
-pub fn init<T>(inner: impl FnOnce(crash_handler::CrashHandler) -> T) -> T {
-    try_init(inner).unwrap()
+static mut CRASH_HANDLER: Option<crash_handler::CrashHandler> = None;
+
+pub fn init() {
+    try_init().unwrap()
 }
 
-/// This function initializes the crash observer process and attaches a crash handler
-pub fn try_init<T>(inner: impl FnOnce(crash_handler::CrashHandler) -> T) -> Result<T> {
+pub fn try_init() -> Result<()> {
     if env::vars().any(|(k, v)| k == OBSERVER_ENV_VAR && v == "true") {
         let runtime = tokio::runtime::Builder::new_multi_thread()
             .enable_io()
@@ -39,44 +40,38 @@ pub fn try_init<T>(inner: impl FnOnce(crash_handler::CrashHandler) -> T) -> Resu
 
         process::exit(0);
     } else {
-        let exe = std::env::current_exe()?;
+        let exe = std::env::current_exe().unwrap();
 
         println!("spawning observer process...");
-        let mut observer = process::Command::new(exe)
+        process::Command::new(exe)
             .env(OBSERVER_ENV_VAR, "true")
-            .spawn()?;
+            .spawn()
+            .unwrap();
 
-        let runtime = tokio::runtime::Handle::current();
-
-        let client = runtime.block_on(async move {
-            loop {
-                println!("connecting to server...");
-                if let Ok(client) = Client::connect(Path::new(SOCKET_NAME)).await {
-                    println!("connected to server");
-                    break client;
-                }
-                println!("failed to connect, going to sleep");
-
-                tokio::time::sleep(Duration::from_millis(50)).await
+        let client = loop {
+            println!("connecting to server...");
+            if let Ok(client) = Client::connect(Path::new(SOCKET_NAME)) {
+                println!("connected to server");
+                break client;
             }
-        });
+            println!("failed to connect, going to sleep");
 
-        let client = Arc::new(Mutex::new(client));
+            thread::sleep(Duration::from_millis(50));
+        };
 
-        #[allow(unsafe_code)]
         let handler = crash_handler::CrashHandler::attach(unsafe {
             crash_handler::make_crash_event(move |ctx| {
                 println!("got crash");
-                let mut client = client.lock().unwrap();
                 crash_handler::CrashEventResult::Handled(client.send_crash_context(ctx).is_ok())
             })
-        })?;
+        })
+        .unwrap();
 
-        let res = inner(handler);
+        unsafe {
+            CRASH_HANDLER.replace(handler);
+        }
 
-        observer.wait()?;
-
-        Ok(res)
+        Ok(())
     }
 }
 
@@ -91,6 +86,7 @@ struct MessageHeader {
 #[repr(u8)]
 enum MessageKind {
     Crash,
+    Bytes,
     #[cfg(not(target_os = "macos"))]
     CrashAck,
 }

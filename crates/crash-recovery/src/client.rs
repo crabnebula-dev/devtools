@@ -9,8 +9,8 @@ pub struct Client {
 }
 
 impl Client {
-    pub async fn connect(path: &Path) -> crate::Result<Self> {
-        let socket = crate::os::connect(path).await?;
+    pub fn connect(path: &Path) -> crate::Result<Self> {
+        let socket = crate::os::connect(path)?;
 
         #[cfg(target_os = "macos")]
         let port = {
@@ -29,7 +29,7 @@ impl Client {
         })
     }
 
-    pub fn send_crash_context(&mut self, ctx: &crash_context::CrashContext) -> crate::Result<()> {
+    pub fn send_crash_context(&self, ctx: &crash_context::CrashContext) -> crate::Result<()> {
         #[cfg(any(target_os = "linux", target_os = "android"))]
         let crash_ctx_buf = ctx.as_bytes();
         #[cfg(target_os = "macos")]
@@ -74,7 +74,11 @@ impl Client {
         Ok(())
     }
 
-    fn send_impl(&mut self, kind: MessageKind, buf: &[u8]) -> crate::Result<()> {
+    pub fn send(&self, buf: &[u8]) -> crate::Result<()> {
+        self.send_impl(MessageKind::Bytes, buf)
+    }
+
+    fn send_impl(&self, kind: MessageKind, buf: &[u8]) -> crate::Result<()> {
         println!("sending message {kind:?} with buf {buf:?}");
         let header = MessageHeader {
             kind,
@@ -83,11 +87,8 @@ impl Client {
 
         let hdr_buf = header.as_bytes();
 
-        let res = self
-            .socket
-            .try_write_vectored(&[IoSlice::new(hdr_buf), IoSlice::new(buf)]);
-
-        println!("send res {res:?}");
+        self.socket
+            .send_vectored(&[IoSlice::new(hdr_buf), IoSlice::new(buf)])?;
 
         Ok(())
     }
