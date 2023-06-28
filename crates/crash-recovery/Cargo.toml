@@ -11,6 +11,9 @@ crash-handler = "0.6.0"
 thiserror = "1.0.40"
 cfg-if = "1.0"
 
+[dev-dependencies]
+sadness-generator = "0.5.0"
+
 [[examples]]
 name = "simple"
 crate-type = ["bin"]

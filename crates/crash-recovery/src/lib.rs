@@ -22,11 +22,24 @@ static mut CRASH_HANDLER: Option<crash_handler::CrashHandler> = None;
 pub use error::Error;
 type Result<T> = std::result::Result<T, Error>;
 
+/// TODO
+///  
+/// # Panics
+/// 
+/// TODO
 pub fn init() {
     try_init().unwrap();
 }
 
-/// This function initializes the crash observer process and attaches a crash handler
+/// TODO
+/// 
+/// # Errors
+/// 
+/// TODO
+/// 
+/// # Panics
+/// 
+/// TODO
 pub fn try_init() -> Result<()> {
     if env::vars().any(|(k, v)| k == OBSERVER_ENV_VAR && v == "true") {
         let server = Server::bind(Path::new(SOCKET_NAME))?;
@@ -88,14 +101,16 @@ impl MessageHeader {
         }
     }
 
-    fn from_bytes(buf: &[u8]) -> Option<Self> {
+    fn from_bytes(buf: &[u8]) -> Option<&Self> {
         if buf.len() != mem::size_of::<Self>() {
             return None;
         }
 
         #[allow(unsafe_code)]
         unsafe {
-            Some(*buf.as_ptr().cast::<Self>())
+            let (_head, body, _tail) = buf.align_to::<Self>();
+
+            Some(&body[0])
         }
     }
 }
