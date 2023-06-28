@@ -12,7 +12,7 @@ Below are a few core paradigms that have influenced the design decisions taken s
 
 ### Interactivity
 
-Contrary to other debugging and profiling tools that record events to a file and then perform processing on it everything in this project is design to run in **realtime** and be **interactive** to allow for user control. I believe this is the only paradigm applicable to the highly interactive and playful nature of web development used for Tauri apps. 
+Contrary to other debugging and profiling tools that record events to a file and then perform processing on it everything in this project is design to run in **realtime** and be **interactive** to allow for user control. I believe this is the only paradigm applicable to the highly interactive and playful nature of web development used for Tauri apps.
 
 ### Processing happens at the *Subscriber*
 
@@ -28,31 +28,34 @@ All data transfers are initiated by the *Client* and should include the possibil
 
 ```mermaid
 flowchart LR
+    subgraph InstrumentedApp[Instrumented App]
     A[App Code]
+
     subgraph Subscriber
     L[tracing_subscriber Layer]
     Ag[Aggregator]
     S[Server]
     end
+    end
+
     subgraph Devtools
     C[Client]
     P[State]
     U[UI]
     end
 
+    H[Crash Handler]
 
     A -->|tracing Event| L
     L -->|Event| Ag
     S -->|Command| Ag
     Ag
     Ag -->|"
-        TraceEvent
-        ResourceUpdate
-        tokio::ResourceUpdate
-        tokio::TaskUpdate
-        tokio::AsyncOpUpdate
+        Update
     "| S
     S <-->|gRPC| C
+    H <-->|gRPC| C
+    H <-->|IPC| InstrumentedApp
 
     C -->|mutation| P
     P -->|render| U
@@ -61,6 +64,6 @@ flowchart LR
 
 ## Subscriber
 
-The subscriber hooks into the `tracing` ecosystem to collect the events and spans reported by 3rd party crates. 
+The subscriber hooks into the `tracing` ecosystem to collect the events and spans reported by 3rd party crates.
 These events and spans will be processed and potentially aggregated (note that regular span events are still emitted in realtime currently) over time.
 The subscriber exposes a gRPC server that clients can use to request access to this data stream.
