@@ -45,11 +45,11 @@ impl Server {
         })
     }
 
-    pub fn run(mut self) -> crate::Result<()> {
-        if let Ok((socket, _)) = self.listener.accept() {
+    pub async fn run(mut self) -> crate::Result<()> {
+        if let Ok(socket) = self.listener.accept().await {
             let mut conn = ClientConnection { socket };
 
-            while let Some((kind, body)) = conn.recv() {
+            while let Some((kind, body)) = conn.recv().await {
                 if kind == MessageKind::Crash {
                     self.handle_crash_message(&body)?;
 
@@ -161,7 +161,7 @@ impl ClientConnection {
         } else {
             let mut buf = vec![0; header.len];
 
-            self.socket.read_exact(&mut buf).ok()?;
+            self.socket.read_exact(&mut buf).await.ok()?;
 
             Some((header.kind, buf))
         }

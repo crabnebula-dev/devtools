@@ -33,7 +33,7 @@ impl Client {
         })
     }
 
-    pub fn send_crash_context(&self, ctx: &crash_context::CrashContext) -> crate::Result<()> {
+    pub fn send_crash_context(&mut self, ctx: &crash_context::CrashContext) -> crate::Result<()> {
         #[cfg(any(target_os = "linux", target_os = "android"))]
         let crash_ctx_buf = ctx.as_bytes();
         #[cfg(target_os = "macos")]
@@ -78,11 +78,11 @@ impl Client {
         Ok(())
     }
 
-    pub fn send(&self, buf: &[u8]) -> crate::Result<()> {
+    pub fn send(&mut self, buf: &[u8]) -> crate::Result<()> {
         self.send_impl(MessageKind::Bytes, buf)
     }
 
-    fn send_impl(&self, kind: MessageKind, buf: &[u8]) -> crate::Result<()> {
+    fn send_impl(&mut self, kind: MessageKind, buf: &[u8]) -> crate::Result<()> {
         println!("sending message {kind:?} with buf {buf:?}");
         let header = MessageHeader {
             kind,

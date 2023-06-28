@@ -10,7 +10,7 @@ use std::{
     mem::{self},
     path::Path,
     process, slice, thread,
-    time::Duration,
+    time::Duration, sync::{Arc, Mutex},
 };
 
 const OBSERVER_ENV_VAR: &str = "RUN_AS_OBSERVER";
@@ -20,8 +20,6 @@ static mut CRASH_HANDLER: Option<crash_handler::CrashHandler> = None;
 
 pub use error::Error;
 type Result<T> = std::result::Result<T, Error>;
-
-static mut CRASH_HANDLER: Option<crash_handler::CrashHandler> = None;
 
 /// TODO
 ///  
@@ -75,9 +73,12 @@ pub fn try_init() -> Result<()> {
             thread::sleep(Duration::from_millis(50));
         };
 
+        let client = Arc::new(Mutex::new(client));
+
         let handler = crash_handler::CrashHandler::attach(unsafe {
             crash_handler::make_crash_event(move |ctx| {
                 println!("got crash");
+                let mut client = client.lock().unwrap();
                 crash_handler::CrashEventResult::Handled(client.send_crash_context(ctx).is_ok())
             })
         })
