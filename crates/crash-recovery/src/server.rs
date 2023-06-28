@@ -1,12 +1,10 @@
+use crate::{Error, MessageHeader, MessageKind};
 use std::{
     fs,
     path::{Path, PathBuf},
     time::Duration,
 };
-
 use tokio::io::AsyncReadExt;
-
-use crate::{Error, MessageHeader, MessageKind};
 
 pub struct Server {
     listener: crate::os::Listener,

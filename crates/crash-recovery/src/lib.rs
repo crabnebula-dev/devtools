@@ -5,15 +5,7 @@ mod server;
 
 use client::Client;
 use server::Server;
-use std::{
-    env,
-    mem::{self},
-    path::Path,
-    process, slice,
-    sync::{Arc, Mutex},
-    thread,
-    time::Duration,
-};
+use std::{env, mem, path::Path, process, slice, thread, time::Duration};
 
 const OBSERVER_ENV_VAR: &str = "RUN_AS_OBSERVER";
 const SOCKET_NAME: &str = "/tmp/minidumper-disk-example";
@@ -43,7 +35,7 @@ pub fn init() {
 /// TODO
 pub fn try_init() -> Result<()> {
     if env::vars().any(|(k, v)| k == OBSERVER_ENV_VAR && v == "true") {
-        let runtime = tokio::runtime::Builder::new_multi_thread()
+        let runtime = tokio::runtime::Builder::new_current_thread()
             .enable_io()
             .build()?;
         let _enter = runtime.enter();
@@ -75,12 +67,9 @@ pub fn try_init() -> Result<()> {
             thread::sleep(Duration::from_millis(50));
         };
 
-        let client = Arc::new(Mutex::new(client));
-
         let handler = crash_handler::CrashHandler::attach(unsafe {
             crash_handler::make_crash_event(move |ctx| {
                 println!("got crash");
-                let mut client = client.lock().unwrap();
                 crash_handler::CrashEventResult::Handled(client.send_crash_context(ctx).is_ok())
             })
         })
@@ -105,7 +94,6 @@ struct MessageHeader {
 #[repr(u8)]
 enum MessageKind {
     Crash,
-    Bytes,
     #[cfg(not(target_os = "macos"))]
     CrashAck,
 }
