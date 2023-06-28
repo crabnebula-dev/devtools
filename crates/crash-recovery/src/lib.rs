@@ -17,15 +17,17 @@ use std::{
 const OBSERVER_ENV_VAR: &str = "RUN_AS_OBSERVER";
 const SOCKET_NAME: &str = "/tmp/minidumper-disk-example";
 
+static mut CRASH_HANDLER: Option<crash_handler::CrashHandler> = None;
+
 pub use error::Error;
 type Result<T> = std::result::Result<T, Error>;
 
-pub fn init() -> crash_handler::CrashHandler {
-    try_init().unwrap()
+pub fn init() {
+    try_init().unwrap();
 }
 
 /// This function initializes the crash observer process and attaches a crash handler
-pub fn try_init() -> Result<crash_handler::CrashHandler> {
+pub fn try_init() -> Result<()> {
     if env::vars().any(|(k, v)| k == OBSERVER_ENV_VAR && v == "true") {
         let server = Server::bind(Path::new(SOCKET_NAME))?;
 
@@ -48,7 +50,6 @@ pub fn try_init() -> Result<crash_handler::CrashHandler> {
         };
         let client = Arc::new(Mutex::new(client));
 
-        #[allow(unsafe_code)]
         let handler = crash_handler::CrashHandler::attach(unsafe {
             crash_handler::make_crash_event(move |ctx| {
                 let mut client = client.lock().unwrap();
@@ -56,7 +57,9 @@ pub fn try_init() -> Result<crash_handler::CrashHandler> {
             })
         })?;
 
-        Ok(handler)
+        unsafe { CRASH_HANDLER.replace(handler); }
+
+        Ok(())
     }
 }
 
