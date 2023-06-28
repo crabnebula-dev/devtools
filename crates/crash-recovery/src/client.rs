@@ -57,8 +57,10 @@ impl Client {
 
         #[cfg(not(target_os = "macos"))]
         {
-            let mut ack = [0u8; mem::size_of::<MessageHeader>()];
-            self.socket.read(&mut ack)?;
+            use tokio::io::AsyncReadExt;
+
+            let mut ack = [0u8; std::mem::size_of::<MessageHeader>()];
+            self.socket.try_read(&mut ack)?;
 
             let header = MessageHeader::from_bytes(&ack);
 
