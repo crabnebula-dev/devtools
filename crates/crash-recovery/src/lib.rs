@@ -9,8 +9,10 @@ use std::{
     env,
     mem::{self},
     path::Path,
-    process, slice, thread,
-    time::Duration, sync::{Arc, Mutex},
+    process, slice,
+    sync::{Arc, Mutex},
+    thread,
+    time::Duration,
 };
 
 const OBSERVER_ENV_VAR: &str = "RUN_AS_OBSERVER";
@@ -24,20 +26,20 @@ type Result<T> = std::result::Result<T, Error>;
 /// TODO
 ///  
 /// # Panics
-/// 
+///
 /// TODO
 pub fn init() {
     try_init().unwrap();
 }
 
 /// TODO
-/// 
+///
 /// # Errors
-/// 
+///
 /// TODO
-/// 
+///
 /// # Panics
-/// 
+///
 /// TODO
 pub fn try_init() -> Result<()> {
     if env::vars().any(|(k, v)| k == OBSERVER_ENV_VAR && v == "true") {

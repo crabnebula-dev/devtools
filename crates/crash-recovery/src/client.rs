@@ -1,7 +1,8 @@
 use std::{
     io::{IoSlice, Write},
+    mem,
     path::Path,
-    time::Duration, mem,
+    time::Duration,
 };
 
 use crate::{Error, MessageHeader, MessageKind};
@@ -91,7 +92,8 @@ impl Client {
 
         let hdr_buf = header.as_bytes();
 
-        let bytes_written = self.socket
+        let bytes_written = self
+            .socket
             .write_vectored(&[IoSlice::new(hdr_buf), IoSlice::new(buf)])?;
 
         assert_eq!(bytes_written, buf.len() + mem::size_of::<MessageHeader>());

@@ -1,7 +1,7 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
-use wire::instrument::Interests;
 use tokio::sync::mpsc;
+use wire::instrument::Interests;
 
 use crate::{Command, Watch};
 

@@ -1,25 +1,26 @@
 mod aggregator;
-mod zeroconf;
+mod callsites;
+mod id_map;
 mod layer;
 mod server;
+mod stats;
 mod util;
 mod visitors;
-mod callsites;
-mod stats;
-mod id_map;
+mod zeroconf;
 
 use aggregator::{Aggregator, Flush};
-use wire::instrument::Interests;
-use zeroconf::Zeroconf;
 use layer::Layer;
 use server::Server;
 use std::{
     sync::{atomic::AtomicUsize, Arc},
-    thread, time::Instant,
+    thread,
+    time::Instant,
 };
 use tokio::{runtime, sync::mpsc};
 use tracing_subscriber::{filter, prelude::*};
 use util::{spawn_named, TimeAnchor};
+use wire::instrument::Interests;
+use zeroconf::Zeroconf;
 
 const FILTER_ENV_VAR: &str = "RUST_LOG";
 
@@ -116,7 +117,7 @@ enum Event {
     LogEvent {
         metadata: &'static tracing_core::Metadata<'static>,
         fields: Vec<wire::Field>,
-        at: Instant
+        at: Instant,
     },
     IPCRequestInitiated {
         id: tracing_core::span::Id,
@@ -125,8 +126,8 @@ enum Event {
         stats: Arc<stats::IPCRequestStats>,
         metadata: &'static tracing_core::Metadata<'static>,
         fields: Vec<wire::Field>,
-        handler: wire::Location
-    }
+        handler: wire::Location,
+    },
 }
 
 enum Command {

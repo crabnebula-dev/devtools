@@ -204,7 +204,10 @@ where
             }
         }
 
-        if matches!(meta.name(), "ipc.request.deserialize_arg" | "ipc.request.serialize_returns" | "ipc.request.handler") {
+        if matches!(
+            meta.name(),
+            "ipc.request.deserialize_arg" | "ipc.request.serialize_returns" | "ipc.request.handler"
+        ) {
             if let Some(span) = ctx.span(id) {
                 if let Some(parent) = span.parent() {
                     let mut cexts = span.extensions_mut();

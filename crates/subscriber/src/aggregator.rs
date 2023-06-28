@@ -1,7 +1,6 @@
 use crate::{
     id_map::IdMap, stats, util::TimeAnchor, Command, Event, Include, Shared, ToProto, Unsent, Watch,
 };
-use wire::instrument::Interests;
 use futures::FutureExt;
 use std::{
     mem,
@@ -12,6 +11,7 @@ use std::{
     time::{Duration, Instant},
 };
 use tokio::sync::{mpsc, Notify};
+use wire::instrument::Interests;
 
 pub struct Aggregator {
     events: mpsc::Receiver<Event>,
@@ -258,7 +258,9 @@ impl Aggregator {
     fn ipc_update(&mut self, include: Include) -> wire::ipc::IpcUpdate {
         wire::ipc::IpcUpdate {
             new_requests: self.ipc_requests.to_proto_list(include, &self.base_time),
-            stats_update: self.ipc_request_stats.to_proto_map(include, &self.base_time),
+            stats_update: self
+                .ipc_request_stats
+                .to_proto_map(include, &self.base_time),
             dropped_events: self.shared.dropped_log_events.swap(0, Ordering::AcqRel) as u64,
         }
     }
@@ -305,7 +307,7 @@ impl ToProto for IPCRequest {
             metadata: Some(self.metadata.into()),
             fields: self.fields.clone(),
             kind: self.kind as i32,
-            handler: self.handler.clone()
+            handler: self.handler.clone(),
         }
     }
 }

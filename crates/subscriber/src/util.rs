@@ -1,4 +1,4 @@
-use std::time::{Instant, SystemTime, Duration};
+use std::time::{Duration, Instant, SystemTime};
 
 #[track_caller]
 pub fn spawn_named<T>(

@@ -1,6 +1,5 @@
 use std::{collections::HashMap, sync::Arc, time::SystemTime};
 
-use wire::instrument::{instrument_client::InstrumentClient, InstrumentRequest};
 use futures::StreamExt;
 use serde::Serialize;
 use tauri::{
@@ -8,6 +7,7 @@ use tauri::{
     plugin::{Builder, TauriPlugin},
     AppHandle, Manager, Runtime,
 };
+use wire::instrument::{instrument_client::InstrumentClient, InstrumentRequest};
 
 type InternedStr = usize;
 

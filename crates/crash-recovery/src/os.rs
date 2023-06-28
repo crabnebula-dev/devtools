@@ -66,6 +66,6 @@ cfg_if::cfg_if! {
             }
         }
     } else {
-        compile_error!("unsupported target platform")
+        compile_error!("unsupported target platform");
     }
 }
