@@ -53,6 +53,7 @@ impl Server {
 
                     #[cfg(not(target_os = "macos"))]
                     {
+                        use tokio::io::AsyncReadExt;
                         let ack = MessageHeader {
                             kind: MessageKind::CrashAck,
                             len: 0,
