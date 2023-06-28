@@ -59,8 +59,6 @@ impl Server {
                     {
                         #[cfg(windows)]
                         use futures::io::AsyncWriteExt;
-                        #[cfg(not(windows))]
-                        use tokio::io::AsyncReadExt;
 
                         let ack = MessageHeader {
                             kind: MessageKind::CrashAck,

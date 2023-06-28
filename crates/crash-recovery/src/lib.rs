@@ -74,7 +74,7 @@ pub fn try_init() -> Result<()> {
             thread::sleep(Duration::from_millis(50));
         };
 
-        // The sync read/write methods need &mut self
+        // The sync io methods on windows need &mut self
         let client = Arc::new(Mutex::new(client));
 
         let handler = crash_handler::CrashHandler::attach(unsafe {
