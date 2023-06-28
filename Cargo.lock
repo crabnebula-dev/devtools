@@ -567,6 +567,7 @@ dependencies = [
  "cfg-if",
  "crash-context",
  "crash-handler",
+ "futures",
  "interprocess",
  "sadness-generator",
  "thiserror",
