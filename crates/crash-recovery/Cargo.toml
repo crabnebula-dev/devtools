@@ -17,6 +17,9 @@ interprocess = { version = "1.2.1", features = ["tokio_support"] }
 sadness-generator = "0.5.0"
 minidumper-child = "0.1"
 
+[dev-dependencies]
+sadness-generator = "0.5.0"
+
 [[examples]]
 name = "simple"
 crate-type = ["bin"]

@@ -22,7 +22,7 @@ struct ClientConnection {
 impl Server {
     pub fn bind(path: &Path) -> crate::Result<Self> {
         if path.exists() {
-            fs::remove_file(&path).unwrap();
+            fs::remove_file(path).unwrap();
         }
 
         let listener = crate::os::bind(path)?;
@@ -45,46 +45,53 @@ impl Server {
         })
     }
 
-    pub async fn run(mut self) -> crate::Result<()> {
-        if let Ok(socket) = self.listener.accept().await {
+    pub fn run(mut self) -> crate::Result<()> {
+        if let Ok((socket, _)) = self.listener.accept() {
             let mut conn = ClientConnection { socket };
 
-            println!("client connected");
+            while let Some((kind, body)) = conn.recv() {
+                if kind == MessageKind::Crash {
+                    self.handle_crash_message(&body)?;
 
-            while let Some((kind, body)) = conn.recv().await {
-                println!("got {kind:?} message");
-
-                #[allow(unreachable_patterns)]
-                match kind {
-                    MessageKind::Crash => {
-                        self.handle_crash_message(body)?;
-
-                        #[cfg(not(target_os = "macos"))]
-                        {
-                            let ack = MessageHeader {
-                                kind: MessageKind::CrashAck,
-                                len: 0,
-                            };
-                            conn.socket.write_all(ack.as_bytes())?;
-                        }
-
-                        return Ok(());
+                    #[cfg(not(target_os = "macos"))]
+                    {
+                        let ack = MessageHeader {
+                            kind: MessageKind::CrashAck,
+                            len: 0,
+                        };
+                        conn.socket.write_all(ack.as_bytes())?;
                     }
-                    MessageKind::Bytes => {
-                        println!("got message {body:?}");
-                    }
-                    _ => {}
+
+                    return Ok(());
                 }
+                // #[allow(unreachable_patterns)]
+                // match kind {
+                //     MessageKind::Crash => {
+                //         self.handle_crash_message(&body)?;
+
+                //         #[cfg(not(target_os = "macos"))]
+                //         {
+                //             let ack = MessageHeader {
+                //                 kind: MessageKind::CrashAck,
+                //                 len: 0,
+                //             };
+                //             conn.socket.write_all(ack.as_bytes())?;
+                //         }
+
+                //         return Ok(());
+                //     }
+                //     _ => {}
+                // }
             }
         }
 
         Ok(())
     }
 
-    fn handle_crash_message(&mut self, body: Vec<u8>) -> crate::Result<()> {
+    fn handle_crash_message(&mut self, _body: &[u8]) -> crate::Result<()> {
         #[cfg(any(target_os = "linux", target_os = "android"))]
         let crash_context = {
-            crash_context::CrashContext::from_bytes(&body).ok_or_else(|| {
+            crash_context::CrashContext::from_bytes(body).ok_or_else(|| {
                 Error::from(std::io::Error::new(
                     std::io::ErrorKind::InvalidData,
                     "client sent an incorrectly sized buffer",
@@ -98,7 +105,7 @@ impl Server {
             };
 
             if let Err(e) = rcc.acker.send_ack(1, Some(Duration::from_secs(2))) {
-                eprintln!("failed to send ack: {}", e);
+                eprintln!("failed to send ack: {e}");
             }
 
             rcc.crash_context
@@ -106,7 +113,7 @@ impl Server {
 
         #[cfg(target_os = "windows")]
         let crash_context = {
-            let dump_request = os::DumpRequest::from_bytes(&body).unwrap();
+            let dump_request = os::DumpRequest::from_bytes(body).unwrap();
 
             let exception_pointers =
                 dump_request.exception_pointers as *const crash_context::EXCEPTION_POINTERS;
@@ -152,10 +159,9 @@ impl ClientConnection {
         if header.len == 0 {
             Some((header.kind, Vec::new()))
         } else {
-            let mut buf = Vec::with_capacity(header.len);
+            let mut buf = vec![0; header.len];
 
-            let bytes_read = self.socket.read_buf(&mut buf).await.unwrap();
-            assert_eq!(bytes_read, header.len);
+            self.socket.read_exact(&mut buf).ok()?;
 
             Some((header.kind, buf))
         }

@@ -16,15 +16,31 @@ use std::{
 const OBSERVER_ENV_VAR: &str = "RUN_AS_OBSERVER";
 const SOCKET_NAME: &str = "/tmp/minidumper-disk-example";
 
+static mut CRASH_HANDLER: Option<crash_handler::CrashHandler> = None;
+
 pub use error::Error;
 type Result<T> = std::result::Result<T, Error>;
 
 static mut CRASH_HANDLER: Option<crash_handler::CrashHandler> = None;
 
+/// TODO
+///  
+/// # Panics
+/// 
+/// TODO
 pub fn init() {
-    try_init().unwrap()
+    try_init().unwrap();
 }
 
+/// TODO
+/// 
+/// # Errors
+/// 
+/// TODO
+/// 
+/// # Panics
+/// 
+/// TODO
 pub fn try_init() -> Result<()> {
     if env::vars().any(|(k, v)| k == OBSERVER_ENV_VAR && v == "true") {
         let runtime = tokio::runtime::Builder::new_multi_thread()
@@ -101,14 +117,16 @@ impl MessageHeader {
         }
     }
 
-    fn from_bytes(buf: &[u8]) -> Option<Self> {
+    fn from_bytes(buf: &[u8]) -> Option<&Self> {
         if buf.len() != mem::size_of::<Self>() {
             return None;
         }
 
         #[allow(unsafe_code)]
         unsafe {
-            Some(*buf.as_ptr().cast::<Self>())
+            let (_head, body, _tail) = buf.align_to::<Self>();
+
+            Some(&body[0])
         }
     }
 }
