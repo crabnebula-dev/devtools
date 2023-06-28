@@ -1,7 +1,7 @@
 use crate::{Error, MessageHeader, MessageKind};
 
 #[cfg(windows)]
-use futures::io::AsyncReadExt;
+use futures_util::AsyncReadExt;
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -58,7 +58,7 @@ impl Server {
                     #[cfg(not(target_os = "macos"))]
                     {
                         #[cfg(windows)]
-                        use futures::io::AsyncWriteExt;
+                        use futures_util::AsyncWriteExt;
 
                         let ack = MessageHeader {
                             kind: MessageKind::CrashAck,
