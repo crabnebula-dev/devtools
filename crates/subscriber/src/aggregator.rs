@@ -32,7 +32,7 @@ pub struct Aggregator {
     /// This is emptied on every state update.
     new_metadata: Vec<wire::register_metadata::NewMetadata>,
 
-    log_events: Vec<wire::log::Event>,
+    // log_events: Vec<wire::log::Event>,
 
     ipc_requests: IdMap<IPCRequest>,
     ipc_request_stats: IdMap<Arc<stats::IPCRequestStats>>,
@@ -75,7 +75,7 @@ impl Aggregator {
             watchers: Vec::new(),
             all_metadata: Vec::new(),
             new_metadata: Vec::new(),
-            log_events: Vec::new(),
+            // log_events: Vec::new(),
             ipc_requests: IdMap::new(),
             ipc_request_stats: IdMap::new(),
         }
@@ -150,16 +150,16 @@ impl Aggregator {
                     metadata: self.all_metadata.clone(),
                 });
 
-        let log_update = watcher
-            .interests
-            .contains(Interests::Trace)
-            .then_some(self.log_update(Include::All));
+        // let log_update = watcher
+        //     .interests
+        //     .contains(Interests::Trace)
+        //     .then_some(self.log_update(Include::All));
 
         let ipc_update = Some(self.ipc_update(Include::All));
 
         let update = &wire::instrument::Update {
             new_metadata,
-            log_update,
+            // log_update,
             ipc_update,
             now: Some(self.base_time.to_timestamp(now)),
         };
@@ -177,15 +177,15 @@ impl Aggregator {
                 self.all_metadata.push(meta.into());
                 self.new_metadata.push(meta.into());
             }
-            Event::LogEvent {
-                metadata,
-                fields,
-                at,
-            } => self.log_events.push(wire::log::Event {
-                metadata_id: Some(metadata.into()),
-                fields,
-                at: Some(self.base_time.to_timestamp(at)),
-            }),
+            // Event::LogEvent {
+            //     metadata,
+            //     fields,
+            //     at,
+            // } => self.log_events.push(wire::log::Event {
+            //     metadata_id: Some(metadata.into()),
+            //     fields,
+            //     at: Some(self.base_time.to_timestamp(at)),
+            // }),
             Event::IPCRequestInitiated {
                 id,
                 stats,
@@ -224,17 +224,17 @@ impl Aggregator {
             None
         };
 
-        let log_update = if !self.log_events.is_empty() {
-            Some(self.log_update(Include::UpdateOnly))
-        } else {
-            None
-        };
+        // let log_update = if !self.log_events.is_empty() {
+        //     Some(self.log_update(Include::UpdateOnly))
+        // } else {
+        //     None
+        // };
 
         let ipc_update = Some(self.ipc_update(Include::UpdateOnly));
 
         let update = &wire::instrument::Update {
             now: Some(self.base_time.to_timestamp(now)),
-            log_update,
+            // log_update,
             ipc_update,
             new_metadata,
         };
@@ -243,17 +243,17 @@ impl Aggregator {
         self.watchers.shrink_to_fit();
     }
 
-    fn log_update(&mut self, include: Include) -> wire::log::LogUpdate {
-        let new_events = match include {
-            Include::All => self.log_events.clone(),
-            Include::UpdateOnly => mem::take(&mut self.log_events),
-        };
+    // fn log_update(&mut self, include: Include) -> wire::log::LogUpdate {
+    //     let new_events = match include {
+    //         Include::All => self.log_events.clone(),
+    //         Include::UpdateOnly => mem::take(&mut self.log_events),
+    //     };
 
-        wire::log::LogUpdate {
-            new_events,
-            dropped_events: self.shared.dropped_log_events.swap(0, Ordering::AcqRel) as u64,
-        }
-    }
+    //     wire::log::LogUpdate {
+    //         new_events,
+    //         dropped_events: self.shared.dropped_log_events.swap(0, Ordering::AcqRel) as u64,
+    //     }
+    // }
 
     fn ipc_update(&mut self, include: Include) -> wire::ipc::IpcUpdate {
         wire::ipc::IpcUpdate {

@@ -28,12 +28,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Err(error) => panic!("failed to list proto files: {error}"),
     };
 
+    let mut config = prost_build::Config::new();
+    config.bytes(&["."]);
+
     tonic_build::configure()
         .build_client(true)
         .build_server(true)
         .protoc_arg("--experimental_allow_proto3_optional")
         .enum_attribute("rs.tauri.devtools.common.Field.name", "#[derive(Hash, Eq)]")
-        .compile(&proto_files, &[proto_dir])?;
+        .compile_with_config(config, &proto_files, &[proto_dir])?;
 
     Ok(())
 }

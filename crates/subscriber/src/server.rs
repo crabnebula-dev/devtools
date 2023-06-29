@@ -15,15 +15,10 @@ const DEFAULT_CLIENT_BUFFER_CAPACITY: usize = 1024 * 4;
 pub struct Server {
     addr: SocketAddr,
     instrument: InstrumentServer,
-    application: ApplicationServer,
 }
 
 struct InstrumentServer {
     tx: mpsc::Sender<Command>,
-}
-
-struct ApplicationServer {
-    package_info: tauri::PackageInfo,
 }
 
 impl Server {
@@ -31,11 +26,10 @@ impl Server {
 
     pub const DEFAULT_PORT: u16 = 6669;
 
-    pub(crate) fn new(tx: mpsc::Sender<Command>, package_info: tauri::PackageInfo) -> Self {
+    pub(crate) fn new(tx: mpsc::Sender<Command>) -> Self {
         Self {
             addr: SocketAddr::new(Self::DEFAULT_IP, Self::DEFAULT_PORT),
             instrument: InstrumentServer { tx },
-            application: ApplicationServer { package_info },
         }
     }
 
@@ -44,9 +38,9 @@ impl Server {
             .add_service(wire::instrument::instrument_server::InstrumentServer::new(
                 self.instrument,
             ))
-            .add_service(
-                wire::application::application_server::ApplicationServer::new(self.application),
-            )
+            // .add_service(
+            //     wire::application::application_server::ApplicationServer::new(self.application),
+            // )
             .serve(self.addr)
             .await?;
 
@@ -92,22 +86,5 @@ impl wire::instrument::instrument_server::Instrument for InstrumentServer {
         _req: tonic::Request<wire::instrument::UpdateInterestsRequest>,
     ) -> Result<tonic::Response<wire::instrument::UpdateInterestsResponse>, tonic::Status> {
         todo!()
-    }
-}
-
-#[tonic::async_trait]
-impl wire::application::application_server::Application for ApplicationServer {
-    async fn get_package_info(
-        &self,
-        _req: tonic::Request<wire::application::GetPackageInfoRequest>,
-    ) -> Result<tonic::Response<wire::application::PackageInfo>, tonic::Status> {
-        let info = wire::application::PackageInfo {
-            name: self.package_info.name.clone(),
-            version: self.package_info.version.to_string(),
-            authors: self.package_info.authors.to_string(),
-            description: self.package_info.description.to_string(),
-        };
-
-        Ok(tonic::Response::new(info))
     }
 }

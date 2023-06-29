@@ -10,13 +10,7 @@ use tokio::sync::mpsc;
 use tracing_core::Subscriber;
 use tracing_subscriber::registry::LookupSpan;
 
-use crate::{
-    callsites::Callsites,
-    stats,
-    util::TimeAnchor,
-    visitors::{FieldVisitor, IPCVisitor},
-    Event, Shared,
-};
+use crate::{callsites::Callsites, stats, visitors::IPCVisitor, Event, Shared};
 
 pub struct Layer {
     tx: mpsc::Sender<Event>,
@@ -27,30 +21,12 @@ pub struct Layer {
     /// will be triggered.
     flush_threshold: usize,
 
-    /// Used to anchor monotonic timestamps to a base `SystemTime`, to produce a
-    /// timestamp that can be sent over the wire.
-    base_time: TimeAnchor,
-
     /// Set of callsites for spans representing ongoing IPC requests
     ///
     /// Currently spans are emitted from within the `tauri` crate but also from within user code (through macros)
     /// so this number needs to be quite large (there are as many callsites are there are commands)
     /// TODO make this smaller once all callsites are contained in the tauri crate
     ipc_callsites: Callsites<32>,
-
-    /// Set of callsites for spans representing spawned tasks.
-    ///
-    /// For task spans, each runtime these will have like, 1-5 callsites in it, max, so
-    /// 8 should be plenty. If several runtimes are in use, we may have to spill
-    /// over into the backup hashmap, but it's unlikely.
-    spawn_callsites: Callsites<8>,
-
-    /// Set of callsites for events representing waker operations.
-    ///
-    /// 16 is probably a reasonable number of waker ops; it's a bit generous if
-    /// there's only one async runtime library in use, but if there are multiple,
-    /// they might all have their own sets of waker ops.
-    waker_callsites: Callsites<16>,
 
     /// Maximum value for the poll time histogram.
     ///
@@ -92,10 +68,7 @@ impl Layer {
             shared,
             tx,
             flush_threshold: Self::DEFAULT_EVENT_BUFFER_CAPACITY / 2,
-            base_time: TimeAnchor::new(),
             ipc_callsites: Callsites::default(),
-            spawn_callsites: Callsites::default(),
-            waker_callsites: Callsites::default(),
             max_poll_duration_nanos: Self::DEFAULT_POLL_DURATION_MAX.as_nanos() as u64,
             max_scheduled_duration_nanos: Self::DEFAULT_SCHEDULED_DURATION_MAX.as_nanos() as u64,
         }
@@ -132,10 +105,6 @@ impl Layer {
 
     fn is_ipc_request(&self, meta: &'static tracing_core::Metadata<'static>) -> bool {
         self.ipc_callsites.contains(meta)
-    }
-
-    fn is_spawn(&self, meta: &'static tracing_core::Metadata<'static>) -> bool {
-        self.spawn_callsites.contains(meta)
     }
 }
 
@@ -241,20 +210,19 @@ where
         _ctx: tracing_subscriber::layer::Context<'_, S>,
     ) {
         let metadata = event.metadata();
-
-        let mut field_visitor = FieldVisitor::new(metadata.into());
-        event.record(&mut field_visitor);
-        let fields = field_visitor.result();
-
         self.send_event(&self.shared.dropped_log_events, || {
             Event::Metadata(metadata)
         });
 
-        self.send_event(&self.shared.dropped_log_events, || Event::LogEvent {
-            at: Instant::now(),
-            metadata: event.metadata(),
-            fields,
-        })
+        // let mut field_visitor = FieldVisitor::new(metadata.into());
+        // event.record(&mut field_visitor);
+        // let fields = field_visitor.result();
+
+        // self.send_event(&self.shared.dropped_log_events, || Event::LogEvent {
+        //     at: Instant::now(),
+        //     metadata: event.metadata(),
+        //     fields,
+        // })
     }
 
     fn on_enter(

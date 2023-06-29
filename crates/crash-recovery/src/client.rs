@@ -76,7 +76,6 @@ impl Client {
     }
 
     fn send_impl(&self, kind: MessageKind, buf: &[u8]) -> crate::Result<()> {
-        println!("sending message {kind:?} with buf {buf:?}");
         let header = MessageHeader {
             kind,
             len: buf.len(),

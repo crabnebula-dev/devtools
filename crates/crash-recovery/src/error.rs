@@ -6,6 +6,8 @@ pub enum Error {
     ProtocolError(&'static str),
     #[error("todo")]
     CrashHandlerAttach(#[from] crash_handler::Error),
+    #[error("todo")]
+    GRPC(#[from] tonic::transport::Error),
     #[cfg(target_os = "macos")]
     /// The provided socket name or path was invalid as a Mach port name
     #[error("the mach port name is invalid")]

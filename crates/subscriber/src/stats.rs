@@ -1,7 +1,6 @@
 use crate::{ToProto, Unsent};
 use hdrhistogram::{
     self,
-    serialization::{Serializer, V2Serializer},
 };
 use parking_lot::Mutex;
 use std::{
@@ -141,7 +140,6 @@ impl ToProto for IPCRequestStats {
             deserialize_request: Some(self.deserialize_request.lock().to_proto(base_time)),
             serialize_reponse: Some(self.serialize_response.lock().to_proto(base_time)),
             inner: Some(self.inner.lock().to_proto(base_time)),
-            task_stats: None,
         }
     }
 }
@@ -203,8 +201,8 @@ impl ToProto for Timestamps {
             last_enter_ended: self.last_enter_ended.map(|t| base_time.to_timestamp(t)),
             waiting_time: self.waiting_time.try_into().ok(),
             busy_time: self.busy_time.try_into().ok(),
-            waiting_times_histogram: Some(self.waiting_histogram.to_proto(base_time)),
-            busy_times_histogram: Some(self.busy_histogram.to_proto(base_time)),
+            // waiting_times_histogram: Some(self.waiting_histogram.to_proto(base_time)),
+            // busy_times_histogram: Some(self.busy_histogram.to_proto(base_time)),
         }
     }
 }
@@ -356,20 +354,20 @@ impl Histogram {
     }
 }
 
-impl ToProto for Histogram {
-    type Output = wire::ipc::DurationHistogram;
+// impl ToProto for Histogram {
+//     type Output = wire::ipc::DurationHistogram;
 
-    fn to_proto(&self, _: &crate::util::TimeAnchor) -> Self::Output {
-        let mut serializer = V2Serializer::new();
-        let mut raw_histogram = Vec::new();
-        serializer
-            .serialize(&self.histogram, &mut raw_histogram)
-            .expect("histogram failed to serialize");
-        wire::ipc::DurationHistogram {
-            raw_histogram,
-            max_value: self.max,
-            high_outliers: self.outliers,
-            highest_outlier: self.max_outlier,
-        }
-    }
-}
+//     fn to_proto(&self, _: &crate::util::TimeAnchor) -> Self::Output {
+//         let mut serializer = V2Serializer::new();
+//         let mut raw_histogram = Vec::new();
+//         serializer
+//             .serialize(&self.histogram, &mut raw_histogram)
+//             .expect("histogram failed to serialize");
+//         wire::ipc::DurationHistogram {
+//             raw_histogram,
+//             max_value: self.max,
+//             high_outliers: self.outliers,
+//             highest_outlier: self.max_outlier,
+//         }
+//     }
+// }

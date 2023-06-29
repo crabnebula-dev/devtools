@@ -2,8 +2,17 @@ syntax = "proto3";
 
 package rs.tauri.devtools.common;
 
-import "google/protobuf/timestamp.proto";
-import "google/protobuf/duration.proto";
+// Unique identifier.
+message Id {
+    // The unique identifier's concrete value.
+    uint64 id = 1;
+}
+
+// Unique identifier for spans.
+message SpanId {
+    // The unique identifier's concrete value.
+    uint64 id = 1;
+}
 
 // Unique identifier for metadata.
 message MetaId {

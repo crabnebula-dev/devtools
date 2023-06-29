@@ -1,6 +1,5 @@
 use crate::common;
 use crate::ipc;
-use crate::log;
 
 mod generated {
     #![allow(clippy::all)]

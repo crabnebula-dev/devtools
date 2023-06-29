@@ -1,5 +1,6 @@
 mod common;
-mod instrument;
-mod ipc;
+pub mod instrument;
+pub mod ipc;
+pub mod crash;
 
 pub use common::*;
