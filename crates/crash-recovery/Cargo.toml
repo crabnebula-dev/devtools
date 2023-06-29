@@ -18,6 +18,9 @@ wire = { path = "../wire" }
 tonic = { version = "0.9.2", features = ["transport"] }
 bytes = "1.4.0"
 
+[target.'cfg(windows)'.dependencies]
+futures-util = "0.3"
+
 [dev-dependencies]
 sadness-generator = "0.5.0"
 

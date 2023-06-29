@@ -8,7 +8,14 @@ use bytes::Bytes;
 use client::Client;
 use grpc_server::GRPCServer;
 use server::Server;
-use std::{env, mem, path::Path, process, slice, sync::Arc, thread, time::Duration};
+use std::{
+    env, mem,
+    path::Path,
+    process, slice,
+    sync::Arc,
+    thread,
+    time::Duration,
+};
 use tokio::sync::{oneshot, Mutex};
 
 const OBSERVER_ENV_VAR: &str = "RUN_AS_OBSERVER";
@@ -20,7 +27,7 @@ pub use error::Error;
 type Result<T> = std::result::Result<T, Error>;
 
 /// TODO
-///  
+///
 /// # Panics
 ///
 /// TODO
@@ -79,9 +86,13 @@ pub fn try_init() -> Result<()> {
             thread::sleep(Duration::from_millis(50));
         };
 
+        // The sync io methods on windows need &mut self
+        let client = Arc::new(Mutex::new(client));
+
         let handler = crash_handler::CrashHandler::attach(unsafe {
             crash_handler::make_crash_event(move |ctx| {
                 println!("got crash");
+                let mut client = client.blocking_lock();
                 crash_handler::CrashEventResult::Handled(client.send_crash_context(ctx).is_ok())
             })
         })

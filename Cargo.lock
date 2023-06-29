@@ -568,6 +568,7 @@ dependencies = [
  "cfg-if",
  "crash-context",
  "crash-handler",
+ "futures-util",
  "interprocess",
  "minidump",
  "minidump-writer",

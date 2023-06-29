@@ -1,4 +1,7 @@
 use crate::{Error, MessageHeader, MessageKind};
+
+#[cfg(windows)]
+use futures_util::AsyncReadExt;
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -8,6 +11,9 @@ use bytes::Bytes;
 use tokio::{
     io::AsyncReadExt, sync::{Mutex, oneshot}
 };
+
+#[cfg(not(windows))]
+use tokio::io::AsyncReadExt;
 
 pub struct Server {
     listener: crate::os::Listener,
@@ -59,12 +65,20 @@ impl Server {
 
                     #[cfg(not(target_os = "macos"))]
                     {
-                        use tokio::io::AsyncReadExt;
+                        #[cfg(windows)]
+                        use futures_util::AsyncWriteExt;
+
                         let ack = MessageHeader {
                             kind: MessageKind::CrashAck,
                             len: 0,
                         };
+                        #[cfg(not(windows))]
                         conn.socket.write_all(ack.as_bytes())?;
+                        #[cfg(windows)]
+                        {
+                            conn.socket.write_all(ack.as_bytes()).await?;
+                            conn.socket.flush().await?;
+                        }
                     }
 
                     return Ok(());
@@ -96,7 +110,7 @@ impl Server {
     async fn handle_crash_message(mut self, _body: &[u8]) -> crate::Result<()> {
         #[cfg(any(target_os = "linux", target_os = "android"))]
         let crash_context = {
-            crash_context::CrashContext::from_bytes(body).ok_or_else(|| {
+            crash_context::CrashContext::from_bytes(_body).ok_or_else(|| {
                 Error::from(std::io::Error::new(
                     std::io::ErrorKind::InvalidData,
                     "client sent an incorrectly sized buffer",
@@ -118,7 +132,7 @@ impl Server {
 
         #[cfg(target_os = "windows")]
         let crash_context = {
-            let dump_request = os::DumpRequest::from_bytes(body).unwrap();
+            let dump_request = crate::os::DumpRequest::from_bytes(_body).unwrap();
 
             let exception_pointers =
                 dump_request.exception_pointers as *const crash_context::EXCEPTION_POINTERS;

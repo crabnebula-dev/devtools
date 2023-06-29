@@ -16,18 +16,21 @@ cfg_if::cfg_if! {
     } else if #[cfg(target_os = "windows")] {
         use std::{mem, slice};
 
-        // TODO @fabianlars give these proper types
-        pub type Stream = (); // must implement `io::Read + io::Write`
-        pub type Listener = (); // must implement an `accept()` method that returns Result<(Stream, Address)> like the unix counterpart
+        pub type Stream = interprocess::os::windows::named_pipe::DuplexBytePipeStream;
+        pub type AsyncStream = interprocess::os::windows::named_pipe::tokio::DuplexBytePipeStream;
+        pub type Listener = interprocess::os::windows::named_pipe::tokio::PipeListener<AsyncStream>;
 
         pub fn connect(path: &Path) -> crate::Result<Stream> {
-            // TODO @fabianlars init & connect the client-side socket
-            todo!()
+            Stream::connect(path.as_os_str()).map_err(Into::into)
         }
 
         pub fn bind(path: &Path) -> crate::Result<Listener> {
-            // TODO @fabianlars init & bind the server-side socket
-            todo!()
+            use interprocess::os::windows::named_pipe::{PipeListenerOptions, tokio::PipeListenerOptionsExt};
+
+            PipeListenerOptions::new()
+                .name(path.as_os_str())
+                .create_tokio::<AsyncStream>()
+                .map_err(Into::into)
         }
 
         #[repr(C)]
