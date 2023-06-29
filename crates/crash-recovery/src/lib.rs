@@ -1,18 +1,22 @@
 mod client;
 mod error;
+mod grpc_server;
 mod os;
 mod server;
 
+use bytes::Bytes;
 use client::Client;
+use grpc_server::GRPCServer;
 use server::Server;
 use std::{
     env, mem,
     path::Path,
     process, slice,
-    sync::{Arc, Mutex},
+    sync::Arc,
     thread,
     time::Duration,
 };
+use tokio::sync::{oneshot, Mutex};
 
 const OBSERVER_ENV_VAR: &str = "RUN_AS_OBSERVER";
 const SOCKET_NAME: &str = "/tmp/minidumper-disk-example";
@@ -47,10 +51,18 @@ pub fn try_init() -> Result<()> {
             .build()?;
         let _enter = runtime.enter();
 
-        let server = Server::bind(Path::new(SOCKET_NAME))?;
+        let watchers: Arc<Mutex<Vec<oneshot::Sender<Bytes>>>> = Default::default();
+        let grpc_server = GRPCServer::new(watchers.clone());
+        let ipc_server = Server::bind(Path::new(SOCKET_NAME), watchers)?;
 
         runtime.block_on(async move {
-            server.run().await.unwrap();
+            let grpc = spawn_named(grpc_server.serve(), "crash_handler::grpc");
+
+            spawn_named(ipc_server.run(), "crash_handler::ipc")
+                .await
+                .unwrap()
+                .unwrap();
+            grpc.abort();
         });
 
         process::exit(0);
@@ -80,7 +92,7 @@ pub fn try_init() -> Result<()> {
         let handler = crash_handler::CrashHandler::attach(unsafe {
             crash_handler::make_crash_event(move |ctx| {
                 println!("got crash");
-                let mut client = client.lock().unwrap();
+                let mut client = client.blocking_lock();
                 crash_handler::CrashEventResult::Handled(client.send_crash_context(ctx).is_ok())
             })
         })
@@ -131,4 +143,19 @@ impl MessageHeader {
             Some(&body[0])
         }
     }
+}
+
+#[track_caller]
+pub fn spawn_named<T>(
+    task: impl std::future::Future<Output = T> + Send + 'static,
+    _name: &str,
+) -> tokio::task::JoinHandle<T>
+where
+    T: Send + 'static,
+{
+    #[cfg(tokio_unstable)]
+    return tokio::task::Builder::new().name(_name).spawn(task).unwrap();
+
+    #[cfg(not(tokio_unstable))]
+    tokio::spawn(task)
 }

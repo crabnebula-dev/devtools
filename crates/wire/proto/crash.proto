@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package rs.tauri.devtools.crash;
+
+// import "google/protobuf/timestamp.proto";
+
+// Watch for crashes and receive information from an instrumented application
+service CrashHandler {
+    // This call will resolve with information about the crash when a it happens
+    rpc WatchCrash(WatchCrashRequest) returns (WatchCrashResponse) {}
+}
+
+message WatchCrashRequest {}
+
+message WatchCrashResponse {
+    // // The system time when this update was recorded.
+    // google.protobuf.Timestamp now = 1;
+    // The crashdump bytes in minidump format.
+    bytes crashdump = 2;
+}

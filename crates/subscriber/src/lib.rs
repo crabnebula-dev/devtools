@@ -14,7 +14,7 @@ use server::Server;
 use std::{
     sync::{atomic::AtomicUsize, Arc},
     thread,
-    time::Instant,
+    // time::Instant,
 };
 use tokio::{runtime, sync::mpsc};
 use tracing_subscriber::{filter, prelude::*};
@@ -38,7 +38,7 @@ pub fn try_init<A: tauri::Assets>(
 
     let layer = Layer::new(shared.clone(), event_tx);
     let aggregator = Aggregator::new(shared.clone(), events, rpcs);
-    let server = Server::new(command_tx, ctx.package_info().clone());
+    let server = Server::new(command_tx);
     let beacon = Zeroconf::new_from_env(Server::DEFAULT_PORT, ctx.package_info().clone()).unwrap();
 
     thread::Builder::new()
@@ -114,11 +114,11 @@ struct Shared {
 
 enum Event {
     Metadata(&'static tracing_core::Metadata<'static>),
-    LogEvent {
-        metadata: &'static tracing_core::Metadata<'static>,
-        fields: Vec<wire::Field>,
-        at: Instant,
-    },
+    // LogEvent {
+    //     metadata: &'static tracing_core::Metadata<'static>,
+    //     fields: Vec<wire::Field>,
+    //     at: Instant,
+    // },
     IPCRequestInitiated {
         id: tracing_core::span::Id,
         cmd: String,

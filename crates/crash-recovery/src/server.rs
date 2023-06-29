@@ -5,8 +5,13 @@ use futures_util::AsyncReadExt;
 use std::{
     fs,
     path::{Path, PathBuf},
-    time::Duration,
+    time::Duration, sync::Arc,
 };
+use bytes::Bytes;
+use tokio::{
+    io::AsyncReadExt, sync::{Mutex, oneshot}
+};
+
 #[cfg(not(windows))]
 use tokio::io::AsyncReadExt;
 
@@ -15,6 +20,8 @@ pub struct Server {
     #[cfg(target_os = "macos")]
     port: crash_context::ipc::Server,
     socket_path: PathBuf,
+    // TODO this is horrific
+    watchers: Arc<Mutex<Vec<oneshot::Sender<Bytes>>>>,
 }
 
 struct ClientConnection {
@@ -22,7 +29,7 @@ struct ClientConnection {
 }
 
 impl Server {
-    pub fn bind(path: &Path) -> crate::Result<Self> {
+    pub fn bind(path: &Path, watchers: Arc<Mutex<Vec<oneshot::Sender<Bytes>>>>,) -> crate::Result<Self> {
         if path.exists() {
             fs::remove_file(path).unwrap();
         }
@@ -44,16 +51,17 @@ impl Server {
             #[cfg(target_os = "macos")]
             port,
             socket_path: path.to_path_buf(),
+            watchers
         })
     }
 
-    pub async fn run(mut self) -> crate::Result<()> {
+    pub async fn run(self) -> crate::Result<()> {
         if let Ok(socket) = self.listener.accept().await {
             let mut conn = ClientConnection { socket };
 
             while let Some((kind, body)) = conn.recv().await {
                 if kind == MessageKind::Crash {
-                    self.handle_crash_message(&body)?;
+                    self.handle_crash_message(&body).await?;
 
                     #[cfg(not(target_os = "macos"))]
                     {
@@ -99,7 +107,7 @@ impl Server {
         Ok(())
     }
 
-    fn handle_crash_message(&mut self, _body: &[u8]) -> crate::Result<()> {
+    async fn handle_crash_message(mut self, _body: &[u8]) -> crate::Result<()> {
         #[cfg(any(target_os = "linux", target_os = "android"))]
         let crash_context = {
             crash_context::CrashContext::from_bytes(_body).ok_or_else(|| {
@@ -137,7 +145,16 @@ impl Server {
             }
         };
 
-        todo!("process crash context");
+        let mut writer =
+            minidump_writer::minidump_writer::MinidumpWriter::with_crash_context(crash_context);
+
+        let mut f = std::fs::File::create("./minidump").unwrap();
+        let crashdump = Bytes::from(writer.dump(&mut f).unwrap());
+
+        let mut watchers = self.watchers.lock().await;
+        for watcher in watchers.drain(..) {
+            watcher.send(crashdump.clone()).unwrap();
+        }
 
         Ok(())
     }
