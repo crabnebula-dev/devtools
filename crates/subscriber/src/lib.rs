@@ -1,101 +1,35 @@
 mod aggregator;
-mod zeroconf;
+mod builder;
+mod callsites;
+mod error;
+mod id_map;
 mod layer;
 mod server;
+mod stats;
 mod util;
 mod visitors;
-mod callsites;
-mod stats;
-mod id_map;
+mod zeroconf;
 
-use aggregator::{Aggregator, Flush};
-use wire::instrument::Interests;
-use zeroconf::Zeroconf;
-use layer::Layer;
-use server::Server;
+use aggregator::Flush;
 use std::{
     sync::{atomic::AtomicUsize, Arc},
-    thread, time::Instant,
+    time::Instant,
 };
-use tokio::{runtime, sync::mpsc};
-use tracing_subscriber::{filter, prelude::*};
-use util::{spawn_named, TimeAnchor};
+use tokio::sync::mpsc;
+use util::TimeAnchor;
+use wire::instrument::Interests;
 
-const FILTER_ENV_VAR: &str = "RUST_LOG";
+pub(crate) type Result<T> = std::result::Result<T, Error>;
 
-pub fn init<A: tauri::Assets>(ctx: &tauri::Context<A>) {
-    try_init(ctx).unwrap()
+pub use builder::Builder;
+pub use error::Error;
+
+pub fn init<A: tauri::Assets>(tauri_ctx: &tauri::Context<A>) {
+    Builder::default().init(tauri_ctx.package_info().clone())
 }
 
-pub fn try_init<A: tauri::Assets>(
-    ctx: &tauri::Context<A>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let shared = Arc::new(Shared::default());
-
-    let (event_tx, events) = mpsc::channel(Layer::DEFAULT_EVENT_BUFFER_CAPACITY);
-    let (command_tx, rpcs) = mpsc::channel(256);
-
-    let layer = Layer::new(shared.clone(), event_tx);
-    let aggregator = Aggregator::new(shared.clone(), events, rpcs);
-    let server = Server::new(command_tx, ctx.package_info().clone());
-    let beacon = Zeroconf::new_from_env(Server::DEFAULT_PORT, ctx.package_info().clone()).unwrap();
-
-    thread::Builder::new()
-        .name("console_subscriber".into())
-        .spawn(move || {
-            let _subscriber_guard;
-            // if !self_trace {
-            _subscriber_guard =
-                tracing::subscriber::set_default(tracing_core::subscriber::NoSubscriber::default());
-            // }
-            let runtime = runtime::Builder::new_current_thread()
-                .enable_io()
-                .enable_time()
-                .build()
-                .expect("console subscriber runtime initialization failed");
-
-            runtime.block_on(async move {
-                let mdns = spawn_named(beacon.run(), "devtools::mdns");
-
-                let aggregate = spawn_named(aggregator.run(), "devtools::aggregate");
-
-                spawn_named(server.serve(), "devtools::serve")
-                    .await
-                    .unwrap()
-                    .unwrap();
-
-                aggregate.abort();
-                mdns.abort();
-            });
-        })
-        .expect("console subscriber could not spawn thread");
-
-    type Filter = filter::Targets;
-
-    let fmt_filter = std::env::var(FILTER_ENV_VAR)
-        .ok()
-        .and_then(|log_filter| match log_filter.parse::<Filter>() {
-            Ok(targets) => Some(targets),
-            Err(e) => {
-                eprintln!(
-                    "failed to parse filter environment variable `{}={:?}`: {}",
-                    FILTER_ENV_VAR, log_filter, e
-                );
-                None
-            }
-        })
-        .unwrap_or_else(|| {
-            "error"
-                .parse::<Filter>()
-                .expect("`error` filter should always parse successfully")
-        });
-
-    tracing_subscriber::registry()
-        .with(tracing_subscriber::fmt::layer().with_filter(fmt_filter.clone()))
-        .with(layer.with_filter(tracing_subscriber::filter::LevelFilter::DEBUG))
-        .try_init()?;
-
-    Ok(())
+pub fn try_init<A: tauri::Assets>(tauri_ctx: &tauri::Context<A>) -> Result<()> {
+    Builder::default().try_init(tauri_ctx.package_info().clone())
 }
 
 #[derive(Debug, Default)]
@@ -104,11 +38,13 @@ struct Shared {
     /// flushed.
     flush: Flush,
 
+    /// A counter of how many IPC events were dropped because the event buffer was at capacity.
+    dropped_ipc_events: AtomicUsize,
+
     /// A counter of how many trace events were dropped because the event buffer was at capacity
     dropped_log_events: AtomicUsize,
 
-    /// A counter of how many IPC events were dropped because the event buffer was at capacity
-    dropped_ipc_events: AtomicUsize,
+    dropped_misc_events: AtomicUsize,
 }
 
 enum Event {
@@ -116,7 +52,7 @@ enum Event {
     LogEvent {
         metadata: &'static tracing_core::Metadata<'static>,
         fields: Vec<wire::Field>,
-        at: Instant
+        at: Instant,
     },
     IPCRequestInitiated {
         id: tracing_core::span::Id,
@@ -125,8 +61,8 @@ enum Event {
         stats: Arc<stats::IPCRequestStats>,
         metadata: &'static tracing_core::Metadata<'static>,
         fields: Vec<wire::Field>,
-        handler: wire::Location
-    }
+        handler: wire::Location,
+    },
 }
 
 enum Command {
@@ -141,7 +77,7 @@ enum Include {
 
 #[derive(Debug)]
 struct Watch<T> {
-    tx: mpsc::Sender<Result<T, tonic::Status>>,
+    tx: mpsc::Sender<std::result::Result<T, tonic::Status>>,
     interests: Interests,
 }
 
@@ -162,12 +98,12 @@ pub(crate) trait ToProto {
     fn to_proto(&self, base_time: &TimeAnchor) -> Self::Output;
 }
 
-pub trait FromProto {
+pub(crate) trait FromProto {
     type Input;
     fn from_proto(proto: Self::Input) -> Self;
 }
 
-pub trait Unsent {
+pub(crate) trait Unsent {
     fn take_unsent(&self) -> bool;
     fn is_unsent(&self) -> bool;
 }

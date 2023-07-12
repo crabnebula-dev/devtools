@@ -1,8 +1,7 @@
 use crate::{
     id_map::IdMap, stats, util::TimeAnchor, Command, Event, Include, Shared, ToProto, Unsent, Watch,
 };
-use wire::instrument::Interests;
-use futures::FutureExt;
+use futures_util::FutureExt;
 use std::{
     mem,
     sync::{
@@ -12,11 +11,15 @@ use std::{
     time::{Duration, Instant},
 };
 use tokio::sync::{mpsc, Notify};
+use wire::instrument::Interests;
 
-pub struct Aggregator {
+pub(crate) struct Aggregator {
+    shared: Arc<Shared>,
     events: mpsc::Receiver<Event>,
     commands: mpsc::Receiver<Command>,
-    shared: Arc<Shared>,
+    /// Used to anchor monotonic timestamps to a base `SystemTime`, to produce a
+    /// timestamp that can be sent over the wire.
+    base_time: TimeAnchor,
 
     /// Which sources should be tracked
     /// enabled: Sources,
@@ -32,14 +35,8 @@ pub struct Aggregator {
     /// This is emptied on every state update.
     new_metadata: Vec<wire::register_metadata::NewMetadata>,
 
-    log_events: Vec<wire::log::Event>,
-
     ipc_requests: IdMap<IPCRequest>,
     ipc_request_stats: IdMap<Arc<stats::IPCRequestStats>>,
-
-    /// Used to anchor monotonic timestamps to a base `SystemTime`, to produce a
-    /// timestamp that can be sent over the wire.
-    base_time: TimeAnchor,
 }
 
 #[derive(Debug, Default)]
@@ -59,10 +56,7 @@ struct IPCRequest {
 }
 
 impl Aggregator {
-    /// Default frequency for publishing events to clients.
-    const DEFAULT_PUBLISH_INTERVAL: Duration = Duration::from_millis(250);
-
-    pub(crate) fn new(
+    pub fn new(
         shared: Arc<Shared>,
         events: mpsc::Receiver<Event>,
         commands: mpsc::Receiver<Command>,
@@ -75,25 +69,22 @@ impl Aggregator {
             watchers: Vec::new(),
             all_metadata: Vec::new(),
             new_metadata: Vec::new(),
-            log_events: Vec::new(),
             ipc_requests: IdMap::new(),
             ipc_request_stats: IdMap::new(),
         }
     }
 
-    pub async fn run(mut self) {
-        let mut interval = tokio::time::interval(Self::DEFAULT_PUBLISH_INTERVAL);
+    pub async fn run(mut self, publish_interval: Duration) -> crate::Result<()> {
+        let mut interval = tokio::time::interval(publish_interval);
 
         loop {
             let should_publish = tokio::select! {
                 _ = interval.tick() => true,
-
                 _ = self.shared.flush.should_flush.notified() => {
                     tracing::debug!("approaching capacity; draining buffer");
 
                     false
-                }
-
+                },
                 cmd = self.commands.recv() => {
                     match cmd {
                         Some(Command::Instrument(watcher)) => {
@@ -101,7 +92,7 @@ impl Aggregator {
                         },
                         None => {
                             tracing::debug!("rpc channel closed, terminating");
-                            return;
+                            return Ok(());
                         },
                     };
 
@@ -120,7 +111,7 @@ impl Aggregator {
                     // to stop aggregating.
                     None => {
                         tracing::debug!("event channel closed; terminating");
-                        return;
+                        return Ok(());
                     }
                 };
             }
@@ -138,36 +129,26 @@ impl Aggregator {
     }
 
     fn add_instrument_watcher(&mut self, watcher: Watch<wire::instrument::Update>) {
-        tracing::debug!("new instrument watcher");
-
         let now = Instant::now();
 
-        let new_metadata =
-            watcher
-                .interests
-                .contains(Interests::Metadata)
-                .then_some(wire::RegisterMetadata {
-                    metadata: self.all_metadata.clone(),
-                });
+        let new_metadata = Some(wire::RegisterMetadata {
+            metadata: self.all_metadata.clone(),
+        });
 
-        let log_update = watcher
+        let ipc_update = watcher
             .interests
-            .contains(Interests::Trace)
-            .then_some(self.log_update(Include::All));
+            .contains(Interests::Ipc)
+            .then(|| self.ipc_update(Include::All));
 
-        let ipc_update = Some(self.ipc_update(Include::All));
-
-        let update = &wire::instrument::Update {
-            new_metadata,
-            log_update,
-            ipc_update,
+        let update = wire::instrument::Update {
             now: Some(self.base_time.to_timestamp(now)),
+            new_metadata,
+            ipc_update,
         };
 
         // Send the initial state --- if this fails, the watcher is already dead
-        if watcher.update(update) {
+        if watcher.update(&update) {
             self.watchers.push(watcher);
-            // self.enabled |= sources;
         }
     }
 
@@ -181,19 +162,15 @@ impl Aggregator {
                 metadata,
                 fields,
                 at,
-            } => self.log_events.push(wire::log::Event {
-                metadata_id: Some(metadata.into()),
-                fields,
-                at: Some(self.base_time.to_timestamp(at)),
-            }),
+            } => todo!(),
             Event::IPCRequestInitiated {
                 id,
-                stats,
+                cmd,
+                kind,
                 metadata,
                 fields,
                 handler,
-                cmd,
-                kind,
+                stats,
             } => {
                 self.ipc_requests.insert(
                     id.clone(),
@@ -224,42 +201,29 @@ impl Aggregator {
             None
         };
 
-        let log_update = if !self.log_events.is_empty() {
-            Some(self.log_update(Include::UpdateOnly))
+        let ipc_update = if self.ipc_requests.has_unsent() || self.ipc_request_stats.has_unsent() {
+            Some(self.ipc_update(Include::UpdateOnly))
         } else {
             None
         };
 
-        let ipc_update = Some(self.ipc_update(Include::UpdateOnly));
-
-        let update = &wire::instrument::Update {
+        let update = wire::instrument::Update {
             now: Some(self.base_time.to_timestamp(now)),
-            log_update,
-            ipc_update,
             new_metadata,
+            ipc_update,
         };
 
-        self.watchers.retain(|watcher| watcher.update(update));
+        self.watchers.retain(|watcher| watcher.update(&update));
         self.watchers.shrink_to_fit();
     }
 
-    fn log_update(&mut self, include: Include) -> wire::log::LogUpdate {
-        let new_events = match include {
-            Include::All => self.log_events.clone(),
-            Include::UpdateOnly => mem::take(&mut self.log_events),
-        };
-
-        wire::log::LogUpdate {
-            new_events,
-            dropped_events: self.shared.dropped_log_events.swap(0, Ordering::AcqRel) as u64,
-        }
-    }
-
-    fn ipc_update(&mut self, include: Include) -> wire::ipc::IpcUpdate {
-        wire::ipc::IpcUpdate {
+    fn ipc_update(&self, include: Include) -> wire::ipc::Update {
+        wire::ipc::Update {
             new_requests: self.ipc_requests.to_proto_list(include, &self.base_time),
-            stats_update: self.ipc_request_stats.to_proto_map(include, &self.base_time),
-            dropped_events: self.shared.dropped_log_events.swap(0, Ordering::AcqRel) as u64,
+            stats_update: self
+                .ipc_request_stats
+                .to_proto_map(include, &self.base_time),
+            dropped_events: self.shared.dropped_ipc_events.swap(0, Ordering::AcqRel) as u64,
         }
     }
 }
@@ -305,7 +269,7 @@ impl ToProto for IPCRequest {
             metadata: Some(self.metadata.into()),
             fields: self.fields.clone(),
             kind: self.kind as i32,
-            handler: self.handler.clone()
+            handler: self.handler.clone(),
         }
     }
 }

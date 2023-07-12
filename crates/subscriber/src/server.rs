@@ -1,53 +1,36 @@
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::net::SocketAddr;
 
-use wire::instrument::Interests;
 use tokio::sync::mpsc;
+use wire::instrument::Interests;
 
 use crate::{Command, Watch};
 
-/// Default maximum capacity for the channel of events sent from a
-/// [`Server`] to each subscribed client.
-///
-/// When this capacity is exhausted, the client is assumed to be inactive,
-/// and may be disconnected.
-const DEFAULT_CLIENT_BUFFER_CAPACITY: usize = 1024 * 4;
-
-pub struct Server {
-    addr: SocketAddr,
+pub(crate) struct Server {
     instrument: InstrumentServer,
-    application: ApplicationServer,
 }
 
 struct InstrumentServer {
-    tx: mpsc::Sender<Command>,
-}
-
-struct ApplicationServer {
-    package_info: tauri::PackageInfo,
+    commands: mpsc::Sender<Command>,
+    client_buffer_capacity: usize,
 }
 
 impl Server {
-    pub const DEFAULT_IP: IpAddr = IpAddr::V4(Ipv4Addr::UNSPECIFIED);
-
-    pub const DEFAULT_PORT: u16 = 6669;
-
-    pub(crate) fn new(tx: mpsc::Sender<Command>, package_info: tauri::PackageInfo) -> Self {
+    pub fn new(commands: mpsc::Sender<Command>, client_buffer_capacity: usize) -> Self {
         Self {
-            addr: SocketAddr::new(Self::DEFAULT_IP, Self::DEFAULT_PORT),
-            instrument: InstrumentServer { tx },
-            application: ApplicationServer { package_info },
+            instrument: InstrumentServer {
+                commands,
+                client_buffer_capacity,
+            },
         }
     }
 
-    pub async fn serve(self) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+    pub async fn run(self, addr: SocketAddr) -> crate::Result<()> {
+        println!("Listening on {}", addr);
         tonic::transport::Server::builder()
             .add_service(wire::instrument::instrument_server::InstrumentServer::new(
                 self.instrument,
             ))
-            .add_service(
-                wire::application::application_server::ApplicationServer::new(self.application),
-            )
-            .serve(self.addr)
+            .serve(addr)
             .await?;
 
         Ok(())
@@ -69,12 +52,12 @@ impl wire::instrument::instrument_server::Instrument for InstrumentServer {
         }
 
         // reserve capacity to message the aggregator
-        let permit = self.tx.reserve().await.map_err(|_| {
+        let permit = self.commands.reserve().await.map_err(|_| {
             tonic::Status::internal("cannot start new watch, aggregation task is not running")
         })?;
 
         // create output channel and send tx to the aggregator for tracking
-        let (tx, rx) = mpsc::channel(DEFAULT_CLIENT_BUFFER_CAPACITY);
+        let (tx, rx) = mpsc::channel(self.client_buffer_capacity);
 
         let interests = Interests::from_bits(req.into_inner().interests)
             .ok_or(tonic::Status::invalid_argument("could not parse sources"))?;
@@ -92,22 +75,5 @@ impl wire::instrument::instrument_server::Instrument for InstrumentServer {
         _req: tonic::Request<wire::instrument::UpdateInterestsRequest>,
     ) -> Result<tonic::Response<wire::instrument::UpdateInterestsResponse>, tonic::Status> {
         todo!()
-    }
-}
-
-#[tonic::async_trait]
-impl wire::application::application_server::Application for ApplicationServer {
-    async fn get_package_info(
-        &self,
-        _req: tonic::Request<wire::application::GetPackageInfoRequest>,
-    ) -> Result<tonic::Response<wire::application::PackageInfo>, tonic::Status> {
-        let info = wire::application::PackageInfo {
-            name: self.package_info.name.clone(),
-            version: self.package_info.version.to_string(),
-            authors: self.package_info.authors.to_string(),
-            description: self.package_info.description.to_string(),
-        };
-
-        Ok(tonic::Response::new(info))
     }
 }

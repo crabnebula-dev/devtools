@@ -1,35 +1,27 @@
+use crate::{
+    callsites::Callsites,
+    stats,
+    visitors::{FieldVisitor, IPCVisitor},
+    Event, Shared,
+};
 use std::{
     sync::{
         atomic::{AtomicUsize, Ordering},
         Arc,
     },
-    time::{Duration, Instant},
+    time::Instant,
 };
-
 use tokio::sync::mpsc;
 use tracing_core::Subscriber;
 use tracing_subscriber::registry::LookupSpan;
 
-use crate::{
-    callsites::Callsites,
-    stats,
-    util::TimeAnchor,
-    visitors::{FieldVisitor, IPCVisitor},
-    Event, Shared,
-};
-
-pub struct Layer {
-    tx: mpsc::Sender<Event>,
-
+pub(crate) struct Layer {
     shared: Arc<Shared>,
+    events: mpsc::Sender<Event>,
 
     /// When the channel capacity goes under this number, a flush in the aggregator
     /// will be triggered.
     flush_threshold: usize,
-
-    /// Used to anchor monotonic timestamps to a base `SystemTime`, to produce a
-    /// timestamp that can be sent over the wire.
-    base_time: TimeAnchor,
 
     /// Set of callsites for spans representing ongoing IPC requests
     ///
@@ -37,67 +29,15 @@ pub struct Layer {
     /// so this number needs to be quite large (there are as many callsites are there are commands)
     /// TODO make this smaller once all callsites are contained in the tauri crate
     ipc_callsites: Callsites<32>,
-
-    /// Set of callsites for spans representing spawned tasks.
-    ///
-    /// For task spans, each runtime these will have like, 1-5 callsites in it, max, so
-    /// 8 should be plenty. If several runtimes are in use, we may have to spill
-    /// over into the backup hashmap, but it's unlikely.
-    spawn_callsites: Callsites<8>,
-
-    /// Set of callsites for events representing waker operations.
-    ///
-    /// 16 is probably a reasonable number of waker ops; it's a bit generous if
-    /// there's only one async runtime library in use, but if there are multiple,
-    /// they might all have their own sets of waker ops.
-    waker_callsites: Callsites<16>,
-
-    /// Maximum value for the poll time histogram.
-    ///
-    /// By default, this is one second.
-    max_poll_duration_nanos: u64,
-
-    /// Maximum value for the scheduled time histogram.
-    ///
-    /// By default, this is one second.
-    max_scheduled_duration_nanos: u64,
 }
 
 impl Layer {
-    /// Default maximum capacity for the channel of events sent from a
-    /// [`ConsoleLayer`] to a [`Server`].
-    ///
-    /// When this capacity is exhausted, additional events will be dropped.
-    /// Decreasing this value will reduce memory usage, but may result in
-    /// events being dropped more frequently.
-    ///
-    /// See also [`Builder::event_buffer_capacity`].
-    pub const DEFAULT_EVENT_BUFFER_CAPACITY: usize = 1024 * 100;
-
-    /// The default maximum value for task poll duration histograms.
-    ///
-    /// Any poll duration exceeding this will be clamped to this value. By
-    /// default, the maximum poll duration is one second.
-    pub const DEFAULT_POLL_DURATION_MAX: Duration = Duration::from_secs(1);
-
-    /// The default maximum value for the task scheduled duration histogram.
-    ///
-    /// Any scheduled duration (the time from a task being woken until it is next
-    /// polled) exceeding this will be clamped to this value. By default, the
-    /// maximum scheduled duration is one second.
-    pub const DEFAULT_SCHEDULED_DURATION_MAX: Duration = Duration::from_secs(1);
-
-    pub(crate) fn new(shared: Arc<Shared>, tx: mpsc::Sender<Event>) -> Self {
+    pub fn new(shared: Arc<Shared>, events: mpsc::Sender<Event>, flush_threshold: usize) -> Self {
         Self {
             shared,
-            tx,
-            flush_threshold: Self::DEFAULT_EVENT_BUFFER_CAPACITY / 2,
-            base_time: TimeAnchor::new(),
+            events,
+            flush_threshold,
             ipc_callsites: Callsites::default(),
-            spawn_callsites: Callsites::default(),
-            waker_callsites: Callsites::default(),
-            max_poll_duration_nanos: Self::DEFAULT_POLL_DURATION_MAX.as_nanos() as u64,
-            max_scheduled_duration_nanos: Self::DEFAULT_SCHEDULED_DURATION_MAX.as_nanos() as u64,
         }
     }
 
@@ -105,7 +45,7 @@ impl Layer {
         use mpsc::error::TrySendError;
 
         // Return whether or not we actually sent the event.
-        match self.tx.try_reserve() {
+        match self.events.try_reserve() {
             Ok(permit) => {
                 let event = mk_event();
                 permit.send(event);
@@ -124,7 +64,7 @@ impl Layer {
             }
         };
 
-        let capacity = self.tx.capacity();
+        let capacity = self.events.capacity();
         if capacity <= self.flush_threshold {
             self.shared.flush.trigger();
         }
@@ -132,10 +72,6 @@ impl Layer {
 
     fn is_ipc_request(&self, meta: &'static tracing_core::Metadata<'static>) -> bool {
         self.ipc_callsites.contains(meta)
-    }
-
-    fn is_spawn(&self, meta: &'static tracing_core::Metadata<'static>) -> bool {
-        self.spawn_callsites.contains(meta)
     }
 }
 
@@ -155,7 +91,7 @@ where
                 self.ipc_callsites.insert(meta);
                 &self.shared.dropped_ipc_events
             }
-            _ => &self.shared.dropped_log_events,
+            _ => &self.shared.dropped_misc_events,
         };
 
         self.send_event(dropped_counter, || Event::Metadata(meta));
@@ -177,15 +113,13 @@ where
             attrs.record(&mut ipc_visitor);
 
             if let Some(result) = ipc_visitor.result() {
-                let stats = Arc::new(stats::IPCRequestStats::new(
-                    self.max_poll_duration_nanos,
-                    self.max_scheduled_duration_nanos,
-                    at,
-                ));
+                let stats = Arc::new(stats::IPCRequestStats::new(at));
 
                 self.send_event(&self.shared.dropped_ipc_events, || {
                     Event::IPCRequestInitiated {
                         id: id.clone(),
+                        cmd: result.cmd,
+                        kind: result.kind,
                         stats: stats.clone(),
                         metadata: meta,
                         fields: result.fields,
@@ -195,8 +129,6 @@ where
                             line: result.line.or(meta.line()),
                             column: result.column,
                         },
-                        cmd: result.cmd,
-                        kind: result.kind,
                     }
                 });
 
@@ -204,7 +136,12 @@ where
             }
         }
 
-        if matches!(meta.name(), "ipc.request.deserialize_arg" | "ipc.request.serialize_returns" | "ipc.request.handler") {
+        // if we're in a span that belongs to an ipc request,
+        // we want to retrieve a reference to the parents stats so we can track the stats on child spans too
+        if matches!(
+            meta.name(),
+            "ipc.request.deserialize_arg" | "ipc.request.serialize_returns" | "ipc.request.handler"
+        ) {
             if let Some(span) = ctx.span(id) {
                 if let Some(parent) = span.parent() {
                     let mut cexts = span.extensions_mut();
@@ -216,27 +153,12 @@ where
         }
     }
 
-    fn on_record(
-        &self,
-        _span: &tracing_core::span::Id,
-        _values: &tracing_core::span::Record<'_>,
-        _ctx: tracing_subscriber::layer::Context<'_, S>,
-    ) {
-    }
-
-    fn on_follows_from(
-        &self,
-        _span: &tracing_core::span::Id,
-        _follows: &tracing_core::span::Id,
-        _ctx: tracing_subscriber::layer::Context<'_, S>,
-    ) {
-    }
-
     fn on_event(
         &self,
         event: &tracing_core::Event<'_>,
         _ctx: tracing_subscriber::layer::Context<'_, S>,
     ) {
+        let now = Instant::now();
         let metadata = event.metadata();
 
         let mut field_visitor = FieldVisitor::new(metadata.into());
@@ -247,11 +169,11 @@ where
             Event::Metadata(metadata)
         });
 
-        self.send_event(&self.shared.dropped_log_events, || Event::LogEvent {
-            at: Instant::now(),
-            metadata: event.metadata(),
-            fields,
-        })
+        // self.send_event(&self.shared.dropped_log_events, || Event::LogEvent {
+        //     at: now,
+        //     metadata: event.metadata(),
+        //     fields,
+        // })
     }
 
     fn on_enter(
@@ -299,13 +221,5 @@ where
                 stats.complete(now);
             }
         }
-    }
-
-    fn on_id_change(
-        &self,
-        _old: &tracing_core::span::Id,
-        _new: &tracing_core::span::Id,
-        _ctx: tracing_subscriber::layer::Context<'_, S>,
-    ) {
     }
 }

@@ -3,7 +3,8 @@ use std::net::IpAddr;
 
 pub struct Zeroconf {
     hostname: String,
-    grpc_port: u16,
+    instrument_port: u16,
+    crash_port: u16,
     os: &'static str,
     arch: &'static str,
     package_info: tauri::PackageInfo,
@@ -11,12 +12,14 @@ pub struct Zeroconf {
 
 impl Zeroconf {
     pub fn new_from_env(
-        grpc_port: u16,
+        instrument_port: u16,
+        crash_port: u16,
         package_info: tauri::PackageInfo,
-    ) -> Result<Self, Box<dyn std::error::Error>> {
+    ) -> crate::Result<Self> {
         let hostname = hostname::get()?;
         Ok(Self {
-            grpc_port,
+            instrument_port,
+            crash_port,
             hostname: hostname.to_string_lossy().to_string(),
             os: std::env::consts::OS,
             arch: std::env::consts::ARCH,
@@ -24,12 +27,11 @@ impl Zeroconf {
         })
     }
 
-    pub async fn run(self) -> Result<(), Box<dyn std::error::Error + Send + Sync + 'static>> {
+    pub async fn run(self) -> crate::Result<()> {
         // Create a daemon
         let mdns = ServiceDaemon::new()?;
 
         // Create a service info.
-        let service_type = "_cn-devtools._udp.local.";
         let instance_name = &self.package_info.name;
 
         let host_ipv4 = if_addrs::get_if_addrs()?
@@ -51,19 +53,31 @@ impl Zeroconf {
             ("AUTHORS", self.package_info.authors),
         ];
 
-        let my_service = ServiceInfo::new(
-            service_type,
+        let instrument_service = ServiceInfo::new(
+            "_CNDinstrument._udp.local.",
             instance_name,
             &self.hostname,
-            host_ipv4,
-            self.grpc_port,
+            host_ipv4.clone(),
+            self.instrument_port,
             &properties[..],
         )
         .unwrap();
 
-        // Register with the daemon, which publishes the service.
-        mdns.register(my_service)
-            .expect("Failed to register our service");
+        let crash_service = ServiceInfo::new(
+            "_CNDcrash._udp.local.",
+            instance_name,
+            &self.hostname,
+            host_ipv4,
+            self.crash_port,
+            &properties[..],
+        )
+        .unwrap();
+
+        // Register with the daemon, which publishes the services.
+        mdns.register(instrument_service)
+            .expect("Failed to register instrument service");
+        mdns.register(crash_service)
+            .expect("Failed to register instrument service");
 
         let receiver = mdns.monitor().unwrap();
 

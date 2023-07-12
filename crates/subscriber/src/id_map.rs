@@ -1,5 +1,5 @@
+use crate::{util::TimeAnchor, Include, ToProto, Unsent};
 use std::collections::HashMap;
-use crate::{Unsent, ToProto, util::TimeAnchor, Include};
 
 pub(crate) struct IdMap<T>(HashMap<tracing_core::span::Id, T>);
 
@@ -18,7 +18,7 @@ impl<T> IdMap<T> {
 }
 
 impl<T: Unsent> IdMap<T> {
-    fn since_last_update(&self) -> impl Iterator<Item = (&tracing_core::span::Id, &T)> {
+    pub fn since_last_update(&self) -> impl Iterator<Item = (&tracing_core::span::Id, &T)> {
         self.0.iter().filter_map(|(id, data)| {
             if data.take_unsent() {
                 Some((id, data))
@@ -27,15 +27,16 @@ impl<T: Unsent> IdMap<T> {
             }
         })
     }
+
+    pub fn has_unsent(&self) -> bool {
+        self.0.values().any(|data| data.is_unsent())
+    }
 }
 
 impl<T: ToProto + Unsent> IdMap<T> {
     pub fn to_proto_list(&self, include: Include, base_time: &TimeAnchor) -> Vec<T::Output> {
         match include {
-            Include::All => self
-                .all()
-                .map(|(_, t)| t.to_proto(base_time))
-                .collect(),
+            Include::All => self.all().map(|(_, t)| t.to_proto(base_time)).collect(),
             Include::UpdateOnly => self
                 .since_last_update()
                 .map(|(_, t)| t.to_proto(base_time))
@@ -43,7 +44,11 @@ impl<T: ToProto + Unsent> IdMap<T> {
         }
     }
 
-    pub fn to_proto_map(&self, include: Include, base_time: &TimeAnchor) -> HashMap<u64, T::Output> {
+    pub fn to_proto_map(
+        &self,
+        include: Include,
+        base_time: &TimeAnchor,
+    ) -> HashMap<u64, T::Output> {
         match include {
             Include::All => self
                 .all()

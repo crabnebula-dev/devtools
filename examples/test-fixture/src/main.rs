@@ -27,13 +27,22 @@ async fn test5() {
     tokio::time::sleep(Duration::from_secs(5)).await;
 }
 
+#[tauri::command]
+fn test6() {
+    unsafe {
+        sadness_generator::raise_segfault();
+    }
+}
+
 fn main() {
     let context = tauri::generate_context!();
 
     subscriber::init(&context);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![test, test2, test3, test4, test5])
+        .invoke_handler(tauri::generate_handler![
+            test, test2, test3, test4, test5, test6
+        ])
         .run(context)
         .expect("error while running tauri application");
 }

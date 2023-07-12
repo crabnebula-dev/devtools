@@ -6,3 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+wire = { path = "../wire" }
+tonic.workspace = true
+tokio = { workspace = true, features = ["full"] }
+mdns-sd.workspace = true
+futures-util = "0.3.28"
+bytes.workspace = true

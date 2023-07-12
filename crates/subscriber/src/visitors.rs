@@ -40,7 +40,7 @@ impl IPCVisitor {
             cmd: None,
             kind: None,
             line: None,
-            column: None
+            column: None,
         }
     }
     pub(crate) fn result(self) -> Option<IPCVisitorResult> {

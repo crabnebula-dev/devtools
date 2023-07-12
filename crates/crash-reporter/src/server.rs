@@ -1,31 +1,32 @@
+use crate::{Error, MessageHeader, MessageKind, Watchers};
+use bytes::Bytes;
+use futures_util::io::AsyncReadExt;
+use interprocess::local_socket::tokio::{LocalSocketListener, LocalSocketStream};
 use std::{
-    fs,
-    io::Read,
-    mem,
+    fs, mem,
     path::{Path, PathBuf},
     time::Duration,
 };
 
-use crate::{Error, MessageHeader, MessageKind};
-
 pub struct Server {
-    listener: crate::os::Listener,
+    listener: LocalSocketListener,
     #[cfg(target_os = "macos")]
     port: crash_context::ipc::Server,
     socket_path: PathBuf,
+    watchers: Watchers,
 }
 
 struct ClientConnection {
-    socket: crate::os::Stream,
+    socket: LocalSocketStream,
 }
 
 impl Server {
-    pub fn bind(path: &Path) -> crate::Result<Self> {
+    pub fn new(path: &Path, watchers: Watchers) -> crate::Result<Self> {
         if path.exists() {
             fs::remove_file(path).unwrap();
         }
 
-        let listener = crate::os::bind(path)?;
+        let listener = LocalSocketListener::bind(path)?;
 
         #[cfg(target_os = "macos")]
         let port = {
@@ -42,16 +43,17 @@ impl Server {
             #[cfg(target_os = "macos")]
             port,
             socket_path: path.to_path_buf(),
+            watchers,
         })
     }
 
-    pub fn run(mut self) -> crate::Result<()> {
-        if let Ok((socket, _)) = self.listener.accept() {
+    pub async fn run(mut self) -> crate::Result<()> {
+        while let Ok(socket) = self.listener.accept().await {
             let mut conn = ClientConnection { socket };
 
-            while let Some((kind, body)) = conn.recv() {
+            while let Some((kind, body)) = conn.recv().await {
                 if kind == MessageKind::Crash {
-                    self.handle_crash_message(&body)?;
+                    self.handle_crash_message(&body).await?;
 
                     #[cfg(not(target_os = "macos"))]
                     {
@@ -62,33 +64,15 @@ impl Server {
                         conn.socket.write_all(ack.as_bytes())?;
                     }
 
-                    return Ok(());
+                    return Ok::<(), Error>(());
                 }
-                // #[allow(unreachable_patterns)]
-                // match kind {
-                //     MessageKind::Crash => {
-                //         self.handle_crash_message(&body)?;
-
-                //         #[cfg(not(target_os = "macos"))]
-                //         {
-                //             let ack = MessageHeader {
-                //                 kind: MessageKind::CrashAck,
-                //                 len: 0,
-                //             };
-                //             conn.socket.write_all(ack.as_bytes())?;
-                //         }
-
-                //         return Ok(());
-                //     }
-                //     _ => {}
-                // }
             }
         }
 
         Ok(())
     }
 
-    fn handle_crash_message(&mut self, _body: &[u8]) -> crate::Result<()> {
+    async fn handle_crash_message(&mut self, _body: &[u8]) -> crate::Result<()> {
         #[cfg(any(target_os = "linux", target_os = "android"))]
         let crash_context = {
             crash_context::CrashContext::from_bytes(body).ok_or_else(|| {
@@ -126,7 +110,16 @@ impl Server {
             }
         };
 
-        todo!("process crash context");
+        let mut writer =
+            minidump_writer::minidump_writer::MinidumpWriter::with_crash_context(crash_context);
+
+        let mut f = std::fs::File::create("./minidump")?;
+        let crashdump = Bytes::from(writer.dump(&mut f)?);
+
+        let mut watchers = self.watchers.lock().await;
+        for watcher in watchers.drain(..) {
+            let _ = watcher.send(crashdump.clone());
+        }
 
         Ok(())
     }
@@ -142,9 +135,9 @@ impl Drop for Server {
 }
 
 impl ClientConnection {
-    pub fn recv(&mut self) -> Option<(MessageKind, Vec<u8>)> {
+    pub async fn recv(&mut self) -> Option<(MessageKind, Vec<u8>)> {
         let mut hdr_buf = [0u8; mem::size_of::<MessageHeader>()];
-        let bytes_read = self.socket.read(&mut hdr_buf).ok()?;
+        let bytes_read = self.socket.read(&mut hdr_buf).await.ok()?;
 
         if bytes_read == 0 {
             return None;
@@ -157,7 +150,7 @@ impl ClientConnection {
         } else {
             let mut buf = vec![0; header.len];
 
-            self.socket.read_exact(&mut buf).ok()?;
+            self.socket.read_exact(&mut buf).await.ok()?;
 
             Some((header.kind, buf))
         }

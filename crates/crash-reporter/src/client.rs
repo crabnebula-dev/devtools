@@ -1,20 +1,20 @@
+use crate::{Error, MessageHeader, MessageKind};
 use std::{
     io::{IoSlice, Write},
+    mem,
     path::Path,
-    time::Duration, mem,
+    time::Duration,
 };
 
-use crate::{Error, MessageHeader, MessageKind};
-
 pub struct Client {
-    socket: crate::os::Stream,
+    socket: interprocess::local_socket::LocalSocketStream,
     #[cfg(target_os = "macos")]
     port: crash_context::ipc::Client,
 }
 
 impl Client {
     pub fn connect(path: &Path) -> crate::Result<Self> {
-        let socket = crate::os::connect(path)?;
+        let socket = interprocess::local_socket::LocalSocketStream::connect(path)?;
 
         #[cfg(target_os = "macos")]
         let port = {
@@ -48,7 +48,7 @@ impl Client {
         };
         #[cfg(target_os = "windows")]
         let crash_ctx_buf = {
-            let req = os::DumpRequest {
+            let req = crate::DumpRequest {
                 exception_pointers: ctx.exception_pointers as usize,
                 process_id: ctx.process_id,
                 thread_id: ctx.thread_id,
@@ -86,7 +86,8 @@ impl Client {
 
         let hdr_buf = header.as_bytes();
 
-        let bytes_written = self.socket
+        let bytes_written = self
+            .socket
             .write_vectored(&[IoSlice::new(hdr_buf), IoSlice::new(buf)])?;
 
         assert_eq!(bytes_written, buf.len() + mem::size_of::<MessageHeader>());

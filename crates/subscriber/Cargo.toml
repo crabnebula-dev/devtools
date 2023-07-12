@@ -7,17 +7,20 @@ edition = "2021"
 
 [dependencies]
 wire = { path = "../wire" }
+crash-reporter = { path = "../crash-reporter" }
 tracing.workspace = true
-mdns-sd.workspace = true
-tokio = { version = "^1.21", features = ["sync", "time", "macros", "tracing"] }
-tracing-core = "0.1.24"
-prost-types = "0.11.9"
-tonic = { version = "0.9.2", features = ["transport"] }
-tokio-stream = { version = "0.1", features = ["net", "sync"] }
+tracing-core.workspace = true
+tokio = { workspace = true, features = ["sync", "time", "macros", "tracing"] }
+prost-types.workspace = true
 tauri.workspace = true
 tracing-subscriber = { version = "0.3.11", default-features = false, features = ["fmt", "registry", "env-filter"] }
-futures = "0.3.28"
+tonic.workspace = true
+tokio-stream = { version = "0.1", features = ["net", "sync"] }
+parking_lot = "0.12.1"
+portpicker = "0.1.1"
+thiserror = "1.0.43"
+futures-util.workspace = true
+mdns-sd.workspace = true
+# hdrhistogram = "7.5.2"
 hostname = "0.3.1"
 if-addrs = "0.10.1"
-hdrhistogram = "7.5.2"
-parking_lot = "0.12.1"

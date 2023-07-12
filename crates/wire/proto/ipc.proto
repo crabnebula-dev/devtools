@@ -5,9 +5,8 @@ package rs.tauri.devtools.ipc;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 import "common.proto";
-import "tasks.proto";
 
-message IPCUpdate {
+message Update {
     // A list of new ipc requests that happened since the last `IPCUpdate` was
     // sent.
     //
@@ -34,7 +33,7 @@ message IPCUpdate {
 message Request {
     // The numeric ID ID of the request.
     common.Id id = 1;
-    // The command name that was invoked    
+    // The command name that was invoked
     string cmd = 4;
     Kind kind = 5;
     // The numeric ID of the request's `Metadata`.
@@ -70,10 +69,6 @@ message Stats {
 
     // Performance data for the actual request handler.
     Timestamps inner = 6;
-
-    // Contains task performance statistics if the request is being handled by the async runtime (i.e. the request handler is async)
-    // `None` when the request handler is sync.
-    optional tasks.Stats task_stats = 7;
 }
 
 message Timestamps {
@@ -82,22 +77,4 @@ message Timestamps {
     optional google.protobuf.Timestamp last_enter_ended = 3;
     google.protobuf.Duration waiting_time = 4;
     google.protobuf.Duration busy_time = 5;
-    DurationHistogram waiting_times_histogram = 6;
-    DurationHistogram busy_times_histogram = 7;
-}
-
-message DurationHistogram {
-
-    // HdrHistogram.rs `Histogram` serialized to binary in the V2 format
-    bytes raw_histogram = 1;
-
-    // The histogram's maximum value.
-    uint64 max_value = 2;
-
-    // The number of outliers which have exceeded the histogram's maximum value.
-    uint64 high_outliers = 3;
-
-    // The highest recorded outlier. This is only present if `high_outliers` is
-    // greater than zero.
-    optional uint64 highest_outlier = 4;
 }
