@@ -5,6 +5,7 @@ package rs.tauri.devtools.instrument;
 import "google/protobuf/timestamp.proto";
 import "common.proto";
 import "ipc.proto";
+import "log.proto";
 
 // Real time updates about components of an instrumented application
 service Instrument {
@@ -28,6 +29,8 @@ message Update {
     common.RegisterMetadata new_metadata = 2;
     // Any new information about ongoing and new IPC requests that was emitted since the last update.
     ipc.Update ipc_update = 3;
+    // Any new log events that were emitted since the last update.
+    log.Update log_update = 4;
 }
 
 message UpdateInterestsResponse {}

@@ -35,6 +35,8 @@ pub(crate) struct Aggregator {
     /// This is emptied on every state update.
     new_metadata: Vec<wire::register_metadata::NewMetadata>,
 
+    log_events: Vec<wire::log::Event>,
+
     ipc_requests: IdMap<IPCRequest>,
     ipc_request_stats: IdMap<Arc<stats::IPCRequestStats>>,
 }
@@ -69,6 +71,7 @@ impl Aggregator {
             watchers: Vec::new(),
             all_metadata: Vec::new(),
             new_metadata: Vec::new(),
+            log_events: Vec::new(),
             ipc_requests: IdMap::new(),
             ipc_request_stats: IdMap::new(),
         }
@@ -140,10 +143,16 @@ impl Aggregator {
             .contains(Interests::Ipc)
             .then(|| self.ipc_update(Include::All));
 
+        let log_update = watcher
+            .interests
+            .contains(Interests::Log)
+            .then(|| self.log_update(Include::All));
+
         let update = wire::instrument::Update {
             now: Some(self.base_time.to_timestamp(now)),
             new_metadata,
             ipc_update,
+            log_update,
         };
 
         // Send the initial state --- if this fails, the watcher is already dead
@@ -162,7 +171,11 @@ impl Aggregator {
                 metadata,
                 fields,
                 at,
-            } => todo!(),
+            } => self.log_events.push(wire::log::Event {
+                metadata_id: Some(metadata.into()),
+                fields,
+                at: Some(self.base_time.to_timestamp(at)),
+            }),
             Event::IPCRequestInitiated {
                 id,
                 cmd,
@@ -207,10 +220,17 @@ impl Aggregator {
             None
         };
 
+        let log_update = if !self.new_metadata.is_empty() {
+            Some(self.log_update(Include::UpdateOnly))
+        } else {
+            None
+        };
+
         let update = wire::instrument::Update {
             now: Some(self.base_time.to_timestamp(now)),
             new_metadata,
             ipc_update,
+            log_update,
         };
 
         self.watchers.retain(|watcher| watcher.update(&update));
@@ -223,7 +243,25 @@ impl Aggregator {
             stats_update: self
                 .ipc_request_stats
                 .to_proto_map(include, &self.base_time),
-            dropped_events: self.shared.dropped_ipc_events.swap(0, Ordering::AcqRel) as u64,
+            dropped_events: match include {
+                Include::All => self.shared.dropped_ipc_events.load(Ordering::Acquire) as u64,
+                Include::UpdateOnly => {
+                    self.shared.dropped_ipc_events.swap(0, Ordering::AcqRel) as u64
+                }
+            },
+        }
+    }
+
+    fn log_update(&mut self, include: Include) -> wire::log::Update {
+        match include {
+            Include::All => wire::log::Update {
+                new_events: self.log_events.clone(),
+                dropped_events: self.shared.dropped_log_events.load(Ordering::Acquire) as u64,
+            },
+            Include::UpdateOnly => wire::log::Update {
+                new_events: mem::take(&mut self.log_events),
+                dropped_events: self.shared.dropped_ipc_events.swap(0, Ordering::AcqRel) as u64,
+            },
         }
     }
 }

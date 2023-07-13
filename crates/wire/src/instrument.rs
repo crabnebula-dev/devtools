@@ -1,5 +1,6 @@
 use crate::common;
 use crate::ipc;
+use crate::log;
 
 mod generated {
     #![allow(clippy::all)]
@@ -36,6 +37,6 @@ bitflags::bitflags! {
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
     pub struct Interests: u32 {
         const Ipc      = 0b0001;
-        // const Trace = 0b0001;
+        const Log      = 0b0010;
     }
 }

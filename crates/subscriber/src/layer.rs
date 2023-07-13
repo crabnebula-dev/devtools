@@ -169,11 +169,11 @@ where
             Event::Metadata(metadata)
         });
 
-        // self.send_event(&self.shared.dropped_log_events, || Event::LogEvent {
-        //     at: now,
-        //     metadata: event.metadata(),
-        //     fields,
-        // })
+        self.send_event(&self.shared.dropped_log_events, || Event::LogEvent {
+            at: now,
+            metadata: event.metadata(),
+            fields,
+        })
     }
 
     fn on_enter(
