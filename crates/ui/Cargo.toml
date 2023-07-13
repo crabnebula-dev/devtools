@@ -12,3 +12,7 @@ tokio = { workspace = true, features = ["full"] }
 mdns-sd.workspace = true
 futures-util = "0.3.28"
 bytes.workspace = true
+dioxus = "0.3.2"
+dioxus-desktop = "0.3.0"
+serde = { version = "1.0", features = ["derive"] }
+parking_lot = "0.12.1"
