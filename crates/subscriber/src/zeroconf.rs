@@ -4,7 +4,7 @@ use std::net::IpAddr;
 pub struct Zeroconf {
     hostname: String,
     instrument_port: u16,
-    crash_port: u16,
+    // crash_port: u16,
     os: &'static str,
     arch: &'static str,
     package_info: tauri::PackageInfo,
@@ -13,13 +13,13 @@ pub struct Zeroconf {
 impl Zeroconf {
     pub fn new_from_env(
         instrument_port: u16,
-        crash_port: u16,
+        // crash_port: u16,
         package_info: tauri::PackageInfo,
     ) -> crate::Result<Self> {
         let hostname = hostname::get()?;
         Ok(Self {
             instrument_port,
-            crash_port,
+            // crash_port,
             hostname: hostname.to_string_lossy().to_string(),
             os: std::env::consts::OS,
             arch: std::env::consts::ARCH,
@@ -63,21 +63,21 @@ impl Zeroconf {
         )
         .unwrap();
 
-        let crash_service = ServiceInfo::new(
-            "_CNDcrash._udp.local.",
-            instance_name,
-            &self.hostname,
-            host_ipv4,
-            self.crash_port,
-            &properties[..],
-        )
-        .unwrap();
+        // let crash_service = ServiceInfo::new(
+        //     "_CNDcrash._udp.local.",
+        //     instance_name,
+        //     &self.hostname,
+        //     host_ipv4,
+        //     self.crash_port,
+        //     &properties[..],
+        // )
+        // .unwrap();
 
         // Register with the daemon, which publishes the services.
         mdns.register(instrument_service)
             .expect("Failed to register instrument service");
-        mdns.register(crash_service)
-            .expect("Failed to register instrument service");
+        // mdns.register(crash_service)
+        //     .expect("Failed to register crash service");
 
         let receiver = mdns.monitor().unwrap();
 

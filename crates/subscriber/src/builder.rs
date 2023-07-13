@@ -78,12 +78,13 @@ impl Builder {
     }
 
     pub fn try_init(self, package_info: tauri::PackageInfo) -> crate::Result<()> {
-        let mut crash_reporter = crash_reporter::Builder::default();
-        if let Some(crash_addr) = self.crash_addr {
-            crash_reporter.set_grpc_addr(crash_addr);
-        }
-        let crash_port = crash_reporter.get_grpc_addr().port();
-        crash_reporter.try_init()?;
+        // TODO re-enable crash reporter when it's not trash anymore
+        // let mut crash_reporter = crash_reporter::Builder::default();
+        // if let Some(crash_addr) = self.crash_addr {
+        //     crash_reporter.set_grpc_addr(crash_addr);
+        // }
+        // let crash_port = crash_reporter.get_grpc_addr().port();
+        // crash_reporter.try_init()?;
 
         // TODO init panic handler
 
@@ -95,8 +96,10 @@ impl Builder {
         let layer = Layer::new(shared.clone(), event_tx, self.flush_threshold);
         let aggregator = Aggregator::new(shared, events, commands);
         let server = Server::new(command_tx, self.client_buffer_capacity);
-        let zeroconf =
-            Zeroconf::new_from_env(self.instrument_addr.port(), crash_port, package_info)?;
+        let zeroconf = Zeroconf::new_from_env(
+            self.instrument_addr.port(),
+            /*crash_port,*/ package_info,
+        )?;
 
         thread::Builder::new()
             .name("devtools".into())
