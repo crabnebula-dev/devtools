@@ -19,7 +19,12 @@
 
 ## Using CN devtools
 
-This project consists of two parts: The instrumentation library and the visualization client. You will need both in order to debug Rust programs.
+This project consists of two parts:
+
+1. Instrumentation Library.
+2. Visualization Client.
+
+The Client gathers the data collected by the Instrumentation Library and presents it in a human readable and interactive way. You will need both in order to debug Rust programs.
 
 ### Adding the instrumentation library
 
@@ -43,21 +48,38 @@ fn main() {
 }
 ```
 
-### Installing the client
+### Running the Client
 
-The client gathers the data collected by the instrumentation library and presents it in a human readable and interactive way. There are currently no pre-compiled builds so you will have to build it from source (make sure you have all the [prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites) to build tauri apps!)
+There are 2 requisites to run Devtools:
 
-```shell
-# clone the git repo
+1. [Tauri pre-requisites](https://tauri.app/v1/guides/getting-started/prerequisites): it's a Tauri app.
+2. [Protoc](http://google.github.io/proto-lens/installing-protoc.html): it uses protobuf for the messages.
+
+Once the requirements are addressed, clone this repository
+
+```sh
 git clone https://github.com/crabnebula-dev/devtools
-
-# build the app
-cargo tauri build
 ```
 
-Now you can run the app! Active instrumented apps on your local network will appear in the "Live Sessions" section
+And finally run the client:
+
+```sh
+cargo run -p ui
+```
+
+Active instrumented apps on your local network will appear in the "Live Sessions" section
 
 ![Screenshot of the session selector](Screenshot.png)
+
+## Development and Testing
+
+For developing and testing you can use apps within `/examples`. Those are already instrumentalized and ready to push events to Devtools. E.g.: From the root of this project, change directory into `/examples/test-fixture` and run `cargo tauri dev`.
+
+```sh
+cd examples/test-fixture && cargo tauri dev
+```
+
+Happy coding! 🎉
 
 ## Features
 
