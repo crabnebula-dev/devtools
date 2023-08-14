@@ -50,7 +50,7 @@ fn main() {
 
 ### Running the Client
 
-There are 2 requisites to run Devtools:
+There are 2 prerequisites to run Devtools:
 
 1. [Tauri pre-requisites](https://tauri.app/v1/guides/getting-started/prerequisites): it's a Tauri app.
 2. [Protoc](http://google.github.io/proto-lens/installing-protoc.html): it uses protobuf for the messages.
