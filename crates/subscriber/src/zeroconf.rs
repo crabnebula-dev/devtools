@@ -17,6 +17,7 @@ impl Zeroconf {
         package_info: tauri::PackageInfo,
     ) -> crate::Result<Self> {
         let hostname = hostname::get()?;
+
         Ok(Self {
             instrument_port,
             // crash_port,
@@ -51,6 +52,8 @@ impl Zeroconf {
             ("VERSION", &self.package_info.version.to_string()),
             ("DESCRIPTION", self.package_info.description),
             ("AUTHORS", self.package_info.authors),
+            ("TAURI_VERSION", tauri::VERSION),
+            ("WEBVIEW_VERSION", &tauri::webview_version().unwrap()),
         ];
 
         let instrument_service = ServiceInfo::new(

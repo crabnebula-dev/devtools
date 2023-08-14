@@ -8,27 +8,39 @@ use std::time::Duration;
 
 #[tauri::command]
 fn test(foo: &str) -> &str {
+    tracing::debug!("command test");
+
     foo
 }
 
 #[tauri::command]
-async fn test2() {}
+async fn test2() {
+    tracing::debug!("command test2");
+}
 
 #[tauri::command(async)]
-fn test3() {}
+fn test3() {
+    tracing::debug!("command test3");
+}
 
 #[tauri::command]
 fn test4() -> Result<(), String> {
+    tracing::debug!("command test4");
+
     Ok(())
 }
 
 #[tauri::command]
 async fn test5() {
+    tracing::debug!("command test5");
+
     tokio::time::sleep(Duration::from_secs(5)).await;
 }
 
 #[tauri::command]
 fn test6() {
+    tracing::debug!("command test6");
+
     unsafe {
         sadness_generator::raise_segfault();
     }

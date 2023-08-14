@@ -16,3 +16,4 @@ dioxus = "0.3.2"
 dioxus-desktop = "0.3.0"
 serde = { version = "1.0", features = ["derive"] }
 parking_lot = "0.12.1"
+semver = "1.0.18"

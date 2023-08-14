@@ -4,12 +4,132 @@ use dioxus::prelude::*;
 use futures_util::StreamExt;
 use mdns_sd::ServiceDaemon;
 use parking_lot::Mutex;
+use semver::Version;
 use serde::Serialize;
-use std::{collections::HashMap, sync::Arc, time::SystemTime};
+use std::{
+    collections::HashMap,
+    net::{IpAddr, SocketAddr},
+    sync::Arc,
+    time::SystemTime,
+};
 use wire::instrument::{instrument_client, Interests};
 
 fn main() {
     dioxus_desktop::launch(App);
+}
+
+#[derive(Debug, Clone)]
+struct Target {
+    description: String,
+    authors: String,
+    version: Version,
+    tauri_version: Version,
+    webview_version: String,
+    os: String,
+    arch: String,
+    addresses: Vec<SocketAddr>,
+}
+
+fn App(cx: Scope) -> Element {
+    let all_targets = use_state::<HashMap<String, Target>>(cx, || HashMap::new());
+    let current_target = use_state::<Option<String>>(cx, || None);
+
+    use_coroutine(cx, |_: UnboundedReceiver<()>| {
+        to_owned![all_targets];
+
+        async move {
+            let mdns = ServiceDaemon::new().expect("Failed to create daemon");
+
+            let receiver = mdns.browse("_CNDinstrument._udp.local.").unwrap();
+            let mut stream = receiver.into_stream();
+
+            while let Some(event) = stream.next().await {
+                match event {
+                    mdns_sd::ServiceEvent::ServiceResolved(info) => {
+                        println!("found target");
+
+                        all_targets.modify(|all_targets| {
+                            let mut all_targets = all_targets.clone();
+                            all_targets.insert(
+                                info.get_fullname().to_string(),
+                                Target {
+                                    description: info
+                                        .get_property_val_str("DESCRIPTION")
+                                        .unwrap()
+                                        .to_string(),
+                                    authors: info
+                                        .get_property_val_str("AUTHORS")
+                                        .unwrap()
+                                        .to_string(),
+                                    version: Version::parse(
+                                        info.get_property_val_str("VERSION").unwrap(),
+                                    )
+                                    .unwrap(),
+                                    tauri_version: Version::parse(
+                                        info.get_property_val_str("TAURI_VERSION").unwrap(),
+                                    )
+                                    .unwrap(),
+                                    webview_version: info
+                                        .get_property_val_str("WEBVIEW_VERSION")
+                                        .unwrap()
+                                        .to_string(),
+                                    os: info.get_property_val_str("OS").unwrap().to_string(),
+                                    arch: info.get_property_val_str("ARCH").unwrap().to_string(),
+                                    addresses: info
+                                        .get_addresses()
+                                        .iter()
+                                        .map(|ip| SocketAddr::new(IpAddr::V4(*ip), info.get_port()))
+                                        .collect(),
+                                },
+                            );
+
+                            all_targets
+                        })
+                    }
+                    _ => {}
+                }
+            }
+        }
+    });
+
+    cx.render(rsx! {
+        TargetSelector {
+            all_targets: all_targets,
+            on_change: |ev: Event<FormData>| current_target.set(Some(ev.data.value.to_string()))
+        }
+        if let Some(id) = current_target.get() {
+            rsx! {
+                Session {
+                    target: all_targets.get().get(id).unwrap()
+                }
+            }
+        }
+    })
+}
+
+#[inline_props]
+fn TargetSelector<'a>(
+    cx: Scope<'a>,
+    all_targets: &'a HashMap<String, Target>,
+    on_change: EventHandler<'a, FormEvent>,
+) -> Element<'a> {
+    cx.render(rsx! {
+        select {
+            onchange: move |ev| { on_change.call(ev); },
+            option {
+                value: "",
+                selected: true,
+                disabled: true,
+                "Select a Target"
+            }
+            for (id, target) in all_targets.iter() {
+                option {
+                    value: "{id}",
+                    "{id.split_once(\".\").unwrap().0}@{target.version} - Tauri@{target.tauri_version} - {target.arch}_{target.os}"
+                }
+            }
+        }
+    })
 }
 
 #[derive(Debug, Default)]
@@ -77,6 +197,11 @@ pub enum Level {
     Info = 2,
     Debug = 3,
     Trace = 4,
+}
+
+#[derive(Debug)]
+enum InstrumentCommand {
+    UpdateInterests(Interests),
 }
 
 impl State {
@@ -229,30 +354,21 @@ impl From<i32> for Level {
     }
 }
 
-#[derive(Debug)]
-enum InstrumentCommand {
-    UpdateInterests(Interests),
-}
-
-fn App(cx: Scope) -> Element {
-    let mdns = ServiceDaemon::new().expect("Failed to create daemon");
-
+#[inline_props]
+fn Session<'a>(cx: Scope<'a>, target: &'a Target) -> Element<'a> {
     let state = use_state(cx, || Mutex::new(State::default()));
 
-    let istate = state.clone();
-    let instrument_task = use_coroutine(
-        cx,
-        |mut rx: UnboundedReceiver<InstrumentCommand>| async move {
-            let info = wait_for_service(&mdns, "_CNDinstrument._udp.local.").await;
+    let addr = tonic::transport::Uri::builder()
+        .scheme("http")
+        .authority(target.addresses.iter().next().unwrap().to_string())
+        .path_and_query("/")
+        .build()
+        .unwrap();
 
-            println!("found instrument service");
+    let instrument_task = use_coroutine(cx, |mut rx: UnboundedReceiver<InstrumentCommand>| {
+        to_owned![state];
 
-            let addr = format!(
-                "http://{}:{}",
-                info.get_addresses().into_iter().next().unwrap(),
-                info.get_port()
-            );
-
+        async move {
             let mut stream = instrument_client::InstrumentClient::connect(addr)
                 .await
                 .unwrap()
@@ -267,9 +383,10 @@ fn App(cx: Scope) -> Element {
                         println!("received command {cmd:?}")
                     }
                     Some(Ok(update)) = stream.next() => {
-                        let mut state = istate.get().lock();
-                        state.apply_update(update);
-                        istate.needs_update();
+                        let mut state_inner = state.lock();
+                        state_inner.apply_update(update);
+                        drop(state_inner);
+                        state.needs_update();
                     }
                     else => {
                         println!("nothing left to poll");
@@ -277,8 +394,8 @@ fn App(cx: Scope) -> Element {
                     }
                 }
             }
-        },
-    );
+        }
+    });
 
     let state = &state.lock();
     let log_state = &state.logs_state;
@@ -287,7 +404,7 @@ fn App(cx: Scope) -> Element {
             "Logs"
         }
         ol {
-            for event in log_state.events[log_state.events.len() - log_state.new_events..] {
+            for event in log_state.events.iter() {
                 li {
                     event.message.to_string(&state.strings)
                 }
@@ -295,38 +412,3 @@ fn App(cx: Scope) -> Element {
         }
     })
 }
-
-async fn wait_for_service(mdns: &ServiceDaemon, service_type: &str) -> mdns_sd::ServiceInfo {
-    let receiver = mdns.browse(service_type).unwrap();
-    let mut stream = receiver.into_stream();
-
-    while let Some(event) = stream.next().await {
-        match event {
-            mdns_sd::ServiceEvent::ServiceResolved(info) => {
-                mdns.stop_browse(service_type).unwrap();
-                return info;
-            }
-            _ => {}
-        }
-    }
-
-    panic!("Service not found")
-}
-
-// async fn connect_crash_client(
-//     mdns: &ServiceDaemon,
-// ) -> wire::crash::crash_reporter_client::CrashReporterClient<Channel> {
-//     let info = wait_for_service(&mdns, "_CNDcrash._udp.local.").await;
-
-//     println!("found crash service");
-
-//     let addr = format!(
-//         "http://{}:{}",
-//         info.get_addresses().into_iter().next().unwrap(),
-//         info.get_port()
-//     );
-
-//     crash_reporter_client::CrashReporterClient::connect(addr)
-//         .await
-//         .unwrap()
-// }
