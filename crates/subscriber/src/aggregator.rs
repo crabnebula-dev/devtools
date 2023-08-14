@@ -220,7 +220,7 @@ impl Aggregator {
             None
         };
 
-        let log_update = if !self.new_metadata.is_empty() {
+        let log_update = if !self.log_events.is_empty() {
             Some(self.log_update(Include::UpdateOnly))
         } else {
             None
