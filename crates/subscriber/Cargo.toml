@@ -24,3 +24,4 @@ mdns-sd.workspace = true
 # hdrhistogram = "7.5.2"
 hostname = "0.3.1"
 if-addrs = "0.10.1"
+semver.workspace = true

@@ -1,20 +1,22 @@
 use mdns_sd::{ServiceDaemon, ServiceInfo};
 use std::net::IpAddr;
 
+use crate::CrateInfo;
+
 pub struct Zeroconf {
     hostname: String,
     instrument_port: u16,
     // crash_port: u16,
     os: &'static str,
     arch: &'static str,
-    package_info: tauri::PackageInfo,
+    crate_info: CrateInfo,
 }
 
 impl Zeroconf {
     pub fn new_from_env(
         instrument_port: u16,
         // crash_port: u16,
-        package_info: tauri::PackageInfo,
+        crate_info: CrateInfo,
     ) -> crate::Result<Self> {
         let hostname = hostname::get()?;
 
@@ -24,7 +26,7 @@ impl Zeroconf {
             hostname: hostname.to_string_lossy().to_string(),
             os: std::env::consts::OS,
             arch: std::env::consts::ARCH,
-            package_info,
+            crate_info,
         })
     }
 
@@ -33,7 +35,7 @@ impl Zeroconf {
         let mdns = ServiceDaemon::new()?;
 
         // Create a service info.
-        let instance_name = &self.package_info.name;
+        let instance_name = &self.crate_info.name;
 
         let host_ipv4 = if_addrs::get_if_addrs()?
             .iter()
@@ -49,9 +51,9 @@ impl Zeroconf {
         let properties = [
             ("OS", self.os),
             ("ARCH", self.arch),
-            ("VERSION", &self.package_info.version.to_string()),
-            ("DESCRIPTION", self.package_info.description),
-            ("AUTHORS", self.package_info.authors),
+            ("VERSION", &self.crate_info.version.to_string()),
+            ("DESCRIPTION", self.crate_info.description),
+            ("AUTHORS", self.crate_info.authors),
             ("TAURI_VERSION", tauri::VERSION),
             ("WEBVIEW_VERSION", &tauri::webview_version().unwrap()),
         ];

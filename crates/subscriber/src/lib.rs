@@ -11,6 +11,7 @@ mod visitors;
 mod zeroconf;
 
 use aggregator::Flush;
+use semver::Version;
 use std::{
     sync::{atomic::AtomicUsize, Arc},
     time::Instant,
@@ -24,12 +25,51 @@ pub(crate) type Result<T> = std::result::Result<T, Error>;
 pub use builder::Builder;
 pub use error::Error;
 
-pub fn init<A: tauri::Assets>(tauri_ctx: &tauri::Context<A>) {
-    Builder::default().init(tauri_ctx.package_info().clone())
+pub struct CrateInfo {
+    /// App name
+    pub name: String,
+    /// App version
+    pub version: Version,
+    /// The crate authors.
+    pub authors: &'static str,
+    /// The crate description.
+    pub description: &'static str,
 }
 
-pub fn try_init<A: tauri::Assets>(tauri_ctx: &tauri::Context<A>) -> Result<()> {
-    Builder::default().try_init(tauri_ctx.package_info().clone())
+impl CrateInfo {
+    pub fn from_env() -> Self {
+        Self {
+            name: env!("CARGO_PKG_NAME").to_string(),
+            version: Version::parse(env!("CARGO_PKG_VERSION")).unwrap(),
+            authors: env!("CARGO_PKG_AUTHORS"),
+            description: env!("CARGO_PKG_DESCRIPTION"),
+        }
+    }
+}
+
+impl<A: tauri::Assets> From<tauri::Context<A>> for CrateInfo {
+    fn from(ctx: tauri::Context<A>) -> Self {
+        (&ctx).into()
+    }
+}
+
+impl<A: tauri::Assets> From<&tauri::Context<A>> for CrateInfo {
+    fn from(ctx: &tauri::Context<A>) -> Self {
+        Self {
+            name: ctx.package_info().name.clone(),
+            version: ctx.package_info().version.clone(),
+            authors: ctx.package_info().authors,
+            description: ctx.package_info().description,
+        }
+    }
+}
+
+pub fn init(info: impl Into<CrateInfo>) {
+    Builder::default().init(info)
+}
+
+pub fn try_init(info: impl Into<CrateInfo>) -> Result<()> {
+    Builder::default().try_init(info)
 }
 
 #[derive(Debug, Default)]

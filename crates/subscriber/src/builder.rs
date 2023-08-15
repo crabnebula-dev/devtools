@@ -10,7 +10,7 @@ use tracing_subscriber::{filter, prelude::*};
 
 use crate::{
     aggregator::Aggregator, layer::Layer, server::Server, util::spawn_named, zeroconf::Zeroconf,
-    Shared,
+    CrateInfo, Shared,
 };
 
 pub const DEFAULT_INSTRUMENT_PORT: u16 = 6669;
@@ -72,12 +72,15 @@ impl Builder {
         Self::default()
     }
 
-    pub fn init(self, package_info: tauri::PackageInfo) {
-        self.try_init(package_info)
-            .expect("failed to initialize devtools");
+    pub fn get_instrument_addr(&self) -> &SocketAddr {
+        &self.instrument_addr
     }
 
-    pub fn try_init(self, package_info: tauri::PackageInfo) -> crate::Result<()> {
+    pub fn init(self, info: impl Into<CrateInfo>) {
+        self.try_init(info).expect("failed to initialize devtools");
+    }
+
+    pub fn try_init(self, info: impl Into<CrateInfo>) -> crate::Result<()> {
         // TODO re-enable crash reporter when it's not trash anymore
         // let mut crash_reporter = crash_reporter::Builder::default();
         // if let Some(crash_addr) = self.crash_addr {
@@ -98,7 +101,7 @@ impl Builder {
         let server = Server::new(command_tx, self.client_buffer_capacity);
         let zeroconf = Zeroconf::new_from_env(
             self.instrument_addr.port(),
-            /*crash_port,*/ package_info,
+            /*crash_port,*/ info.into(),
         )?;
 
         thread::Builder::new()
