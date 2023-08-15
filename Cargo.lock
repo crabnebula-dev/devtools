@@ -3614,6 +3614,7 @@ dependencies = [
  "parking_lot",
  "portpicker",
  "prost-types",
+ "semver",
  "tauri",
  "thiserror",
  "tokio",
