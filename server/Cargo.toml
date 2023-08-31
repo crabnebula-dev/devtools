@@ -1,0 +1,33 @@
+[package]
+name = "inspector-protocol-server"
+publish = false
+readme = "../README.md"
+description = ""
+keywords = ["tauri", "inspector", "devtool", "protocol"]
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+
+[features]
+
+[dependencies]
+inspector-protocol-primitives.workspace = true
+
+jsonrpsee = { workspace = true, features = [ "client-core", "server", "macros" ] }
+jsonrpsee-core = { workspace = true }
+
+thiserror.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+tokio = { workspace = true, features = [ "time", "rt-multi-thread", "parking_lot" ] }
+tokio-stream = { workspace = true, features = ["sync"] }
+futures.workspace = true
+
+[dev-dependencies]
+ctrlc = "3.4.0"
+env_logger = "0.10.0"
