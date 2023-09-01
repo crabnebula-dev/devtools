@@ -1,10 +1,7 @@
 use crate::Result;
-use futures::future;
-use futures::future::Either;
-use futures::StreamExt;
+use futures::{future, future::Either, StreamExt};
 use inspector_protocol_primitives::{Inspector, Runtime};
-use jsonrpsee::core::server::SubscriptionMessage;
-use jsonrpsee::{PendingSubscriptionSink, RpcModule};
+use jsonrpsee::{core::server::SubscriptionMessage, PendingSubscriptionSink, RpcModule};
 use serde::Serialize;
 use tokio_stream::wrappers::BroadcastStream;
 
@@ -14,18 +11,18 @@ mod tauri;
 
 /// Create new `RpcModule` with our methods
 pub(crate) fn register<R: Runtime>(inspector: Inspector<R>) -> Result<RpcModule<Inspector<R>>> {
-    let mut module = RpcModule::new(inspector);
+	let mut module = RpcModule::new(inspector);
 
-    // register `logs_*` methods
-    logs::module(&mut module)?;
+	// register `logs_*` methods
+	logs::module(&mut module)?;
 
-    // register `tauri_*` methods
-    tauri::module(&mut module)?;
+	// register `tauri_*` methods
+	tauri::module(&mut module)?;
 
-    // register `performance_*` methods
-    performance::module(&mut module)?;
+	// register `performance_*` methods
+	performance::module(&mut module)?;
 
-    Ok(module)
+	Ok(module)
 }
 
 /// Pipes messages from a broadcast channel to a WebSocket stream with bounded buffering.
@@ -57,38 +54,38 @@ pub(crate) fn register<R: Runtime>(inspector: Inspector<R>) -> Result<RpcModule<
 /// In the event that the WebSocket's internal buffer is full, this function will block until space becomes available.
 /// If the most recent item's delivery is critical upon its production, a smarter buffering or delivery approach might be needed.
 pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Send + Serialize>(
-    pending: PendingSubscriptionSink,
-    stream: BroadcastStream<T>,
+	pending: PendingSubscriptionSink,
+	stream: BroadcastStream<T>,
 ) -> Result<()> {
-    let sink = pending.accept().await?;
-    let closed = sink.closed();
+	let sink = pending.accept().await?;
+	let closed = sink.closed();
 
-    futures::pin_mut!(closed, stream);
+	futures::pin_mut!(closed, stream);
 
-    loop {
-        match future::select(closed, stream.next()).await {
-            // subscription closed.
-            Either::Left((_, _)) => break Ok(()),
+	loop {
+		match future::select(closed, stream.next()).await {
+			// subscription closed.
+			Either::Left((_, _)) => break Ok(()),
 
-            // received new item from the stream.
-            Either::Right((Some(Ok(item)), c)) => {
-                let notif = SubscriptionMessage::from_json(&item)?;
+			// received new item from the stream.
+			Either::Right((Some(Ok(item)), c)) => {
+				let notif = SubscriptionMessage::from_json(&item)?;
 
-                // NOTE: this will block until there a spot in the queue
-                // and you might want to do something smarter if it's
-                // critical that "the most recent item" must be sent when it is produced.
-                if sink.send(notif).await.is_err() {
-                    break Ok(());
-                }
+				// NOTE: this will block until there a spot in the queue
+				// and you might want to do something smarter if it's
+				// critical that "the most recent item" must be sent when it is produced.
+				if sink.send(notif).await.is_err() {
+					break Ok(());
+				}
 
-                closed = c;
-            }
+				closed = c;
+			}
 
-            // Send back back the error.
-            Either::Right((Some(Err(e)), _)) => break Err(e.into()),
+			// Send back back the error.
+			Either::Right((Some(Err(e)), _)) => break Err(e.into()),
 
-            // Stream is closed.
-            Either::Right((None, _)) => break Ok(()),
-        }
-    }
+			// Stream is closed.
+			Either::Right((None, _)) => break Ok(()),
+		}
+	}
 }
