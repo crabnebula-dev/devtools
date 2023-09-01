@@ -11,7 +11,7 @@
 //!
 //! Take a look at [the Inspector Protocol guide](book) to learn more about how to use the plugin.
 
-use inspector_protocol_primitives::{Inspector, InspectorBuilder, InspectorMetrics, InternalEvent};
+use inspector_protocol_primitives::{Inspector, InspectorBuilder, InspectorMetrics, InternalEvent, LogEntry};
 use inspector_protocol_server::Result as InspectorResult;
 use inspector_protocol_subscriber::SubscriptionLayer;
 use std::{
@@ -20,7 +20,7 @@ use std::{
 	sync::{Arc, Mutex},
 };
 use tauri::{plugin::TauriPlugin, RunEvent, Runtime};
-use tokio::sync::mpsc;
+use tokio::sync::{broadcast, mpsc};
 use tracing_subscriber::{filter, prelude::*, Layer};
 
 // CLI flag that determines whether the inspector protocol
@@ -89,21 +89,23 @@ impl Builder {
 					.with_internal_channel(internal_channel_sender)
 					.build(app, 10_000);
 
-				// Grab reference to the `InspectorMetrics`
+				// Get reference to the `InspectorMetrics`
 				let metrics = inspector.metrics.clone();
+				// Get the logs channel
+				let logs_channel = inspector.channels.logs.clone();
 
-				// Spawn 2 process:
-				// - Internal events listener (allow us to get metrics not included in Tauri)
-				// - JSON RPC server with tracing subscription
-				//
+				// Try to set up a tracing subscriber to capture events and callstack
+				if try_setup_tracing_subscription(logs_channel).is_none() {
+					// We don't want to crash the Tauri application we simply stop
+					// the plugin loading process.
+					return Ok(());
+				};
+
 				// Spawn internal events listener
-				//
-				self.spawn_internal_events_listener(metrics, internal_channel_receiver)?
-					// Spawn JSON-RPC server with WebSocket transport
-					// This also make sure the tracing subscription is linked with
-					// our `Inspector` channels.
-					.spawn_rpc_server_and_tracing(inspector)
-					.map_err(Into::into)
+				spawn_internal_events_listener(metrics, internal_channel_receiver);
+
+				// Spawn JSON-RPC server with WebSocket transport
+				spawn_rpc_server(inspector).map_err(Into::into)
 			})
 			// NOTE(david): We use `log` to display the log in our "console"
 			// if we can get the callstack to works fine, we'll have a better view.
@@ -140,90 +142,91 @@ impl Builder {
 			})
 			.build()
 	}
-	/// Spawn `InspectorMetrics` listener with `tauri::async_runtime::spawn`.
-	fn spawn_internal_events_listener(
-		self,
-		metrics: Arc<Mutex<InspectorMetrics>>,
-		mut internal_channel_receiver: mpsc::Receiver<InternalEvent>,
-	) -> InspectorResult<Self> {
-		tauri::async_runtime::spawn(async move {
-			// Continuously listen for internal events.
-			while let Some(internal_event) = internal_channel_receiver.recv().await {
-				match internal_event {
-					// When the application signals it's ready,
-					// capture the current time and record it in metrics.
-					InternalEvent::AppReady => {
-						// Attempt to lock the metrics for updating.
-						if let Ok(mut metrics) = metrics.try_lock() {
-							metrics.ready_at = inspector_protocol_primitives::now();
-						}
+}
+
+/// Spawn WebSocket JSON-RPC server with [tauri::async_runtime::spawn].
+///
+/// Create a subscription to [tracing_subscriber::registry] with our custom
+/// [SubscriptionLayer].
+fn spawn_rpc_server<R: Runtime>(inspector: Inspector<R>) -> InspectorResult<()> {
+	tauri::async_runtime::spawn(async move {
+		// Start the inspector protocol server.
+		if let Ok((server_addr, server_handle)) = inspector_protocol_server::start_server(
+			inspector,
+			inspector_protocol_server::Config {
+				// FIXME: Add values from the `Builder` process
+				// (eg.: custom port)
+				..Default::default()
+			},
+		)
+		.await
+		{
+			println!("--------- Tauri Inspector Protocol ---------\n");
+			println!("Listening at:\n  ws://{server_addr}\n",);
+			println!("Inspect in browser:\n  ${DEVTOOL_URL}{server_addr}");
+			println!("\n--------- Tauri Inspector Protocol ---------");
+
+			// wait for the server to stop
+			server_handle.stopped().await
+		}
+	});
+
+	Ok(())
+}
+
+/// Try to register [SubscriptionLayer], if something went wrong, it will return `None`.
+fn try_setup_tracing_subscription(logs_channel: broadcast::Sender<LogEntry>) -> Option<()> {
+	// Set up a tracing subscriber to capture events and callstack.
+	// This subscriber filters for TRACE level logs, but excludes
+	// logs originating from `soketto` to reduce noise.
+	let tracing_registered = tracing_subscriber::registry()
+		.with(
+			// FIXME: We'll need to send another channel (for callstack)
+			SubscriptionLayer::new(logs_channel)
+				.with_filter(tracing_subscriber::filter::LevelFilter::TRACE)
+				.with_filter(filter::filter_fn(|metadata| {
+					// FIXME: skip `soketto` as it's the main websocket layer
+					// and create lot of noise
+					!metadata.target().starts_with("soketto")
+				})),
+		)
+		.try_init();
+
+	if let Err(err) = tracing_registered {
+		// FIXME: This is a known issue, we can only have 1 global subscriber registered
+		// FIXME: Better `tips` handling
+		eprintln!("--------- Tauri Inspector Protocol ---------\n");
+		eprintln!("Error:");
+		eprintln!("  ${err}\n");
+		eprintln!("Tips:");
+		eprintln!("  - Disable global `tracing_subscriber`");
+		eprintln!("\n--------- Tauri Inspector Protocol ---------");
+
+		// cannot initialize subscriber, it doesnt worth going further
+		None
+	} else {
+		Some(())
+	}
+}
+
+/// Spawn [InspectorMetrics] listener with [tauri::async_runtime::spawn].
+fn spawn_internal_events_listener(
+	metrics: Arc<Mutex<InspectorMetrics>>,
+	mut internal_channel_receiver: mpsc::Receiver<InternalEvent>,
+) {
+	tauri::async_runtime::spawn(async move {
+		// Continuously listen for internal events.
+		while let Some(internal_event) = internal_channel_receiver.recv().await {
+			match internal_event {
+				// When the application signals it's ready,
+				// capture the current time and record it in metrics.
+				InternalEvent::AppReady => {
+					// Attempt to lock the metrics for updating.
+					if let Ok(mut metrics) = metrics.try_lock() {
+						metrics.ready_at = inspector_protocol_primitives::now();
 					}
 				}
 			}
-		});
-
-		Ok(self)
-	}
-
-	/// Spawn WebSocket JSON-RPC server with `tauri::async_runtime::spawn`.
-	///
-	/// Create a subscription to `tracing_subscriber::registry` with our custom
-	/// `SubscriptionLayer`.
-	fn spawn_rpc_server_and_tracing<R: Runtime>(self, inspector: Inspector<R>) -> InspectorResult<()> {
-		tauri::async_runtime::spawn(async move {
-			let logs_channel = inspector.channels.logs.clone();
-
-			// Set up a tracing subscriber to capture events and callstack.
-			// This subscriber filters for TRACE level logs, but excludes
-			// logs originating from `soketto` to reduce noise.
-			let tracing_registered = tracing_subscriber::registry()
-				.with(
-					// FIXME: We'll need to send another channel (for callstack)
-					SubscriptionLayer::new(logs_channel)
-						.with_filter(tracing_subscriber::filter::LevelFilter::TRACE)
-						.with_filter(filter::filter_fn(|metadata| {
-							// FIXME: skip `soketto` as it's the main websocket layer
-							// and create lot of noise
-							!metadata.target().starts_with("soketto")
-						})),
-				)
-				.try_init();
-
-			if let Err(err) = tracing_registered {
-				// FIXME: This is a known issue, we can only have 1 global subscriber registered
-				// FIXME: Better `tips` handling
-				eprintln!("--------- Tauri Inspector Protocol ---------\n");
-				eprintln!("Error:");
-				eprintln!("  ${err}\n");
-				eprintln!("Tips:");
-				eprintln!("  - Disable global `tracing_subscriber`");
-				eprintln!("\n--------- Tauri Inspector Protocol ---------");
-
-				// cannot initialize subscriber, it doesnt worth going further
-				return;
-			}
-
-			// Start the inspector protocol server.
-			if let Ok((server_addr, server_handle)) = inspector_protocol_server::start_server(
-				inspector,
-				inspector_protocol_server::Config {
-					// FIXME: Add values from the `Builder` process
-					// (eg.: custom port)
-					..Default::default()
-				},
-			)
-			.await
-			{
-				println!("--------- Tauri Inspector Protocol ---------\n");
-				println!("Listening at:\n  ws://{server_addr}\n",);
-				println!("Inspect in browser:\n  ${DEVTOOL_URL}{server_addr}");
-				println!("\n--------- Tauri Inspector Protocol ---------");
-
-				// wait for the server to stop
-				server_handle.stopped().await
-			}
-		});
-
-		Ok(())
-	}
+		}
+	});
 }
