@@ -54,13 +54,13 @@ flowchart LR
     end
 
     A -->|load| Pl
-    Pl -->|inspector-protocol-subscriber| L
+    Pl -->|register| L
     L <--> Ag
-    Pl -->|inspector-protocol-server| S
+    Pl -->|spawn| S
     A -->|"
         TraceEvent
         tao::platform_impl::platform
-    "| Ag
+    "| L
     S <--> Ag
     S <-->|WebSocket| C
 ```
