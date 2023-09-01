@@ -39,9 +39,9 @@ impl InspectorBuilder {
 	}
 
 	/// Constructs an `Inspector` from the builder.
-	pub fn build<R: Runtime>(self, app_handle: AppHandle<R>, capacity: usize) -> Inspector<R> {
+	pub fn build<R: Runtime>(self, app_handle: &AppHandle<R>, capacity: usize) -> Inspector<R> {
 		Inspector {
-			app_handle,
+			app_handle: app_handle.clone(),
 			channels: InspectorChannels {
 				internal: self.internal_channel.unwrap_or(mpsc::channel(capacity).0),
 				logs: self.logs_channel.unwrap_or(broadcast::channel(capacity).0),

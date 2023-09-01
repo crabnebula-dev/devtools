@@ -27,7 +27,6 @@ pub struct Config {
 }
 
 impl Default for Config {
-	#[inline]
 	fn default() -> Config {
 		Config {
 			addr: None,
@@ -41,7 +40,6 @@ impl Default for Config {
 }
 
 /// Start RPC server listening on given address.
-#[inline]
 pub async fn start_server<R: Runtime>(inspector: Inspector<R>, config: Config) -> Result<(SocketAddr, ServerHandle)> {
 	let Config {
 		addr,
