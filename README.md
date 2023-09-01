@@ -1,6 +1,6 @@
 # Inspector Protocol Plugin
 
-Inspect, monitor, and understand your Tauri application with ease.
+Inspect, monitor, and understand your [Tauri](https://tauri.app) application with ease.
 
 The Inspector Protocol Plugin offers a seamless integration to Tauri applications, giving developers an intuitive and efficient way to understand internal tracing events and extract valuable insights about their applications.
 
@@ -37,10 +37,14 @@ Take a look in the [examples](./examples) folder for more details.
 
 Detailed comments have been embedded into the source code to provide insights about the different components and how they work. For more intricate details about specific functionalities, please refer to the codebase.
 
+```
+cargo doc --open
+```
+
 ## Future Enhancements
 
 We are continually working on improving and expanding the capabilities of the Inspector Protocol Plugin. Any feedback or contributions are welcome!
 
 ## License
 
-Need to be defined
+__Need to be defined__

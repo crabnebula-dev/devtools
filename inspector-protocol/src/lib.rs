@@ -121,11 +121,12 @@ impl Builder {
 				tauri::async_runtime::spawn(async move {
 					let logs_channel = inspector.channels.logs.clone();
 
-					// Set up a tracing subscriber to capture log events.
+					// Set up a tracing subscriber to capture events and callstack.
 					// This subscriber filters for TRACE level logs, but excludes
 					// logs originating from `soketto` to reduce noise.
-					tracing_subscriber::registry()
+					let tracing_registered = tracing_subscriber::registry()
 						.with(
+							// FIXME: We'll need to send another channel (for callstack)
 							SubscriptionLayer::new(logs_channel)
 								.with_filter(tracing_subscriber::filter::LevelFilter::TRACE)
 								.with_filter(filter::filter_fn(|metadata| {
@@ -134,11 +135,32 @@ impl Builder {
 									!metadata.target().starts_with("soketto")
 								})),
 						)
-						.init();
+						.try_init();
+
+					if let Err(err) = tracing_registered {
+						// FIXME: This is a known issue, we can only have 1 global subscriber registered
+						// FIXME: Better `tips` handling
+						eprintln!("--------- Tauri Inspector Protocol ---------\n");
+						eprintln!("Error:");
+						eprintln!("  ${err}\n");
+						eprintln!("Tips:");
+						eprintln!("  - Disable global `tracing_subscriber`");
+						eprintln!("\n--------- Tauri Inspector Protocol ---------");
+
+						// cannot initialize subscriber, it doesnt worth going further
+						return ;
+					}
 
 					// Start the inspector protocol server.
-					if let Ok((server_addr, server_handle)) =
-						inspector_protocol_server::start_server(inspector, Default::default()).await
+					if let Ok((server_addr, server_handle)) = inspector_protocol_server::start_server(
+						inspector,
+						inspector_protocol_server::Config {
+							// FIXME: Add values from the `Builder` process
+							// (eg.: custom port)
+							..Default::default()
+						},
+					)
+					.await
 					{
 						println!("--------- Tauri Inspector Protocol ---------\n");
 						println!("Listening at:\n  ws://{server_addr}\n",);
@@ -149,6 +171,7 @@ impl Builder {
 						server_handle.stopped().await
 					}
 				});
+
 				Ok(())
 			})
 			.on_page_load(|window, payload| {
@@ -165,19 +188,19 @@ impl Builder {
 					{
 						log::error!("{err}");
 					}
-					log::trace!("application is ready");
+					log::trace!("Application is ready");
 				}
 				RunEvent::Exit => {
-					log::trace!("event loop is exiting");
+					log::trace!("Event loop is exiting");
 				}
 				RunEvent::WindowEvent { label, event, .. } => {
-					log::trace!("window {} received an event: {:?}", label, event);
+					log::trace!("Window {} received an event: {:?}", label, event);
 				}
 				RunEvent::ExitRequested { .. } => {
-					log::trace!("exit requested");
+					log::trace!("Exit requested");
 				}
 				RunEvent::Resumed => {
-					log::trace!("event loop is being resumed");
+					log::trace!("Event loop is being resumed");
 				}
 				_ => {}
 			})
