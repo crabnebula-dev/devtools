@@ -31,3 +31,4 @@ futures.workspace = true
 [dev-dependencies]
 ctrlc = "3.4.0"
 env_logger = "0.10.0"
+tauri = { workspace = true, features = ["test"] }

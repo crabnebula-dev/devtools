@@ -1452,6 +1452,7 @@ dependencies = [
  "jsonrpsee-core",
  "serde",
  "serde_json",
+ "tauri",
  "thiserror",
  "tokio",
  "tokio-stream",

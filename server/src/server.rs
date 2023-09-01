@@ -91,3 +91,24 @@ fn inject_additional_rpc_methods<M: Send + Sync + 'static>(rpc_api: &mut RpcModu
 		})
 		.expect("infallible all other methods have their own address space; qed");
 }
+
+#[cfg(test)]
+mod tests {
+	use crate::{mock::server_mock, server::inject_additional_rpc_methods as original_inject_additional_rpc_methods};
+	use inspector_protocol_primitives::assert_ok;
+	use jsonrpsee::RpcModule;
+
+	#[tokio::test]
+	async fn inject_additional_rpc_methods() {
+		let mut module = RpcModule::new(());
+		let previous_count = module.method_names().count();
+
+		original_inject_additional_rpc_methods(&mut module);
+		assert!(module.method_names().count() > previous_count);
+	}
+
+	#[tokio::test]
+	async fn start_server() {
+		assert_ok!(server_mock().await)
+	}
+}

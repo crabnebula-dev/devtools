@@ -19,3 +19,18 @@ pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Inspector<R>>) -> Result
 
 	Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+	use crate::{mock::server_mock, Result};
+
+	#[tokio::test]
+	async fn logs_methods() -> Result<()> {
+		let (_addr, handle) = server_mock().await?;
+
+		// FIXME: add extensive tests with a client?
+
+		handle.stop()?;
+		Ok(())
+	}
+}

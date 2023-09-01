@@ -65,7 +65,7 @@
 //! ```
 //!
 //! Upon execution, you should receive:
-//! ```
+//! ```ignore
 //! --------- Tauri Inspector Protocol ---------
 //!
 //! Listening at:

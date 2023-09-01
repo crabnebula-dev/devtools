@@ -14,12 +14,12 @@ pub struct Asset {
 	pub csp_header: Option<String>,
 }
 
-impl Into<Asset> for tauri::Asset {
-	fn into(self) -> Asset {
+impl From<tauri::Asset> for Asset {
+	fn from(val: tauri::Asset) -> Self {
 		Asset {
-			bytes: self.bytes,
-			mime_type: self.mime_type,
-			csp_header: self.csp_header,
+			bytes: val.bytes,
+			mime_type: val.mime_type,
+			csp_header: val.csp_header,
 		}
 	}
 }

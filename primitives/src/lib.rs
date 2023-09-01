@@ -7,6 +7,23 @@ pub use tauri::{AppHandle, Manager, Runtime};
 mod asset;
 mod inspector;
 
+/// Panic if an expression doesn't evaluate to `Ok`.
+///
+/// Used as `assert_ok!(expression_to_assert, expected_ok_expression)`,
+/// or `assert_ok!(expression_to_assert)` which would assert against `Ok(())`.
+#[macro_export]
+macro_rules! assert_ok {
+	( $x:expr $(,)? ) => {
+		match $x {
+			Ok(_) => (),
+			_ => assert!(false, "Expected Ok(_). Got {:#?}", $x),
+		}
+	};
+	( $x:expr, $y:expr $(,)? ) => {
+		assert_eq!($x, Ok($y));
+	};
+}
+
 /// This enum represents internal events within the application.
 /// For now, it has only one variant, `AppReady`, which indicates
 /// the application's readiness state.

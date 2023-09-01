@@ -20,8 +20,23 @@ pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Inspector<R>>) -> Result
 			.ok_or(ErrorCode::InvalidRequest)?
 			.into();
 
-		serde_json::to_value(&asset).map_err(|_| ErrorCode::InternalError)
+		serde_json::to_value(asset).map_err(|_| ErrorCode::InternalError)
 	})?;
 
 	Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+	use crate::{mock::server_mock, Result};
+
+	#[tokio::test]
+	async fn tauri_methods() -> Result<()> {
+		let (_addr, handle) = server_mock().await?;
+
+		// FIXME: add extensive tests with a client?
+
+		handle.stop()?;
+		Ok(())
+	}
 }

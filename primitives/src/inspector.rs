@@ -92,3 +92,13 @@ impl Default for InspectorMetrics {
 		}
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use crate::{now, InspectorMetrics};
+
+	#[test]
+	fn inspector_metrics_initialized_at() {
+		assert!(InspectorMetrics::default().initialized_at == now())
+	}
+}
