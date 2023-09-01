@@ -35,3 +35,32 @@ Understanding our repository is essential to grasping the Inspector Protocol. He
 - **`server`**: Our dedicated JSON-RPC Server resides here. It features a WebSocket transport layer, which supports connection upgrade, facilitating interactions.
 
 - **`subscriber`**: This component plays a pivotal role as the `tracing` subscriber, continuously monitoring and collecting vital data from the ecosystem.
+
+## Data Flow
+
+```mermaid
+flowchart LR
+    A[Tauri App]
+    Pl[Inspector Protocol Plugin]
+    subgraph Subscriber
+    L[inspector-protocol-subscriber]
+    Ag[Channels]
+    end
+    subgraph Server
+    S[JSON-RPC Server]
+    end
+    subgraph Devtools
+    C[Client]
+    end
+
+    A -->|load| Pl
+    Pl -->|inspector-protocol-subscriber| L
+    L <--> Ag
+    Pl -->|inspector-protocol-server| S
+    A -->|"
+        TraceEvent
+        tao::platform_impl::platform
+    "| Ag
+    S <--> Ag
+    S <-->|WebSocket| C
+```
