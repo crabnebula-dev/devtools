@@ -2,7 +2,7 @@
 //!
 //! ```rust,ignore
 //! tauri::Builder::default()
-//!     .plugin(InspectorProtocolBuilder::new().build())
+//!     .plugin(inspector_protocol::Builder::new().build())
 //!     .run(tauri::generate_context!("./tauri.conf.json"))
 //!     .expect("error while running tauri application");
 //! ```
@@ -17,23 +17,28 @@ use std::{fmt, net::SocketAddr};
 use tauri::{plugin::TauriPlugin, RunEvent, Runtime};
 use tracing_subscriber::{filter, prelude::*, Layer};
 
+// CLI flag that determines whether the inspector protocol
+// should be active or not.
+const INSPECT_FLAG: &str = "--inspect";
+// Plugin name
+const PLUGIN_NAME: &str = "inspector-protocol";
+// URL of the web-based devtool
+// The server host is added automatically eg: `127.0.0.1:56609`
+const DEVTOOL_URL: &str = "https://crabnebula.dev/debug/#";
+
 // The guide is here.
 pub mod book;
 
-// Constant flag that determines whether the inspector protocol
-// should be active or not.
-const INSPECT_FLAG: &str = "--inspect";
-
 /// Builder for the Inspector Protocol. Allows setting various attributes for the protocol.
 #[derive(Clone, Default)]
-pub struct InspectorProtocolBuilder {
+pub struct Builder {
 	/// The attributes to use to create the inspector protocol.
 	inspector_protocol: InspectorProtocolAttributes,
 }
 
-impl fmt::Debug for InspectorProtocolBuilder {
+impl fmt::Debug for Builder {
 	fn fmt(&self, fmtr: &mut fmt::Formatter<'_>) -> fmt::Result {
-		fmtr.debug_struct("InspectorProtocolBuilder")
+		fmtr.debug_struct("Builder")
 			.field("InspectorProtocol", &self.inspector_protocol)
 			.finish()
 	}
@@ -45,8 +50,8 @@ struct InspectorProtocolAttributes {
 	socket_addr: Option<SocketAddr>,
 }
 
-impl InspectorProtocolBuilder {
-	/// Initializes a new `InspectorProtocolBuilder` with default values.
+impl Builder {
+	/// Initializes a new `Builder` with default values.
 	#[inline]
 	pub fn new() -> Self {
 		Default::default()
@@ -75,14 +80,14 @@ impl InspectorProtocolBuilder {
 
 		// return empty plugin
 		if !should_inspect {
-			return tauri::plugin::Builder::new("inspector-protocol").build();
+			return tauri::plugin::Builder::new(PLUGIN_NAME).build();
 		}
 
 		// FIXME: validate channel size
 		let (internal_channel_sender, mut internal_channel_receiver) = tokio::sync::mpsc::channel(10_000);
 
 		let isolated_internal_channel_sender = internal_channel_sender.clone();
-		tauri::plugin::Builder::new("inspector-protocol")
+		tauri::plugin::Builder::new(PLUGIN_NAME)
 			.setup(|app| {
 				// Tauri app handler
 				let app = app.clone();
@@ -137,7 +142,7 @@ impl InspectorProtocolBuilder {
 					{
 						println!("--------- Tauri Inspector Protocol ---------\n");
 						println!("Listening at:\n  ws://{server_addr}\n",);
-						println!("Inspect in browser:\n  https://crabnebula.dev/debug/#{server_addr}");
+						println!("Inspect in browser:\n  ${DEVTOOL_URL}{server_addr}");
 						println!("\n--------- Tauri Inspector Protocol ---------");
 
 						// wait for the server to stop
