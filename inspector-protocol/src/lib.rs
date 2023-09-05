@@ -1,8 +1,9 @@
 //! Inspector protocol plugin for [Tauri](https://tauri.app). Using it looks something like this:
 //!
 //! ```rust,ignore
+//! let inspector = inspector_protocol::Builder::new();
 //! tauri::Builder::default()
-//!     .plugin(inspector_protocol::Builder::new().build())
+//!     .plugin(inspector.build())
 //!     .run(tauri::generate_context!("./tauri.conf.json"))
 //!     .expect("error while running tauri application");
 //! ```
@@ -39,6 +40,7 @@ pub mod book;
 #[derive(Clone, Default)]
 pub struct Builder {
 	socket_addr: Option<SocketAddr>,
+	metrics: InspectorMetrics,
 }
 
 impl fmt::Debug for Builder {
@@ -86,6 +88,7 @@ impl Builder {
 			.setup(|app| {
 				// Build our inspector (with our app handler)
 				let inspector = inspector
+					.with_metrics(Arc::new(Mutex::new(self.metrics)))
 					.with_internal_channel(internal_channel_sender)
 					.build(app, 10_000);
 

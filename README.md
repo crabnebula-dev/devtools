@@ -24,8 +24,9 @@ Integrating the Inspector Protocol Plugin into your Tauri application is as simp
 
 ```rust
 fn main() {
+   let inspector = inspector_protocol::Builder::new();
    tauri::Builder::default()
-      .plugin(inspector_protocol::Builder::new().build())
+      .plugin(inspector.build())
       .run(tauri::generate_context!("./tauri.conf.json"))
       .expect("error while running tauri application");
 }
