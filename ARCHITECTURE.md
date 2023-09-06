@@ -1,66 +1,76 @@
 # Architecture
 
-This document describes the architecture of the `devtools` project, how the components fit together and how the data flows through them.
+This document offers a detailed overview of the plugin's structural design, its components, and how they interrelate.
 
-There are two major components: The GUI app (called *Client*) that renders the data in a human readable way and a Rust crate that instruments the Rust application and exports collected data to the *Client* (called *Subscriber*).
+## Overview
 
-The *Client* and *Subscriber* communicate using gRPC and a wire format defined in the [`api`](./api) crate. This communication is **two-way** allowing for interactive control over the *Subscriber*.
+The Inspector Protocol is fundamentally a Tauri plugin designed for real-time data interaction. Utilizing WebSocket technology, it establishes a JSON-RPC server with subscription capabilities, allowing for dynamic two-way communication. 
 
-## Core paradigms
+Furthermore, with its subscriber component, the protocol can seamlessly integrate with the [`tracing`](https://crates.io/crates/tracing) ecosystem to collate events and spans reported by various third-party crates.
 
-Below are a few core paradigms that have influenced the design decisions taken so far and should be respected by all new code:
+## Components
 
-### Interactivity
+### **Tauri Plugin**
+The heart of the Inspector Protocol, it integrates seamlessly with Tauri applications, allowing developers to supercharge their debugging and monitoring capabilities with minimal effort.
 
-Contrary to other debugging and profiling tools that record events to a file and then perform processing on it everything in this project is design to run in **realtime** and be **interactive** to allow for user control. I believe this is the only paradigm applicable to the highly interactive and playful nature of web development used for Tauri apps. 
+### **Real-time Data Exchange**
+Our system prioritizes instantaneous interaction, ensuring data exchange occurs in real-time, without latency.
 
-### Processing happens at the *Subscriber*
+### **WebSocket (JSON-RPC Server)**
+A robust WebSocket layer underpins the protocol, acting as the JSON-RPC server. This ensures:
+   - Streamlined two-way communication.
+   - Subscription support for more dynamic interactions.
 
-As much data processing and aggregation should happen at the *Subscriber* side of the gRPC interface. This has several reasons:
-- **Recude the amount of data sent** - Sending data across the gRPC interface incurs a serialization overhead, reducing the amount of data sent across the interface improves performance. It also helps with remote-debugging where the *Client* may be on a completely different machine.
-- **Reduce the amount of PII sent** - Sending as little raw data that could contain PII (Personally Identifiable Information) or other data that could be used for tracking is just good practice, it reassures the user that we care about their data - something that becomes increasingly important once we offer this as a web frontend for remote debugging.
+### Subscriber
+The subscriber component is adept at tapping into the [`tracing`](https://crates.io/crates/tracing) ecosystem. By doing so, it's able to gather valuable insights, collecting events and spans as reported by third-party crates.
 
-### Client initiated streams
+## Repository
 
-All data transfers are initiated by the *Client* and should include the possibility for the *Client* to specify a filter. This further helps to reduce the network traffic by only sending information that the *Client* truly cares about.
+Understanding our repository is essential to grasping the Inspector Protocol. Here’s a breakdown of the primary folders:
+
+- **`inspector-protocol`**: This is the main library. Notably, it's the sole crate destined for publication.
+
+- **`primitives`**: This folder houses the fundamental shared types necessary for the Inspector Protocol to function optimally.
+
+- **`server`**: Our dedicated JSON-RPC Server resides here. It features a WebSocket transport layer, which supports connection upgrade, facilitating interactions.
+
+- **`subscriber`**: This component plays a pivotal role as the `tracing` subscriber, continuously monitoring and collecting vital data from the ecosystem.
+
+## WebSocket
+
+In the design, channels serve as the backbone for efficient and immediate data transfer particularly when it comes to real-time broadcasting over WebSockets.
+
+One of the features of this approach is the absence of accumulators or buffers. Instead of stockpiling events, they're immediately broadcasted to all subscribers the moment they arrive. This is facilitated using Tokio's [broadcast](https://docs.rs/tokio/latest/tokio/sync/broadcast/index.html) channel. 
+
+Events are dispatched to the channel **only if there's an active subscription**. This means there's no unnecessary buildup or accumulation of data in the channel if there are no listeners. This dynamic setup helps in keeping the data flow lean and efficient. When events are sent to the channel, they're immediately broadcasted to all subscribers via the WebSocket. This rapid dispatch mechanism ensures that data transfer is nearly instantaneous, maintaining the real-time nature of the protocol.
+
+While the current setup efficiently handles broadcasting without the need for an aggregator, there's still a provision to manage the broadcast channel's capacity. Benchmarking will be crucial to fine-tune this capacity to ensure optimal performance. Although, based on the current design and how events are funneled through the WebSocket channel, the necessity for an aggregator seems minimal.
 
 ## Data Flow
 
 ```mermaid
 flowchart LR
-    A[App Code]
+    A[Tauri App]
+    Pl[Inspector Protocol Plugin]
     subgraph Subscriber
-    L[tracing_subscriber Layer]
-    Ag[Aggregator]
-    S[Server]
+    L[inspector-protocol-subscriber]
+    Ag[Channels]
+    end
+    subgraph Server
+    S[JSON-RPC Server]
     end
     subgraph Devtools
     C[Client]
-    P[State]
-    U[UI]
     end
 
-
-    A -->|tracing Event| L
-    L -->|Event| Ag
-    S -->|Command| Ag
-    Ag
-    Ag -->|"
+    A -->|load| Pl
+    Pl -->|register| L
+    L <--> Ag
+    Pl -->|spawn| S
+    A -->|"
         TraceEvent
-        ResourceUpdate
-        tokio::ResourceUpdate
-        tokio::TaskUpdate
-        tokio::AsyncOpUpdate
-    "| S
-    S <-->|gRPC| C
-
-    C -->|mutation| P
-    P -->|render| U
-    U -->|command| C
+        tao::platform_impl::platform
+    "| L
+    S <--> Ag
+    S <-->|WebSocket| C
 ```
-
-## Subscriber
-
-The subscriber hooks into the `tracing` ecosystem to collect the events and spans reported by 3rd party crates. 
-These events and spans will be processed and potentially aggregated (note that regular span events are still emitted in realtime currently) over time.
-The subscriber exposes a gRPC server that clients can use to request access to this data stream.

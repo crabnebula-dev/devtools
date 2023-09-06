@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to Tauri!</title>
+  </head>
+  <body>
+    <h1>Welcome to Tauri!</h1>
+    <button id="test1">sleep thread</button>
+    <a href="/test.html">go to test</a>
+    <script>
+      window.onload = function () {
+        const rpcApiUrl = window.location.hash.slice(1);
+        const test1 = document.getElementById("test1");
+
+        test1.onclick = function (e) {
+          e.preventDefault();
+          window.__TAURI_INVOKE__("test1").then(() => {
+            console.log("done");
+          });
+        };
+      };
+    </script>
+  </body>
+</html>
