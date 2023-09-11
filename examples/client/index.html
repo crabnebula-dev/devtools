@@ -161,6 +161,10 @@
           <button type="button" id="logsUnwatchBtn" style="display: none">
             Unsubscribe logs
           </button>
+          <button type="button" id="spansBtn">Subscribe spans</button>
+          <button type="button" id="spansUnwatchBtn" style="display: none">
+            Unsubscribe spans
+          </button>
           <button type="button" id="tauriConfig">Tauri config</button>
           <button type="button" id="getMetrics">Performance</button>
         </div>
@@ -176,6 +180,8 @@
         const closeBtn = document.getElementById("close");
         const logsBtn = document.getElementById("logsBtn");
         const logsUnwatchBtn = document.getElementById("logsUnwatchBtn");
+        const spansBtn = document.getElementById("spansBtn");
+        const spansUnwatchBtn = document.getElementById("spansUnwatchBtn");
         const logsField = document.getElementById("logsField");
         const tauriConfigBtn = document.getElementById("tauriConfig");
         const getMetricsBtn = document.getElementById("getMetrics");
@@ -183,6 +189,7 @@
         // Create a new WebSocket.
         const socket = new WebSocket(`ws://${rpcApiUrl}`);
         let currentLogSubscription = null;
+        let currentSpanSubscription = null;
 
         // Handle any errors that occur.
         socket.onerror = function (error) {
@@ -200,6 +207,18 @@
         socket.onmessage = function (event) {
           const message = JSON.parse(event.data);
 
+          if (message.id === "spans_watch") {
+            currentSpanSubscription = message.result;
+            spansBtn.style.display = "none";
+            spansUnwatchBtn.style.display = "inline-block";
+          }
+
+          if (message.id === "spans_unwatch") {
+            currentLogSubscription = undefined;
+            spansBtn.style.display = "inline-block";
+            spansUnwatchBtn.style.display = "none";
+          }
+
           // unique id from our message
           if (message.id === "logs_watch") {
             currentLogSubscription = message.result;
@@ -214,18 +233,31 @@
           }
 
           if (message.method === "logs_added") {
-            const {
-              timestamp,
-              message: logMessage,
-              target,
-              level,
-              file,
-              line,
-            } = message.params.result;
+            message.params.result.forEach((element) => {
+              const {
+                timestamp,
+                message: logMessage,
+                target,
+                level,
+                file,
+                line,
+                span,
+                fields,
+              } = element;
 
-            const timestampHuman = new Date(timestamp).toLocaleString();
-            logsField.value += `${timestampHuman} ${level} ${target} ${logMessage}\n`;
-            logsField.scrollTop = logsField.scrollHeight;
+              const timestampHuman = new Date(timestamp).toLocaleString();
+              logsField.value += `${timestampHuman} ${level} ${target} ${logMessage} (span = ${span}) (fields = ${JSON.stringify(
+                fields
+              )})\n`;
+              logsField.scrollTop = logsField.scrollHeight;
+            });
+          } else if (message.method === "spans_added") {
+            message.params.result.forEach((element) => {
+              messagesList.innerHTML +=
+                '<li class="received"><span>Span:</span>' +
+                JSON.stringify(element) +
+                "</li>";
+            });
           } else {
             messagesList.innerHTML +=
               '<li class="received"><span>Received:</span>' +
@@ -287,6 +319,20 @@
           return false;
         };
 
+        spansBtn.onclick = function (e) {
+          e.preventDefault();
+
+          messageField.value = JSON.stringify({
+            jsonrpc: "2.0",
+            // unique id could be used to match async result
+            id: "spans_watch",
+            method: "spans_watch",
+            params: {},
+          });
+
+          return false;
+        };
+
         tauriConfigBtn.onclick = function (e) {
           e.preventDefault();
 
@@ -310,6 +356,20 @@
             id: "logs_unwatch",
             method: "logs_unwatch",
             params: [currentLogSubscription],
+          });
+
+          return false;
+        };
+
+        spansUnwatchBtn.onclick = function (e) {
+          e.preventDefault();
+
+          messageField.value = JSON.stringify({
+            jsonrpc: "2.0",
+            // unique id could be used to match async result
+            id: "spans_unwatch",
+            method: "spans_unwatch",
+            params: [currentSpanSubscription],
           });
 
           return false;

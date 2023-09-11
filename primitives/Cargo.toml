@@ -19,3 +19,4 @@ homepage.workspace = true
 serde.workspace = true
 tokio.workspace = true
 tauri.workspace = true
+tracing.workspace = true

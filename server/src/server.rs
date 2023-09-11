@@ -40,7 +40,10 @@ impl Default for Config {
 }
 
 /// Start RPC server listening on given address.
-pub async fn start_server<R: Runtime>(inspector: Inspector<R>, config: Config) -> Result<(SocketAddr, ServerHandle)> {
+pub async fn start_server<R: Runtime>(
+	inspector: Inspector<'static, R>,
+	config: Config,
+) -> Result<(SocketAddr, ServerHandle)> {
 	let Config {
 		addr,
 		max_payload_in_mb,

@@ -12,17 +12,21 @@
 //!
 //! Take a look at [the Inspector Protocol guide](book) to learn more about how to use the plugin.
 
-use inspector_protocol_primitives::{Inspector, InspectorBuilder, InspectorMetrics, InternalEvent, LogEntry};
+use inspector_protocol_primitives::{
+	Inspector, InspectorBuilder, InspectorMetrics, InternalEvent, LogEntry, SpanEntry,
+};
 use inspector_protocol_server::Result as InspectorResult;
-use inspector_protocol_subscriber::SubscriptionLayer;
+use inspector_protocol_subscriber::BroadcastConfig;
 use std::{
 	fmt,
 	net::SocketAddr,
 	sync::{Arc, Mutex},
+	time::Duration,
 };
 use tauri::{plugin::TauriPlugin, RunEvent, Runtime};
 use tokio::sync::{broadcast, mpsc};
-use tracing_subscriber::{filter, prelude::*, Layer};
+use tracing::Level;
+use tracing_subscriber::filter;
 
 // CLI flag that determines whether the inspector protocol
 // should be active or not.
@@ -90,15 +94,18 @@ impl Builder {
 				let inspector = inspector
 					.with_metrics(Arc::new(Mutex::new(self.metrics)))
 					.with_internal_channel(internal_channel_sender)
-					.build(app, 10_000);
+					.with_capacity(10_000)
+					.build(app);
 
 				// Get reference to the `InspectorMetrics`
 				let metrics = inspector.metrics.clone();
 				// Get the logs channel
 				let logs_channel = inspector.channels.logs.clone();
+				// Get the spans channel
+				let spans_channel = inspector.channels.spans.clone();
 
 				// Try to set up a tracing subscriber to capture events and callstack
-				if try_setup_tracing_subscription(logs_channel).is_none() {
+				if try_setup_tracing_subscription(logs_channel, spans_channel).is_none() {
 					// We don't want to crash the Tauri application we simply stop
 					// the plugin loading process.
 					return Ok(());
@@ -125,7 +132,7 @@ impl Builder {
 					if let Err(err) =
 						tauri::async_runtime::block_on(isolated_internal_channel_sender.send(InternalEvent::AppReady))
 					{
-						log::error!("{err}");
+						log::error!("Error: {err}");
 					}
 					log::trace!("Application is ready");
 				}
@@ -151,7 +158,7 @@ impl Builder {
 ///
 /// Create a subscription to [tracing_subscriber::registry] with our custom
 /// [SubscriptionLayer].
-fn spawn_rpc_server<R: Runtime>(inspector: Inspector<R>) -> InspectorResult<()> {
+fn spawn_rpc_server<R: Runtime>(inspector: Inspector<'static, R>) -> InspectorResult<()> {
 	tauri::async_runtime::spawn(async move {
 		// Start the inspector protocol server.
 		if let Ok((server_addr, server_handle)) = inspector_protocol_server::start_server(
@@ -178,21 +185,27 @@ fn spawn_rpc_server<R: Runtime>(inspector: Inspector<R>) -> InspectorResult<()> 
 }
 
 /// Try to register [SubscriptionLayer], if something went wrong, it will return `None`.
-fn try_setup_tracing_subscription(logs_channel: broadcast::Sender<LogEntry>) -> Option<()> {
+fn try_setup_tracing_subscription(
+	logs_channel: broadcast::Sender<Vec<LogEntry<'static>>>,
+	spans_channel: broadcast::Sender<Vec<SpanEntry<'static>>>,
+) -> Option<()> {
 	// Set up a tracing subscriber to capture events and callstack.
 	// This subscriber filters for TRACE level logs, but excludes
 	// logs originating from `soketto` to reduce noise.
-	let tracing_registered = tracing_subscriber::registry()
-		.with(
-			// FIXME: We'll need to send another channel (for callstack)
-			SubscriptionLayer::new(logs_channel)
-				.with_filter(tracing_subscriber::filter::LevelFilter::TRACE)
-				.with_filter(filter::filter_fn(|metadata| {
-					// FIXME: skip `soketto` as it's the main websocket layer
-					// and create lot of noise
-					!metadata.target().starts_with("soketto")
-				})),
-		)
+	use tracing_subscriber::prelude::*;
+	let fmt_layer = tracing_subscriber::fmt::layer();
+	let tracing_config = BroadcastConfig::new(logs_channel, spans_channel)
+		.with_tokio_handle(tauri::async_runtime::handle().inner().clone())
+		.with_batch_size(50)
+		.with_interval(Duration::from_millis(800));
+
+	let tracing_registered = inspector_protocol_subscriber::broadcast(tracing_config)
+		.with_max_level(Level::TRACE)
+		.finish()
+		.with(filter::filter_fn(|metadata| {
+			!metadata.target().contains("soketto") && !metadata.target().contains("jsonrpsee")
+		}))
+		.with(fmt_layer)
 		.try_init();
 
 	if let Err(err) = tracing_registered {
@@ -201,8 +214,6 @@ fn try_setup_tracing_subscription(logs_channel: broadcast::Sender<LogEntry>) -> 
 		eprintln!("--------- Tauri Inspector Protocol ---------\n");
 		eprintln!("Error:");
 		eprintln!("  ${err}\n");
-		eprintln!("Tips:");
-		eprintln!("  - Disable global `tracing_subscriber`");
 		eprintln!("\n--------- Tauri Inspector Protocol ---------");
 
 		// cannot initialize subscriber, it doesnt worth going further
