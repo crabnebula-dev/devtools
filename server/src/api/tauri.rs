@@ -2,7 +2,7 @@ use crate::Result;
 use inspector_protocol_primitives::{Asset, AssetParams, Inspector, Runtime};
 use jsonrpsee::{types::error::ErrorCode, RpcModule};
 
-pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Inspector<R>>) -> Result<()> {
+pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Inspector<'static, R>>) -> Result<()> {
 	module.register_method("tauri_getConfig", |_, inspector| {
 		let tauri_config = inspector.app_handle.config();
 		serde_json::to_value(tauri_config.as_ref()).map_err(|_| ErrorCode::InternalError)
