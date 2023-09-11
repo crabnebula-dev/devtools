@@ -159,7 +159,7 @@ impl<'a: 'static> Broadcaster<'a> {
 					// If both logs and spans queues are empty, simply wait for the next iteration.
 					if logs_queue.is_empty() && spans_queue.is_empty() {
 						continue;
-				  }
+					}
 				}
 				// Handle received Tree (either containing logs or spans).
 				maybe_tree = rx.recv() => {
