@@ -53,6 +53,7 @@ impl<'a: 'static> BroadcastDispatcher<'a> {
 	/// The broadcaster will start processing data in the background, either on the default Tokio runtime
 	/// or on a specified Tokio handle provided in the `config`.
 	pub(crate) fn new(config: BroadcastConfig<'a>) -> Self {
+		// FIXME: Use bounded channel?
 		let (out, rx) = mpsc::unbounded_channel();
 		let future = Broadcaster::new(config.clone()).run(rx);
 

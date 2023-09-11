@@ -137,7 +137,7 @@ impl<'a: 'static> Broadcaster<'a> {
 	///
 	/// # Parameters
 	///
-	/// - `rx`: An asynchronous unbounded receiver for `Tree`. This is the source from which logs and spans are received.
+	/// - `rx`: An unbounded receiver for `Tree`. This is the internal handler.
 	pub(crate) async fn run(self, mut rx: UnboundedReceiver<Tree<'a>>) {
 		let Broadcaster {
 			mut logs_queue,
