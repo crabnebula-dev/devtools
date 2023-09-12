@@ -1,6 +1,5 @@
+use jsonrpsee::PendingSubscriptionAcceptError;
 use tokio_stream::wrappers::errors::BroadcastStreamRecvError;
-
-use inspector_protocol_primitives::LogEntry;
 
 /// Inspector protocol Result typedef.
 pub type Result<T> = std::result::Result<T, Error>;
@@ -17,16 +16,13 @@ pub enum Error {
 	RpcError(#[from] jsonrpsee_core::Error),
 
 	#[error(transparent)]
-	LogEntryError(#[from] tokio::sync::mpsc::error::SendError<LogEntry>),
-
-	#[error(transparent)]
 	BroadcastStreamRecvError(#[from] BroadcastStreamRecvError),
 
 	#[error(transparent)]
 	JsonError(#[from] serde_json::Error),
 
 	#[error(transparent)]
-	PendingSubscriptionAcceptError(#[from] jsonrpsee::PendingSubscriptionAcceptError),
+	PendingSubscriptionAcceptError(#[from] PendingSubscriptionAcceptError),
 
 	#[error("Other: {0}")]
 	Other(String),

@@ -38,13 +38,11 @@ Understanding our repository is essential to grasping the Inspector Protocol. He
 
 ## WebSocket
 
-In the design, channels serve as the backbone for efficient and immediate data transfer particularly when it comes to real-time broadcasting over WebSockets.
-
-One of the features of this approach is the absence of accumulators or buffers. Instead of stockpiling events, they're immediately broadcasted to all subscribers the moment they arrive. This is facilitated using Tokio's [broadcast](https://docs.rs/tokio/latest/tokio/sync/broadcast/index.html) channel. 
+In the design, channels serve as the backbone for efficient and immediate data transfer particularly when it comes to real-time broadcasting over WebSockets. Rather than broadcasting events to subscribers as they arrive, we employs a queuing mechanism. This ensures that events are batched together and then dispatched in more manageable chunks to the subscribers, optimizing performance without sacrificing real-time capabilities.
 
 Events are dispatched to the channel **only if there's an active subscription**. This means there's no unnecessary buildup or accumulation of data in the channel if there are no listeners. This dynamic setup helps in keeping the data flow lean and efficient. When events are sent to the channel, they're immediately broadcasted to all subscribers via the WebSocket. This rapid dispatch mechanism ensures that data transfer is nearly instantaneous, maintaining the real-time nature of the protocol.
 
-While the current setup efficiently handles broadcasting without the need for an aggregator, there's still a provision to manage the broadcast channel's capacity. Benchmarking will be crucial to fine-tune this capacity to ensure optimal performance. Although, based on the current design and how events are funneled through the WebSocket channel, the necessity for an aggregator seems minimal.
+By leveraging the Broadcaster in our design, we've achieved a balance between instantaneous data broadcast and system efficiency. Ongoing and future benchmarking will be crucial to fine-tuning this mechanism and ensuring it meets the performance requirements.
 
 ## Data Flow
 
@@ -54,7 +52,7 @@ flowchart LR
     Pl[Inspector Protocol Plugin]
     subgraph Subscriber
     L[inspector-protocol-subscriber]
-    Ag[Channels]
+    B[Broadcaster]
     end
     subgraph Server
     S[JSON-RPC Server]
@@ -65,12 +63,15 @@ flowchart LR
 
     A -->|load| Pl
     Pl -->|register| L
-    L <--> Ag
+    L -->|pre-filtered| B
     Pl -->|spawn| S
     A -->|"
-        TraceEvent
-        tao::platform_impl::platform
+        Trace events
+        Spans tracing
     "| L
-    S <--> Ag
+    B -->|"
+        logs_out
+        spans_out
+    "| S
     S <-->|WebSocket| C
 ```

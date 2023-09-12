@@ -3,7 +3,7 @@ name = "inspector-protocol-subscriber"
 publish = false
 readme = "../README.md"
 description = ""
-keywords = ["tauri", "inspector", "devtool", "protocol"]
+keywords = ["tauri", "inspector", "devtool", "protocol", "tracing", "subscriber"]
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
@@ -16,7 +16,10 @@ homepage.workspace = true
 [features]
 
 [dependencies]
-tokio.workspace = true
+tokio = { workspace = true, features = ["macros", "time"] }
 tracing-subscriber.workspace = true
 tracing-core.workspace = true
 inspector-protocol-primitives.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+thiserror.workspace = true
