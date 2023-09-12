@@ -31,15 +31,6 @@ macro_rules! assert_ok {
 	};
 }
 
-/// Events internal to the application.
-///
-/// This enum can be extended to include more events as the application grows.
-#[derive(Debug, Clone)]
-pub enum InternalEvent {
-	/// Application is ready
-	AppReady,
-}
-
 /// Enum representing a [LogEntry] or a [SpanEntry]
 #[derive(Debug, Serialize, Clone)]
 pub enum Tree<'a> {

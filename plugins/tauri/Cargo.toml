@@ -1,7 +1,7 @@
 [package]
-name = "inspector-protocol"
+name = "tauri-plugin-devtools"
 publish = true
-readme = "../README.md"
+readme = "../../README.md"
 description = ""
 keywords = ["tauri", "inspector", "devtool", "protocol", "plugin"]
 version.workspace = true
@@ -20,6 +20,7 @@ tokio.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 log.workspace = true
+serde_json.workspace = true
 
 inspector-protocol-subscriber.workspace = true
 inspector-protocol-primitives.workspace = true

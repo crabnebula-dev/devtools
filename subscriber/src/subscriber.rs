@@ -50,9 +50,8 @@ where
 	/// scope, panicking if this fails.
 	///
 	/// This method panics if a global default subscriber has already been set.
-	pub fn init(self) -> Result<()> {
-		self.inner.init();
-		Ok(())
+	pub fn init(self) -> () {
+		self.inner.init()
 	}
 }
 
