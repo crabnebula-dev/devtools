@@ -17,6 +17,9 @@ homepage.workspace = true
 
 [dependencies]
 serde.workspace = true
+serde_json.workspace = true
 tokio.workspace = true
 tauri.workspace = true
 tracing.workspace = true
+
+typescript-type-def = { workspace = true, features = [ "json_value" ] }

@@ -7,10 +7,7 @@ use tracing_core::{
 	span::{Attributes, Id},
 	Field, Subscriber,
 };
-use tracing_subscriber::{
-	layer::{self},
-	registry::LookupSpan,
-};
+use tracing_subscriber::{layer, registry::LookupSpan};
 
 mod event_visitor;
 

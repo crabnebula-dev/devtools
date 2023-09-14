@@ -1,5 +1,5 @@
-use crate::{api, Result};
-use inspector_protocol_primitives::{Inspector, Runtime};
+use crate::{api, Inspector, Result};
+use inspector_protocol_primitives::Runtime;
 use jsonrpsee::{
 	core::id_providers::RandomStringIdProvider,
 	server::{ServerBuilder, ServerHandle},

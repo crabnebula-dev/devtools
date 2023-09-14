@@ -1,23 +1,21 @@
-use super::pipe_from_stream_with_bounded_buffer;
-use crate::Result;
-use inspector_protocol_primitives::{Inspector, Runtime};
-use jsonrpsee::RpcModule;
+use crate::{Inspector, Result};
+use inspector_protocol_macro::rpc;
+use inspector_protocol_primitives::{LogEntry, Runtime};
+use jsonrpsee::types::error::ErrorCode;
+use std::sync::Arc;
 use tokio_stream::wrappers::BroadcastStream;
 
-pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Inspector<'static, R>>) -> Result<()> {
-	module.register_subscription(
-		"logs_watch",
-		"logs_added",
-		"logs_unwatch",
-		|_, pending, inspector| async move {
-			let channel = inspector.channels.logs.subscribe();
-			let stream = BroadcastStream::new(channel);
-			pipe_from_stream_with_bounded_buffer(pending, stream).await?;
-			Ok(())
-		},
-	)?;
+pub struct LogsApi;
 
-	Ok(())
+#[rpc(namespace = "logs")]
+impl LogsApi {
+	/// Subscribe to log events
+	#[subscription(subscribe = "watch", notif = "added", unsubscribe = "unwatch")]
+	fn logs<R: Runtime>(
+		inspector: Arc<Inspector<'static, R>>,
+	) -> Result<BroadcastStream<Vec<LogEntry<'_>>>, ErrorCode> {
+		Ok(BroadcastStream::new(inspector.logs()))
+	}
 }
 
 #[cfg(test)]

@@ -1,13 +1,18 @@
-use crate::Result;
-use inspector_protocol_primitives::{Inspector, Runtime};
-use jsonrpsee::{types::error::ErrorCode, RpcModule};
+use crate::{Inspector, Result};
+use inspector_protocol_macro::rpc;
+use inspector_protocol_primitives::{AppMetrics, Runtime};
+use jsonrpsee::types::error::ErrorCode;
+use std::sync::Mutex;
 
-pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Inspector<'static, R>>) -> Result<()> {
-	module.register_method("performance_getMetrics", |_, inspector| {
-		serde_json::to_value(inspector.metrics.as_ref()).map_err(|_| ErrorCode::InternalError)
-	})?;
+pub struct PerformanceApi;
 
-	Ok(())
+#[rpc(namespace = "performance")]
+impl PerformanceApi {
+	/// Get basic metrics
+	#[method(name = "getMetrics")]
+	fn get_metrics<'a, R: Runtime>(inspector: &'a Inspector<'_, R>) -> Result<&'a Mutex<AppMetrics>, ErrorCode> {
+		Ok(inspector.metrics())
+	}
 }
 
 #[cfg(test)]

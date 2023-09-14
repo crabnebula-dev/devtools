@@ -1,10 +1,12 @@
 use serde::{Deserialize, Serialize};
+use typescript_type_def::TypeDef;
 
 /// Represents an application asset.
 ///
 /// An asset can be any form of data bundled with the application,
 /// such as images, scripts, or stylesheets.
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, TypeDef)]
+#[serde(rename_all = "camelCase")]
 pub struct Asset {
 	/// The asset bytes.
 	pub bytes: Vec<u8>,
@@ -25,7 +27,8 @@ impl From<tauri::Asset> for Asset {
 }
 
 /// Parameters used to request a specific asset.
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, TypeDef)]
+#[serde(rename_all = "camelCase")]
 pub struct AssetParams {
 	/// The asset path.
 	pub path: String,

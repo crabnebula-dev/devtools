@@ -1,5 +1,4 @@
-use crate::{now, AppHandle, LogEntry, Runtime, SpanEntry};
-use serde::Serialize;
+use inspector_protocol_primitives::{AppHandle, AppMetrics, LogEntry, Runtime, SpanEntry};
 use std::sync::{Arc, Mutex};
 use tokio::sync::broadcast;
 
@@ -13,7 +12,7 @@ pub struct InspectorBuilder<'a> {
 	/// Channel for broadcasting spans entries.
 	pub spans_channel: Option<broadcast::Sender<Vec<SpanEntry<'a>>>>,
 	/// Holds custom metrics.
-	pub metrics: Arc<Mutex<InspectorMetrics>>,
+	pub metrics: Arc<Mutex<AppMetrics>>,
 	/// Channels capacity
 	pub capacity: usize,
 }
@@ -48,7 +47,7 @@ impl<'a> InspectorBuilder<'a> {
 	}
 
 	/// Sets the metrics for the inspector.
-	pub fn with_metrics(mut self, metrics: Arc<Mutex<InspectorMetrics>>) -> Self {
+	pub fn with_metrics(mut self, metrics: Arc<Mutex<AppMetrics>>) -> Self {
 		self.metrics = metrics;
 		self
 	}
@@ -62,7 +61,7 @@ impl<'a> InspectorBuilder<'a> {
 	/// Constructs an `Inspector` from the builder.
 	pub fn build<R: Runtime>(self, app_handle: &AppHandle<R>) -> Inspector<'a, R> {
 		Inspector {
-			app_handle: app_handle.clone(),
+			app_handle: Arc::new(app_handle.clone()),
 			channels: InspectorChannels {
 				logs: self.logs_channel.unwrap_or(broadcast::channel(self.capacity).0),
 				spans: self.spans_channel.unwrap_or(broadcast::channel(self.capacity).0),
@@ -75,53 +74,48 @@ impl<'a> InspectorBuilder<'a> {
 /// Represents an inspector which monitors app activities and logs.
 #[derive(Debug, Clone)]
 pub struct Inspector<'a, R: Runtime> {
+	app_handle: Arc<AppHandle<R>>,
+	metrics: Arc<Mutex<AppMetrics>>,
+	channels: InspectorChannels<'a>,
+}
+
+impl<'a, R: Runtime> Inspector<'a, R> {
+	/// Return `logs` Receiver. Used to link with WebSocket.
+	pub fn logs(&self) -> broadcast::Receiver<Vec<LogEntry<'a>>> {
+		self.channels.logs.subscribe()
+	}
+
+	/// Return `spans` Receiver. Used to link with WebSocket.
+	pub fn spans(&self) -> broadcast::Receiver<Vec<SpanEntry<'a>>> {
+		self.channels.spans.subscribe()
+	}
+
+	/// Internal metrics
+	pub fn metrics(&self) -> &Mutex<AppMetrics> {
+		self.metrics.as_ref()
+	}
+
 	/// Tauri application handle.
-	pub app_handle: AppHandle<R>,
-	/// Holds the communication channels for the inspector.
-	pub channels: InspectorChannels<'a>,
-	/// Custom metrics.
-	pub metrics: Arc<Mutex<InspectorMetrics>>,
+	pub fn app_handle(&self) -> &AppHandle<R> {
+		self.app_handle.as_ref()
+	}
 }
 
 /// Holds the communication channels for the inspector.
 #[derive(Debug, Clone)]
 pub struct InspectorChannels<'a> {
-	pub logs: broadcast::Sender<Vec<LogEntry<'a>>>,
-	pub spans: broadcast::Sender<Vec<SpanEntry<'a>>>,
-}
-
-/// Custom metrics.
-///
-/// These metrics are not inherently provided by Tauri. Instead, they are
-/// derived from various events and methods tailored for custom monitoring.
-/// This setup offers flexibility, allowing easy extension and addition of
-/// more metrics based on future needs.
-
-#[derive(Serialize, Debug, Clone)]
-pub struct InspectorMetrics {
-	/// Tauri application initialization time
-	pub initialized_at: u128,
-	/// Tauri applicatin reported `AppReady` time
-	pub ready_at: u128,
-}
-
-impl Default for InspectorMetrics {
-	fn default() -> Self {
-		Self {
-			initialized_at: now(),
-			ready_at: Default::default(),
-		}
-	}
+	logs: broadcast::Sender<Vec<LogEntry<'a>>>,
+	spans: broadcast::Sender<Vec<SpanEntry<'a>>>,
 }
 
 #[cfg(test)]
 mod tests {
-	use super::DEFAULT_BROADCAST_CAPACITY;
-	use crate::{now, InspectorBuilder, InspectorMetrics};
+	use super::{AppMetrics, InspectorBuilder, DEFAULT_BROADCAST_CAPACITY};
+	use inspector_protocol_primitives::now;
 
 	#[test]
 	fn inspector_metrics_initialized_at() {
-		assert_eq!(InspectorMetrics::default().initialized_at, now())
+		assert_eq!(AppMetrics::default().initialized_at, now())
 	}
 
 	#[test]

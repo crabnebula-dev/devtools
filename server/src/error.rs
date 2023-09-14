@@ -2,7 +2,7 @@ use jsonrpsee::PendingSubscriptionAcceptError;
 use tokio_stream::wrappers::errors::BroadcastStreamRecvError;
 
 /// Inspector protocol Result typedef.
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T, E = Error> = std::result::Result<T, E>;
 
 /// Inspector protocol errors.
 #[derive(Debug, thiserror::Error)]
@@ -14,6 +14,9 @@ pub enum Error {
 
 	#[error(transparent)]
 	RpcError(#[from] jsonrpsee_core::Error),
+
+	#[error(transparent)]
+	ErrorCode(#[from] jsonrpsee::types::error::ErrorCode),
 
 	#[error(transparent)]
 	BroadcastStreamRecvError(#[from] BroadcastStreamRecvError),

@@ -14,9 +14,12 @@ documentation.workspace = true
 homepage.workspace = true
 
 [features]
+default = []
+schema-gen = ["inspector-protocol-macro/schema-gen"]
 
 [dependencies]
 inspector-protocol-primitives.workspace = true
+inspector-protocol-macro.workspace = true
 
 jsonrpsee = { workspace = true, features = [ "client-core", "server", "macros" ] }
 jsonrpsee-core = { workspace = true }

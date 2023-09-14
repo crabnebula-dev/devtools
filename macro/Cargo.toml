@@ -1,0 +1,32 @@
+[package]
+name = "inspector-protocol-macro"
+publish = false   
+readme = "../README.md"
+description = ""
+keywords = ["tauri", "inspector", "devtool", "protocol", "macro"]
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+
+[features]
+default = []
+schema-gen = []
+
+[lib]
+proc-macro = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+
+syn.workspace = true
+quote.workspace = true
+proc-macro2.workspace = true
+Inflector.workspace = true
+darling.workspace = true
+inspector-protocol-primitives.workspace = true

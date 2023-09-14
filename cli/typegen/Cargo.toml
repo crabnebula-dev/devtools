@@ -1,0 +1,19 @@
+[package]
+name = "inspector-protocol-typegen"
+publish = false   
+readme = "../../README.md"
+description = ""
+keywords = ["tauri", "inspector", "devtool", "protocol", "macro"]
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+
+[dependencies]
+inspector-protocol-primitives.workspace = true
+typescript-type-def.workspace = true
+serde_json.workspace = true

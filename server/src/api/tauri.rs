@@ -1,29 +1,29 @@
+use crate::Inspector;
 use crate::Result;
-use inspector_protocol_primitives::{Asset, AssetParams, Inspector, Runtime};
-use jsonrpsee::{types::error::ErrorCode, RpcModule};
+use inspector_protocol_macro::rpc;
+use inspector_protocol_primitives::{Asset, AssetParams, Runtime, TauriConfig};
+use jsonrpsee::types::error::ErrorCode;
 
-pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Inspector<'static, R>>) -> Result<()> {
-	module.register_method("tauri_getConfig", |_, inspector| {
-		let tauri_config = inspector.app_handle.config();
-		serde_json::to_value(tauri_config.as_ref()).map_err(|_| ErrorCode::InternalError)
-	})?;
+pub struct TauriApi;
 
-	module.register_method("tauri_getAsset", |maybe_params, inspector| {
-		let params = maybe_params
-			.parse::<AssetParams>()
-			.map_err(|_| ErrorCode::InvalidParams)?;
+#[rpc(namespace = "tauri")]
+impl TauriApi {
+	/// Get Tauri config
+	#[method(name = "getConfig")]
+	fn get_config<'a, R: Runtime>(inspector: &'a Inspector<'_, R>) -> Result<TauriConfig, ErrorCode> {
+		Ok(inspector.app_handle().config().into())
+	}
 
-		let asset: Asset = inspector
-			.app_handle
+	/// Inspect Tauri assets
+	#[method(name = "getAssets")]
+	fn get_assets<'a, R: Runtime>(inspector: &'a Inspector<'_, R>, params: AssetParams) -> Result<Asset, ErrorCode> {
+		inspector
+			.app_handle()
 			.asset_resolver()
 			.get(params.path)
-			.ok_or(ErrorCode::InvalidRequest)?
-			.into();
-
-		serde_json::to_value(asset).map_err(|_| ErrorCode::InternalError)
-	})?;
-
-	Ok(())
+			.ok_or(ErrorCode::InvalidRequest)
+			.map(|tauri_asset| tauri_asset.into())
+	}
 }
 
 #[cfg(test)]

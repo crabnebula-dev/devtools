@@ -1,5 +1,5 @@
-use inspector_protocol_primitives::{Inspector, InspectorBuilder, InspectorMetrics, LogEntry, SpanEntry};
-use inspector_protocol_server::{Config, Result as InspectorResult};
+use inspector_protocol_primitives::{AppMetrics, LogEntry, SpanEntry};
+use inspector_protocol_server::{Config, Inspector, InspectorBuilder, Result as InspectorResult};
 use inspector_protocol_subscriber::{BroadcastConfig, BroadcastDispatcher, SubscriberBuilder};
 use std::{
 	fmt,
@@ -41,7 +41,7 @@ pub struct Builder {
 	capacity: usize,
 	batch_size: usize,
 	interval: Duration,
-	metrics: InspectorMetrics,
+	metrics: AppMetrics,
 	max_level: LevelFilter,
 	max_connections: u32,
 }
@@ -55,7 +55,7 @@ impl Default for Builder {
 			interval: DEFAULT_INTERVAL,
 			max_connections: DEFAULT_MAX_CONNECTIONS,
 			max_level: DEFAULT_LEVEL.into(),
-			metrics: InspectorMetrics::default(),
+			metrics: AppMetrics::default(),
 		}
 	}
 }
@@ -153,7 +153,7 @@ pub struct Devtools {
 	batch_size: usize,
 	interval: Duration,
 	socket_addr: SocketAddr,
-	metrics: Arc<Mutex<InspectorMetrics>>,
+	metrics: Arc<Mutex<AppMetrics>>,
 	max_level: LevelFilter,
 	logs_sender: broadcast::Sender<Vec<LogEntry<'static>>>,
 	spans_sender: broadcast::Sender<Vec<SpanEntry<'static>>>,

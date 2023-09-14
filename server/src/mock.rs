@@ -1,5 +1,4 @@
-use crate::{start_server, Result};
-use inspector_protocol_primitives::InspectorBuilder;
+use crate::{start_server, InspectorBuilder, Result};
 use jsonrpsee::server::ServerHandle;
 use std::net::SocketAddr;
 

@@ -1,9 +1,11 @@
 [workspace]
 resolver = "2"
 members = [
+    "macro",
     "server",
     "subscriber",
     "primitives",
+    "cli/typegen",
     "plugins/tauri",
 ]
 
@@ -28,6 +30,8 @@ jsonrpsee-core = { version = "0.20" }
 inspector-protocol-subscriber = { path = "./subscriber" }
 inspector-protocol-primitives = { path = "./primitives" }
 inspector-protocol-server = { path = "./server" }
+inspector-protocol-typegen = { path = "./cli/typegen" }
+inspector-protocol-macro = { path = "./macro" }
 
 log = "0.4.17"
 serde = "1"
@@ -43,3 +47,11 @@ tracing-core = "0.1"
 tracing-subscriber = "0.3.17"
 
 tauri = "1.4.1"
+
+quote = "1.0.33"
+syn = "2.0.32"
+Inflector = { version = "0.11.4",  default-features = false }
+proc-macro2 = "1.0.66"
+darling = "0.20.3"
+
+typescript-type-def = "0.5.8"

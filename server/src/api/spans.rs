@@ -1,23 +1,21 @@
-use super::pipe_from_stream_with_bounded_buffer;
-use crate::Result;
-use inspector_protocol_primitives::{Inspector, Runtime};
-use jsonrpsee::RpcModule;
+use crate::{Inspector, Result};
+use inspector_protocol_macro::rpc;
+use inspector_protocol_primitives::{Runtime, SpanEntry};
+use jsonrpsee::types::error::ErrorCode;
+use std::sync::Arc;
 use tokio_stream::wrappers::BroadcastStream;
 
-pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Inspector<'static, R>>) -> Result<()> {
-	module.register_subscription(
-		"spans_watch",
-		"spans_added",
-		"spans_unwatch",
-		|_, pending, inspector| async move {
-			let channel = inspector.channels.spans.subscribe();
-			let stream = BroadcastStream::new(channel);
-			pipe_from_stream_with_bounded_buffer(pending, stream).await?;
-			Ok(())
-		},
-	)?;
+pub struct SpansApi;
 
-	Ok(())
+#[rpc(namespace = "spans")]
+impl SpansApi {
+	/// Susbcribe to spans events
+	#[subscription(subscribe = "watch", notif = "added", unsubscribe = "unwatch")]
+	fn spans<R: Runtime>(
+		inspector: Arc<Inspector<'static, R>>,
+	) -> Result<BroadcastStream<Vec<SpanEntry<'_>>>, ErrorCode> {
+		Ok(BroadcastStream::new(inspector.spans()))
+	}
 }
 
 #[cfg(test)]

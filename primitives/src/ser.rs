@@ -1,10 +1,14 @@
 use crate::FieldSet;
 use serde::{ser::SerializeMap, Serializer};
-use std::fmt::Display;
+use std::{fmt::Display, time::Duration};
 
 /// Serializes any type implementing the `Display` trait into a string.
 pub(super) fn to_string<S: Serializer, D: Display>(v: D, serializer: S) -> Result<S::Ok, S::Error> {
 	serializer.serialize_str(&v.to_string())
+}
+
+pub(super) fn _to_ms<S: Serializer>(v: &Duration, serializer: S) -> Result<S::Ok, S::Error> {
+	serializer.serialize_str(&v.as_millis().to_string())
 }
 
 /// Serializes a [FieldSet] into a map where each field is a key-value pair.
