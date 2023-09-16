@@ -4,8 +4,8 @@ use std::time::Duration;
 use tauri_plugin_devtools::devtools;
 
 #[tauri::command]
-async fn test1() -> String {
-	tracing::info!("command test1");
+async fn test1(arg: String) -> String {
+	tracing::info!("command test1: {arg}");
 	tokio::time::sleep(Duration::from_secs(5)).await;
 
 	reqwest::get("https://www.rust-lang.org")
