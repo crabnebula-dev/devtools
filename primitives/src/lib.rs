@@ -33,6 +33,7 @@ macro_rules! assert_ok {
 
 /// Enum representing a [LogEntry] or a [SpanEntry]
 #[derive(Debug, Serialize, Clone)]
+#[serde(untagged)]
 pub enum Tree<'a> {
 	Log(LogEntry<'a>),
 	Span(SpanEntry<'a>),
