@@ -1,9 +1,9 @@
-use crate::{now, AppHandle, InternalEvent, LogEntry, Runtime, SpanEntry};
+use crate::{now, AppHandle, LogEntry, Runtime, SpanEntry};
 use serde::Serialize;
 use std::sync::{Arc, Mutex};
-use tokio::sync::{broadcast, mpsc};
+use tokio::sync::broadcast;
 
-const DEFAULT_BROADCAST_SIZE: usize = 1_000;
+const DEFAULT_BROADCAST_CAPACITY: usize = 1_000;
 
 /// Builder for the Inspector.
 #[derive(Debug, Clone)]
@@ -12,8 +12,6 @@ pub struct InspectorBuilder<'a> {
 	pub logs_channel: Option<broadcast::Sender<Vec<LogEntry<'a>>>>,
 	/// Channel for broadcasting spans entries.
 	pub spans_channel: Option<broadcast::Sender<Vec<SpanEntry<'a>>>>,
-	/// Channel for sending internal events.
-	pub internal_channel: Option<mpsc::Sender<InternalEvent>>,
 	/// Holds custom metrics.
 	pub metrics: Arc<Mutex<InspectorMetrics>>,
 	/// Channels capacity
@@ -23,10 +21,9 @@ pub struct InspectorBuilder<'a> {
 impl<'a> Default for InspectorBuilder<'a> {
 	fn default() -> Self {
 		Self {
-			capacity: DEFAULT_BROADCAST_SIZE,
+			capacity: DEFAULT_BROADCAST_CAPACITY,
 			logs_channel: Default::default(),
 			spans_channel: Default::default(),
-			internal_channel: Default::default(),
 			metrics: Default::default(),
 		}
 	}
@@ -50,12 +47,6 @@ impl<'a> InspectorBuilder<'a> {
 		self
 	}
 
-	/// Associates a channel for internal events.
-	pub fn with_internal_channel(mut self, channel: mpsc::Sender<InternalEvent>) -> Self {
-		self.internal_channel = Some(channel);
-		self
-	}
-
 	/// Sets the metrics for the inspector.
 	pub fn with_metrics(mut self, metrics: Arc<Mutex<InspectorMetrics>>) -> Self {
 		self.metrics = metrics;
@@ -73,7 +64,6 @@ impl<'a> InspectorBuilder<'a> {
 		Inspector {
 			app_handle: app_handle.clone(),
 			channels: InspectorChannels {
-				internal: self.internal_channel.unwrap_or(mpsc::channel(self.capacity).0),
 				logs: self.logs_channel.unwrap_or(broadcast::channel(self.capacity).0),
 				spans: self.spans_channel.unwrap_or(broadcast::channel(self.capacity).0),
 			},
@@ -98,7 +88,6 @@ pub struct Inspector<'a, R: Runtime> {
 pub struct InspectorChannels<'a> {
 	pub logs: broadcast::Sender<Vec<LogEntry<'a>>>,
 	pub spans: broadcast::Sender<Vec<SpanEntry<'a>>>,
-	pub internal: mpsc::Sender<InternalEvent>,
 }
 
 /// Custom metrics.
@@ -127,7 +116,7 @@ impl Default for InspectorMetrics {
 
 #[cfg(test)]
 mod tests {
-	use super::DEFAULT_BROADCAST_SIZE;
+	use super::DEFAULT_BROADCAST_CAPACITY;
 	use crate::{now, InspectorBuilder, InspectorMetrics};
 
 	#[test]
@@ -137,6 +126,6 @@ mod tests {
 
 	#[test]
 	fn inspector_builder_default_capacity() {
-		assert_eq!(InspectorBuilder::default().capacity, DEFAULT_BROADCAST_SIZE)
+		assert_eq!(InspectorBuilder::default().capacity, DEFAULT_BROADCAST_CAPACITY)
 	}
 }

@@ -1418,20 +1418,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "inspector-protocol"
-version = "0.1.0"
-dependencies = [
- "inspector-protocol-primitives",
- "inspector-protocol-server",
- "inspector-protocol-subscriber",
- "log",
- "tauri",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "inspector-protocol-primitives"
 version = "0.1.0"
 dependencies = [
@@ -3003,6 +2989,21 @@ dependencies = [
  "syn 1.0.109",
  "tauri-codegen",
  "tauri-utils",
+]
+
+[[package]]
+name = "tauri-plugin-devtools"
+version = "0.1.0"
+dependencies = [
+ "inspector-protocol-primitives",
+ "inspector-protocol-server",
+ "inspector-protocol-subscriber",
+ "log",
+ "serde_json",
+ "tauri",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
