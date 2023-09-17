@@ -22,6 +22,7 @@ fn main() {
 	tauri::Builder::default()
 		.invoke_handler(tauri::generate_handler![test1])
 		.plugin(devtools)
+		.plugin(tauri_plugin_window::init())
 		.run(tauri::generate_context!("./tauri.conf.json"))
 		.expect("error while running tauri application");
 }

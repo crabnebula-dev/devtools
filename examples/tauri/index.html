@@ -8,11 +8,13 @@
   <body>
     <h1>Welcome to Tauri!</h1>
     <button id="test1">sleep thread</button>
+    <button id="create-window">Create window</button>
     <a href="/test.html">go to test</a>
     <script>
       window.onload = function () {
         const rpcApiUrl = window.location.hash.slice(1);
         const test1 = document.getElementById("test1");
+        const createWindow = document.getElementById("create-window");
 
         test1.onclick = function (e) {
           e.preventDefault();
@@ -20,6 +22,13 @@
             console.log("done");
           });
         };
+
+        createWindow.onclick = function (e) {
+          e.preventDefault();
+          new window.__TAURI__.window.Window("test", {
+            url: "https://tauri.app"
+          })
+        }
       };
     </script>
   </body>

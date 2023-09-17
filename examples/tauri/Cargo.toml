@@ -10,9 +10,16 @@ path = "main.rs"
 [dependencies]
 tauri = { git = "ssh://git@github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing" }
 tauri-plugin-devtools = { path = "../../plugins/tauri" }
+tauri-plugin-window = { version = "2.0.0-alpha" }
 tracing = "0.1"
 tokio = "1"
 reqwest = "0.11"
 
 [build-dependencies]
 tauri-build = { git = "ssh://git@github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing" }
+
+[patch.crates-io]
+tauri = { git = "ssh://git@github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing" }
+#tauri = { path = "../../../tauri/core/tauri" }
+#[patch.'ssh://git@github.com/crabnebula-dev/tauri.git']
+#tauri = { path = "../../../tauri/core/tauri" }

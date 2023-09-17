@@ -3437,7 +3437,7 @@ checksum = "9d0e916b1148c8e263850e1ebcbd046f333e0683c724876bb0da63ea4373dc8a"
 [[package]]
 name = "tauri"
 version = "2.0.0-alpha.14"
-source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#fa6ddb155135a6e88b6f0da96e8c28c721e67894"
+source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#932218af4f946bde0d105831d0840eeb9bd0b7d8"
 dependencies = [
  "anyhow",
  "bytes",
@@ -3486,7 +3486,7 @@ dependencies = [
 [[package]]
 name = "tauri-build"
 version = "2.0.0-alpha.8"
-source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#fa6ddb155135a6e88b6f0da96e8c28c721e67894"
+source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#932218af4f946bde0d105831d0840eeb9bd0b7d8"
 dependencies = [
  "anyhow",
  "cargo_toml",
@@ -3505,7 +3505,7 @@ dependencies = [
 [[package]]
 name = "tauri-codegen"
 version = "2.0.0-alpha.7"
-source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#fa6ddb155135a6e88b6f0da96e8c28c721e67894"
+source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#932218af4f946bde0d105831d0840eeb9bd0b7d8"
 dependencies = [
  "base64 0.21.3",
  "brotli",
@@ -3535,6 +3535,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tauri-plugin-devtools",
+ "tauri-plugin-window",
  "tokio",
  "tracing",
 ]
@@ -3542,7 +3543,7 @@ dependencies = [
 [[package]]
 name = "tauri-macros"
 version = "2.0.0-alpha.7"
-source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#fa6ddb155135a6e88b6f0da96e8c28c721e67894"
+source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#932218af4f946bde0d105831d0840eeb9bd0b7d8"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -3568,9 +3569,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "tauri-plugin-window"
+version = "2.0.0-alpha.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "646c4d192ac58631b56059b5a3b26b254b42dcae91a455a818a22687bb841c39"
+dependencies = [
+ "serde",
+ "tauri",
+ "thiserror",
+]
+
+[[package]]
 name = "tauri-runtime"
 version = "1.0.0-alpha.1"
-source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#fa6ddb155135a6e88b6f0da96e8c28c721e67894"
+source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#932218af4f946bde0d105831d0840eeb9bd0b7d8"
 dependencies = [
  "gtk",
  "http",
@@ -3589,7 +3601,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime-wry"
 version = "1.0.0-alpha.2"
-source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#fa6ddb155135a6e88b6f0da96e8c28c721e67894"
+source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#932218af4f946bde0d105831d0840eeb9bd0b7d8"
 dependencies = [
  "cocoa 0.24.1",
  "gtk",
@@ -3600,6 +3612,7 @@ dependencies = [
  "raw-window-handle",
  "tauri-runtime",
  "tauri-utils",
+ "tracing",
  "uuid",
  "webkit2gtk",
  "webview2-com",
@@ -3610,7 +3623,7 @@ dependencies = [
 [[package]]
 name = "tauri-utils"
 version = "2.0.0-alpha.7"
-source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#fa6ddb155135a6e88b6f0da96e8c28c721e67894"
+source = "git+ssh://git@github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing#932218af4f946bde0d105831d0840eeb9bd0b7d8"
 dependencies = [
  "brotli",
  "ctor",
