@@ -1,7 +1,7 @@
 [package]
 name = "inspector-protocol-server"
 publish = false
-readme = "../README.md"
+readme = "../../README.md"
 description = ""
 keywords = ["tauri", "inspector", "devtool", "protocol"]
 version.workspace = true

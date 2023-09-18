@@ -28,13 +28,13 @@ The subscriber component is adept at tapping into the [`tracing`](https://crates
 
 Understanding our repository is essential to grasping the Inspector Protocol. Here’s a breakdown of the primary folders:
 
-- **`inspector-protocol`**: This is the main library. Notably, it's the sole crate destined for publication.
+- **`plugins/tauri`**: This is the main library. Notably, it's the sole crate destined for publication.
 
-- **`primitives`**: This folder houses the fundamental shared types necessary for the Inspector Protocol to function optimally.
+- **`inspector-protocol/primitives`**: This folder houses the fundamental shared types necessary for the Inspector Protocol to function optimally.
 
-- **`server`**: Our dedicated JSON-RPC Server resides here. It features a WebSocket transport layer, which supports connection upgrade, facilitating interactions.
+- **`inspector-protocol/server`**: Our dedicated JSON-RPC Server resides here. It features a WebSocket transport layer, which supports connection upgrade, facilitating interactions.
 
-- **`subscriber`**: This component plays a pivotal role as the `tracing` subscriber, continuously monitoring and collecting vital data from the ecosystem.
+- **`inspector-protocol/subscriber`**: This component plays a pivotal role as the `tracing` subscriber, continuously monitoring and collecting vital data from the ecosystem.
 
 ## WebSocket
 

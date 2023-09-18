@@ -11,6 +11,20 @@ pub fn metafile() -> fs::File {
 		.expect("Error opening meta file")
 }
 
+/// Extracts documentation attributes from a vector of attributes.
+///
+/// This function scans through a given list of attributes, looking for Rust's
+/// standard "doc" attributes. It then formats them into a JSDoc-style string.
+///
+/// # Parameters
+///
+/// * `attrs`: A reference to a vector of `Attribute` from which the documentation
+/// attributes will be extracted.
+///
+/// # Returns
+///
+/// A JSDoc-style formatted string with the extracted documentation or an empty
+/// string if no documentation attributes are found.
 pub fn get_docs(attrs: &Vec<Attribute>) -> String {
 	let mut doc: Vec<String> = vec![];
 	for attr in attrs {

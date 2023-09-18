@@ -3,5 +3,5 @@
 
 target
 
-schemas/*
-!schemas/README.md
+inspector-protocol/schemas/*
+!inspector-protocol/schemas/README.md

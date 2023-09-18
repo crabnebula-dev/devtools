@@ -10,13 +10,13 @@ pub struct TauriApi;
 impl TauriApi {
 	/// Get Tauri config
 	#[method(name = "getConfig")]
-	fn get_config<'a, R: Runtime>(inspector: &'a Inspector<'_, R>) -> Result<TauriConfig, ErrorCode> {
+	fn get_config<R: Runtime>(inspector: &Inspector<'_, R>) -> Result<TauriConfig, ErrorCode> {
 		Ok(inspector.app_handle().config().into())
 	}
 
 	/// Inspect Tauri assets
 	#[method(name = "getAssets")]
-	fn get_assets<'a, R: Runtime>(inspector: &'a Inspector<'_, R>, params: AssetParams) -> Result<Asset, ErrorCode> {
+	fn get_assets<R: Runtime>(inspector: &Inspector<'_, R>, params: AssetParams) -> Result<Asset, ErrorCode> {
 		inspector
 			.app_handle()
 			.asset_resolver()

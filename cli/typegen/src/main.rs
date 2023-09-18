@@ -8,6 +8,7 @@ fn main() {
 		.unwrap()
 		.parent()
 		.unwrap()
+		.join("inspector-protocol")
 		.join("schemas")
 		.join("devtools.d.ts");
 

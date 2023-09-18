@@ -23,7 +23,7 @@ pub struct Method {
 	// typedef
 	pub params: Option<String>,
 	// if emitted by the server (subscription)
-	pub server_event: bool,
+	pub subscription: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -50,12 +50,14 @@ pub struct TsType {
 pub fn metafile_path() -> String {
 	match env::var("OUT_DIR") {
 		Ok(out_dir) => Path::new(&out_dir)
+			.join("inspector-protocol")
 			.join("schemas")
 			.join("devtools-api-spec.json")
 			.into_os_string()
 			.into_string()
 			.unwrap(),
 		Err(_e) => PathBuf::new()
+			.join("inspector-protocol")
 			.join("schemas")
 			.join("devtools-api-spec.json")
 			.into_os_string()

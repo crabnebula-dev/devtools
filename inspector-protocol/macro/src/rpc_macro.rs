@@ -4,10 +4,14 @@ use crate::RpcArgs;
 use darling::FromAttributes;
 use inspector_protocol_primitives::schema;
 use proc_macro2::TokenStream as TokenStream2;
-use quote::{format_ident, quote};
+use quote::{format_ident, quote, quote_spanned};
 use syn::punctuated::Punctuated;
+use syn::spanned::Spanned;
 use syn::{Attribute, PathArguments, PathSegment, ReturnType};
 
+/// Represents a RPC namespace. (eg.: `logs_*`) implementation.
+///
+/// This include at least one method or subscription.
 #[derive(Debug)]
 pub struct RpcDescription {
 	pub(crate) namespace: Option<String>,
@@ -16,12 +20,14 @@ pub struct RpcDescription {
 	pub(crate) subscriptions: Vec<RpcSubscription>,
 }
 
+/// Attributes for RPC methods.
 #[derive(Debug, FromAttributes)]
 #[darling(attributes(method))]
 pub struct RpcMethodAttr {
 	pub name: String,
 }
 
+/// Attributes for RPC subscriptions.
 #[derive(Debug, FromAttributes)]
 #[darling(attributes(subscription))]
 pub struct RpcSubscriptionAttr {
@@ -30,6 +36,7 @@ pub struct RpcSubscriptionAttr {
 	pub unsubscribe: String,
 }
 
+/// Represents an individual RPC method.
 #[derive(Clone, Debug)]
 pub struct RpcMethod {
 	pub name: String,
@@ -38,6 +45,31 @@ pub struct RpcMethod {
 	pub param_ident: Option<syn::Ident>,
 }
 
+impl TryFrom<&syn::ImplItemFn> for RpcMethod {
+	type Error = syn::Error;
+
+	fn try_from(method: &syn::ImplItemFn) -> Result<Self, Self::Error> {
+		let method_data = RpcMethodAttr::from_attributes(&method.attrs)?;
+
+		let output_ident = if let ReturnType::Type(_, b) = &method.sig.output {
+			extract_ident_from_result(b.as_ref())?
+		} else {
+			return Err(syn::Error::new_spanned(
+				&method.sig.output,
+				"Invalid type, expected `Result`",
+			));
+		};
+
+		Ok(RpcMethod {
+			name: method_data.name,
+			inner: method.clone(),
+			param_ident: extract_maybe_params_ident(&method.sig.inputs)?,
+			output_ident,
+		})
+	}
+}
+
+/// Represents an individual RPC subscription.
 #[derive(Clone, Debug)]
 pub struct RpcSubscription {
 	pub subscribe: String,
@@ -48,54 +80,57 @@ pub struct RpcSubscription {
 	pub param_ident: Option<syn::Ident>,
 }
 
+impl TryFrom<&syn::ImplItemFn> for RpcSubscription {
+	type Error = syn::Error;
+
+	fn try_from(method: &syn::ImplItemFn) -> Result<Self, Self::Error> {
+		let method_data = RpcSubscriptionAttr::from_attributes(&method.attrs)?;
+
+		let output_ident = if let ReturnType::Type(_, b) = &method.sig.output {
+			extract_ident_from_result(b.as_ref())?
+		} else {
+			return Err(syn::Error::new_spanned(
+				&method.sig.output,
+				"Invalid type, expected `Result`",
+			));
+		};
+
+		Ok(RpcSubscription {
+			subscribe: method_data.subscribe,
+			notif: method_data.notif,
+			unsubscribe: method_data.unsubscribe,
+			inner: method.clone(),
+			param_ident: extract_maybe_params_ident(&method.sig.inputs)?,
+			output_ident,
+		})
+	}
+}
+
 impl RpcDescription {
-	pub(crate) fn from_item(args: RpcArgs, mut item: syn::ItemImpl) -> syn::Result<Self> {
+	/// Try to constructs a new `RpcDescription` from the given implementation item.
+	/// It analyzes the item to extract methods and subscriptions, validates them,
+	/// and returns an `RpcDescription`.
+	pub(crate) fn try_from_item(args: RpcArgs, mut item: syn::ItemImpl) -> syn::Result<Self> {
 		item.attrs.clear(); // Remove RPC attributes.
 
 		let mut methods = Vec::new();
 		let mut subscriptions = Vec::new();
 
-		// Go through all the methods in the trait and collect methods and
+		// Go through all the methods in the impl and collect methods and
 		// subscriptions.
 		for entry in item.items.iter() {
 			if let syn::ImplItem::Fn(method) = entry {
 				let mut is_method = false;
 				let mut is_sub = false;
 
-				if let Some(attr) = find_attr(&method.attrs, "method") {
+				// #[method]
+				if find_attr(&method.attrs, "method").is_some() {
 					is_method = true;
-
-					let method_data = RpcMethodAttr::from_attributes(&[attr.clone()])?;
-
-					let output_ident = if let ReturnType::Type(_, b) = &method.sig.output {
-						extract_ident_from_result(b.as_ref())
-					} else {
-						unimplemented!()
-					};
-
-					let param_ident = if method.sig.inputs.len() == 2 {
-						if let syn::FnArg::Typed(typed) = &method.sig.inputs[1] {
-							match typed.ty.as_ref() {
-								syn::Type::Path(path) => Some(path.path.get_ident().expect("valid ident")),
-								_ => None,
-							}
-						} else {
-							None
-						}
-						.cloned()
-					} else {
-						None
-					};
-
-					methods.push(RpcMethod {
-						name: method_data.name,
-						inner: method.clone(),
-						param_ident,
-						output_ident,
-					});
+					methods.push(RpcMethod::try_from(method)?);
 				}
 
-				if let Some(attr) = find_attr(&method.attrs, "subscription") {
+				// #[subscription]
+				if find_attr(&method.attrs, "subscription").is_some() {
 					is_sub = true;
 					if is_method {
 						return Err(syn::Error::new_spanned(
@@ -104,41 +139,12 @@ impl RpcDescription {
 						));
 					}
 
-					let method_data = RpcSubscriptionAttr::from_attributes(&[attr.clone()])?;
-
-					let output_ident = if let ReturnType::Type(_, b) = &method.sig.output {
-						extract_ident_from_result(b.as_ref())
-					} else {
-						unimplemented!()
-					};
-
-					let param_ident = if method.sig.inputs.len() == 2 {
-						if let syn::FnArg::Typed(typed) = &method.sig.inputs[1] {
-							match typed.ty.as_ref() {
-								syn::Type::Path(path) => Some(path.path.get_ident().expect("valid ident")),
-								_ => None,
-							}
-						} else {
-							None
-						}
-						.cloned()
-					} else {
-						None
-					};
-
-					subscriptions.push(RpcSubscription {
-						subscribe: method_data.subscribe,
-						notif: method_data.notif,
-						unsubscribe: method_data.unsubscribe,
-						inner: method.clone(),
-						param_ident,
-						output_ident,
-					});
+					subscriptions.push(RpcSubscription::try_from(method)?);
 				}
 
 				if !is_method && !is_sub {
 					return Err(syn::Error::new_spanned(
-						method,
+						entry,
 						"Methods must have either 'method' or 'subscription' attribute",
 					));
 				}
@@ -159,7 +165,8 @@ impl RpcDescription {
 		})
 	}
 
-	pub fn render(self) -> Result<TokenStream2, syn::Error> {
+	/// Generates the code that represents the current `RpcDescription`.
+	pub fn render(self) -> syn::Result<TokenStream2> {
 		#[cfg(feature = "schema-gen")]
 		let mut schema = schema::get_schema();
 		#[cfg(not(feature = "schema-gen"))]
@@ -168,6 +175,8 @@ impl RpcDescription {
 		let method_impls = self.render_methods(&mut schema)?;
 		let subscription_impls = self.render_subscriptions(&mut schema)?;
 		let typedef_test_impls = self.render_typedef_test()?;
+		#[cfg(feature = "schema-gen")]
+		let self_impl_ref = &self.impl_def.clone();
 
 		let impl_ident = if let syn::Type::Path(path) = *self.impl_def.self_ty {
 			path.path.require_ident().cloned()?
@@ -204,12 +213,14 @@ impl RpcDescription {
 			let mut metafile = utils::metafile();
 			metafile
 				.write_all(&serde_json::to_vec_pretty(&schema).unwrap())
-				.unwrap();
+				.map_err(|e| syn::Error::new_spanned(self_impl_ref, e.to_string()))?;
 		}
 
 		Ok(trait_impl)
 	}
 
+	/// Generates Rust functions that test `TypeDef` impl for each method and subscription (params and results).
+	/// These functions are meant to ensure that the defined types can be used as expected.
 	fn render_typedef_test(&self) -> Result<TokenStream2, syn::Error> {
 		let method_tests = self.methods.clone().into_iter().map(|method| {
 			let output = &method.output_ident;
@@ -233,10 +244,16 @@ impl RpcDescription {
 			}
 		});
 
-		let subscription_tests = self.subscriptions.clone().into_iter().map(|method| {
-			let output = extract_ident_from_result_broadcast_stream(&method.output_ident.segments);
+		let subscription_tests = self.subscriptions.iter().map(|method| {
+			let mut maybe_errors = Vec::new();
+			let output = extract_ident_from_result_broadcast_stream(&method.output_ident.segments).unwrap_or_else(|_| {
+				maybe_errors.push(quote_spanned!(method.output_ident.segments.span() => compile_error!("Invalid type, expected `BroadcastStream<Vec<T>>`");));
+				// return undefined ident (we throw a compile error as well)
+				format_ident!("___undefined")
+			});
+
 			let output_test_ident = format_ident!("__typedef_test_{}", method.subscribe);
-			let maybe_params = if let Some(param) = method.param_ident {
+			let maybe_params = if let Some(param) = &method.param_ident {
 				let param_test_ident = format_ident!("__typedef_test_{}", param.to_string().to_lowercase());
 				quote! {
 					fn #param_test_ident() {
@@ -252,6 +269,7 @@ impl RpcDescription {
 					let _ = #output::INFO;
 				}
 				#maybe_params
+				#(#maybe_errors)*
 			}
 		});
 
@@ -261,6 +279,8 @@ impl RpcDescription {
 		})
 	}
 
+	/// Generates Rust code to register each RPC subscription, including necessary transformations
+	/// to adhere to the expected function signatures and potential schema generation.
 	fn render_subscriptions(&self, _schema: &mut schema::Schema) -> Result<TokenStream2, syn::Error> {
 		let methods = self.subscriptions.clone().into_iter().map(|mut method| {
 			let original_method_ident = method.inner.sig.ident.clone();
@@ -311,7 +331,9 @@ impl RpcDescription {
 				let notif_result = if let Some(ident) = method.output_ident.get_ident() {
 					ident.to_string()
 				} else {
-					extract_ident_from_result_broadcast_stream(&method.output_ident.segments).to_string()
+					extract_ident_from_result_broadcast_stream(&method.output_ident.segments)
+						.expect("qed: Invalid type, expected `BroadcastStream<Vec<T>>`")
+						.to_string()
 				};
 
 				// subscribe method
@@ -322,7 +344,7 @@ impl RpcDescription {
 						name: subscribe_method_name.clone(),
 						result: "string".to_string(),
 						params: method.param_ident.map(|i| i.to_string()).clone(),
-						server_event: false,
+						subscription: None,
 					},
 				);
 
@@ -334,7 +356,7 @@ impl RpcDescription {
 						name: unsubscribe_method_name.clone(),
 						result: "boolean".to_string(),
 						params: Some("string[]".to_string()),
-						server_event: false,
+						subscription: None,
 					},
 				);
 
@@ -347,10 +369,11 @@ impl RpcDescription {
 						// always an array
 						result: format!("{notif_result}[]"),
 						params: None,
-						server_event: true,
+						subscription: Some(subscribe_method_name.clone()),
 					},
 				);
 			}
+
 			quote! {
 				#method_sig #method_block
 				module.register_subscription(
@@ -371,7 +394,9 @@ impl RpcDescription {
 		})
 	}
 
-	fn render_methods(&self, _schema: &mut schema::Schema) -> Result<TokenStream2, syn::Error> {
+	/// Generates Rust code to register each RPC method, including necessary transformations
+	/// to adhere to the expected function signatures and potential schema generation.
+	fn render_methods(&self, _schema: &mut schema::Schema) -> syn::Result<TokenStream2> {
 		let methods = self.methods.clone().into_iter().map(|mut method| {
 			let method_ident = format_ident!("__internal_{}", method.inner.sig.ident);
 			method.inner.sig.ident = method_ident.clone();
@@ -408,9 +433,10 @@ impl RpcDescription {
 					schema::Method {
 						doc,
 						name: method_name.clone(),
-						result: method.output_ident.get_ident().unwrap().to_string(),
+						// safe to use `expect` as we pre-validate the output
+						result: method.output_ident.require_ident().expect("valid ident").to_string(),
 						params: param_ident.map(|i| i.to_string()).clone(),
-						server_event: false,
+						subscription: None,
 					},
 				);
 			}
@@ -430,49 +456,41 @@ impl RpcDescription {
 	}
 }
 
+/// Searches for an attribute in the given attributes list that matches the specified ident.
 fn find_attr<'a>(attrs: &'a [Attribute], ident: &str) -> Option<&'a Attribute> {
 	attrs.iter().find(|a| a.path().is_ident(ident))
 }
 
-fn extract_ident_from_result_broadcast_stream(ty: &Punctuated<PathSegment, syn::token::PathSep>) -> syn::Ident {
-	assert_eq!(ty.first().unwrap().ident, "BroadcastStream");
+/// Extracts the Identifier from the provided type, which is expected to represent a `BroadcastStream`.
+fn extract_ident_from_result_broadcast_stream(
+	ty: &Punctuated<PathSegment, syn::token::PathSep>,
+) -> syn::Result<syn::Ident> {
+	//assert_eq!(ty.first().unwrap().ident, "BroadcastStream");
 
 	ty.iter()
-		.find_map(|s| match &s.arguments {
-			PathArguments::AngleBracketed(a) => {
-				let expected_vec = a.args.first().expect("vec");
-				match expected_vec {
-					syn::GenericArgument::Type(syn_type) => match syn_type {
-						syn::Type::Path(syn_path) => {
-							let first_segment = syn_path.path.segments.first().unwrap();
-							assert_eq!(first_segment.ident, "Vec");
-							match &first_segment.arguments {
-								PathArguments::AngleBracketed(a) => {
-									let vec_container = a.args.first().unwrap();
-									match vec_container {
-										syn::GenericArgument::Type(syn_type) => match syn_type {
-											syn::Type::Path(syn_path) => {
-												return Some(syn_path.path.segments.first().unwrap().ident.clone());
-											}
-											_ => unimplemented!(),
-										},
-										_ => unimplemented!(),
-									}
-								}
-								_ => unimplemented!(),
-							}
+		.find_map(|s| {
+			if let PathArguments::AngleBracketed(bracket) = &s.arguments {
+				if let Some(syn::GenericArgument::Type(syn::Type::Path(syn_path))) = bracket.args.first() {
+					let first_segment = syn_path.path.segments.first().unwrap();
+					if let PathArguments::AngleBracketed(a) = &first_segment.arguments {
+						let vec_container = a.args.first().unwrap();
+						if let syn::GenericArgument::Type(syn::Type::Path(syn_path)) = vec_container {
+							return Some(syn_path.path.segments.first().unwrap().ident.clone());
 						}
-						_ => unimplemented!(),
-					},
-					_ => unimplemented!(),
+					}
 				}
 			}
-			_ => unimplemented!(),
+
+			None
 		})
-		.unwrap()
+		.ok_or(syn::Error::new_spanned(
+			ty,
+			"Invalid type, expected `BroadcastStream<Vec<T>>`",
+		))
 }
 
-fn extract_ident_from_result(ty: &syn::Type) -> syn::Path {
+/// Extracts the path from the given type, assuming it's a `Result` type.
+fn extract_ident_from_result(ty: &syn::Type) -> syn::Result<syn::Path> {
 	fn path_is_result(path: &syn::Path) -> bool {
 		path.leading_colon.is_none()
 			&& path.segments.len() == 1
@@ -483,25 +501,52 @@ fn extract_ident_from_result(ty: &syn::Type) -> syn::Path {
 		syn::Type::Path(typepath) if typepath.qself.is_none() && path_is_result(&typepath.path) => {
 			extract_ident(typepath)
 		}
-		_ => unimplemented!("{ty:?}"),
+		_ => Err(syn::Error::new_spanned(ty, "Invalid type, expected `Result`")),
 	}
 }
 
-fn extract_ident(typepath: &syn::TypePath) -> syn::Path {
-	let type_params = typepath.path.segments.first().unwrap().arguments.clone();
-	match type_params {
-		PathArguments::AngleBracketed(params) => match params.args.first().unwrap().clone() {
-			syn::GenericArgument::Type(ty) => match ty {
-				syn::Type::Path(path) => path.path.clone(),
-				syn::Type::Reference(path_ref) => match path_ref.elem.as_ref() {
-					syn::Type::Path(path) => extract_ident(path),
-					_ => unimplemented!(),
-				},
-				_ => unimplemented!(),
-			},
-			_ => unimplemented!(),
-		},
-		PathArguments::None => typepath.path.clone(),
-		_ => unimplemented!(),
+/// Extracts the path from the provided `TypePath`.
+fn extract_ident(typepath: &syn::TypePath) -> syn::Result<syn::Path> {
+	let type_params = typepath.path.segments.first().map(|segment| segment.arguments.clone());
+
+	if let Some(PathArguments::AngleBracketed(params)) = type_params {
+		if let Some(syn::GenericArgument::Type(ty)) = params.args.first() {
+			match ty {
+				// direct path
+				syn::Type::Path(path) => return Ok(path.path.clone()),
+				// support reference as well
+				syn::Type::Reference(path_ref) => {
+					if let syn::Type::Path(path) = path_ref.elem.as_ref() {
+						return extract_ident(path);
+					}
+				}
+				_ => {}
+			}
+		}
+	} else if let Some(PathArguments::None) = type_params {
+		return Ok(typepath.path.clone());
 	}
+
+	Err(syn::Error::new_spanned(typepath, "Unable to extract ident"))
+}
+
+/// Extract params for methods and subscriptions
+/// We expect the `inspector` to be the first params and the second params (optional)
+/// is the method parameter (sent from the client).
+fn extract_maybe_params_ident(inputs: &Punctuated<syn::FnArg, syn::token::Comma>) -> syn::Result<Option<syn::Ident>> {
+	let result = if inputs.len() == 2 {
+		if let syn::FnArg::Typed(typed) = &inputs[1] {
+			match typed.ty.as_ref() {
+				syn::Type::Path(path) => Some(path.path.require_ident()?),
+				_ => None,
+			}
+		} else {
+			None
+		}
+		.cloned()
+	} else {
+		None
+	};
+
+	Ok(result)
 }

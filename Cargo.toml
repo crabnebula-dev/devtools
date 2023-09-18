@@ -1,10 +1,10 @@
 [workspace]
 resolver = "2"
 members = [
-    "macro",
-    "server",
-    "subscriber",
-    "primitives",
+    "inspector-protocol/macro",
+    "inspector-protocol/server",
+    "inspector-protocol/subscriber",
+    "inspector-protocol/primitives",
     "cli/typegen",
     "plugins/tauri",
 ]
@@ -27,11 +27,11 @@ homepage = "https://www.crabnebula.dev/"
 jsonrpsee = { version = "0.20" }
 jsonrpsee-core = { version = "0.20" }
 
-inspector-protocol-subscriber = { path = "./subscriber" }
-inspector-protocol-primitives = { path = "./primitives" }
-inspector-protocol-server = { path = "./server" }
+inspector-protocol-subscriber = { path = "./inspector-protocol/subscriber" }
+inspector-protocol-primitives = { path = "./inspector-protocol/primitives" }
+inspector-protocol-server = { path = "./inspector-protocol/server" }
+inspector-protocol-macro = { path = "./inspector-protocol/macro" }
 inspector-protocol-typegen = { path = "./cli/typegen" }
-inspector-protocol-macro = { path = "./macro" }
 
 log = "0.4.17"
 serde = "1"
