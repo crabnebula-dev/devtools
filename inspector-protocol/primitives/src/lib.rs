@@ -3,7 +3,7 @@ pub use field::{Field, FieldSet};
 use serde::Serialize;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 pub use tauri::{AppHandle, Manager, Runtime};
-pub use tauri_config::TauriConfig;
+pub use tauri_config::Config as TauriConfig;
 pub use tracing::Level;
 pub use typescript_type_def::TypeDef;
 
@@ -13,13 +13,13 @@ pub mod schema;
 mod ser;
 mod tauri_config;
 
-pub type TypeScriptDef<'a> = (
+pub type TypeScriptDef<'meta> = (
 	AppMetrics,
 	Asset,
 	AssetParams,
-	Metadata<'a>,
-	SpanEntry<'a>,
-	LogEntry<'a>,
+	Metadata<'meta>,
+	SpanEntry<'meta>,
+	LogEntry<'meta>,
 	TauriConfig,
 );
 
