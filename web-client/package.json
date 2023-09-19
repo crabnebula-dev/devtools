@@ -10,8 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --fix --ext .ts,.tsx",
-    "test": "vitest",
-    "prepare": "husky install"
+    "test": "vitest"
   },
   "devDependencies": {
     "@solidjs/testing-library": "^0.7.1",
@@ -37,6 +36,7 @@
     "@solid-primitives/event-listener": "^2.3.0",
     "@solid-primitives/websocket": "^1.1.0",
     "@solidjs/router": "^0.8.3",
+    "@tauri-apps/cli": "^2.0.0-alpha.14",
     "csp_evaluator": "^1.1.1",
     "solid-js": "^1.7.6"
   }

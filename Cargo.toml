@@ -8,7 +8,8 @@ members = [
 ]
 
 exclude = [
-    "examples/tauri"
+    "examples/tauri",
+    "web-client/src-tauri"
 ]
 
 [workspace.package]
