@@ -9,7 +9,10 @@ path = "main.rs"
 
 [dependencies]
 tauri = "1.4.1"
-inspector-protocol = { path = "../../inspector-protocol" }
+tauri-plugin-devtools = { path = "../../plugins/tauri" }
+tracing = "0.1"
+tokio = "1"
+reqwest = "0.11"
 
 [build-dependencies]
 tauri-build = "1.4.0"

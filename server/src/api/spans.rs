@@ -6,11 +6,11 @@ use tokio_stream::wrappers::BroadcastStream;
 
 pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Inspector<'static, R>>) -> Result<()> {
 	module.register_subscription(
-		"logs_watch",
-		"logs_added",
-		"logs_unwatch",
+		"spans_watch",
+		"spans_added",
+		"spans_unwatch",
 		|_, pending, inspector| async move {
-			let channel = inspector.channels.logs.subscribe();
+			let channel = inspector.channels.spans.subscribe();
 			let stream = BroadcastStream::new(channel);
 			pipe_from_stream_with_bounded_buffer(pending, stream).await?;
 			Ok(())
@@ -25,7 +25,7 @@ mod tests {
 	use crate::{mock::server_mock, Result};
 
 	#[tokio::test]
-	async fn logs_methods() -> Result<()> {
+	async fn spans_methods() -> Result<()> {
 		let (_addr, handle) = server_mock().await?;
 
 		// FIXME: add extensive tests with a client?

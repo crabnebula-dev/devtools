@@ -4,7 +4,7 @@ members = [
     "server",
     "subscriber",
     "primitives",
-    "inspector-protocol",
+    "plugins/tauri",
 ]
 
 exclude = [

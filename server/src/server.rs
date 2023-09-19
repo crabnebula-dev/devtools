@@ -39,8 +39,47 @@ impl Default for Config {
 	}
 }
 
+impl Config {
+	pub fn new() -> Self {
+		Config::default()
+	}
+
+	pub fn with_max_connections(mut self, max_connections: u32) -> Self {
+		self.max_connections = max_connections;
+		self
+	}
+
+	pub fn with_max_subs_per_conn(mut self, max_subs_per_conn: u32) -> Self {
+		self.max_subs_per_conn = max_subs_per_conn;
+		self
+	}
+
+	pub fn with_max_payload_in_mb(mut self, max_payload_in_mb: u32) -> Self {
+		self.max_payload_in_mb = max_payload_in_mb;
+		self
+	}
+
+	pub fn with_max_payload_out_mb(mut self, max_payload_out_mb: u32) -> Self {
+		self.max_payload_out_mb = max_payload_out_mb;
+		self
+	}
+
+	pub fn with_tokio_handle(mut self, tokio_handle: tokio::runtime::Handle) -> Self {
+		self.tokio_handle = Some(tokio_handle);
+		self
+	}
+
+	pub fn with_socket_addr(mut self, socket_addr: SocketAddr) -> Self {
+		self.addr = Some(socket_addr);
+		self
+	}
+}
+
 /// Start RPC server listening on given address.
-pub async fn start_server<R: Runtime>(inspector: Inspector<R>, config: Config) -> Result<(SocketAddr, ServerHandle)> {
+pub async fn start_server<R: Runtime>(
+	inspector: Inspector<'static, R>,
+	config: Config,
+) -> Result<(SocketAddr, ServerHandle)> {
 	let Config {
 		addr,
 		max_payload_in_mb,
