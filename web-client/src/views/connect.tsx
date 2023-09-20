@@ -4,7 +4,7 @@ import { useNavigate } from "@solidjs/router";
 
 export default function Connect() {
   const [host, setHost] = createSignal("127.0.0.1");
-  const [port, setPort] = createSignal("58671");
+  const [port, setPort] = createSignal("3000");
   const navigate = useNavigate();
 
   return (
