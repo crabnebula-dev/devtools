@@ -1,5 +1,5 @@
 import { createEventSignal } from "@solid-primitives/event-listener";
-import { For, Show, createEffect } from "solid-js";
+import { For, createEffect } from "solid-js";
 import { useWs } from "../../lib/ws";
 import { TAURI_CONFIG } from "../../lib/requests";
 import { Collapsible } from "@kobalte/core";
