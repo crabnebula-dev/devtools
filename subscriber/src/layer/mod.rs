@@ -1,6 +1,6 @@
 use crate::dispatch::Dispatcher;
 use event_visitor::EventVisitor;
-use inspector_protocol_primitives::{FieldSet, LogEntry, Metadata, SpanEntry, Tree};
+use inspector_protocol_primitives::{FieldSet, LogEntry, Metadata, SpanEntry, SpanStatus};
 use std::fmt;
 use std::time::Instant;
 use tracing_core::{
@@ -28,7 +28,7 @@ pub(crate) struct ActiveSpan<'a> {
 
 impl<'a> ActiveSpan<'a> {
 	/// Create a new opened span based on given attributes and context.
-	fn new<S>(id: &Id, attrs: &Attributes, _ctx: &layer::Context<S>) -> Self
+	fn new<S>(id: &Id, maybe_parent: Option<u64>, attrs: &Attributes, _ctx: &layer::Context<S>) -> Self
 	where
 		S: Subscriber + for<'b> LookupSpan<'b>,
 	{
@@ -42,7 +42,7 @@ impl<'a> ActiveSpan<'a> {
 		let shared = Metadata::new(meta, fields);
 
 		ActiveSpan {
-			span: SpanEntry::new(id.into_u64(), shared, meta.name()),
+			span: SpanEntry::new(id.into_u64(), maybe_parent, shared, meta.name()),
 			start: Instant::now(),
 			enter: Instant::now(),
 		}
@@ -50,16 +50,15 @@ impl<'a> ActiveSpan<'a> {
 
 	fn enter(&mut self) {
 		self.enter = Instant::now();
+		self.span.status = SpanStatus::Entered;
 	}
 
 	fn exit(&mut self) {
-		self.span.total_duration = self.start.elapsed();
-		self.span.idle_duration = self.enter.duration_since(self.start);
-		self.span.busy_duration = self.enter.elapsed();
-	}
-
-	fn record_span(&mut self, span: SpanEntry<'a>) {
-		self.span.nodes.push(Tree::Span(span));
+		self.span.status = SpanStatus::Exited {
+			total_duration: self.start.elapsed(),
+			busy_duration: self.enter.elapsed(),
+			idle_duration: self.enter.duration_since(self.start),
+		}
 	}
 
 	/// Retrieve the [`SpanEntry`].
@@ -125,19 +124,22 @@ where
 
 	// Notifies this layer that a new span was constructed with the given `Attributes` and `Id`.
 	fn on_new_span(&self, attrs: &Attributes<'_>, id: &Id, ctx: layer::Context<'_, S>) {
-		let span = ctx.span(id).expect("should be in context");
+		let span = ctx.span(id).expect(NOT_IN_CONTEXT);
 		let mut extensions = span.extensions_mut();
-		extensions.insert(ActiveSpan::new(id, attrs, &ctx));
+		let maybe_parent = span.parent().map(|s| s.id().into_u64());
+		extensions.insert(ActiveSpan::new(id, maybe_parent, attrs, &ctx));
 	}
 
 	// Notifies this layer that a span with the given `Id` was entered.
 	fn on_enter(&self, id: &Id, ctx: layer::Context<'_, S>) {
-		ctx.span(id)
-			.expect(NOT_IN_CONTEXT)
-			.extensions_mut()
-			.get_mut::<ActiveSpan>()
-			.expect(NOT_IN_EXTENSIONS)
-			.enter();
+		let span = ctx.span(id).expect(NOT_IN_CONTEXT);
+		let mut extensions = span.extensions_mut();
+		let span_entry = extensions.get_mut::<ActiveSpan>().expect(NOT_IN_EXTENSIONS);
+
+		if span_entry.span.status == SpanStatus::Created {
+			span_entry.enter();
+			self.dispatcher.dispatch(span_entry.span.clone().into());
+		}
 	}
 
 	// Notifies this layer that the span with the given `Id` was exited.
@@ -160,14 +162,6 @@ where
 			.expect(NOT_IN_EXTENSIONS)
 			.entry();
 
-		match span_ref.parent() {
-			// Record the span as a child of the `parent`
-			Some(parent) => parent
-				.extensions_mut()
-				.get_mut::<ActiveSpan>()
-				.expect(NOT_IN_EXTENSIONS)
-				.record_span(span_entry),
-			None => self.dispatcher.dispatch(span_entry.into()),
-		}
+		self.dispatcher.dispatch(span_entry.into())
 	}
 }
