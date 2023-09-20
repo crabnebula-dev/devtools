@@ -1450,10 +1450,9 @@ name = "inspector-protocol-subscriber"
 version = "0.1.0"
 dependencies = [
  "inspector-protocol-primitives",
- "serde",
- "serde_json",
  "thiserror",
  "tokio",
+ "tracing",
  "tracing-core",
  "tracing-subscriber",
 ]

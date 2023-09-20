@@ -1,6 +1,7 @@
-use crate::dispatch::{Dispatcher, NoopDispatcher};
-use crate::Layer;
-use crate::Result;
+use crate::{
+	dispatch::{Dispatcher, NoopDispatcher},
+	Layer, Result,
+};
 use std::any::TypeId;
 use tracing_core::{span, Event, Interest, LevelFilter, Metadata};
 use tracing_subscriber::registry::LookupSpan;

@@ -1,6 +1,6 @@
 use inspector_protocol_primitives::{Inspector, InspectorBuilder, InspectorMetrics, LogEntry, SpanEntry};
 use inspector_protocol_server::{Config, Result as InspectorResult};
-use inspector_protocol_subscriber::{BroadcastConfig, BroadcastDispatcher, SubscriberBuilder};
+use inspector_protocol_subscriber::{BroadcastConfigBuilder, BroadcastDispatcher, SubscriberBuilder};
 use std::{
 	fmt,
 	net::SocketAddr,
@@ -8,7 +8,7 @@ use std::{
 	time::Duration,
 };
 use tauri::{AppHandle, RunEvent, Runtime};
-use tokio::sync::broadcast;
+use tokio::sync::{broadcast, watch};
 use tracing::Level;
 use tracing_subscriber::filter::{self, LevelFilter};
 use tracing_subscriber::prelude::*;
@@ -115,6 +115,7 @@ impl Builder {
 
 		let (logs_sender, _) = broadcast::channel(self.capacity);
 		let (spans_sender, _) = broadcast::channel(self.capacity);
+		let (shutdown_signal, _) = watch::channel(());
 
 		Devtools {
 			enabled,
@@ -125,6 +126,7 @@ impl Builder {
 			socket_addr: self.socket_addr.unwrap_or(([127, 0, 0, 1], 0).into()),
 			batch_size: self.batch_size,
 			max_level: self.max_level,
+			shutdown_signal,
 		}
 	}
 
@@ -157,6 +159,7 @@ pub struct Devtools {
 	max_level: LevelFilter,
 	logs_sender: broadcast::Sender<Vec<LogEntry<'static>>>,
 	spans_sender: broadcast::Sender<Vec<SpanEntry<'static>>>,
+	shutdown_signal: watch::Sender<()>,
 }
 
 impl fmt::Debug for Devtools {
@@ -214,10 +217,14 @@ impl Devtools {
 	/// ```
 	pub fn layer(&self) -> SubscriberBuilder<BroadcastDispatcher<'static>> {
 		inspector_protocol_subscriber::broadcast(
-			BroadcastConfig::new(self.logs_sender.clone(), self.spans_sender.clone())
+			BroadcastConfigBuilder::new()
+				.with_logs_sender(self.logs_sender.clone())
+				.with_spans_sender(self.spans_sender.clone())
+				.with_shutdown_receiver(self.shutdown_signal.subscribe())
 				.with_tokio_handle(tauri::async_runtime::handle().inner().clone())
 				.with_batch_size(self.batch_size)
-				.with_interval(self.interval),
+				.with_interval(self.interval)
+				.build(),
 		)
 	}
 }
@@ -251,19 +258,23 @@ impl<R: Runtime> tauri::plugin::Plugin<R> for Devtools {
 				if let Ok(mut metrics) = self.metrics.lock() {
 					metrics.ready_at = inspector_protocol_primitives::now();
 				}
-				log::trace!("Application is ready");
+				log::debug!("Application is ready");
 			}
 			RunEvent::Exit => {
-				log::trace!("Event loop is exiting");
+				// Shutdown signal for the `Broadcaster`, this will make sure all queued items
+				// are sent to all event subscribers.
+				if let Err(e) = self.shutdown_signal.send(()) {
+					log::error!("{e}");
+				}
 			}
-			RunEvent::WindowEvent { label, event, .. } => {
-				log::trace!("Window {} received an event: {:?}", label, event);
+			RunEvent::WindowEvent { label, .. } => {
+				log::debug!("Window {} received an event", label);
 			}
 			RunEvent::ExitRequested { .. } => {
-				log::trace!("Exit requested");
+				log::debug!("Exit requested");
 			}
 			RunEvent::Resumed => {
-				log::trace!("Event loop is being resumed");
+				log::debug!("Event loop is being resumed");
 			}
 			_ => {}
 		}
