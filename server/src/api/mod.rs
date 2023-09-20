@@ -1,6 +1,6 @@
 use crate::Result;
 use futures::{future, future::Either, StreamExt};
-use inspector_protocol_primitives::{Inspector, Runtime};
+use inspector_protocol_primitives::{Filter, Filterable, Inspector, Runtime};
 use jsonrpsee::{core::server::SubscriptionMessage, PendingSubscriptionSink, RpcModule};
 use serde::Serialize;
 use tokio_stream::wrappers::BroadcastStream;
@@ -57,9 +57,10 @@ pub(crate) fn register<R: Runtime>(inspector: Inspector<'static, R>) -> Result<R
 ///
 /// In the event that the WebSocket's internal buffer is full, this function will block until space becomes available.
 /// If the most recent item's delivery is critical upon its production, a smarter buffering or delivery approach might be needed.
-pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Send + Serialize>(
+pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Send + Serialize + Filterable>(
 	pending: PendingSubscriptionSink,
-	stream: BroadcastStream<T>,
+	stream: BroadcastStream<Vec<T>>,
+	maybe_filter: Option<Filter>,
 ) -> Result<()> {
 	let sink = pending.accept().await?;
 	let closed = sink.closed();
@@ -73,7 +74,14 @@ pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Se
 
 			// received new item from the stream.
 			Either::Right((Some(Ok(item)), c)) => {
-				let notif = SubscriptionMessage::from_json(&item)?;
+				let maybe_filtered = if let Some(filter) = &maybe_filter {
+					// filter entries that matches the provided filter
+					item.into_iter().filter(|item| item.match_filter(filter)).collect()
+				} else {
+					item
+				};
+
+				let notif = SubscriptionMessage::from_json(&maybe_filtered)?;
 
 				// NOTE: this will block until there a spot in the queue
 				if sink.send(notif).await.is_err() {

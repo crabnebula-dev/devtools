@@ -1,13 +1,15 @@
 pub use asset::{Asset, AssetParams};
 pub use field::{Field, FieldSet};
+pub use filter::{Filter, Filterable};
 pub use inspector::{Inspector, InspectorBuilder, InspectorChannels, InspectorMetrics};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 pub use tauri::{AppHandle, Manager, Runtime};
 pub use tracing::Level;
 
 mod asset;
 mod field;
+mod filter;
 mod inspector;
 mod ser;
 
@@ -101,6 +103,21 @@ impl<'a> From<LogEntry<'a>> for Tree<'a> {
 	}
 }
 
+/// Implementation of the [`Filterable`] trait for the `LogEntry` struct.
+///
+/// This implementation provides the logic to determine whether a `LogEntry`
+/// matches a given filter.
+impl<'a> Filterable for LogEntry<'a> {
+	fn match_filter(&self, filter: &filter::Filter) -> bool {
+		match filter {
+			filter::Filter::Level { level } => self.meta.level == level,
+			filter::Filter::Text { text } => {
+				self.meta.target.contains(text) || self.message.as_ref().is_some_and(|m| m.contains(text))
+			}
+		}
+	}
+}
+
 /// A span captured from the `tracing` crate.
 ///
 /// A span represents a period of time or a unit of work in the application.
@@ -120,16 +137,33 @@ pub struct SpanEntry<'a> {
 	pub parent: Option<u64>,
 }
 
+/// Implementation of the [`Filterable`] trait for the `SpanEntry` struct.
+///
+/// This implementation provides the logic to determine whether a `SpanEntry`
+/// matches a given filter.
+impl<'a> Filterable for SpanEntry<'a> {
+	fn match_filter(&self, filter: &filter::Filter) -> bool {
+		match filter {
+			filter::Filter::Level { level } => self.meta.level == level,
+			filter::Filter::Text { text } =>
+			// Check if the target or the span name contains the text.
+			{
+				self.meta.target.contains(text) || self.name.contains(text)
+			}
+		}
+	}
+}
+
 /// A span status.
 ///
 /// Serialization example;
 /// {
-/// 	"value": "EXITED",
-/// 	"attrs":{
-/// 		"totalDuration": {"secs":0,"nanos":241806},
-/// 		"busyDuration": {"secs":0,"nanos":168110},
-/// 		"idleDuration":{"secs":0,"nanos":73911}
-/// 	}
+///   "value": "EXITED",
+///   "attrs":{
+///      "totalDuration": {"secs":0,"nanos":241806},
+///      "busyDuration": {"secs":0,"nanos":168110},
+///      "idleDuration":{"secs":0,"nanos":73911}
+///   }
 /// }
 #[derive(Debug, Serialize, Clone, PartialEq)]
 #[serde(tag = "value", content = "attrs", rename_all = "UPPERCASE")]
@@ -167,6 +201,18 @@ impl<'a> SpanEntry<'a> {
 			parent,
 		}
 	}
+}
+
+/// Parameters required for establishing a websocket subscription.
+///
+/// This struct encapsulates the criteria needed to filter and control the flow
+/// of data over a websocket connection. By providing a filter, clients can
+/// selectively receive data that matches the specified criteria.
+#[derive(Debug, Deserialize)]
+pub struct SubscriptionParams {
+	/// The filter used to determine which entries
+	/// should be delivered over the websocket.
+	pub filter: Filter,
 }
 
 /// Current system time (unix timestamp in ms)

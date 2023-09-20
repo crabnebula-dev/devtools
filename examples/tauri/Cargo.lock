@@ -3201,7 +3201,6 @@ dependencies = [
  "tauri-plugin-devtools",
  "tokio",
  "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]
