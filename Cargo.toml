@@ -5,6 +5,7 @@ members = [
     "subscriber",
     "primitives",
     "plugins/tauri",
+    "probes",
 ]
 
 exclude = [
