@@ -17,7 +17,7 @@ export default defineConfig({
     globals: true,
     transformMode: { web: [/\.[jt]sx?$/] },
     deps: {
-      inline: ["@solidjs/testing-library"],
+      inline: [/solid-js/, /@solidjs\/router/],
     },
   },
 });

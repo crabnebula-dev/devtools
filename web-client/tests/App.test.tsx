@@ -1,3 +1,4 @@
+import { Router } from "@solidjs/router";
 import { render } from "@solidjs/testing-library";
 import { describe, expect, it } from "vitest";
 import Entry from "~/entry";
@@ -7,8 +8,14 @@ import Entry from "~/entry";
  * this is a test stub
  */
 describe("App", () => {
-  it("should render the app", () => {
-    const { getByText } = render(() => <Entry />);
-    expect(getByText("Web Socket")).toBeInTheDocument();
+  it("should render the app", async () => {
+    /**
+     * must await `render()` because all routes are async
+     */
+    const { findByText } = await render(() => <Entry />, {
+      wrapper: Router,
+    });
+
+    expect(await findByText("Web Socket")).toBeInTheDocument();
   });
 });
