@@ -1,25 +1,24 @@
 use inspector_protocol_primitives::{LogEntry, SpanEntry, Tree};
 use std::fmt::Debug;
 use std::{num::NonZeroUsize, time::Duration};
-
 use tokio::runtime::Handle;
-use tokio::sync::{broadcast::Sender, mpsc::UnboundedReceiver};
+use tokio::sync::{broadcast, mpsc::UnboundedReceiver, watch};
 use tokio::time::interval;
 
 // Internal queue processing. It will drain the specified queue up to a given size
 // and send the drained data to the designated channel. If there's no listener
 // on the channel, the error is ignored.
 macro_rules! process_queue_internally {
-	( $size:ident, $queue:ident, $batch_size: ident, $channel:ident ) => {
+	( $queue:ident, $batch_size: ident, $channel:ident ) => {
 		async {
-			let $size = if $queue.len() > $batch_size {
+			let __size = if $queue.len() > $batch_size {
 				$batch_size
 			} else {
 				$queue.len()
 			};
 
-			if $size > 0 {
-				let data = $queue.drain(..$size).collect();
+			if __size > 0 {
+				let data = $queue.drain(..__size).collect();
 				// error is ignored as it'll fails if
 				// there is no subscriber on the broadcast channel
 				let _ = $channel.send(data);
@@ -28,30 +27,36 @@ macro_rules! process_queue_internally {
 	};
 }
 
-/// Configuration struct for broadcasting.
+/// Configuration struct builder for broadcasting.
 ///
 /// It handles settings like batch sizes, intervals, and channels for logs and spans.
 #[derive(Debug, Clone)]
-pub struct BroadcastConfig<'a> {
+pub struct BroadcastConfigBuilder<'a> {
 	batch_size: NonZeroUsize,
 	tokio_handle: Option<Handle>,
 	interval: Duration,
-	logs_out: Sender<Vec<LogEntry<'a>>>,
-	spans_out: Sender<Vec<SpanEntry<'a>>>,
+	logs_out: Option<broadcast::Sender<Vec<LogEntry<'a>>>>,
+	spans_out: Option<broadcast::Sender<Vec<SpanEntry<'a>>>>,
+	shutdown_in: Option<watch::Receiver<()>>,
 }
 
-impl<'a> BroadcastConfig<'a> {
-	/// Creates a new `BroadcastConfig` with the provided log and span senders.
-	///
-	/// This sets up default values for the other configuration options.
-	pub fn new(logs: Sender<Vec<LogEntry<'a>>>, spans: Sender<Vec<SpanEntry<'a>>>) -> Self {
+impl<'a> Default for BroadcastConfigBuilder<'a> {
+	fn default() -> Self {
 		Self {
-			batch_size: NonZeroUsize::new(50).expect("pre; more than 1"),
+			batch_size: NonZeroUsize::new(50).expect("qed; more than 1"),
 			interval: Duration::from_millis(400),
-			logs_out: logs,
-			spans_out: spans,
-			tokio_handle: None,
+			tokio_handle: Default::default(),
+			logs_out: Default::default(),
+			spans_out: Default::default(),
+			shutdown_in: Default::default(),
 		}
+	}
+}
+
+impl<'a> BroadcastConfigBuilder<'a> {
+	/// Creates a new `BroadcastConfigBuilder`.
+	pub fn new() -> Self {
+		Default::default()
 	}
 
 	/// Sets the batch size for broadcasting.
@@ -74,15 +79,67 @@ impl<'a> BroadcastConfig<'a> {
 		self
 	}
 
+	/// Sets the `Sender` used to broadcast new [`LogEntry`].
+	pub fn with_logs_sender(mut self, logs: broadcast::Sender<Vec<LogEntry<'a>>>) -> Self {
+		self.logs_out = Some(logs);
+		self
+	}
+
+	/// Sets the `Sender` used to broadcast new [`SpanEntry`].
+	pub fn with_spans_sender(mut self, spans: broadcast::Sender<Vec<SpanEntry<'a>>>) -> Self {
+		self.spans_out = Some(spans);
+		self
+	}
+
+	/// Sets the `Receiver` used to flush the queue on shutdown.
+	pub fn with_shutdown_receiver(mut self, receiver: watch::Receiver<()>) -> Self {
+		self.shutdown_in = Some(receiver);
+		self
+	}
+
 	/// Assigns a Tokio runtime.
 	pub fn with_tokio_handle(mut self, tokio_handle: Handle) -> Self {
 		self.tokio_handle = Some(tokio_handle);
 		self
 	}
 
+	/// Build a [`BroadcastConfig`].
+	pub fn build(self) -> BroadcastConfig<'a> {
+		BroadcastConfig {
+			batch_size: self.batch_size,
+			tokio_handle: self.tokio_handle,
+			interval: self.interval,
+			logs_out: self.logs_out.unwrap_or_else(|| {
+				tracing::warn!("No logs channel defined, they will be ignored.",);
+				broadcast::channel(1).0
+			}),
+			spans_out: self.spans_out.unwrap_or_else(|| {
+				tracing::warn!("No spans channel defined, they will be ignored.",);
+				broadcast::channel(1).0
+			}),
+			shutdown_in: self.shutdown_in.unwrap_or_else(|| {
+				tracing::warn!("No shutdown signal defined, events may be lost.",);
+				watch::channel(()).1
+			}),
+		}
+	}
+}
+
+/// Configuration struct for broadcasting.
+#[derive(Debug)]
+pub struct BroadcastConfig<'a> {
+	batch_size: NonZeroUsize,
+	tokio_handle: Option<Handle>,
+	interval: Duration,
+	logs_out: broadcast::Sender<Vec<LogEntry<'a>>>,
+	spans_out: broadcast::Sender<Vec<SpanEntry<'a>>>,
+	shutdown_in: watch::Receiver<()>,
+}
+
+impl<'a> BroadcastConfig<'a> {
 	/// Return current config [Handle]
-	pub(crate) fn tokio_handle(self) -> Option<Handle> {
-		self.tokio_handle
+	pub(crate) fn tokio_handle(&self) -> Option<Handle> {
+		self.tokio_handle.clone()
 	}
 }
 
@@ -146,6 +203,7 @@ impl<'a: 'static> Broadcaster<'a> {
 		} = self;
 		// Set up an interval timer based on the provided configuration.
 		let mut interval = interval(config.interval);
+		let mut shutdown_in = config.shutdown_in;
 
 		let logs_out_channel = config.logs_out;
 		let spans_out_channel = config.spans_out;
@@ -160,6 +218,19 @@ impl<'a: 'static> Broadcaster<'a> {
 					if logs_queue.is_empty() && spans_queue.is_empty() {
 						continue;
 					}
+				}
+				// Wait for shutdown signal.
+				_ = shutdown_in.changed() => {
+					// FIXME: Would probably be fair to process in `batch_size`
+					let batch_size_logs = logs_queue.len();
+					let batch_size_spans = spans_queue.len();
+
+					// Send all events accumulated into our `logs_queue` and `spans_queue`.
+					tokio::join!(
+						process_queue_internally!(logs_queue, batch_size_logs, logs_out_channel),
+						process_queue_internally!(spans_queue, batch_size_spans, spans_out_channel)
+					);
+					break;
 				}
 				// Handle received Tree (either containing logs or spans).
 				maybe_tree = rx.recv() => {
@@ -192,8 +263,8 @@ impl<'a: 'static> Broadcaster<'a> {
 
 			// Process logs and spans queues, broadcasting the data as necessary
 			tokio::join!(
-				process_queue_internally!(logs_size, logs_queue, batch_size, logs_out_channel),
-				process_queue_internally!(spans_size, spans_queue, batch_size, spans_out_channel)
+				process_queue_internally!(logs_queue, batch_size, logs_out_channel),
+				process_queue_internally!(spans_queue, batch_size, spans_out_channel)
 			);
 		}
 	}

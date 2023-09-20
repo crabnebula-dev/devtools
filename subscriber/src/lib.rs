@@ -19,7 +19,7 @@
 //! using a Tokio channel. Designed with real-time data streaming in mind, it can be coupled with
 //! a WebSocket RPC server, allowing clients to receive and react to tracing events in real-time.
 //!
-pub use dispatch::{BroadcastConfig, BroadcastDispatcher, Dispatcher, NoopDispatcher};
+pub use dispatch::{BroadcastConfig, BroadcastConfigBuilder, BroadcastDispatcher, Dispatcher, NoopDispatcher};
 pub use error::{Error, Result};
 pub use layer::Layer;
 pub use subscriber::{Subscriber, SubscriberBuilder};

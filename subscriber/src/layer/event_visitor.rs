@@ -1,6 +1,7 @@
 use inspector_protocol_primitives::{Field as InspectorFied, FieldSet};
 use std::fmt;
 use tracing_core::Field;
+use tracing_subscriber::field::Visit;
 
 /// Represents an event visitor that collects information about tracing events.
 #[derive(Default)]
@@ -11,7 +12,7 @@ pub(crate) struct EventVisitor {
 	pub(crate) fields: FieldSet,
 }
 
-impl tracing_subscriber::field::Visit for EventVisitor {
+impl Visit for EventVisitor {
 	/// Visit a string value.
 	fn record_str(&mut self, field: &Field, value: &str) {
 		match field.name() {

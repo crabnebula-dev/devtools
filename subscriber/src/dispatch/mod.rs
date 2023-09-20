@@ -1,5 +1,5 @@
-pub use broadcast::BroadcastConfig;
 use broadcast::Broadcaster;
+pub use broadcast::{BroadcastConfig, BroadcastConfigBuilder};
 use inspector_protocol_primitives::Tree;
 use tokio::sync::mpsc;
 
@@ -55,11 +55,9 @@ impl<'a: 'static> BroadcastDispatcher<'a> {
 	/// or on a specified Tokio handle provided in the `config`.
 	pub(crate) fn new(config: BroadcastConfig<'a>) -> Self {
 		let (out, rx) = mpsc::unbounded_channel();
-		let future = Broadcaster::new(config.clone()).run(rx);
-
 		match config.tokio_handle().as_ref() {
-			Some(tokio_handle) => tokio_handle.spawn(future),
-			None => tokio::spawn(future),
+			Some(tokio_handle) => tokio_handle.spawn(Broadcaster::new(config).run(rx)),
+			None => tokio::spawn(Broadcaster::new(config).run(rx)),
 		};
 
 		Self { out }
