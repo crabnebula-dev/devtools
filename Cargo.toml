@@ -43,4 +43,4 @@ tracing = "0.1"
 tracing-core = "0.1"
 tracing-subscriber = "0.3.17"
 
-tauri = "1.4.1"
+tauri = { git = "https://github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing-v1" }

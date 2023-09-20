@@ -8,11 +8,11 @@ name = "tauri-example"
 path = "main.rs"
 
 [dependencies]
-tauri = "1.4.1"
+tauri = { git = "https://github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing-v1" }
 tauri-plugin-devtools = { path = "../../plugins/tauri" }
 tracing = "0.1"
 tokio = "1"
 reqwest = "0.11"
 
 [build-dependencies]
-tauri-build = "1.4.0"
+tauri-build = { git = "https://github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing-v1" }
