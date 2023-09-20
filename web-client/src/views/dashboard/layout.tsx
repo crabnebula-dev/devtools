@@ -1,14 +1,57 @@
-import { Show, createEffect } from "solid-js";
+import { Show, createEffect, onMount } from "solid-js";
 import { Outlet, useLocation, useNavigate, useParams } from "@solidjs/router";
 import { Button } from "@kobalte/core";
 import { SOCKET_STATES, WSContext, connectWS } from "~/lib/ws";
 import { Navigation } from "~/components/navigation";
+import { createEventSignal } from "@solid-primitives/event-listener";
+import { LOGS_WATCH, PERF_METRICS, TAURI_CONFIG } from "~/lib/requests";
+import { createStore, reconcile } from "solid-js/store";
+import { initialStoreData, DataContext } from "~/lib/ws-store";
+
+type WSEventSignal = Record<"message", MessageEvent<string>>;
 
 export default function Layout() {
+  const [wsData, setData] = createStore(initialStoreData);
+
   const { wsPort, wsUrl } = useParams();
   const navigate = useNavigate();
   const { socket, state: status } = connectWS(`ws://${wsUrl}:${wsPort}`);
   const { pathname } = useLocation();
+  const message = createEventSignal<WSEventSignal>(socket, "message");
+
+  onMount(() => {
+    socket.send(JSON.stringify(TAURI_CONFIG));
+    socket.send(JSON.stringify(PERF_METRICS));
+    socket.send(JSON.stringify(LOGS_WATCH));
+  });
+
+  createEffect(() => {
+    if (message()) {
+      const data = JSON.parse(message().data);
+
+      /**
+       * @todo
+       * fix this 🍝
+       */
+      if (data.id === "metrics") {
+        setData("perf", data.result);
+      }
+
+      if (data.result?.build) {
+        setData("tauriConfig", data.result);
+      }
+
+      if (data.id === "logs_watch" || data.method === "logs_added") {
+        setData("logs", (prevList) => {
+          if (data?.params?.result) {
+            return [...data.params.result, ...prevList];
+          } else {
+            return prevList;
+          }
+        });
+      }
+    }
+  });
 
   createEffect(() => {
     if (status() === SOCKET_STATES.get(WebSocket.OPEN)) {
@@ -49,7 +92,9 @@ export default function Layout() {
             Close Connection
           </Button.Root>
           <Navigation />
-          <Outlet />
+          <DataContext.Provider value={{ data: wsData }}>
+            <Outlet />
+          </DataContext.Provider>
         </WSContext.Provider>
       </Show>
     </>
