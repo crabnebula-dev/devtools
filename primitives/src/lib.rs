@@ -40,6 +40,7 @@ pub enum Tree<'a> {
 
 /// Holds metadata for logs and spans entry.
 #[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Metadata<'a> {
 	/// The timestamp of the entry, represented as a unix timestamp in milliseconds.
 	pub timestamp: u128,
@@ -75,7 +76,9 @@ impl<'a> Metadata<'a> {
 
 /// A single log entry captured from the `tracing` crate.
 #[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct LogEntry<'a> {
+	/// Span linked with this log entry.
 	pub span: Option<u64>,
 
 	/// Shared fields between events and spans.
@@ -102,21 +105,50 @@ impl<'a> From<LogEntry<'a>> for Tree<'a> {
 ///
 /// A span represents a period of time or a unit of work in the application.
 #[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct SpanEntry<'a> {
+	/// Span unique id
 	pub id: u64,
 	/// Span metadata
 	#[serde(flatten)]
 	pub meta: Metadata<'a>,
 	/// Span name
 	pub name: &'a str,
-	/// The total time of the span
-	pub total_duration: Duration,
-	/// The total time for which it was entered
-	pub busy_duration: Duration,
-	/// The total time that the span existed but was not entered
-	pub idle_duration: Duration,
-	/// Child nodes, either spans or logs, associated with this span.
-	pub nodes: Vec<Tree<'a>>,
+	/// Span status
+	pub status: SpanStatus,
+	/// Parent span
+	pub parent: Option<u64>,
+}
+
+/// A span status.
+///
+/// Serialization example;
+/// {
+/// 	"value": "EXITED",
+/// 	"attrs":{
+/// 		"totalDuration": {"secs":0,"nanos":241806},
+/// 		"busyDuration": {"secs":0,"nanos":168110},
+/// 		"idleDuration":{"secs":0,"nanos":73911}
+/// 	}
+/// }
+#[derive(Debug, Serialize, Clone, PartialEq)]
+#[serde(tag = "value", content = "attrs", rename_all = "UPPERCASE")]
+pub enum SpanStatus {
+	/// Created event is NOT dispatched
+	#[serde(skip_serializing)]
+	Created,
+	/// Span has been entered
+	Entered,
+	#[serde(rename_all = "camelCase")]
+	/// Span has been exited
+	Exited {
+		/// The total time of the span
+		total_duration: Duration,
+		/// The total time for which it was entered
+		busy_duration: Duration,
+		/// The total time that the span existed but was not entered
+		idle_duration: Duration,
+	},
 }
 
 impl<'a> From<SpanEntry<'a>> for Tree<'a> {
@@ -126,15 +158,13 @@ impl<'a> From<SpanEntry<'a>> for Tree<'a> {
 }
 
 impl<'a> SpanEntry<'a> {
-	pub fn new(id: u64, meta: Metadata<'a>, name: &'static str) -> Self {
+	pub fn new(id: u64, parent: Option<u64>, meta: Metadata<'a>, name: &'static str) -> Self {
 		Self {
 			id,
 			meta,
 			name,
-			total_duration: Duration::ZERO,
-			busy_duration: Duration::ZERO,
-			idle_duration: Duration::ZERO,
-			nodes: Vec::new(),
+			status: SpanStatus::Created,
+			parent,
 		}
 	}
 }
