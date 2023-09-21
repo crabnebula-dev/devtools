@@ -109,12 +109,12 @@ impl<'a> From<LogEntry<'a>> for Tree<'a> {
 /// matches a given filter.
 impl<'a> Filterable for LogEntry<'a> {
 	fn match_filter(&self, filter: &filter::Filter) -> bool {
-		match filter {
-			filter::Filter::Level { level } => self.meta.level == level,
-			filter::Filter::Text { text } => {
-				self.meta.target.contains(text) || self.message.as_ref().is_some_and(|m| m.contains(text))
-			}
-		}
+		// match level
+		filter.matches_level(self.meta.level)
+			// match file
+			&& self.meta.file.map_or(true, |f| filter.matches_file(f))
+			// match message
+			&& self.message.as_ref().map_or(true, |m| filter.matches_text(m))
 	}
 }
 
@@ -143,14 +143,12 @@ pub struct SpanEntry<'a> {
 /// matches a given filter.
 impl<'a> Filterable for SpanEntry<'a> {
 	fn match_filter(&self, filter: &filter::Filter) -> bool {
-		match filter {
-			filter::Filter::Level { level } => self.meta.level == level,
-			filter::Filter::Text { text } =>
-			// Check if the target or the span name contains the text.
-			{
-				self.meta.target.contains(text) || self.name.contains(text)
-			}
-		}
+		// match level
+		filter.matches_level(self.meta.level)
+			// match file
+			&& self.meta.file.map_or(true, |f| filter.matches_file(f))
+			// match text in target or name
+			&& (filter.matches_text(self.meta.target) || filter.matches_text(self.name))
 	}
 }
 
@@ -208,10 +206,11 @@ impl<'a> SpanEntry<'a> {
 /// This struct encapsulates the criteria needed to filter and control the flow
 /// of data over a websocket connection. By providing a filter, clients can
 /// selectively receive data that matches the specified criteria.
-#[derive(Debug, Deserialize)]
+#[derive(Deserialize)]
 pub struct SubscriptionParams {
 	/// The filter used to determine which entries
 	/// should be delivered over the websocket.
+	#[serde(flatten)]
 	pub filter: Filter,
 }
 
@@ -221,4 +220,114 @@ pub fn now() -> u128 {
 		.duration_since(UNIX_EPOCH)
 		.unwrap_or_default()
 		.as_millis()
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use tracing::Level;
+
+	// Helper function to create a mock SpanEntry for testing.
+	fn mock_entries<'a>(
+		level: &'a Level,
+		file: Option<&'a str>,
+		target: &'a str,
+		name: &'a str,
+	) -> (SpanEntry<'a>, LogEntry<'a>) {
+		let meta = Metadata {
+			level,
+			file,
+			target,
+			timestamp: Default::default(),
+			module_path: None,
+			line: Default::default(),
+			fields: Default::default(),
+		};
+		(
+			SpanEntry {
+				id: 0,
+				parent: None,
+				status: SpanStatus::Created,
+				meta: meta.clone(),
+				name,
+			},
+			LogEntry {
+				meta: meta.clone(),
+				span: None,
+				message: Some(format!("Message from {} in target {}", name, target)),
+			},
+		)
+	}
+
+	#[test]
+	fn test_filter_level() {
+		let filter = Filter {
+			level: Some(Level::INFO),
+			file: None,
+			text: None,
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::INFO, Some("main.rs"), "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn test_filter_file() {
+		let filter = Filter {
+			level: None,
+			file: Some(String::from("main.rs")),
+			text: None,
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, Some("main.rs"), "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn test_filter_text_in_target() {
+		let filter = Filter {
+			level: None,
+			file: None,
+			text: Some(String::from("target")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, None, "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn test_filter_text_in_name() {
+		let filter = Filter {
+			level: None,
+			file: None,
+			text: Some(String::from("name")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, None, "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn test_filter_combination() {
+		let filter = Filter {
+			level: Some(Level::DEBUG),
+			file: Some(String::from("main.rs")),
+			text: Some(String::from("target")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, Some("main.rs"), "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn test_filter_no_match() {
+		let filter = Filter {
+			level: Some(Level::ERROR),
+			file: Some(String::from("other.rs")),
+			text: Some(String::from("miss")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, Some("main.rs"), "target", "name");
+		assert!(!span_entry.match_filter(&filter));
+		assert!(!log_entry.match_filter(&filter));
+	}
 }

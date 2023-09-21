@@ -1,5 +1,5 @@
 use crate::FieldSet;
-use serde::{de::Error, ser::SerializeMap, Deserialize, Deserializer, Serializer};
+use serde::{ser::SerializeMap, Deserialize, Deserializer, Serializer};
 use std::{fmt::Display, str::FromStr};
 use tracing::Level;
 
@@ -17,10 +17,10 @@ pub(super) fn fieldset<S: Serializer>(fieldset: &FieldSet, serializer: S) -> Res
 	model.end()
 }
 
-pub(super) fn level_from_string<'de, D>(deserializer: D) -> Result<Level, D::Error>
+pub(super) fn level_from_string<'de, D>(deserializer: D) -> Result<Option<Level>, D::Error>
 where
 	D: Deserializer<'de>,
 {
-	let s = String::deserialize(deserializer)?;
-	Level::from_str(&s).map_err(|_| Error::custom("Invalid level"))
+	let s: Option<String> = Deserialize::deserialize(deserializer)?;
+	Ok(s.map(|s| Level::from_str(&s).unwrap_or(Level::INFO)))
 }
