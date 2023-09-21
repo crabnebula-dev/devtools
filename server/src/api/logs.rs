@@ -1,6 +1,6 @@
-use super::pipe_from_stream_with_bounded_buffer;
+use super::{parse_subscription_filter, pipe_from_stream_with_bounded_buffer};
 use crate::Result;
-use inspector_protocol_primitives::{Inspector, Runtime, SubscriptionParams};
+use inspector_protocol_primitives::{Inspector, Runtime};
 use jsonrpsee::RpcModule;
 use tokio_stream::wrappers::BroadcastStream;
 
@@ -10,15 +10,7 @@ pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Inspector<'static, R>>) 
 		"logs_added",
 		"logs_unwatch",
 		|maybe_params, pending, inspector| async move {
-			let filter = if maybe_params.is_object() {
-				maybe_params
-					.parse::<SubscriptionParams>()
-					.map(|i| Some(i.filter))
-					.unwrap_or(None)
-			} else {
-				None
-			};
-
+			let filter = parse_subscription_filter(maybe_params);
 			let channel = inspector.channels.logs.subscribe();
 			let stream = BroadcastStream::new(channel);
 			pipe_from_stream_with_bounded_buffer(pending, stream, filter).await?;

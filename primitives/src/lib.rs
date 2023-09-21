@@ -201,11 +201,11 @@ impl<'a> SpanEntry<'a> {
 	}
 }
 
-/// Parameters required for establishing a websocket subscription.
+/// Optional parameters for establishing a websocket subscription.
 ///
-/// This struct encapsulates the criteria needed to filter and control the flow
-/// of data over a websocket connection. By providing a filter, clients can
-/// selectively receive data that matches the specified criteria.
+/// Note that `SubscriptionParams` is designed for future extensibility.
+/// This means that additional fields may be added later on, which is why the
+/// `Filter` object is wrapped in this struct rather than being exposed directly.
 #[derive(Deserialize)]
 pub struct SubscriptionParams {
 	/// The filter used to determine which entries
@@ -259,7 +259,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_filter_level() {
+	fn filter_level() {
 		let filter = Filter {
 			level: Some(Level::INFO),
 			file: None,
@@ -271,7 +271,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_filter_file() {
+	fn filter_file() {
 		let filter = Filter {
 			level: None,
 			file: Some(String::from("main.rs")),
@@ -283,7 +283,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_filter_text_in_target() {
+	fn filter_text_in_target() {
 		let filter = Filter {
 			level: None,
 			file: None,
@@ -295,7 +295,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_filter_text_in_name() {
+	fn filter_text_in_name() {
 		let filter = Filter {
 			level: None,
 			file: None,
@@ -307,7 +307,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_filter_combination() {
+	fn filter_combination() {
 		let filter = Filter {
 			level: Some(Level::DEBUG),
 			file: Some(String::from("main.rs")),
@@ -319,7 +319,7 @@ mod tests {
 	}
 
 	#[test]
-	fn test_filter_no_match() {
+	fn filter_no_match() {
 		let filter = Filter {
 			level: Some(Level::ERROR),
 			file: Some(String::from("other.rs")),

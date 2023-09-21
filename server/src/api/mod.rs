@@ -1,7 +1,7 @@
 use crate::Result;
 use futures::{future, future::Either, StreamExt};
-use inspector_protocol_primitives::{Filter, Filterable, Inspector, Runtime};
-use jsonrpsee::{core::server::SubscriptionMessage, PendingSubscriptionSink, RpcModule};
+use inspector_protocol_primitives::{Filter, Filterable, Inspector, Runtime, SubscriptionParams};
+use jsonrpsee::{core::server::SubscriptionMessage, types::Params, PendingSubscriptionSink, RpcModule};
 use serde::Serialize;
 use tokio_stream::wrappers::BroadcastStream;
 
@@ -27,6 +27,30 @@ pub(crate) fn register<R: Runtime>(inspector: Inspector<'static, R>) -> Result<R
 	performance::module(&mut module)?;
 
 	Ok(module)
+}
+
+/// Parses the subscription filter from the given JSON-RPC [`Params`].
+///
+/// This function tries to parse the JSON-RPC parameters into a `SubscriptionParams`
+/// and extracts the `Filter` object, if it exists. If parsing fails, or if the
+/// parameters are not in object form, it returns `None`.
+///
+/// # Parameters
+///
+/// - `maybe_params`: The JSON-RPC [`Params`] object that might contain a filter.
+///
+/// # Returns
+///
+/// An `Option<Filter>` that contains the filter if parsing is successful.
+pub(super) fn parse_subscription_filter(maybe_params: Params<'_>) -> Option<Filter> {
+	if maybe_params.is_object() {
+		maybe_params
+			.parse::<SubscriptionParams>()
+			.ok()
+			.map(|params| params.filter)
+	} else {
+		None
+	}
 }
 
 /// Pipes messages from a broadcast channel to a WebSocket stream with bounded buffering.
@@ -97,5 +121,55 @@ pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Se
 			// Stream is closed.
 			Either::Right((None, _)) => break Ok(()),
 		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use inspector_protocol_primitives::Level;
+
+	use super::*;
+
+	#[test]
+	fn parse_params_as_level() {
+		let value = Some(r#"{"filter": {"level": "INFO"}}"#);
+		let valid_params = Params::new(value);
+		let parsed = parse_subscription_filter(valid_params);
+		assert!(parsed.is_some());
+		assert_eq!(parsed.unwrap().level, Some(Level::INFO));
+	}
+
+	#[test]
+	fn parse_multiple_params_as_level() {
+		let value = Some(r#"{"filter": {"level": "trAce", "text": "target"}}"#);
+		let valid_params = Params::new(value);
+		let parsed = parse_subscription_filter(valid_params);
+
+		assert!(parsed.as_ref().is_some());
+		let filter = parsed.as_ref().expect("qed; pre-check");
+
+		assert_eq!(filter.level, Some(Level::TRACE));
+		assert_eq!(filter.text, Some("target".to_string()));
+	}
+
+	#[test]
+	fn parse_invalid_params() {
+		let value = Some(r#"{"filter": {"not": "valid"}}"#);
+		let invalid_params = Params::new(value);
+		let parsed = parse_subscription_filter(invalid_params);
+
+		assert!(parsed.as_ref().is_some());
+		let filter = parsed.as_ref().expect("qed; pre-check");
+
+		assert!(filter.file.is_none());
+		assert!(filter.level.is_none());
+		assert!(filter.text.is_none());
+	}
+
+	#[test]
+	fn parse_empty_params() {
+		let value = Some(r#"{}"#);
+		let empty_params = Params::new(value);
+		assert!(parse_subscription_filter(empty_params).is_none());
 	}
 }
