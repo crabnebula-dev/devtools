@@ -126,11 +126,11 @@ pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Se
 
 #[cfg(test)]
 mod tests {
-	use inspector_protocol_primitives::Level;
 	use super::*;
+	use inspector_protocol_primitives::Level;
 
 	#[test]
-	fn parse_params_as_level() {
+	fn parse_level_from_params() {
 		let value = Some(r#"{"filter": {"level": "INFO"}}"#);
 		let valid_params = Params::new(value);
 		let parsed = parse_subscription_filter(valid_params);
@@ -139,7 +139,7 @@ mod tests {
 	}
 
 	#[test]
-	fn parse_multiple_params_as_level() {
+	fn parse_multiple_params() {
 		let value = Some(r#"{"filter": {"level": "trAce", "text": "target"}}"#);
 		let valid_params = Params::new(value);
 		let parsed = parse_subscription_filter(valid_params);
