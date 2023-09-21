@@ -210,7 +210,6 @@ impl<'a> SpanEntry<'a> {
 pub struct SubscriptionParams {
 	/// The filter used to determine which entries
 	/// should be delivered over the websocket.
-	#[serde(flatten)]
 	pub filter: Filter,
 }
 
