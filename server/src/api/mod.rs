@@ -127,7 +127,6 @@ pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Se
 #[cfg(test)]
 mod tests {
 	use inspector_protocol_primitives::Level;
-
 	use super::*;
 
 	#[test]
