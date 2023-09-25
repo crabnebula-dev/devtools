@@ -1,5 +1,3 @@
-use inspector_protocol_primitives::Tree;
-use std::sync::mpsc::SendError;
 use tracing_subscriber::util::TryInitError;
 
 /// Inspector protocol Result typedef.
@@ -12,8 +10,6 @@ pub type Result<T, E = Error> = std::result::Result<T, E>;
 pub enum Error {
 	#[error(transparent)]
 	TryInitError(#[from] TryInitError),
-	#[error(transparent)]
-	SendError(#[from] SendError<Tree<'static>>),
 	#[error("Other: {0}")]
 	Other(String),
 }

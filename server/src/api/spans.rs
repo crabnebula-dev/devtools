@@ -1,4 +1,4 @@
-use super::pipe_from_stream_with_bounded_buffer;
+use super::{parse_subscription_filter, pipe_from_stream_with_bounded_buffer};
 use crate::Result;
 use inspector_protocol_primitives::{Inspector, Runtime};
 use jsonrpsee::RpcModule;
@@ -9,10 +9,11 @@ pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Inspector<'static, R>>) 
 		"spans_watch",
 		"spans_added",
 		"spans_unwatch",
-		|_, pending, inspector| async move {
+		|maybe_params, pending, inspector| async move {
+			let filter = parse_subscription_filter(maybe_params);
 			let channel = inspector.channels.spans.subscribe();
 			let stream = BroadcastStream::new(channel);
-			pipe_from_stream_with_bounded_buffer(pending, stream).await?;
+			pipe_from_stream_with_bounded_buffer(pending, stream, filter).await?;
 			Ok(())
 		},
 	)?;

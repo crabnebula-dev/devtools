@@ -1,13 +1,15 @@
 pub use asset::{Asset, AssetParams};
 pub use field::{Field, FieldSet};
+pub use filter::{Filter, Filterable};
 pub use inspector::{Inspector, InspectorBuilder, InspectorChannels, InspectorMetrics};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 pub use tauri::{AppHandle, Manager, Runtime};
 pub use tracing::Level;
 
 mod asset;
 mod field;
+mod filter;
 mod inspector;
 mod ser;
 
@@ -101,6 +103,21 @@ impl<'a> From<LogEntry<'a>> for Tree<'a> {
 	}
 }
 
+/// Implementation of the [`Filterable`] trait for the `LogEntry` struct.
+///
+/// This implementation provides the logic to determine whether a `LogEntry`
+/// matches a given filter.
+impl<'a> Filterable for LogEntry<'a> {
+	fn match_filter(&self, filter: &filter::Filter) -> bool {
+		// match level
+		filter.matches_level(self.meta.level)
+			// match file
+			&& self.meta.file.map_or(true, |f| filter.matches_file(f))
+			// match message
+			&& self.message.as_ref().map_or(true, |m| filter.matches_text(m))
+	}
+}
+
 /// A span captured from the `tracing` crate.
 ///
 /// A span represents a period of time or a unit of work in the application.
@@ -120,16 +137,31 @@ pub struct SpanEntry<'a> {
 	pub parent: Option<u64>,
 }
 
+/// Implementation of the [`Filterable`] trait for the `SpanEntry` struct.
+///
+/// This implementation provides the logic to determine whether a `SpanEntry`
+/// matches a given filter.
+impl<'a> Filterable for SpanEntry<'a> {
+	fn match_filter(&self, filter: &filter::Filter) -> bool {
+		// match level
+		filter.matches_level(self.meta.level)
+			// match file
+			&& self.meta.file.map_or(true, |f| filter.matches_file(f))
+			// match text in target or name
+			&& (filter.matches_text(self.meta.target) || filter.matches_text(self.name))
+	}
+}
+
 /// A span status.
 ///
 /// Serialization example;
 /// {
-/// 	"value": "EXITED",
-/// 	"attrs":{
-/// 		"totalDuration": {"secs":0,"nanos":241806},
-/// 		"busyDuration": {"secs":0,"nanos":168110},
-/// 		"idleDuration":{"secs":0,"nanos":73911}
-/// 	}
+///   "value": "EXITED",
+///   "attrs":{
+///      "totalDuration": {"secs":0,"nanos":241806},
+///      "busyDuration": {"secs":0,"nanos":168110},
+///      "idleDuration":{"secs":0,"nanos":73911}
+///   }
 /// }
 #[derive(Debug, Serialize, Clone, PartialEq)]
 #[serde(tag = "value", content = "attrs", rename_all = "UPPERCASE")]
@@ -169,10 +201,132 @@ impl<'a> SpanEntry<'a> {
 	}
 }
 
+/// Optional parameters for establishing a websocket subscription.
+///
+/// Note that `SubscriptionParams` is designed for future extensibility.
+/// This means that additional fields may be added later on, which is why the
+/// `Filter` object is wrapped in this struct rather than being exposed directly.
+#[derive(Deserialize)]
+pub struct SubscriptionParams {
+	/// The filter used to determine which entries
+	/// should be delivered over the websocket.
+	pub filter: Filter,
+}
+
 /// Current system time (unix timestamp in ms)
 pub fn now() -> u128 {
 	SystemTime::now()
 		.duration_since(UNIX_EPOCH)
 		.unwrap_or_default()
 		.as_millis()
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use tracing::Level;
+
+	// Helper function to create a mock SpanEntry for testing.
+	fn mock_entries<'a>(
+		level: &'a Level,
+		file: Option<&'a str>,
+		target: &'a str,
+		name: &'a str,
+	) -> (SpanEntry<'a>, LogEntry<'a>) {
+		let meta = Metadata {
+			level,
+			file,
+			target,
+			timestamp: Default::default(),
+			module_path: None,
+			line: Default::default(),
+			fields: Default::default(),
+		};
+		(
+			SpanEntry {
+				id: 0,
+				parent: None,
+				status: SpanStatus::Created,
+				meta: meta.clone(),
+				name,
+			},
+			LogEntry {
+				meta: meta.clone(),
+				span: None,
+				message: Some(format!("Message from {} in target {}", name, target)),
+			},
+		)
+	}
+
+	#[test]
+	fn filter_level() {
+		let filter = Filter {
+			level: Some(Level::INFO),
+			file: None,
+			text: None,
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::INFO, Some("main.rs"), "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn filter_file() {
+		let filter = Filter {
+			level: None,
+			file: Some(String::from("main.rs")),
+			text: None,
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, Some("main.rs"), "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn filter_text_in_target() {
+		let filter = Filter {
+			level: None,
+			file: None,
+			text: Some(String::from("target")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, None, "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn filter_text_in_name() {
+		let filter = Filter {
+			level: None,
+			file: None,
+			text: Some(String::from("name")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, None, "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn filter_combination() {
+		let filter = Filter {
+			level: Some(Level::DEBUG),
+			file: Some(String::from("main.rs")),
+			text: Some(String::from("target")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, Some("main.rs"), "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn filter_no_match() {
+		let filter = Filter {
+			level: Some(Level::ERROR),
+			file: Some(String::from("other.rs")),
+			text: Some(String::from("miss")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, Some("main.rs"), "target", "name");
+		assert!(!span_entry.match_filter(&filter));
+		assert!(!log_entry.match_filter(&filter));
+	}
 }
