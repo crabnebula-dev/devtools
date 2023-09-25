@@ -288,14 +288,10 @@ impl<R: Runtime> tauri::plugin::Plugin<R> for Devtools {
 }
 
 /// Spawn WebSocket JSON-RPC server.
-fn spawn_rpc_server<R: Runtime, L: EntryT, S: EntryT>(
-	inspector: Context<R, L, S>,
-	config: Config,
-) -> ContextResult<()> {
+fn spawn_rpc_server<R: Runtime, L: EntryT, S: EntryT>(context: Context<R, L, S>, config: Config) -> ContextResult<()> {
 	tauri::async_runtime::spawn(async move {
 		// Start the inspector protocol server.
-		if let Ok((server_addr, server_handle)) =
-			inspector_protocol_server::server::start_server(inspector, config).await
+		if let Ok((server_addr, server_handle)) = inspector_protocol_server::server::start_server(context, config).await
 		{
 			println!("--------- Tauri Plugin Devtools ---------\n");
 			println!("Listening at:\n  ws://{server_addr}\n",);

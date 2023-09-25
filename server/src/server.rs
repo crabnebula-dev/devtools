@@ -5,25 +5,38 @@ use jsonrpsee::{
 	server::{ServerBuilder, ServerHandle},
 	RpcModule,
 };
-
 use std::net::SocketAddr;
 
+// Define the size of a megabyte in bytes.
 const MEGABYTE: u32 = 1024 * 1024;
 
-/// RPC server configuration.
+/// Configuration options for the RPC server.
+///
+/// This struct encapsulates various settings that can be adjusted for the RPC server.
+/// It includes options for maximum connections, payload sizes, and even Tokio runtime settings.
+///
+/// # Example
+///
+/// ```rust
+/// use inspector_protocol_server::server::Config;
+/// let config = Config::new()
+///     .with_max_connections(100)
+///     .with_max_subs_per_conn(10)
+///     .with_socket_addr("127.0.0.1:3030".parse().unwrap());
+/// ```
 #[derive(Debug)]
 pub struct Config {
-	/// Socket address.
+	/// The address at which the RPC server should listen.
 	pub addr: Option<SocketAddr>,
-	/// Maximum connections.
+	/// Maximum number of simultaneous connections to the RPC server.
 	pub max_connections: u32,
-	/// Maximum subscriptions per connection.
+	/// Maximum number of subscriptions allowed per connection.
 	pub max_subs_per_conn: u32,
-	/// Maximum rpc request payload size.
+	/// Maximum size of the incoming payload, in megabytes.
 	pub max_payload_in_mb: u32,
-	/// Maximum rpc response payload size.
+	/// Maximum size of the outgoing payload, in megabytes.
 	pub max_payload_out_mb: u32,
-	/// Tokio runtime handle.
+	/// Optional handle for a custom Tokio runtime.
 	pub tokio_handle: Option<tokio::runtime::Handle>,
 }
 
@@ -41,42 +54,114 @@ impl Default for Config {
 }
 
 impl Config {
+	/// Creates a new `Config` instance with default values.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use inspector_protocol_server::server::Config;
+	/// let config = Config::new();
+	/// ```
 	pub fn new() -> Self {
 		Config::default()
 	}
 
+	/// Sets the maximum number of connections for the RPC server.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use inspector_protocol_server::server::Config;
+	/// let config = Config::new().with_max_connections(100);
+	/// ```
 	pub fn with_max_connections(mut self, max_connections: u32) -> Self {
 		self.max_connections = max_connections;
 		self
 	}
 
+	/// Sets the maximum number of subscriptions per connection.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use inspector_protocol_server::server::Config;
+	/// let config = Config::new().with_max_subs_per_conn(50);
+	/// ```
 	pub fn with_max_subs_per_conn(mut self, max_subs_per_conn: u32) -> Self {
 		self.max_subs_per_conn = max_subs_per_conn;
 		self
 	}
 
+	/// Sets the maximum payload size for incoming messages, in megabytes.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use inspector_protocol_server::server::Config;
+	/// let config = Config::new().with_max_payload_in_mb(5);
+	/// ```
 	pub fn with_max_payload_in_mb(mut self, max_payload_in_mb: u32) -> Self {
 		self.max_payload_in_mb = max_payload_in_mb;
 		self
 	}
 
+	/// Sets the maximum payload size for outgoing messages, in megabytes.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use inspector_protocol_server::server::Config;
+	/// let config = Config::new().with_max_payload_out_mb(5);
+	/// ```
 	pub fn with_max_payload_out_mb(mut self, max_payload_out_mb: u32) -> Self {
 		self.max_payload_out_mb = max_payload_out_mb;
 		self
 	}
 
+	/// Associates a custom Tokio runtime handle with the server.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use inspector_protocol_server::server::Config;
+	/// let runtime = tokio::runtime::Runtime::new().unwrap();
+	/// let handle = runtime.handle().clone();
+	/// let config = Config::new().with_tokio_handle(handle);
+	/// ```
 	pub fn with_tokio_handle(mut self, tokio_handle: tokio::runtime::Handle) -> Self {
 		self.tokio_handle = Some(tokio_handle);
 		self
 	}
 
+	/// Sets the socket address where the RPC server will listen.
+	///
+	/// # Example
+	///
+	/// ```rust
+	/// use inspector_protocol_server::server::Config;
+	/// let config = Config::new().with_socket_addr("127.0.0.1:8080".parse().unwrap());
+	/// ```
 	pub fn with_socket_addr(mut self, socket_addr: SocketAddr) -> Self {
 		self.addr = Some(socket_addr);
 		self
 	}
 }
 
-/// Start RPC server listening on given address.
+/// Initializes and starts an RPC server with the given context and configuration.
+///
+/// This function creates an RPC server based on the provided context and configuration settings,
+/// and then starts listening for incoming connections. It returns the actual socket address
+/// on which the server is listening along with a handle to the server for further interactions.
+///
+/// # Arguments
+///
+/// * `context` - The context containing channels and metrics for the server.
+/// * `config` - A [`Config`] instance containing various server options.
+///
+/// # Returns
+///
+/// This function returns a tuple containing the server's local address and
+/// a handle to the server.
 pub async fn start_server<R: Runtime, L: EntryT, S: EntryT>(
 	context: Context<R, L, S>,
 	config: Config,
@@ -117,6 +202,7 @@ pub async fn start_server<R: Runtime, L: EntryT, S: EntryT>(
 	Ok((server_addr, handle))
 }
 
+// Injects additional RPC methods into the server.
 fn inject_additional_rpc_methods<M: Send + Sync + 'static>(rpc_api: &mut RpcModule<M>) {
 	let mut available_methods = rpc_api.method_names().collect::<Vec<_>>();
 	available_methods.sort();

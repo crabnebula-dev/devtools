@@ -3,9 +3,10 @@ use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 use tokio::sync::broadcast;
 
+/// Default broadcast capacity for communication channels.
 const DEFAULT_BROADCAST_CAPACITY: usize = 1_000;
 
-/// Builder for the Context.
+/// Builder for creating a monitoring `Context`.
 #[derive(Debug, Clone)]
 pub struct ContextBuilder<L = LogEntry, S = SpanEntry>
 where
@@ -13,12 +14,12 @@ where
 	S: EntryT,
 {
 	/// Channel for broadcasting log entries.
-	pub logs_channel: Option<broadcast::Sender<L>>,
+	pub logs_channel: Option<broadcast::Sender<Vec<L>>>,
 	/// Channel for broadcasting spans entries.
-	pub spans_channel: Option<broadcast::Sender<S>>,
+	pub spans_channel: Option<broadcast::Sender<Vec<S>>>,
 	/// Holds custom metrics.
 	pub metrics: Arc<Mutex<ContextMetrics>>,
-	/// Channels capacity
+	/// Capacity for broadcast and message-passing channels.
 	pub capacity: usize,
 }
 
@@ -48,13 +49,13 @@ where
 	}
 
 	/// Associates a broadcast channel for log entries.
-	pub fn with_logs_channel(mut self, channel: broadcast::Sender<L>) -> Self {
+	pub fn with_logs_channel(mut self, channel: broadcast::Sender<Vec<L>>) -> Self {
 		self.logs_channel = Some(channel);
 		self
 	}
 
 	/// Associates a broadcast channel for spans entries.
-	pub fn with_spans_channel(mut self, channel: broadcast::Sender<S>) -> Self {
+	pub fn with_spans_channel(mut self, channel: broadcast::Sender<Vec<S>>) -> Self {
 		self.spans_channel = Some(channel);
 		self
 	}
@@ -84,7 +85,11 @@ where
 	}
 }
 
-/// Represents an inspector which monitors app activities and logs.
+/// Represents the diagnostic context of the application.
+///
+/// `Context` serves as the centralized location for logging, tracing,
+/// and metrics-related functionalities. It holds references to Tauri's application handle
+/// and communication channels for broadcasting logs and spans.
 #[derive(Debug, Clone)]
 pub struct Context<R, L, S>
 where
@@ -96,32 +101,35 @@ where
 	pub app_handle: AppHandle<R>,
 	/// Holds the communication channels for the inspector.
 	pub channels: ContextChannels<L, S>,
-	/// Custom metrics.
+	/// Metrics for custom monitoring needs.
 	pub metrics: Arc<Mutex<ContextMetrics>>,
 }
 
-/// Holds the communication channels for the inspector.
+/// Holds the broadcast channels for logging and tracing.
+///
+/// This struct bundles together the broadcast channels for disseminating log
+/// and span entries across the application. Each channel is parameterized by the
+/// corresponding entry type that implements [`EntryT`].
 #[derive(Debug, Clone)]
 pub struct ContextChannels<L, S>
 where
 	L: EntryT,
 	S: EntryT,
 {
-	pub logs: broadcast::Sender<L>,
-	pub spans: broadcast::Sender<S>,
+	pub logs: broadcast::Sender<Vec<L>>,
+	pub spans: broadcast::Sender<Vec<S>>,
 }
 
-/// Custom metrics.
+/// Struct for holding custom diagnostic metrics.
 ///
-/// These metrics are not inherently provided by Tauri. Instead, they are
-/// derived from various events and methods tailored for custom monitoring.
-/// This setup offers flexibility, allowing easy extension and addition of
-/// more metrics based on future needs.
+/// The `ContextMetrics` struct encapsulates various diagnostic metrics that aren't
+/// natively provided by Tauri. These metrics are useful for tracking the performance,
+/// reliability, or other custom attributes of the application.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ContextMetrics {
-	/// Tauri application initialization time
+	/// Timestamp indicating when the Tauri application was initialized.
 	pub initialized_at: u128,
-	/// Tauri applicatin reported `AppReady` time
+	/// Timestamp indicating when the Tauri application reported `AppReady`.
 	pub ready_at: u128,
 }
 

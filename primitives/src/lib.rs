@@ -16,8 +16,6 @@ mod filter;
 mod ser;
 mod traits;
 
-impl<T> EntryT for Vec<T> where T: EntryT {}
-
 /// Panic if the given expression does not evaluate to `Ok`.
 ///
 /// # Examples
@@ -101,7 +99,9 @@ pub struct LogEntry {
 	pub message: Option<String>,
 }
 
-impl EntryT for LogEntry {}
+impl EntryT for LogEntry {
+	const KIND: &'static str = "LOG";
+}
 
 impl LogManagerT<Metadata> for LogEntry {
 	fn new(span: Option<u64>, meta: Metadata, message: Option<String>) -> Self {
@@ -109,11 +109,11 @@ impl LogManagerT<Metadata> for LogEntry {
 	}
 }
 
-/// Implementation of the [`Filterable`] trait for the `LogEntry` struct.
+/// Implementation of the [`FilterT`] trait for the `LogEntry` struct.
 ///
 /// This implementation provides the logic to determine whether a `LogEntry`
 /// matches a given filter.
-impl Filterable for LogEntry {
+impl FilterT for LogEntry {
 	fn match_filter(&self, filter: &filter::Filter) -> bool {
 		// match level
 		filter.matches_level(self.meta.level)
@@ -143,7 +143,10 @@ pub struct SpanEntry {
 	pub parent: Option<u64>,
 }
 
-impl EntryT for SpanEntry {}
+impl EntryT for SpanEntry {
+	const KIND: &'static str = "SPAN";
+}
+
 impl SpanManagerT<Metadata> for SpanEntry {
 	fn new(id: u64, parent: Option<u64>, meta: Metadata, name: &'static str) -> Self {
 		Self {
@@ -164,11 +167,11 @@ impl SpanManagerT<Metadata> for SpanEntry {
 	}
 }
 
-/// Implementation of the [`Filterable`] trait for the `SpanEntry` struct.
+/// Implementation of the [`FilterT`] trait for the `SpanEntry` struct.
 ///
 /// This implementation provides the logic to determine whether a `SpanEntry`
 /// matches a given filter.
-impl Filterable for SpanEntry {
+impl FilterT for SpanEntry {
 	fn match_filter(&self, filter: &filter::Filter) -> bool {
 		// match level
 		filter.matches_level(self.meta.level)
@@ -242,8 +245,17 @@ pub fn now() -> u128 {
 		.as_millis()
 }
 
-// Noop
-impl EntryT for () {}
+// Noop implementations
+impl FilterT for () {
+	fn match_filter(&self, _filter: &Filter) -> bool {
+		true
+	}
+}
+
+impl EntryT for () {
+	const KIND: &'static str = "LOG";
+}
+
 impl MetaT<'static> for () {
 	type Field = ();
 	fn new(_meta: &'static tracing::Metadata, _fields: Vec<Self::Field>) -> Self {}

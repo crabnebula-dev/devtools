@@ -1,8 +1,7 @@
 use crate::{context::Context, error::Result};
 use futures::{future, future::Either, StreamExt};
-use inspector_protocol_primitives::{EntryT, Filter, Filterable, Runtime, SubscriptionParams};
+use inspector_protocol_primitives::{EntryT, Filter, Runtime, SubscriptionParams};
 use jsonrpsee::{core::server::SubscriptionMessage, types::Params, PendingSubscriptionSink, RpcModule};
-use serde::Serialize;
 use tokio_stream::wrappers::BroadcastStream;
 
 mod logs;
@@ -10,22 +9,26 @@ mod performance;
 mod spans;
 mod tauri;
 
-/// Create new `RpcModule` with our methods
+/// Registers various modules for handling different types of RPC methods.
+///
+/// This function sets up the main `RpcModule` which contains various methods
+/// categorized into sub-modules. Currently, it includes methods for handling
+/// spans, logs, Tauri-specific actions, and performance metrics.
 pub(crate) fn register<R: Runtime, L: EntryT, S: EntryT>(
 	context: Context<R, L, S>,
 ) -> Result<RpcModule<Context<R, L, S>>> {
 	let mut module = RpcModule::new(context);
 
-	// register `spans_*` methods
+	// Register methods related to spans.
 	spans::module(&mut module)?;
 
-	// register `logs_*` methods
+	// Register methods related to logs.
 	logs::module(&mut module)?;
 
-	// register `tauri_*` methods
+	// Register methods specific to Tauri.
 	tauri::module(&mut module)?;
 
-	// register `performance_*` methods
+	// Register methods related to performance metrics.
 	performance::module(&mut module)?;
 
 	Ok(module)
@@ -83,7 +86,7 @@ pub(super) fn parse_subscription_filter(maybe_params: Params<'_>) -> Option<Filt
 ///
 /// In the event that the WebSocket's internal buffer is full, this function will block until space becomes available.
 /// If the most recent item's delivery is critical upon its production, a smarter buffering or delivery approach might be needed.
-pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Send + Serialize + Filterable>(
+pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: EntryT>(
 	pending: PendingSubscriptionSink,
 	stream: BroadcastStream<Vec<T>>,
 	maybe_filter: Option<Filter>,
@@ -99,12 +102,11 @@ pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Se
 			Either::Left((_, _)) => break Ok(()),
 
 			// received new item from the stream.
-			Either::Right((Some(Ok(item)), c)) => {
+			Either::Right((Some(Ok(items)), c)) => {
 				let maybe_filtered = if let Some(filter) = &maybe_filter {
-					// filter entries that matches the provided filter
-					item.into_iter().filter(|item| item.match_filter(filter)).collect()
+					items.into_iter().filter(|item| item.match_filter(filter)).collect()
 				} else {
-					item
+					items
 				};
 
 				let notif = SubscriptionMessage::from_json(&maybe_filtered)?;

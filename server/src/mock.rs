@@ -1,5 +1,5 @@
 use crate::{context::ContextBuilder, error::Result, server::start_server};
-use inspector_protocol_primitives::EntryT;
+use inspector_protocol_primitives::{EntryT, Filter, FilterT};
 use jsonrpsee::{server::ServerHandle, ws_client::WsClientBuilder};
 use jsonrpsee_core::client::Client;
 use serde::{Deserialize, Serialize};
@@ -10,7 +10,15 @@ use tokio::{sync::broadcast, task::JoinHandle};
 pub struct MockEntry {
 	pub(crate) text: String,
 }
-impl EntryT for MockEntry {}
+impl EntryT for MockEntry {
+	const KIND: &'static str = "log";
+}
+
+impl FilterT for MockEntry {
+	fn match_filter(&self, _filter: &Filter) -> bool {
+		true
+	}
+}
 
 pub async fn server_mock() -> Result<(SocketAddr, ServerHandle)> {
 	start_server(

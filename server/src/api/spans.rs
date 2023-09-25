@@ -1,4 +1,4 @@
-use super::pipe_from_stream_with_bounded_buffer;
+use super::{parse_subscription_filter, pipe_from_stream_with_bounded_buffer};
 use crate::{context::Context, error::Result};
 use inspector_protocol_primitives::{EntryT, Runtime};
 use jsonrpsee::RpcModule;
