@@ -1,8 +1,6 @@
-pub use error::{Error, Result};
-pub use server::{start_server, Config};
-
 mod api;
-mod error;
+pub mod context;
+pub mod error;
 #[cfg(test)]
 mod mock;
-mod server;
+pub mod server;

@@ -19,23 +19,25 @@
 //! using a Tokio channel. Designed with real-time data streaming in mind, it can be coupled with
 //! a WebSocket RPC server, allowing clients to receive and react to tracing events in real-time.
 //!
-pub use dispatch::{BroadcastConfig, BroadcastConfigBuilder, BroadcastDispatcher, Dispatcher, NoopDispatcher};
-pub use error::{Error, Result};
-pub use layer::Layer;
-pub use subscriber::{Subscriber, SubscriberBuilder};
 
-mod dispatch;
-mod error;
-mod layer;
-mod subscriber;
+pub mod config;
+pub mod dispatch;
+pub mod error;
+pub mod layer;
+pub mod subscriber;
+mod visitor;
+
+// Expose a few of the most common types at root,
+// but leave most types behind their respective modules.
+pub use crate::{dispatch::broadcast::BroadcastConfig, subscriber::SubscriberBuilder};
 
 /// Returns a [`SubscriberBuilder`] that is initialized with a [`NoopDispatcher`].
 ///
 /// This function is useful when you want to have tracing integrated
 /// but with no-op behavior, meaning it does not actually dispatch or
 /// handle the tracing events.
-pub fn noop() -> SubscriberBuilder<NoopDispatcher> {
-	SubscriberBuilder::new(NoopDispatcher::new())
+pub fn noop() -> SubscriberBuilder<config::NoopConfig> {
+	SubscriberBuilder::new(dispatch::NoopDispatcher::new())
 }
 
 /// Returns a [`SubscriberBuilder`] initialized with a [`BroadcastDispatcher`]
@@ -43,6 +45,6 @@ pub fn noop() -> SubscriberBuilder<NoopDispatcher> {
 ///
 /// This function allows for setting up a subscriber that can broadcast
 /// tracing events based on the provided [`BroadcastConfig`].
-pub fn broadcast(config: BroadcastConfig<'static>) -> SubscriberBuilder<BroadcastDispatcher<'static>> {
-	SubscriberBuilder::new(BroadcastDispatcher::new(config))
+pub fn broadcast(config: BroadcastConfig<config::BroadcastConfig>) -> SubscriberBuilder<config::BroadcastConfig> {
+	SubscriberBuilder::new(dispatch::BroadcastDispatcher::new(config))
 }

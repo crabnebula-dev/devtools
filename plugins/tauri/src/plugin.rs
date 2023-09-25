@@ -1,6 +1,12 @@
-use inspector_protocol_primitives::{Inspector, InspectorBuilder, InspectorMetrics, LogEntry, SpanEntry};
-use inspector_protocol_server::{Config, Result as InspectorResult};
-use inspector_protocol_subscriber::{BroadcastConfigBuilder, BroadcastDispatcher, SubscriberBuilder};
+use inspector_protocol_primitives::{EntryT, LogEntry, SpanEntry};
+use inspector_protocol_server::{
+	context::{Context, ContextBuilder, ContextMetrics},
+	error::Result as ContextResult,
+	server::Config,
+};
+use inspector_protocol_subscriber::{
+	config::broadcast::BroadcastConfig, dispatch::broadcast::BroadcastConfigBuilder, subscriber::SubscriberBuilder,
+};
 use std::{
 	fmt,
 	net::SocketAddr,
@@ -41,7 +47,7 @@ pub struct Builder {
 	capacity: usize,
 	batch_size: usize,
 	interval: Duration,
-	metrics: InspectorMetrics,
+	metrics: ContextMetrics,
 	max_level: LevelFilter,
 	max_connections: u32,
 }
@@ -55,7 +61,7 @@ impl Default for Builder {
 			interval: DEFAULT_INTERVAL,
 			max_connections: DEFAULT_MAX_CONNECTIONS,
 			max_level: DEFAULT_LEVEL.into(),
-			metrics: InspectorMetrics::default(),
+			metrics: ContextMetrics::default(),
 		}
 	}
 }
@@ -141,7 +147,7 @@ impl Builder {
 	}
 
 	/// Finish the builder, returning a new [`SubscriberBuilder`].
-	pub fn layer(self) -> SubscriberBuilder<BroadcastDispatcher<'static>> {
+	pub fn layer(self) -> SubscriberBuilder<BroadcastConfig> {
 		self.finish().layer()
 	}
 }
@@ -155,10 +161,10 @@ pub struct Devtools {
 	batch_size: usize,
 	interval: Duration,
 	socket_addr: SocketAddr,
-	metrics: Arc<Mutex<InspectorMetrics>>,
+	metrics: Arc<Mutex<ContextMetrics>>,
 	max_level: LevelFilter,
-	logs_sender: broadcast::Sender<Vec<LogEntry<'static>>>,
-	spans_sender: broadcast::Sender<Vec<SpanEntry<'static>>>,
+	logs_sender: broadcast::Sender<Vec<LogEntry>>,
+	spans_sender: broadcast::Sender<Vec<SpanEntry>>,
 	shutdown_signal: watch::Sender<()>,
 }
 
@@ -215,7 +221,7 @@ impl Devtools {
 	///   .with(tracing_subscriber::fmt::layer())
 	///   .init();
 	/// ```
-	pub fn layer(&self) -> SubscriberBuilder<BroadcastDispatcher<'static>> {
+	pub fn layer(&self) -> SubscriberBuilder<BroadcastConfig> {
 		inspector_protocol_subscriber::broadcast(
 			BroadcastConfigBuilder::new()
 				.with_logs_sender(self.logs_sender.clone())
@@ -239,7 +245,7 @@ impl<R: Runtime> tauri::plugin::Plugin<R> for Devtools {
 			return Ok(());
 		}
 
-		let inspector = InspectorBuilder::new()
+		let inspector = ContextBuilder::new()
 			.with_metrics(self.metrics.clone())
 			.with_logs_channel(self.logs_sender.clone())
 			.with_spans_channel(self.spans_sender.clone())
@@ -282,10 +288,15 @@ impl<R: Runtime> tauri::plugin::Plugin<R> for Devtools {
 }
 
 /// Spawn WebSocket JSON-RPC server.
-fn spawn_rpc_server<R: Runtime>(inspector: Inspector<'static, R>, config: Config) -> InspectorResult<()> {
+fn spawn_rpc_server<R: Runtime, L: EntryT, S: EntryT>(
+	inspector: Context<R, L, S>,
+	config: Config,
+) -> ContextResult<()> {
 	tauri::async_runtime::spawn(async move {
 		// Start the inspector protocol server.
-		if let Ok((server_addr, server_handle)) = inspector_protocol_server::start_server(inspector, config).await {
+		if let Ok((server_addr, server_handle)) =
+			inspector_protocol_server::server::start_server(inspector, config).await
+		{
 			println!("--------- Tauri Plugin Devtools ---------\n");
 			println!("Listening at:\n  ws://{server_addr}\n",);
 			println!("Inspect in browser:\n  {DEVTOOL_URL}{server_addr}");

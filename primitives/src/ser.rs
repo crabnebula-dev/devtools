@@ -1,4 +1,4 @@
-use crate::FieldSet;
+use crate::{FieldSet, FieldT};
 use serde::{ser::SerializeMap, Serializer};
 use std::fmt::Display;
 
@@ -11,7 +11,7 @@ pub(super) fn to_string<S: Serializer, D: Display>(v: D, serializer: S) -> Resul
 pub(super) fn fieldset<S: Serializer>(fieldset: &FieldSet, serializer: S) -> Result<S::Ok, S::Error> {
 	let mut model = serializer.serialize_map(Some(fieldset.len()))?;
 	for field in fieldset {
-		model.serialize_entry(field.key(), field.value())?;
+		model.serialize_entry(field.key(), &field.value())?;
 	}
 	model.end()
 }

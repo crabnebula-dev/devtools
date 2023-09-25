@@ -1,3 +1,4 @@
+use crate::{FieldT, FieldValueT};
 use serde::Serialize;
 
 /// A collection of fields used for tracing.
@@ -31,20 +32,22 @@ pub enum FieldValue {
 	I128(i128),
 	Debug(String),
 }
+impl FieldValueT for FieldValue {}
 
-impl Field {
+impl FieldT for Field {
+	type Output = FieldValue;
 	/// Constructs a new `Field` with the provided key and value.
-	pub fn new(key: &'static str, value: FieldValue) -> Self {
+	fn new(key: &'static str, value: Self::Output) -> Self {
 		Field { key, value }
 	}
 
 	/// Retrieves the key associated with this field.
-	pub fn key(&self) -> &'static str {
+	fn key(&self) -> &'static str {
 		self.key
 	}
 
 	/// Retrieves the value associated with this field.
-	pub fn value(&self) -> &FieldValue {
+	fn value(&self) -> &Self::Output {
 		&self.value
 	}
 }

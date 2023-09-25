@@ -1,9 +1,55 @@
-use inspector_protocol_primitives::{LogEntry, SpanEntry, Tree};
+use super::Dispatcher;
+use crate::config::Config;
+use inspector_protocol_primitives::Tree;
 use std::fmt::Debug;
 use std::{num::NonZeroUsize, time::Duration};
 use tokio::runtime::Handle;
+use tokio::sync::mpsc;
 use tokio::sync::{broadcast, mpsc::UnboundedReceiver, watch};
 use tokio::time::interval;
+
+/// Default broadcaster for the Inspector protocol. This leverage
+/// the builtin [Broadcaster].
+pub struct BroadcastDispatcher<C>
+where
+	C: Config,
+{
+	// FIXME: Use bounded channel?
+	out: mpsc::UnboundedSender<Tree<C::Log, C::Span>>,
+}
+
+impl<C> Dispatcher<C> for BroadcastDispatcher<C>
+where
+	C: Config,
+{
+	fn dispatch(&self, event: Tree<C::Log, C::Span>) {
+		// Dispatches the given `event` to the underlying broadcast channel.
+		//
+		// If an error occurs while sending the event, an error message will be printed to stderr.
+		if let Err(err) = self.out.send(event) {
+			eprint!("[inspector-protocol] Cannot send event. Error: {err:?}");
+		};
+	}
+}
+
+impl<C> BroadcastDispatcher<C>
+where
+	C: Config,
+{
+	/// Creates a new `BroadcastDispatcher` with the provided [BroadcastConfig].
+	///
+	/// The broadcaster will start processing data in the background, either on the default Tokio runtime
+	/// or on a specified Tokio handle provided in the `config`.
+	pub(crate) fn new(config: BroadcastConfig<C>) -> Self {
+		let (out, rx) = mpsc::unbounded_channel();
+		match config.tokio_handle().as_ref() {
+			Some(tokio_handle) => tokio_handle.spawn(Broadcaster::new(config).run(rx)),
+			None => tokio::spawn(Broadcaster::new(config).run(rx)),
+		};
+
+		Self { out }
+	}
+}
 
 // Internal queue processing. It will drain the specified queue up to a given size
 // and send the drained data to the designated channel. If there's no listener
@@ -31,16 +77,22 @@ macro_rules! process_queue_internally {
 ///
 /// It handles settings like batch sizes, intervals, and channels for logs and spans.
 #[derive(Debug, Clone)]
-pub struct BroadcastConfigBuilder<'a> {
+pub struct BroadcastConfigBuilder<C>
+where
+	C: Config,
+{
 	batch_size: NonZeroUsize,
 	tokio_handle: Option<Handle>,
 	interval: Duration,
-	logs_out: Option<broadcast::Sender<Vec<LogEntry<'a>>>>,
-	spans_out: Option<broadcast::Sender<Vec<SpanEntry<'a>>>>,
+	logs_out: Option<broadcast::Sender<Vec<C::Log>>>,
+	spans_out: Option<broadcast::Sender<Vec<C::Span>>>,
 	shutdown_in: Option<watch::Receiver<()>>,
 }
 
-impl<'a> Default for BroadcastConfigBuilder<'a> {
+impl<C> Default for BroadcastConfigBuilder<C>
+where
+	C: Config,
+{
 	fn default() -> Self {
 		Self {
 			batch_size: NonZeroUsize::new(50).expect("qed; more than 1"),
@@ -53,7 +105,10 @@ impl<'a> Default for BroadcastConfigBuilder<'a> {
 	}
 }
 
-impl<'a> BroadcastConfigBuilder<'a> {
+impl<C> BroadcastConfigBuilder<C>
+where
+	C: Config,
+{
 	/// Creates a new `BroadcastConfigBuilder`.
 	pub fn new() -> Self {
 		Default::default()
@@ -80,13 +135,13 @@ impl<'a> BroadcastConfigBuilder<'a> {
 	}
 
 	/// Sets the `Sender` used to broadcast new [`LogEntry`].
-	pub fn with_logs_sender(mut self, logs: broadcast::Sender<Vec<LogEntry<'a>>>) -> Self {
+	pub fn with_logs_sender(mut self, logs: broadcast::Sender<Vec<C::Log>>) -> Self {
 		self.logs_out = Some(logs);
 		self
 	}
 
 	/// Sets the `Sender` used to broadcast new [`SpanEntry`].
-	pub fn with_spans_sender(mut self, spans: broadcast::Sender<Vec<SpanEntry<'a>>>) -> Self {
+	pub fn with_spans_sender(mut self, spans: broadcast::Sender<Vec<C::Span>>) -> Self {
 		self.spans_out = Some(spans);
 		self
 	}
@@ -104,7 +159,7 @@ impl<'a> BroadcastConfigBuilder<'a> {
 	}
 
 	/// Build a [`BroadcastConfig`].
-	pub fn build(self) -> BroadcastConfig<'a> {
+	pub fn build(self) -> BroadcastConfig<C> {
 		BroadcastConfig {
 			batch_size: self.batch_size,
 			tokio_handle: self.tokio_handle,
@@ -127,16 +182,22 @@ impl<'a> BroadcastConfigBuilder<'a> {
 
 /// Configuration struct for broadcasting.
 #[derive(Debug)]
-pub struct BroadcastConfig<'a> {
+pub struct BroadcastConfig<C>
+where
+	C: Config,
+{
 	batch_size: NonZeroUsize,
 	tokio_handle: Option<Handle>,
 	interval: Duration,
-	logs_out: broadcast::Sender<Vec<LogEntry<'a>>>,
-	spans_out: broadcast::Sender<Vec<SpanEntry<'a>>>,
+	logs_out: broadcast::Sender<Vec<C::Log>>,
+	spans_out: broadcast::Sender<Vec<C::Span>>,
 	shutdown_in: watch::Receiver<()>,
 }
 
-impl<'a> BroadcastConfig<'a> {
+impl<C> BroadcastConfig<C>
+where
+	C: Config,
+{
 	/// Return current config [Handle]
 	pub(crate) fn tokio_handle(&self) -> Option<Handle> {
 		self.tokio_handle.clone()
@@ -151,14 +212,20 @@ impl<'a> BroadcastConfig<'a> {
 /// The `Broadcaster` holds two separate queues:
 /// - `logs_queue` for log entries, and
 /// - `spans_queue` for span entries.
-pub(crate) struct Broadcaster<'a> {
-	logs_queue: Vec<LogEntry<'a>>,
-	spans_queue: Vec<SpanEntry<'a>>,
-	config: BroadcastConfig<'a>,
+pub(crate) struct Broadcaster<C>
+where
+	C: Config,
+{
+	logs_queue: Vec<C::Log>,
+	spans_queue: Vec<C::Span>,
+	config: BroadcastConfig<C>,
 }
 
-impl<'a: 'static> Broadcaster<'a> {
-	pub(crate) fn new(config: BroadcastConfig<'a>) -> Self {
+impl<C> Broadcaster<C>
+where
+	C: Config,
+{
+	pub(crate) fn new(config: BroadcastConfig<C>) -> Self {
 		Self {
 			config,
 			logs_queue: Vec::new(),
@@ -195,7 +262,7 @@ impl<'a: 'static> Broadcaster<'a> {
 	/// # Parameters
 	///
 	/// - `rx`: An unbounded receiver for `Tree`. This is the internal handler.
-	pub(crate) async fn run(self, mut rx: UnboundedReceiver<Tree<'a>>) {
+	pub(crate) async fn run(self, mut rx: UnboundedReceiver<Tree<C::Log, C::Span>>) {
 		let Broadcaster {
 			mut logs_queue,
 			mut spans_queue,

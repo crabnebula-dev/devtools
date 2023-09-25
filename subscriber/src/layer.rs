@@ -1,6 +1,7 @@
+use crate::config::Config;
 use crate::dispatch::Dispatcher;
-use event_visitor::EventVisitor;
-use inspector_protocol_primitives::{FieldSet, LogEntry, Metadata, SpanEntry, SpanStatus};
+use crate::visitor::EventVisitor;
+use inspector_protocol_primitives::{FieldT, LogManagerT, MetaT, SpanManagerT, SpanStatus, Tree};
 use std::fmt;
 use std::time::Instant;
 use tracing_core::{
@@ -12,37 +13,42 @@ use tracing_subscriber::{
 	registry::LookupSpan,
 };
 
-mod event_visitor;
-
 const NOT_IN_CONTEXT: &str = "Span not in context, probably a bug";
 const NOT_IN_EXTENSIONS: &str = "Cannot find `ActiveSpan`, probably a bug";
 
 /// Represents a span that has been opened and is currently active.
 ///
 /// Contains details about the span, the time it started, and the time it was last entered.
-pub(crate) struct ActiveSpan<'a> {
-	span: SpanEntry<'a>,
+pub(crate) struct ActiveSpan<C>
+where
+	C: Config,
+{
+	span: C::Span,
 	start: Instant,
 	enter: Instant,
 }
 
-impl<'a> ActiveSpan<'a> {
+impl<C> ActiveSpan<C>
+where
+	C: Config,
+{
 	/// Create a new opened span based on given attributes and context.
 	fn new<S>(id: &Id, maybe_parent: Option<u64>, attrs: &Attributes, _ctx: &layer::Context<S>) -> Self
 	where
-		S: Subscriber + for<'b> LookupSpan<'b>,
+		S: Subscriber + for<'a> LookupSpan<'a>,
 	{
-		let mut fields = FieldSet::default();
+		let mut fields = Vec::new();
 		let meta = attrs.metadata();
-
 		attrs.record(&mut |field: &Field, value: &dyn fmt::Debug| {
-			fields.push(inspector_protocol_primitives::Field::new(field.name(), value.into()));
+			fields.push(<<C as Config>::Metadata as MetaT>::Field::new(
+				field.name(),
+				value.into(),
+			));
 		});
 
-		let shared = Metadata::new(meta, fields);
-
+		let shared = C::Metadata::new(meta, fields);
 		ActiveSpan {
-			span: SpanEntry::new(id.into_u64(), maybe_parent, shared, meta.name()),
+			span: C::Span::new(id.into_u64(), maybe_parent, shared, meta.name()),
 			start: Instant::now(),
 			enter: Instant::now(),
 		}
@@ -50,39 +56,42 @@ impl<'a> ActiveSpan<'a> {
 
 	fn enter(&mut self) {
 		self.enter = Instant::now();
-		self.span.status = SpanStatus::Entered;
+		self.span.set_status(SpanStatus::Entered);
 	}
 
 	fn exit(&mut self) {
-		self.span.status = SpanStatus::Exited {
+		self.span.set_status(SpanStatus::Exited {
 			total_duration: self.start.elapsed(),
 			busy_duration: self.enter.elapsed(),
 			idle_duration: self.enter.duration_since(self.start),
-		}
+		})
 	}
 
 	/// Retrieve the [`SpanEntry`].
-	fn entry(self) -> SpanEntry<'a> {
+	fn entry(self) -> C::Span {
 		self.span
 	}
 }
 
 /// Builder for creating a [`Layer`] with a specific [`Dispatcher`].
-pub struct LayerBuilder<T> {
-	dispatcher: T,
+pub struct LayerBuilder<C>
+where
+	C: Config,
+{
+	dispatcher: C::Dispatcher,
 }
 
-impl<T> LayerBuilder<T>
+impl<C> LayerBuilder<C>
 where
-	T: Dispatcher<'static> + 'static,
+	C: Config,
 {
 	/// Create a new [`LayerBuilder`] with the provided [`Dispatcher`].
-	pub fn new(dispatcher: T) -> Self {
+	pub fn new(dispatcher: C::Dispatcher) -> Self {
 		LayerBuilder { dispatcher }
 	}
 
 	/// Build a [`Layer`] using the provided [`Dispatcher`].
-	pub fn build(self) -> Layer<T> {
+	pub fn build(self) -> Layer<C> {
 		Layer {
 			dispatcher: self.dispatcher,
 		}
@@ -93,33 +102,40 @@ where
 /// provided dispatcher. The dispatcher is used to handle incoming tracing events
 /// and spans, and can be used to forward them to various outputs or systems.
 #[derive(Debug)]
-pub struct Layer<T: Dispatcher<'static>> {
-	dispatcher: T,
+pub struct Layer<C>
+where
+	C: Config,
+{
+	dispatcher: C::Dispatcher,
 }
 
-impl<T> Layer<T>
+impl<C> Layer<C>
 where
-	T: Dispatcher<'static> + 'static,
+	C: Config,
 {
-	pub fn builder(dispatcher: T) -> LayerBuilder<T> {
+	pub fn builder(dispatcher: C::Dispatcher) -> LayerBuilder<C> {
 		LayerBuilder::new(dispatcher)
 	}
 }
 
-impl<S, T: Dispatcher<'static> + 'static> layer::Layer<S> for Layer<T>
+impl<C, S> layer::Layer<S> for Layer<C>
 where
+	C: Config,
 	S: Subscriber + for<'a> LookupSpan<'a>,
 {
 	// Notifies this layer that an event has occurred.
 	fn on_event(&self, event: &tracing_core::Event<'_>, ctx: layer::Context<'_, S>) {
-		let mut visitor = EventVisitor::default();
+		let mut visitor = EventVisitor::<<<C as Config>::Metadata as MetaT>::Field> {
+			fields: Vec::new(),
+			message: None,
+		};
 		event.record(&mut visitor);
 
-		let meta = Metadata::new(event.metadata(), visitor.fields);
+		let meta = C::Metadata::new(event.metadata(), visitor.fields);
 		let span = ctx.event_span(event).as_ref().map(|s| s.id().into_u64());
-		let log_entry = LogEntry::new(span, meta, visitor.message);
+		let log_entry = C::Log::new(span, meta, visitor.message);
 
-		self.dispatcher.dispatch(log_entry.into());
+		self.dispatcher.dispatch(Tree::Log(log_entry));
 	}
 
 	// Notifies this layer that a new span was constructed with the given `Attributes` and `Id`.
@@ -127,18 +143,18 @@ where
 		let span = ctx.span(id).expect(NOT_IN_CONTEXT);
 		let mut extensions = span.extensions_mut();
 		let maybe_parent = span.parent().map(|s| s.id().into_u64());
-		extensions.insert(ActiveSpan::new(id, maybe_parent, attrs, &ctx));
+		extensions.insert(ActiveSpan::<C>::new(id, maybe_parent, attrs, &ctx));
 	}
 
 	// Notifies this layer that a span with the given `Id` was entered.
 	fn on_enter(&self, id: &Id, ctx: layer::Context<'_, S>) {
 		let span = ctx.span(id).expect(NOT_IN_CONTEXT);
 		let mut extensions = span.extensions_mut();
-		let span_entry = extensions.get_mut::<ActiveSpan>().expect(NOT_IN_EXTENSIONS);
+		let span_entry = extensions.get_mut::<ActiveSpan<C>>().expect(NOT_IN_EXTENSIONS);
 
-		if span_entry.span.status == SpanStatus::Created {
+		if span_entry.span.status() == SpanStatus::Created {
 			span_entry.enter();
-			self.dispatcher.dispatch(span_entry.span.clone().into());
+			self.dispatcher.dispatch(Tree::Span(span_entry.span.clone()));
 		}
 	}
 
@@ -147,7 +163,7 @@ where
 		ctx.span(id)
 			.expect(NOT_IN_CONTEXT)
 			.extensions_mut()
-			.get_mut::<ActiveSpan>()
+			.get_mut::<ActiveSpan<C>>()
 			.expect(NOT_IN_EXTENSIONS)
 			.exit();
 	}
@@ -158,10 +174,10 @@ where
 
 		let span_entry = span_ref
 			.extensions_mut()
-			.remove::<ActiveSpan>()
+			.remove::<ActiveSpan<C>>()
 			.expect(NOT_IN_EXTENSIONS)
 			.entry();
 
-		self.dispatcher.dispatch(span_entry.into())
+		self.dispatcher.dispatch(Tree::Span(span_entry))
 	}
 }

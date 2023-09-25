@@ -1,15 +1,20 @@
 pub use asset::{Asset, AssetParams};
-pub use field::{Field, FieldSet};
-pub use inspector::{Inspector, InspectorBuilder, InspectorChannels, InspectorMetrics};
+pub use field::{Field, FieldSet, FieldValue};
 use serde::Serialize;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::{
+	fmt::Debug,
+	time::{Duration, SystemTime, UNIX_EPOCH},
+};
 pub use tauri::{AppHandle, Manager, Runtime};
 pub use tracing::Level;
+pub use traits::*;
 
 mod asset;
 mod field;
-mod inspector;
 mod ser;
+mod traits;
+
+impl<T> EntryT for Vec<T> where T: EntryT {}
 
 /// Panic if the given expression does not evaluate to `Ok`.
 ///
@@ -33,26 +38,30 @@ macro_rules! assert_ok {
 
 /// Enum representing a [LogEntry] or a [SpanEntry]
 #[derive(Debug, Serialize, Clone)]
-pub enum Tree<'a> {
-	Log(LogEntry<'a>),
-	Span(SpanEntry<'a>),
+pub enum Tree<L = LogEntry, S = SpanEntry>
+where
+	L: EntryT,
+	S: EntryT,
+{
+	Log(L),
+	Span(S),
 }
 
 /// Holds metadata for logs and spans entry.
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Metadata<'a> {
+pub struct Metadata {
 	/// The timestamp of the entry, represented as a unix timestamp in milliseconds.
 	pub timestamp: u128,
 	/// The entry level (e.g., INFO, ERROR).
 	#[serde(serialize_with = "ser::to_string")]
-	pub level: &'a Level,
+	pub level: &'static Level,
 	/// The target of the entry directive.
-	pub target: &'a str,
+	pub target: &'static str,
 	/// The path to the module where the entry was produced
-	pub module_path: Option<&'a str>,
+	pub module_path: Option<&'static str>,
 	/// The source file that produced the entry
-	pub file: Option<&'a str>,
+	pub file: Option<&'static str>,
 	/// The line number in the source file where the entry was produced
 	pub line: Option<u32>,
 	/// Additional key-value data associated with the entry.
@@ -60,8 +69,9 @@ pub struct Metadata<'a> {
 	pub fields: FieldSet,
 }
 
-impl<'a> Metadata<'a> {
-	pub fn new(meta: &'a tracing::Metadata<'a>, fields: Vec<Field>) -> Self {
+impl MetaT<'static> for Metadata {
+	type Field = Field;
+	fn new(meta: &'static tracing::Metadata, fields: Vec<Self::Field>) -> Self {
 		Self {
 			timestamp: now(),
 			level: meta.level(),
@@ -77,27 +87,23 @@ impl<'a> Metadata<'a> {
 /// A single log entry captured from the `tracing` crate.
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct LogEntry<'a> {
+pub struct LogEntry {
 	/// Span linked with this log entry.
 	pub span: Option<u64>,
 
 	/// Shared fields between events and spans.
 	#[serde(flatten)]
-	pub meta: Metadata<'a>,
+	pub meta: Metadata,
 
 	/// The main content of the log
 	pub message: Option<String>,
 }
 
-impl<'a> LogEntry<'a> {
-	pub fn new(span: Option<u64>, meta: Metadata<'a>, message: Option<String>) -> Self {
-		Self { span, meta, message }
-	}
-}
+impl EntryT for LogEntry {}
 
-impl<'a> From<LogEntry<'a>> for Tree<'a> {
-	fn from(val: LogEntry<'a>) -> Self {
-		Tree::Log(val)
+impl LogManagerT<Metadata> for LogEntry {
+	fn new(span: Option<u64>, meta: Metadata, message: Option<String>) -> Self {
+		Self { span, meta, message }
 	}
 }
 
@@ -106,18 +112,39 @@ impl<'a> From<LogEntry<'a>> for Tree<'a> {
 /// A span represents a period of time or a unit of work in the application.
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct SpanEntry<'a> {
+pub struct SpanEntry {
 	/// Span unique id
 	pub id: u64,
 	/// Span metadata
 	#[serde(flatten)]
-	pub meta: Metadata<'a>,
+	pub meta: Metadata,
 	/// Span name
-	pub name: &'a str,
+	pub name: &'static str,
 	/// Span status
 	pub status: SpanStatus,
 	/// Parent span
 	pub parent: Option<u64>,
+}
+
+impl EntryT for SpanEntry {}
+impl SpanManagerT<Metadata> for SpanEntry {
+	fn new(id: u64, parent: Option<u64>, meta: Metadata, name: &'static str) -> Self {
+		Self {
+			id,
+			meta,
+			name,
+			status: SpanStatus::Created,
+			parent,
+		}
+	}
+
+	fn set_status(&mut self, status: SpanStatus) {
+		self.status = status;
+	}
+
+	fn status(&self) -> SpanStatus {
+		self.status.clone()
+	}
 }
 
 /// A span status.
@@ -151,14 +178,8 @@ pub enum SpanStatus {
 	},
 }
 
-impl<'a> From<SpanEntry<'a>> for Tree<'a> {
-	fn from(val: SpanEntry<'a>) -> Self {
-		Tree::Span(val)
-	}
-}
-
-impl<'a> SpanEntry<'a> {
-	pub fn new(id: u64, parent: Option<u64>, meta: Metadata<'a>, name: &'static str) -> Self {
+impl SpanEntry {
+	pub fn new(id: u64, parent: Option<u64>, meta: Metadata, name: &'static str) -> Self {
 		Self {
 			id,
 			meta,
@@ -175,4 +196,41 @@ pub fn now() -> u128 {
 		.duration_since(UNIX_EPOCH)
 		.unwrap_or_default()
 		.as_millis()
+}
+
+// Noop
+impl EntryT for () {}
+impl MetaT<'static> for () {
+	type Field = ();
+	fn new(_meta: &'static tracing::Metadata, _fields: Vec<Self::Field>) -> Self {
+		
+	}
+}
+
+impl LogManagerT<()> for () {
+	fn new(_span: Option<u64>, _meta: (), _message: Option<String>) -> Self {}
+}
+
+impl SpanManagerT<()> for () {
+	fn new(_id: u64, _parent: Option<u64>, _meta: (), _name: &'static str) -> Self {}
+	fn set_status(&mut self, _: SpanStatus) {}
+	fn status(&self) -> SpanStatus {
+		SpanStatus::Created
+	}
+}
+
+impl FieldT for () {
+	type Output = FieldValue;
+
+	fn new(_key: &'static str, _value: Self::Output) -> Self {
+		
+	}
+
+	fn key(&self) -> &'static str {
+		"()"
+	}
+
+	fn value(&self) -> &Self::Output {
+		&FieldValue::Bool(true)
+	}
 }

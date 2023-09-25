@@ -32,3 +32,4 @@ futures.workspace = true
 ctrlc = "3.4.0"
 env_logger = "0.10.0"
 tauri = { workspace = true, features = ["test"] }
+jsonrpsee = { workspace = true, features = [ "client-core", "ws-client", "server", "macros" ] }

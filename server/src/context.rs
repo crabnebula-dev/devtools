@@ -1,24 +1,32 @@
-use crate::{now, AppHandle, LogEntry, Runtime, SpanEntry};
-use serde::Serialize;
+use inspector_protocol_primitives::{now, AppHandle, EntryT, LogEntry, Runtime, SpanEntry};
+use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 use tokio::sync::broadcast;
 
 const DEFAULT_BROADCAST_CAPACITY: usize = 1_000;
 
-/// Builder for the Inspector.
+/// Builder for the Context.
 #[derive(Debug, Clone)]
-pub struct InspectorBuilder<'a> {
+pub struct ContextBuilder<L = LogEntry, S = SpanEntry>
+where
+	L: EntryT,
+	S: EntryT,
+{
 	/// Channel for broadcasting log entries.
-	pub logs_channel: Option<broadcast::Sender<Vec<LogEntry<'a>>>>,
+	pub logs_channel: Option<broadcast::Sender<L>>,
 	/// Channel for broadcasting spans entries.
-	pub spans_channel: Option<broadcast::Sender<Vec<SpanEntry<'a>>>>,
+	pub spans_channel: Option<broadcast::Sender<S>>,
 	/// Holds custom metrics.
-	pub metrics: Arc<Mutex<InspectorMetrics>>,
+	pub metrics: Arc<Mutex<ContextMetrics>>,
 	/// Channels capacity
 	pub capacity: usize,
 }
 
-impl<'a> Default for InspectorBuilder<'a> {
+impl<L, S> Default for ContextBuilder<L, S>
+where
+	L: EntryT,
+	S: EntryT,
+{
 	fn default() -> Self {
 		Self {
 			capacity: DEFAULT_BROADCAST_CAPACITY,
@@ -29,26 +37,30 @@ impl<'a> Default for InspectorBuilder<'a> {
 	}
 }
 
-impl<'a> InspectorBuilder<'a> {
-	/// Initializes a new `InspectorBuilder` with default values.
+impl<L, S> ContextBuilder<L, S>
+where
+	L: EntryT,
+	S: EntryT,
+{
+	/// Initializes a new `ContextBuilder` with default values.
 	pub fn new() -> Self {
-		Default::default()
+		ContextBuilder::default()
 	}
 
 	/// Associates a broadcast channel for log entries.
-	pub fn with_logs_channel(mut self, channel: broadcast::Sender<Vec<LogEntry<'a>>>) -> Self {
+	pub fn with_logs_channel(mut self, channel: broadcast::Sender<L>) -> Self {
 		self.logs_channel = Some(channel);
 		self
 	}
 
 	/// Associates a broadcast channel for spans entries.
-	pub fn with_spans_channel(mut self, channel: broadcast::Sender<Vec<SpanEntry<'a>>>) -> Self {
+	pub fn with_spans_channel(mut self, channel: broadcast::Sender<S>) -> Self {
 		self.spans_channel = Some(channel);
 		self
 	}
 
 	/// Sets the metrics for the inspector.
-	pub fn with_metrics(mut self, metrics: Arc<Mutex<InspectorMetrics>>) -> Self {
+	pub fn with_metrics(mut self, metrics: Arc<Mutex<ContextMetrics>>) -> Self {
 		self.metrics = metrics;
 		self
 	}
@@ -59,11 +71,11 @@ impl<'a> InspectorBuilder<'a> {
 		self
 	}
 
-	/// Constructs an `Inspector` from the builder.
-	pub fn build<R: Runtime>(self, app_handle: &AppHandle<R>) -> Inspector<'a, R> {
-		Inspector {
+	/// Constructs an `Context` from the builder.
+	pub fn build<R: Runtime>(self, app_handle: &AppHandle<R>) -> Context<R, L, S> {
+		Context {
 			app_handle: app_handle.clone(),
-			channels: InspectorChannels {
+			channels: ContextChannels {
 				logs: self.logs_channel.unwrap_or(broadcast::channel(self.capacity).0),
 				spans: self.spans_channel.unwrap_or(broadcast::channel(self.capacity).0),
 			},
@@ -74,20 +86,29 @@ impl<'a> InspectorBuilder<'a> {
 
 /// Represents an inspector which monitors app activities and logs.
 #[derive(Debug, Clone)]
-pub struct Inspector<'a, R: Runtime> {
+pub struct Context<R, L, S>
+where
+	R: Runtime,
+	L: EntryT,
+	S: EntryT,
+{
 	/// Tauri application handle.
 	pub app_handle: AppHandle<R>,
 	/// Holds the communication channels for the inspector.
-	pub channels: InspectorChannels<'a>,
+	pub channels: ContextChannels<L, S>,
 	/// Custom metrics.
-	pub metrics: Arc<Mutex<InspectorMetrics>>,
+	pub metrics: Arc<Mutex<ContextMetrics>>,
 }
 
 /// Holds the communication channels for the inspector.
 #[derive(Debug, Clone)]
-pub struct InspectorChannels<'a> {
-	pub logs: broadcast::Sender<Vec<LogEntry<'a>>>,
-	pub spans: broadcast::Sender<Vec<SpanEntry<'a>>>,
+pub struct ContextChannels<L, S>
+where
+	L: EntryT,
+	S: EntryT,
+{
+	pub logs: broadcast::Sender<L>,
+	pub spans: broadcast::Sender<S>,
 }
 
 /// Custom metrics.
@@ -96,16 +117,15 @@ pub struct InspectorChannels<'a> {
 /// derived from various events and methods tailored for custom monitoring.
 /// This setup offers flexibility, allowing easy extension and addition of
 /// more metrics based on future needs.
-
-#[derive(Serialize, Debug, Clone)]
-pub struct InspectorMetrics {
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ContextMetrics {
 	/// Tauri application initialization time
 	pub initialized_at: u128,
 	/// Tauri applicatin reported `AppReady` time
 	pub ready_at: u128,
 }
 
-impl Default for InspectorMetrics {
+impl Default for ContextMetrics {
 	fn default() -> Self {
 		Self {
 			initialized_at: now(),
@@ -116,16 +136,16 @@ impl Default for InspectorMetrics {
 
 #[cfg(test)]
 mod tests {
-	use super::DEFAULT_BROADCAST_CAPACITY;
-	use crate::{now, InspectorBuilder, InspectorMetrics};
+	use super::{ContextBuilder, ContextMetrics, DEFAULT_BROADCAST_CAPACITY};
+	use inspector_protocol_primitives::now;
 
 	#[test]
 	fn inspector_metrics_initialized_at() {
-		assert_eq!(InspectorMetrics::default().initialized_at, now())
+		assert_eq!(ContextMetrics::default().initialized_at, now())
 	}
 
 	#[test]
 	fn inspector_builder_default_capacity() {
-		assert_eq!(InspectorBuilder::default().capacity, DEFAULT_BROADCAST_CAPACITY)
+		assert_eq!(<ContextBuilder>::new().capacity, DEFAULT_BROADCAST_CAPACITY)
 	}
 }

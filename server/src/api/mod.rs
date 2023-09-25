@@ -1,6 +1,6 @@
-use crate::Result;
+use crate::{context::Context, error::Result};
 use futures::{future, future::Either, StreamExt};
-use inspector_protocol_primitives::{Inspector, Runtime};
+use inspector_protocol_primitives::{EntryT, Runtime};
 use jsonrpsee::{core::server::SubscriptionMessage, PendingSubscriptionSink, RpcModule};
 use serde::Serialize;
 use tokio_stream::wrappers::BroadcastStream;
@@ -11,8 +11,10 @@ mod spans;
 mod tauri;
 
 /// Create new `RpcModule` with our methods
-pub(crate) fn register<R: Runtime>(inspector: Inspector<'static, R>) -> Result<RpcModule<Inspector<R>>> {
-	let mut module = RpcModule::new(inspector);
+pub(crate) fn register<R: Runtime, L: EntryT, S: EntryT>(
+	context: Context<R, L, S>,
+) -> Result<RpcModule<Context<R, L, S>>> {
+	let mut module = RpcModule::new(context);
 
 	// register `spans_*` methods
 	spans::module(&mut module)?;

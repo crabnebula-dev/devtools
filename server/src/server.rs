@@ -1,10 +1,11 @@
-use crate::{api, Result};
-use inspector_protocol_primitives::{Inspector, Runtime};
+use crate::{api, context::Context, error::Result};
+use inspector_protocol_primitives::{EntryT, Runtime};
 use jsonrpsee::{
 	core::id_providers::RandomStringIdProvider,
 	server::{ServerBuilder, ServerHandle},
 	RpcModule,
 };
+
 use std::net::SocketAddr;
 
 const MEGABYTE: u32 = 1024 * 1024;
@@ -76,8 +77,8 @@ impl Config {
 }
 
 /// Start RPC server listening on given address.
-pub async fn start_server<R: Runtime>(
-	inspector: Inspector<'static, R>,
+pub async fn start_server<R: Runtime, L: EntryT, S: EntryT>(
+	context: Context<R, L, S>,
 	config: Config,
 ) -> Result<(SocketAddr, ServerHandle)> {
 	let Config {
@@ -90,7 +91,7 @@ pub async fn start_server<R: Runtime>(
 	} = config;
 
 	let expected_addr = addr.unwrap_or(([127, 0, 0, 1], 0).into());
-	let mut rpc_api = api::register(inspector)?;
+	let mut rpc_api = api::register(context)?;
 	inject_additional_rpc_methods(&mut rpc_api);
 
 	// Important
