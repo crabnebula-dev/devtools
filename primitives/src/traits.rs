@@ -57,13 +57,7 @@ pub trait MetaT<'a>: Sized + Clone {
 ///
 /// Implementations should define the `KIND` constant to distinguish between
 /// different kinds of trace entries, such as "SPAN" or "EVENT".
-pub trait EntryT: FilterT + Serialize + Send + Sync + Clone + 'static {
-	/// Constant indicating the kind of the entry.
-	///
-	/// This should be set to either "SPAN" or "EVENT" to indicate the type
-	/// of the entry in the trace.
-	const KIND: &'static str;
-}
+pub trait EntryT: FilterT + Serialize + Send + Sync + Clone + 'static {}
 
 /// `FieldValueT` Trait: Represents a Value in a Trace Element.
 ///

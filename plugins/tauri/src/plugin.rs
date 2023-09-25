@@ -1,18 +1,20 @@
 use inspector_protocol_primitives::{LogEntry, SpanEntry};
 use inspector_protocol_server::{
-	config::Config,
+	config::{Config, DefaultConfig as ServerDefaultConfig},
 	context::{Context, ContextMetrics},
 	error::Result as ContextResult,
 	start_server as start_inspector_protocol_server, ContextBuilder, ServerConfig,
 };
-use inspector_protocol_subscriber::{config::DefaultConfig, BroadcastConfigBuilder, SubscriberBuilder};
+use inspector_protocol_subscriber::{
+	config::DefaultConfig as SubscriberDefaultConfig, BroadcastConfigBuilder, SubscriberBuilder,
+};
 use std::{
 	fmt,
 	net::SocketAddr,
 	sync::{Arc, Mutex},
 	time::Duration,
 };
-use tauri::{AppHandle, RunEvent, Wry};
+use tauri::{AppHandle, RunEvent, Runtime};
 use tokio::sync::{broadcast, watch};
 use tracing::Level;
 use tracing_subscriber::filter::{self, LevelFilter};
@@ -146,7 +148,7 @@ impl Builder {
 	}
 
 	/// Finish the builder, returning a new [`SubscriberBuilder`].
-	pub fn layer(self) -> SubscriberBuilder<DefaultConfig> {
+	pub fn layer(self) -> SubscriberBuilder<SubscriberDefaultConfig> {
 		self.finish().layer()
 	}
 }
@@ -170,12 +172,12 @@ pub struct Devtools {
 impl fmt::Debug for Devtools {
 	fn fmt(&self, fmtr: &mut fmt::Formatter<'_>) -> fmt::Result {
 		fmtr.debug_struct("Devtools")
-			.field("Enabled", &self.enabled)
-			.field("BatchSize", &self.batch_size)
-			.field("Interval", &self.interval)
-			.field("SocketAddr", &self.socket_addr)
-			.field("Metrics", &self.metrics)
-			.field("MaxLevel", &self.max_level)
+			.field("enabled", &self.enabled)
+			.field("batch_size", &self.batch_size)
+			.field("interval", &self.interval)
+			.field("socket_addr", &self.socket_addr)
+			.field("metrics", &self.metrics)
+			.field("max_level", &self.max_level)
 			.finish()
 	}
 }
@@ -224,7 +226,7 @@ impl Devtools {
 	///   .with(tracing_subscriber::fmt::layer())
 	///   .init();
 	/// ```
-	pub fn layer(&self) -> SubscriberBuilder<DefaultConfig> {
+	pub fn layer(&self) -> SubscriberBuilder<SubscriberDefaultConfig> {
 		inspector_protocol_subscriber::broadcast(
 			BroadcastConfigBuilder::new()
 				.with_logs_sender(self.logs_sender.clone())
@@ -239,8 +241,10 @@ impl Devtools {
 }
 
 // Provides the implementation of the Tauri plugin for `Devtools`.
-// This particular implementation supports the `Wry` runtime.
-impl tauri::plugin::Plugin<Wry> for Devtools {
+impl<R> tauri::plugin::Plugin<R> for Devtools
+where
+	R: Runtime,
+{
 	fn name(&self) -> &'static str {
 		PLUGIN_NAME
 	}
@@ -249,17 +253,13 @@ impl tauri::plugin::Plugin<Wry> for Devtools {
 	//
 	// If the plugin is enabled, this method sets up the inspector context
 	// and spawns the RPC server.
-	fn initialize(
-		&mut self,
-		app: &AppHandle<Wry>,
-		_config: serde_json::Value,
-	) -> Result<(), Box<dyn std::error::Error>> {
+	fn initialize(&mut self, app: &AppHandle<R>, _config: serde_json::Value) -> Result<(), Box<dyn std::error::Error>> {
 		if !self.enabled {
 			return Ok(());
 		}
 
 		// Server context (with `DefaultConfig`)
-		let context = <ContextBuilder>::new()
+		let context = ContextBuilder::<ServerDefaultConfig<R>>::new()
 			.with_metrics(self.metrics.clone())
 			.with_logs_channel(self.logs_sender.clone())
 			.with_spans_channel(self.spans_sender.clone())
@@ -271,7 +271,7 @@ impl tauri::plugin::Plugin<Wry> for Devtools {
 	}
 
 	/// Handles Tauri lifecycle events.
-	fn on_event(&mut self, _app: &AppHandle<Wry>, event: &RunEvent) {
+	fn on_event(&mut self, _app: &AppHandle<R>, event: &RunEvent) {
 		if !self.enabled {
 			return;
 		}

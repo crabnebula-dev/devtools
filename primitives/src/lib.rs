@@ -99,9 +99,7 @@ pub struct LogEntry {
 	pub message: Option<String>,
 }
 
-impl EntryT for LogEntry {
-	const KIND: &'static str = "LOG";
-}
+impl EntryT for LogEntry {}
 
 impl LogManagerT<Metadata> for LogEntry {
 	fn new(span: Option<u64>, meta: Metadata, message: Option<String>) -> Self {
@@ -143,9 +141,7 @@ pub struct SpanEntry {
 	pub parent: Option<u64>,
 }
 
-impl EntryT for SpanEntry {
-	const KIND: &'static str = "SPAN";
-}
+impl EntryT for SpanEntry {}
 
 impl SpanManagerT<Metadata> for SpanEntry {
 	fn new(id: u64, parent: Option<u64>, meta: Metadata, name: &'static str) -> Self {
@@ -252,9 +248,7 @@ impl FilterT for () {
 	}
 }
 
-impl EntryT for () {
-	const KIND: &'static str = "LOG";
-}
+impl EntryT for () {}
 
 impl MetaT<'static> for () {
 	type Field = ();

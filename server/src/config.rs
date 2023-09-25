@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use inspector_protocol_primitives::{EntryT, LogEntry, Runtime, SpanEntry, Wry};
 
 /// Represents a generic configuration trait for the server.
@@ -16,10 +18,12 @@ where
 /// The default configuration for the server context.
 ///
 /// This configuration provides a setup suitable for most scenarios
-pub struct DefaultConfig;
+pub struct DefaultConfig<R = Wry>(PhantomData<R>)
+where
+	R: Runtime;
 
-impl Config for DefaultConfig {
+impl<R: Runtime> Config for DefaultConfig<R> {
 	type Log = LogEntry;
 	type Span = SpanEntry;
-	type Runtime = Wry;
+	type Runtime = R;
 }

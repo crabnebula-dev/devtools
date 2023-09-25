@@ -11,9 +11,7 @@ use tokio::{sync::broadcast, task::JoinHandle};
 pub struct MockEntry {
 	pub(crate) text: String,
 }
-impl EntryT for MockEntry {
-	const KIND: &'static str = "log";
-}
+impl EntryT for MockEntry {}
 
 impl FilterT for MockEntry {
 	fn match_filter(&self, _filter: &Filter) -> bool {
