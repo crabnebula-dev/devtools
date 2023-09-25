@@ -29,7 +29,10 @@ mod visitor;
 
 // Expose a few of the most common types at root,
 // but leave most types behind their respective modules.
-pub use crate::{dispatch::broadcast::BroadcastConfig, subscriber::SubscriberBuilder};
+pub use crate::{
+	dispatch::broadcast::{BroadcastConfig, BroadcastConfigBuilder},
+	subscriber::SubscriberBuilder,
+};
 
 /// Returns a [`SubscriberBuilder`] that is initialized with a [`NoopDispatcher`].
 ///
@@ -45,6 +48,6 @@ pub fn noop() -> SubscriberBuilder<config::NoopConfig> {
 ///
 /// This function allows for setting up a subscriber that can broadcast
 /// tracing events based on the provided [`BroadcastConfig`].
-pub fn broadcast(config: BroadcastConfig<config::BroadcastConfig>) -> SubscriberBuilder<config::BroadcastConfig> {
+pub fn broadcast(config: BroadcastConfig<config::DefaultConfig>) -> SubscriberBuilder<config::DefaultConfig> {
 	SubscriberBuilder::new(dispatch::BroadcastDispatcher::new(config))
 }

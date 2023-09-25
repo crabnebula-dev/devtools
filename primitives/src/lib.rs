@@ -6,7 +6,7 @@ use std::{
 	fmt::Debug,
 	time::{Duration, SystemTime, UNIX_EPOCH},
 };
-pub use tauri::{AppHandle, Manager, Runtime};
+pub use tauri::{AppHandle, Manager, Runtime, Wry};
 pub use tracing::Level;
 pub use traits::*;
 

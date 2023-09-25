@@ -1,10 +1,11 @@
-use crate::{context::Context, error::Result};
-use inspector_protocol_primitives::{EntryT, Runtime};
+use crate::{config::Config, context::Context, error::Result};
 use jsonrpsee::{types::error::ErrorCode, RpcModule};
 
-pub(crate) fn module<R: Runtime, L: EntryT, S: EntryT>(module: &mut RpcModule<Context<R, L, S>>) -> Result<()> {
-	module.register_method("performance_getMetrics", |_, inspector| {
-		serde_json::to_value(inspector.metrics.as_ref()).map_err(|_| ErrorCode::InternalError)
+/// Registers the `performance_getMetrics` method to the provided RPC module.
+pub(crate) fn module<C: Config>(module: &mut RpcModule<Context<C>>) -> Result<()> {
+	// Fetches metrics from the context and returns them as a serialized JSON value.
+	module.register_method("performance_getMetrics", |_, context| {
+		serde_json::to_value(context.metrics.as_ref()).map_err(|_| ErrorCode::InternalError)
 	})?;
 
 	Ok(())

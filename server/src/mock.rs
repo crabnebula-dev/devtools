@@ -1,9 +1,10 @@
-use crate::{context::ContextBuilder, error::Result, server::start_server};
+use crate::{config::Config, context::ContextBuilder, error::Result, server::start_server};
 use inspector_protocol_primitives::{EntryT, Filter, FilterT};
 use jsonrpsee::{server::ServerHandle, ws_client::WsClientBuilder};
 use jsonrpsee_core::client::Client;
 use serde::{Deserialize, Serialize};
 use std::{iter, net::SocketAddr};
+use tauri::test::MockRuntime;
 use tokio::{sync::broadcast, task::JoinHandle};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -20,9 +21,16 @@ impl FilterT for MockEntry {
 	}
 }
 
+pub struct MockConfig;
+impl Config for MockConfig {
+	type Log = MockEntry;
+	type Span = MockEntry;
+	type Runtime = MockRuntime;
+}
+
 pub async fn server_mock() -> Result<(SocketAddr, ServerHandle)> {
 	start_server(
-		<ContextBuilder>::new()
+		ContextBuilder::<MockConfig>::new()
 			.with_capacity(10)
 			.build(&tauri::test::mock_app().handle()),
 		Default::default(),
@@ -35,7 +43,7 @@ pub async fn server_mock_with_channels(
 	spans_channel: broadcast::Sender<Vec<MockEntry>>,
 ) -> Result<(SocketAddr, ServerHandle)> {
 	start_server(
-		ContextBuilder::new()
+		ContextBuilder::<MockConfig>::new()
 			.with_logs_channel(logs_channel)
 			.with_spans_channel(spans_channel)
 			.build(&tauri::test::mock_app().handle()),

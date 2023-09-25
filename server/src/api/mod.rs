@@ -1,6 +1,6 @@
-use crate::{context::Context, error::Result};
+use crate::{config::Config, context::Context, error::Result};
 use futures::{future, future::Either, StreamExt};
-use inspector_protocol_primitives::{EntryT, Filter, Runtime, SubscriptionParams};
+use inspector_protocol_primitives::{EntryT, Filter, SubscriptionParams};
 use jsonrpsee::{core::server::SubscriptionMessage, types::Params, PendingSubscriptionSink, RpcModule};
 use tokio_stream::wrappers::BroadcastStream;
 
@@ -14,9 +14,7 @@ mod tauri;
 /// This function sets up the main `RpcModule` which contains various methods
 /// categorized into sub-modules. Currently, it includes methods for handling
 /// spans, logs, Tauri-specific actions, and performance metrics.
-pub(crate) fn register<R: Runtime, L: EntryT, S: EntryT>(
-	context: Context<R, L, S>,
-) -> Result<RpcModule<Context<R, L, S>>> {
+pub(crate) fn register<C: Config>(context: Context<C>) -> Result<RpcModule<Context<C>>> {
 	let mut module = RpcModule::new(context);
 
 	// Register methods related to spans.

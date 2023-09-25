@@ -1,4 +1,5 @@
-use inspector_protocol_primitives::{now, AppHandle, EntryT, LogEntry, Runtime, SpanEntry};
+use crate::config::{Config, DefaultConfig};
+use inspector_protocol_primitives::{now, AppHandle};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 use tokio::sync::broadcast;
@@ -8,25 +9,23 @@ const DEFAULT_BROADCAST_CAPACITY: usize = 1_000;
 
 /// Builder for creating a monitoring `Context`.
 #[derive(Debug, Clone)]
-pub struct ContextBuilder<L = LogEntry, S = SpanEntry>
+pub struct ContextBuilder<C = DefaultConfig>
 where
-	L: EntryT,
-	S: EntryT,
+	C: Config,
 {
 	/// Channel for broadcasting log entries.
-	pub logs_channel: Option<broadcast::Sender<Vec<L>>>,
+	pub logs_channel: Option<broadcast::Sender<Vec<C::Log>>>,
 	/// Channel for broadcasting spans entries.
-	pub spans_channel: Option<broadcast::Sender<Vec<S>>>,
+	pub spans_channel: Option<broadcast::Sender<Vec<C::Span>>>,
 	/// Holds custom metrics.
 	pub metrics: Arc<Mutex<ContextMetrics>>,
 	/// Capacity for broadcast and message-passing channels.
 	pub capacity: usize,
 }
 
-impl<L, S> Default for ContextBuilder<L, S>
+impl<C> Default for ContextBuilder<C>
 where
-	L: EntryT,
-	S: EntryT,
+	C: Config,
 {
 	fn default() -> Self {
 		Self {
@@ -38,10 +37,9 @@ where
 	}
 }
 
-impl<L, S> ContextBuilder<L, S>
+impl<C> ContextBuilder<C>
 where
-	L: EntryT,
-	S: EntryT,
+	C: Config,
 {
 	/// Initializes a new `ContextBuilder` with default values.
 	pub fn new() -> Self {
@@ -49,13 +47,13 @@ where
 	}
 
 	/// Associates a broadcast channel for log entries.
-	pub fn with_logs_channel(mut self, channel: broadcast::Sender<Vec<L>>) -> Self {
+	pub fn with_logs_channel(mut self, channel: broadcast::Sender<Vec<C::Log>>) -> Self {
 		self.logs_channel = Some(channel);
 		self
 	}
 
 	/// Associates a broadcast channel for spans entries.
-	pub fn with_spans_channel(mut self, channel: broadcast::Sender<Vec<S>>) -> Self {
+	pub fn with_spans_channel(mut self, channel: broadcast::Sender<Vec<C::Span>>) -> Self {
 		self.spans_channel = Some(channel);
 		self
 	}
@@ -73,7 +71,7 @@ where
 	}
 
 	/// Constructs an `Context` from the builder.
-	pub fn build<R: Runtime>(self, app_handle: &AppHandle<R>) -> Context<R, L, S> {
+	pub fn build(self, app_handle: &AppHandle<C::Runtime>) -> Context<C> {
 		Context {
 			app_handle: app_handle.clone(),
 			channels: ContextChannels {
@@ -85,22 +83,21 @@ where
 	}
 }
 
-/// Represents the diagnostic context of the application.
+/// Represents the context of the server.
 ///
 /// `Context` serves as the centralized location for logging, tracing,
 /// and metrics-related functionalities. It holds references to Tauri's application handle
-/// and communication channels for broadcasting logs and spans.
-#[derive(Debug, Clone)]
-pub struct Context<R, L, S>
+/// and communication channels for broadcasting logs and spans and it's availability in the
+/// RpcModule context.
+#[derive(Clone)]
+pub struct Context<C>
 where
-	R: Runtime,
-	L: EntryT,
-	S: EntryT,
+	C: Config,
 {
 	/// Tauri application handle.
-	pub app_handle: AppHandle<R>,
+	pub app_handle: AppHandle<C::Runtime>,
 	/// Holds the communication channels for the inspector.
-	pub channels: ContextChannels<L, S>,
+	pub channels: ContextChannels<C>,
 	/// Metrics for custom monitoring needs.
 	pub metrics: Arc<Mutex<ContextMetrics>>,
 }
@@ -111,13 +108,12 @@ where
 /// and span entries across the application. Each channel is parameterized by the
 /// corresponding entry type that implements [`EntryT`].
 #[derive(Debug, Clone)]
-pub struct ContextChannels<L, S>
+pub struct ContextChannels<C>
 where
-	L: EntryT,
-	S: EntryT,
+	C: Config,
 {
-	pub logs: broadcast::Sender<Vec<L>>,
-	pub spans: broadcast::Sender<Vec<S>>,
+	pub logs: broadcast::Sender<Vec<C::Log>>,
+	pub spans: broadcast::Sender<Vec<C::Span>>,
 }
 
 /// Struct for holding custom diagnostic metrics.

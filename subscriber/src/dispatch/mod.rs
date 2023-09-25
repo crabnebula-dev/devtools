@@ -1,11 +1,10 @@
 use crate::config::Config;
+pub use broadcast::{BroadcastConfigBuilder, BroadcastDispatcher};
 use inspector_protocol_primitives::Tree;
+pub use noop::NoopDispatcher;
 
 pub mod broadcast;
 pub mod noop;
-
-pub use broadcast::{BroadcastConfigBuilder, BroadcastDispatcher};
-pub use noop::NoopDispatcher;
 
 /// `Dispatcher` trait defines a method for dispatching input data of type `Tree`.
 pub trait Dispatcher<C>

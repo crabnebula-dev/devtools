@@ -1,18 +1,31 @@
 use super::{parse_subscription_filter, pipe_from_stream_with_bounded_buffer};
-use crate::{context::Context, error::Result};
-use inspector_protocol_primitives::{EntryT, Runtime};
+use crate::{config::Config, context::Context, error::Result};
 use jsonrpsee::RpcModule;
 use tokio_stream::wrappers::BroadcastStream;
 
-pub(crate) fn module<R: Runtime, L: EntryT, S: EntryT>(module: &mut RpcModule<Context<R, L, S>>) -> Result<()> {
+/// Registers the `spans_watch`, `spans_added`, and `spans_unwatch` methods for handling
+/// span subscription in the RPC module.
+///
+/// These methods are used for establishing, maintaining, and ending subscriptions
+/// that allow clients to receive real-time updates for new log entries.
+pub(crate) fn module<C: Config>(module: &mut RpcModule<Context<C>>) -> Result<()> {
 	module.register_subscription(
 		"spans_watch",
 		"spans_added",
 		"spans_unwatch",
 		|maybe_params, pending, inspector| async move {
+			// Parse the filter if provided
 			let filter = parse_subscription_filter(maybe_params);
+			// Subscribe to the spans channel
 			let channel = inspector.channels.spans.subscribe();
+			// Wrap the channel in a broadcast stream
 			let stream = BroadcastStream::new(channel);
+
+			// Process the stream for the subscription.
+			//
+			// When the `broadcast::Receiver` receives a new event, the server emits
+			// a `spans_added` method to the client. To end the subscription, the client
+			// must send the `spans_unwatch` method with the subscription ID as its parameters.
 			pipe_from_stream_with_bounded_buffer(pending, stream, filter).await?;
 			Ok(())
 		},

@@ -1,19 +1,18 @@
-use inspector_protocol_primitives::{EntryT, LogEntry, SpanEntry};
+use inspector_protocol_primitives::{LogEntry, SpanEntry};
 use inspector_protocol_server::{
-	context::{Context, ContextBuilder, ContextMetrics},
+	config::Config,
+	context::{Context, ContextMetrics},
 	error::Result as ContextResult,
-	server::Config,
+	start_server as start_inspector_protocol_server, ContextBuilder, ServerConfig,
 };
-use inspector_protocol_subscriber::{
-	config::broadcast::BroadcastConfig, dispatch::broadcast::BroadcastConfigBuilder, subscriber::SubscriberBuilder,
-};
+use inspector_protocol_subscriber::{config::DefaultConfig, BroadcastConfigBuilder, SubscriberBuilder};
 use std::{
 	fmt,
 	net::SocketAddr,
 	sync::{Arc, Mutex},
 	time::Duration,
 };
-use tauri::{AppHandle, RunEvent, Runtime};
+use tauri::{AppHandle, RunEvent, Wry};
 use tokio::sync::{broadcast, watch};
 use tracing::Level;
 use tracing_subscriber::filter::{self, LevelFilter};
@@ -147,7 +146,7 @@ impl Builder {
 	}
 
 	/// Finish the builder, returning a new [`SubscriberBuilder`].
-	pub fn layer(self) -> SubscriberBuilder<BroadcastConfig> {
+	pub fn layer(self) -> SubscriberBuilder<DefaultConfig> {
 		self.finish().layer()
 	}
 }
@@ -171,8 +170,12 @@ pub struct Devtools {
 impl fmt::Debug for Devtools {
 	fn fmt(&self, fmtr: &mut fmt::Formatter<'_>) -> fmt::Result {
 		fmtr.debug_struct("Devtools")
+			.field("Enabled", &self.enabled)
+			.field("BatchSize", &self.batch_size)
+			.field("Interval", &self.interval)
 			.field("SocketAddr", &self.socket_addr)
 			.field("Metrics", &self.metrics)
+			.field("MaxLevel", &self.max_level)
 			.finish()
 	}
 }
@@ -221,7 +224,7 @@ impl Devtools {
 	///   .with(tracing_subscriber::fmt::layer())
 	///   .init();
 	/// ```
-	pub fn layer(&self) -> SubscriberBuilder<BroadcastConfig> {
+	pub fn layer(&self) -> SubscriberBuilder<DefaultConfig> {
 		inspector_protocol_subscriber::broadcast(
 			BroadcastConfigBuilder::new()
 				.with_logs_sender(self.logs_sender.clone())
@@ -235,26 +238,40 @@ impl Devtools {
 	}
 }
 
-impl<R: Runtime> tauri::plugin::Plugin<R> for Devtools {
+// Provides the implementation of the Tauri plugin for `Devtools`.
+// This particular implementation supports the `Wry` runtime.
+impl tauri::plugin::Plugin<Wry> for Devtools {
 	fn name(&self) -> &'static str {
 		PLUGIN_NAME
 	}
 
-	fn initialize(&mut self, app: &AppHandle<R>, _config: serde_json::Value) -> Result<(), Box<dyn std::error::Error>> {
+	// Initializes the plugin.
+	//
+	// If the plugin is enabled, this method sets up the inspector context
+	// and spawns the RPC server.
+	fn initialize(
+		&mut self,
+		app: &AppHandle<Wry>,
+		_config: serde_json::Value,
+	) -> Result<(), Box<dyn std::error::Error>> {
 		if !self.enabled {
 			return Ok(());
 		}
 
-		let inspector = ContextBuilder::new()
+		// Server context (with `DefaultConfig`)
+		let context = <ContextBuilder>::new()
 			.with_metrics(self.metrics.clone())
 			.with_logs_channel(self.logs_sender.clone())
 			.with_spans_channel(self.spans_sender.clone())
 			.build(app);
 
-		spawn_rpc_server(inspector, Config::new().with_socket_addr(self.socket_addr)).map_err(Into::into)
+		// Spawn inspector protocol (JSON RPC with WebSocket transport)
+		spawn_and_start_inspector_protocol_server(context, ServerConfig::new().with_socket_addr(self.socket_addr))
+			.map_err(Into::into)
 	}
 
-	fn on_event(&mut self, _app: &AppHandle<R>, event: &RunEvent) {
+	/// Handles Tauri lifecycle events.
+	fn on_event(&mut self, _app: &AppHandle<Wry>, event: &RunEvent) {
 		if !self.enabled {
 			return;
 		}
@@ -288,11 +305,13 @@ impl<R: Runtime> tauri::plugin::Plugin<R> for Devtools {
 }
 
 /// Spawn WebSocket JSON-RPC server.
-fn spawn_rpc_server<R: Runtime, L: EntryT, S: EntryT>(context: Context<R, L, S>, config: Config) -> ContextResult<()> {
+fn spawn_and_start_inspector_protocol_server<C: Config>(
+	context: Context<C>,
+	config: ServerConfig,
+) -> ContextResult<()> {
 	tauri::async_runtime::spawn(async move {
 		// Start the inspector protocol server.
-		if let Ok((server_addr, server_handle)) = inspector_protocol_server::server::start_server(context, config).await
-		{
+		if let Ok((server_addr, server_handle)) = start_inspector_protocol_server(context, config).await {
 			println!("--------- Tauri Plugin Devtools ---------\n");
 			println!("Listening at:\n  ws://{server_addr}\n",);
 			println!("Inspect in browser:\n  {DEVTOOL_URL}{server_addr}");

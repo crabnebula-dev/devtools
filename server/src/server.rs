@@ -1,5 +1,5 @@
+use crate::config::Config;
 use crate::{api, context::Context, error::Result};
-use inspector_protocol_primitives::{EntryT, Runtime};
 use jsonrpsee::{
 	core::id_providers::RandomStringIdProvider,
 	server::{ServerBuilder, ServerHandle},
@@ -18,14 +18,14 @@ const MEGABYTE: u32 = 1024 * 1024;
 /// # Example
 ///
 /// ```rust
-/// use inspector_protocol_server::server::Config;
-/// let config = Config::new()
+/// use inspector_protocol_server::server::ServerConfig;
+/// let config = ServerConfig::new()
 ///     .with_max_connections(100)
 ///     .with_max_subs_per_conn(10)
 ///     .with_socket_addr("127.0.0.1:3030".parse().unwrap());
 /// ```
 #[derive(Debug)]
-pub struct Config {
+pub struct ServerConfig {
 	/// The address at which the RPC server should listen.
 	pub addr: Option<SocketAddr>,
 	/// Maximum number of simultaneous connections to the RPC server.
@@ -40,9 +40,9 @@ pub struct Config {
 	pub tokio_handle: Option<tokio::runtime::Handle>,
 }
 
-impl Default for Config {
-	fn default() -> Config {
-		Config {
+impl Default for ServerConfig {
+	fn default() -> ServerConfig {
+		ServerConfig {
 			addr: None,
 			max_connections: 10,
 			max_subs_per_conn: 50,
@@ -53,17 +53,17 @@ impl Default for Config {
 	}
 }
 
-impl Config {
-	/// Creates a new `Config` instance with default values.
+impl ServerConfig {
+	/// Creates a new `ServerConfig` instance with default values.
 	///
 	/// # Example
 	///
 	/// ```rust
-	/// use inspector_protocol_server::server::Config;
-	/// let config = Config::new();
+	/// use inspector_protocol_server::server::ServerConfig;
+	/// let config = ServerConfig::new();
 	/// ```
 	pub fn new() -> Self {
-		Config::default()
+		ServerConfig::default()
 	}
 
 	/// Sets the maximum number of connections for the RPC server.
@@ -71,8 +71,8 @@ impl Config {
 	/// # Example
 	///
 	/// ```rust
-	/// use inspector_protocol_server::server::Config;
-	/// let config = Config::new().with_max_connections(100);
+	/// use inspector_protocol_server::server::ServerConfig;
+	/// let config = ServerConfig::new().with_max_connections(100);
 	/// ```
 	pub fn with_max_connections(mut self, max_connections: u32) -> Self {
 		self.max_connections = max_connections;
@@ -84,8 +84,8 @@ impl Config {
 	/// # Example
 	///
 	/// ```rust
-	/// use inspector_protocol_server::server::Config;
-	/// let config = Config::new().with_max_subs_per_conn(50);
+	/// use inspector_protocol_server::server::ServerConfig;
+	/// let config = ServerConfig::new().with_max_subs_per_conn(50);
 	/// ```
 	pub fn with_max_subs_per_conn(mut self, max_subs_per_conn: u32) -> Self {
 		self.max_subs_per_conn = max_subs_per_conn;
@@ -97,8 +97,8 @@ impl Config {
 	/// # Example
 	///
 	/// ```rust
-	/// use inspector_protocol_server::server::Config;
-	/// let config = Config::new().with_max_payload_in_mb(5);
+	/// use inspector_protocol_server::server::ServerConfig;
+	/// let config = ServerConfig::new().with_max_payload_in_mb(5);
 	/// ```
 	pub fn with_max_payload_in_mb(mut self, max_payload_in_mb: u32) -> Self {
 		self.max_payload_in_mb = max_payload_in_mb;
@@ -110,8 +110,8 @@ impl Config {
 	/// # Example
 	///
 	/// ```rust
-	/// use inspector_protocol_server::server::Config;
-	/// let config = Config::new().with_max_payload_out_mb(5);
+	/// use inspector_protocol_server::server::ServerConfig;
+	/// let config = ServerConfig::new().with_max_payload_out_mb(5);
 	/// ```
 	pub fn with_max_payload_out_mb(mut self, max_payload_out_mb: u32) -> Self {
 		self.max_payload_out_mb = max_payload_out_mb;
@@ -123,10 +123,10 @@ impl Config {
 	/// # Example
 	///
 	/// ```rust
-	/// use inspector_protocol_server::server::Config;
+	/// use inspector_protocol_server::server::ServerConfig;
 	/// let runtime = tokio::runtime::Runtime::new().unwrap();
 	/// let handle = runtime.handle().clone();
-	/// let config = Config::new().with_tokio_handle(handle);
+	/// let config = ServerConfig::new().with_tokio_handle(handle);
 	/// ```
 	pub fn with_tokio_handle(mut self, tokio_handle: tokio::runtime::Handle) -> Self {
 		self.tokio_handle = Some(tokio_handle);
@@ -138,8 +138,8 @@ impl Config {
 	/// # Example
 	///
 	/// ```rust
-	/// use inspector_protocol_server::server::Config;
-	/// let config = Config::new().with_socket_addr("127.0.0.1:8080".parse().unwrap());
+	/// use inspector_protocol_server::server::ServerConfig;
+	/// let config = ServerConfig::new().with_socket_addr("127.0.0.1:8080".parse().unwrap());
 	/// ```
 	pub fn with_socket_addr(mut self, socket_addr: SocketAddr) -> Self {
 		self.addr = Some(socket_addr);
@@ -156,17 +156,14 @@ impl Config {
 /// # Arguments
 ///
 /// * `context` - The context containing channels and metrics for the server.
-/// * `config` - A [`Config`] instance containing various server options.
+/// * `config` - A [`ServerConfig`] instance containing various server options.
 ///
 /// # Returns
 ///
 /// This function returns a tuple containing the server's local address and
 /// a handle to the server.
-pub async fn start_server<R: Runtime, L: EntryT, S: EntryT>(
-	context: Context<R, L, S>,
-	config: Config,
-) -> Result<(SocketAddr, ServerHandle)> {
-	let Config {
+pub async fn start_server<C: Config>(context: Context<C>, config: ServerConfig) -> Result<(SocketAddr, ServerHandle)> {
+	let ServerConfig {
 		addr,
 		max_payload_in_mb,
 		max_payload_out_mb,
@@ -175,8 +172,12 @@ pub async fn start_server<R: Runtime, L: EntryT, S: EntryT>(
 		tokio_handle,
 	} = config;
 
+	// provided addr or select a random port
 	let expected_addr = addr.unwrap_or(([127, 0, 0, 1], 0).into());
+
+	// build our api methods
 	let mut rpc_api = api::register(context)?;
+	// inject helpers
 	inject_additional_rpc_methods(&mut rpc_api);
 
 	// Important
