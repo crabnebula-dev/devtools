@@ -286,3 +286,113 @@ impl FieldT for () {
 		&FieldValue::Bool(true)
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use tracing::Level;
+
+	// Helper function to create a mock SpanEntry for testing.
+	fn mock_entries(
+		level: &'static Level,
+		file: Option<&'static str>,
+		target: &'static str,
+		name: &'static str,
+	) -> (SpanEntry, LogEntry) {
+		let meta = Metadata {
+			level,
+			file,
+			target,
+			timestamp: Default::default(),
+			module_path: None,
+			line: Default::default(),
+			fields: Default::default(),
+		};
+		(
+			SpanEntry {
+				id: 0,
+				parent: None,
+				status: SpanStatus::Created,
+				meta: meta.clone(),
+				name,
+			},
+			LogEntry {
+				meta: meta.clone(),
+				span: None,
+				message: Some(format!("Message from {} in target {}", name, target)),
+			},
+		)
+	}
+
+	#[test]
+	fn filter_level() {
+		let filter = Filter {
+			level: Some(Level::INFO),
+			file: None,
+			text: None,
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::INFO, Some("main.rs"), "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn filter_file() {
+		let filter = Filter {
+			level: None,
+			file: Some(String::from("main.rs")),
+			text: None,
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, Some("main.rs"), "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn filter_text_in_target() {
+		let filter = Filter {
+			level: None,
+			file: None,
+			text: Some(String::from("target")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, None, "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn filter_text_in_name() {
+		let filter = Filter {
+			level: None,
+			file: None,
+			text: Some(String::from("name")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, None, "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn filter_combination() {
+		let filter = Filter {
+			level: Some(Level::DEBUG),
+			file: Some(String::from("main.rs")),
+			text: Some(String::from("target")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, Some("main.rs"), "target", "name");
+		assert!(span_entry.match_filter(&filter));
+		assert!(log_entry.match_filter(&filter));
+	}
+
+	#[test]
+	fn filter_no_match() {
+		let filter = Filter {
+			level: Some(Level::ERROR),
+			file: Some(String::from("other.rs")),
+			text: Some(String::from("miss")),
+		};
+		let (span_entry, log_entry) = mock_entries(&Level::DEBUG, Some("main.rs"), "target", "name");
+		assert!(!span_entry.match_filter(&filter));
+		assert!(!log_entry.match_filter(&filter));
+	}
+}
