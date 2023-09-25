@@ -1,9 +1,6 @@
 import { For } from "solid-js";
+import { formatTimestamp } from "~/lib/formaters";
 import { useSocketData } from "~/lib/ws-store";
-
-function formatTimestamp(stamp: Date) {
-  return `${stamp.getHours()}:${stamp.getMinutes()}:${stamp.getSeconds()}`;
-}
 
 export default function Console() {
   const { data } = useSocketData();

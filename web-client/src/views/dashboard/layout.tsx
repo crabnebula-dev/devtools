@@ -5,10 +5,12 @@ import { SOCKET_STATES, WSContext, connectWS } from "~/lib/ws";
 import { Navigation } from "~/components/navigation";
 import { createEventSignal } from "@solid-primitives/event-listener";
 import { LOGS_WATCH, PERF_METRICS, TAURI_CONFIG } from "~/lib/requests";
-import { createStore, reconcile } from "solid-js/store";
-import { initialStoreData, DataContext } from "~/lib/ws-store";
-
-type WSEventSignal = Record<"message", MessageEvent<string>>;
+import { createStore } from "solid-js/store";
+import {
+  initialStoreData,
+  DataContext,
+  type WSEventSignal,
+} from "~/lib/ws-store";
 
 export default function Layout() {
   const [wsData, setData] = createStore(initialStoreData);
@@ -30,8 +32,8 @@ export default function Layout() {
       const data = JSON.parse(message().data);
 
       /**
-       * @todo
-       * fix this 🍝
+       * @FIXME
+       * this is a bad way to check each event 🍝
        */
       if (data.id === "metrics") {
         setData("perf", data.result);

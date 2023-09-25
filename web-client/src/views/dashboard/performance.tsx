@@ -1,3 +1,4 @@
+import { Show } from "solid-js";
 import { useSocketData } from "~/lib/ws-store";
 
 export default function Performance() {
@@ -5,17 +6,17 @@ export default function Performance() {
 
   return (
     <ul>
-      <li>
-        Initialized:{" "}
-        {new Date(data.perf?.initialized_at as number).toISOString()}
-      </li>
-      <li>Ready: {new Date(data.perf?.ready_at as number).toISOString()}</li>
-      <li>
-        Elapsed time:{" "}
-        {(data.perf?.ready_at as number) -
-          (data.perf?.initialized_at as number)}
-        ms
-      </li>
+      <Show when={data.perfStartDate} fallback={"waiting for data..."}>
+        {(date) => <li>Initialized: {date().toISOString()}</li>}
+      </Show>
+
+      <Show when={data.perfReadyDate} fallback={"waiting for data..."}>
+        {(date) => <li>Ready: {date().toISOString()}</li>}
+      </Show>
+
+      <Show when={data.perfElapsed} fallback={"waiting for data..."}>
+        {(e) => <li>Elapsed time: {e()} ms</li>}
+      </Show>
     </ul>
   );
 }
