@@ -1,11 +1,10 @@
 use crate::dispatch::Dispatcher;
+pub use broadcast::DefaultConfig;
 use inspector_protocol_primitives::{LogManagerT, MetaT, SpanManagerT};
+pub use noop::NoopConfig;
 
 pub mod broadcast;
 pub mod noop;
-
-pub use broadcast::DefaultConfig;
-pub use noop::NoopConfig;
 
 /// Represents a generic configuration trait for the subscriber.
 ///
