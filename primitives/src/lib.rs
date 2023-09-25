@@ -1,6 +1,7 @@
 pub use asset::{Asset, AssetParams};
 pub use field::{Field, FieldSet, FieldValue};
-use serde::Serialize;
+pub use filter::Filter;
+use serde::{Deserialize, Serialize};
 use std::{
 	fmt::Debug,
 	time::{Duration, SystemTime, UNIX_EPOCH},
@@ -11,6 +12,7 @@ pub use traits::*;
 
 mod asset;
 mod field;
+mod filter;
 mod ser;
 mod traits;
 
@@ -107,6 +109,21 @@ impl LogManagerT<Metadata> for LogEntry {
 	}
 }
 
+/// Implementation of the [`Filterable`] trait for the `LogEntry` struct.
+///
+/// This implementation provides the logic to determine whether a `LogEntry`
+/// matches a given filter.
+impl Filterable for LogEntry {
+	fn match_filter(&self, filter: &filter::Filter) -> bool {
+		// match level
+		filter.matches_level(self.meta.level)
+			// match file
+			&& self.meta.file.map_or(true, |f| filter.matches_file(f))
+			// match message
+			&& self.message.as_ref().map_or(true, |m| filter.matches_text(m))
+	}
+}
+
 /// A span captured from the `tracing` crate.
 ///
 /// A span represents a period of time or a unit of work in the application.
@@ -147,16 +164,31 @@ impl SpanManagerT<Metadata> for SpanEntry {
 	}
 }
 
+/// Implementation of the [`Filterable`] trait for the `SpanEntry` struct.
+///
+/// This implementation provides the logic to determine whether a `SpanEntry`
+/// matches a given filter.
+impl Filterable for SpanEntry {
+	fn match_filter(&self, filter: &filter::Filter) -> bool {
+		// match level
+		filter.matches_level(self.meta.level)
+			// match file
+			&& self.meta.file.map_or(true, |f| filter.matches_file(f))
+			// match text in target or name
+			&& (filter.matches_text(self.meta.target) || filter.matches_text(self.name))
+	}
+}
+
 /// A span status.
 ///
 /// Serialization example;
 /// {
-/// 	"value": "EXITED",
-/// 	"attrs":{
-/// 		"totalDuration": {"secs":0,"nanos":241806},
-/// 		"busyDuration": {"secs":0,"nanos":168110},
-/// 		"idleDuration":{"secs":0,"nanos":73911}
-/// 	}
+///   "value": "EXITED",
+///   "attrs":{
+///      "totalDuration": {"secs":0,"nanos":241806},
+///      "busyDuration": {"secs":0,"nanos":168110},
+///      "idleDuration":{"secs":0,"nanos":73911}
+///   }
 /// }
 #[derive(Debug, Serialize, Clone, PartialEq)]
 #[serde(tag = "value", content = "attrs", rename_all = "UPPERCASE")]
@@ -190,6 +222,18 @@ impl SpanEntry {
 	}
 }
 
+/// Optional parameters for establishing a websocket subscription.
+///
+/// Note that `SubscriptionParams` is designed for future extensibility.
+/// This means that additional fields may be added later on, which is why the
+/// `Filter` object is wrapped in this struct rather than being exposed directly.
+#[derive(Deserialize)]
+pub struct SubscriptionParams {
+	/// The filter used to determine which entries
+	/// should be delivered over the websocket.
+	pub filter: Filter,
+}
+
 /// Current system time (unix timestamp in ms)
 pub fn now() -> u128 {
 	SystemTime::now()
@@ -202,9 +246,7 @@ pub fn now() -> u128 {
 impl EntryT for () {}
 impl MetaT<'static> for () {
 	type Field = ();
-	fn new(_meta: &'static tracing::Metadata, _fields: Vec<Self::Field>) -> Self {
-		
-	}
+	fn new(_meta: &'static tracing::Metadata, _fields: Vec<Self::Field>) -> Self {}
 }
 
 impl LogManagerT<()> for () {
@@ -222,9 +264,7 @@ impl SpanManagerT<()> for () {
 impl FieldT for () {
 	type Output = FieldValue;
 
-	fn new(_key: &'static str, _value: Self::Output) -> Self {
-		
-	}
+	fn new(_key: &'static str, _value: Self::Output) -> Self {}
 
 	fn key(&self) -> &'static str {
 		"()"

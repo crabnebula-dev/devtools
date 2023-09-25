@@ -1,6 +1,16 @@
-use crate::SpanStatus;
+use crate::{filter::Filter, SpanStatus};
 use serde::Serialize;
 use std::fmt::Debug;
+
+/// A trait implemented by entries that can be filtered.
+///
+/// Implementors of this trait can be checked against specific criteria
+/// to determine whether they match a given [`Filter`]. This enables dynamic
+/// filtering of items based on subscription configurations.
+pub trait Filterable {
+	/// Determines if the current item matches the provided filter.
+	fn match_filter(&self, filter: &Filter) -> bool;
+}
 
 pub trait MetaT<'a>: Sized + Clone {
 	/// The type given back from the from operation
