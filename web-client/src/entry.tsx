@@ -1,4 +1,4 @@
-import { useRoutes } from "@solidjs/router";
+import { useNavigate, useRoutes } from "@solidjs/router";
 import { lazy } from "solid-js";
 
 const ROUTES = [
@@ -11,16 +11,28 @@ const ROUTES = [
     component: lazy(() => import("./views/dashboard/layout.tsx")),
     children: [
       {
-        path: "/tauri",
-        component: lazy(() => import("./views/dashboard/tauri-config.tsx")),
-      },
-      {
-        path: "/performance",
-        component: lazy(() => import("./views/dashboard/performance.tsx")),
+        path: "/",
+        component: () => {
+          useNavigate()("console");
+
+          return null;
+        },
       },
       {
         path: "/console",
         component: lazy(() => import("./views/dashboard/console.tsx")),
+      },
+      {
+        path: "/calls",
+        component: lazy(() => import("./views/dashboard/comming-soon.tsx")),
+      },
+      {
+        path: "/tauri",
+        component: lazy(() => import("./views/dashboard/tauri-config.tsx")),
+      },
+      {
+        path: "/assets",
+        component: lazy(() => import("./views/dashboard/comming-soon.tsx")),
       },
     ],
   },

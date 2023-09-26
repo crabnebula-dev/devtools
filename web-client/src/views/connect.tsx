@@ -41,7 +41,7 @@ export default function Connect() {
           class="border-2 border-neutral-200 py-1 px-2 rounded-sm disabled:opacity-70"
           disabled={port() === null}
           onClick={() => {
-            navigate(`/dash/${host()}/${port()}/tauri`);
+            navigate(`/dash/${host()}/${port()}/`);
           }}
         >
           Inspect:{" "}
