@@ -11,6 +11,7 @@ import {
   DataContext,
   type WSEventSignal,
 } from "~/lib/ws-store";
+import Performance from "./performance";
 
 export default function Layout() {
   const [wsData, setData] = createStore(initialStoreData);
@@ -60,7 +61,7 @@ export default function Layout() {
       if (pathname.includes("/dash/")) {
         return;
       } else {
-        navigate(`/dash/${wsUrl}/${wsPort}/tauri`);
+        navigate(`/dash/${wsUrl}/${wsPort}/console`);
       }
     } else if (
       status() === SOCKET_STATES.get(WebSocket.CLOSING || WebSocket.CLOSED)
@@ -93,8 +94,9 @@ export default function Layout() {
           >
             Close Connection
           </Button.Root>
-          <Navigation />
           <DataContext.Provider value={{ data: wsData }}>
+            <Performance />
+            <Navigation />
             <Outlet />
           </DataContext.Provider>
         </WSContext.Provider>
