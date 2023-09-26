@@ -38,19 +38,19 @@
 //! Then, run your application with `--inspect` flag to initialize the Devtools plugin.
 
 mod broadcaster;
+mod error;
 mod layer;
 mod server;
-mod error;
-mod visitors;
 mod tauri_plugin;
+mod visitors;
 
-use tokio::sync::{broadcast, mpsc, watch};
-use tracing_subscriber::prelude::*;
-use tracing_subscriber::util::SubscriberInitExt;
-pub use error::Error;
 use crate::broadcaster::Broadcaster;
 use crate::layer::Layer;
 use crate::tauri_plugin::TauriPlugin;
+pub use error::Error;
+use tokio::sync::{broadcast, mpsc, watch};
+use tracing_subscriber::prelude::*;
+use tracing_subscriber::util::SubscriberInitExt;
 
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 
@@ -60,31 +60,30 @@ const INSPECT_FLAG: &str = "--inspect";
 /// Default [broadcast] channels capacity.
 const DEFAULT_CAPACITY: usize = 10_000;
 
-
 pub fn init() -> TauriPlugin {
-    try_init().unwrap()
+	try_init().unwrap()
 }
 
 pub fn try_init() -> Result<TauriPlugin> {
-    let enabled = std::env::args()
-        .collect::<Vec<String>>()
-        .contains(&INSPECT_FLAG.to_string());
+	let enabled = std::env::args()
+		.collect::<Vec<String>>()
+		.contains(&INSPECT_FLAG.to_string());
 
-    // set up data channels
-    let (trees_tx, trees_rx) = mpsc::unbounded_channel();
-    let (logs_tx, _) = broadcast::channel(DEFAULT_CAPACITY);
-    let (spans_tx, _) = broadcast::channel(DEFAULT_CAPACITY);
-    let (shutdown_tx, shutdown_rx) = watch::channel(());
+	// set up data channels
+	let (trees_tx, trees_rx) = mpsc::unbounded_channel();
+	let (logs_tx, _) = broadcast::channel(DEFAULT_CAPACITY);
+	let (spans_tx, _) = broadcast::channel(DEFAULT_CAPACITY);
+	let (shutdown_tx, shutdown_rx) = watch::channel(());
 
-    // set up components
-    let layer = Layer::new(trees_tx);
-    let broadcaster = Broadcaster::new(trees_rx, shutdown_rx, logs_tx.clone(), spans_tx.clone());
-    let plugin = TauriPlugin::new(enabled, broadcaster, logs_tx, spans_tx, shutdown_tx);
+	// set up components
+	let layer = Layer::new(trees_tx);
+	let broadcaster = Broadcaster::new(trees_rx, shutdown_rx, logs_tx.clone(), spans_tx.clone());
+	let plugin = TauriPlugin::new(enabled, broadcaster, logs_tx, spans_tx, shutdown_tx);
 
-    // initialize early so we don't miss any spans
-    tracing_subscriber::registry()
-        .with(layer.with_filter(tracing_subscriber::filter::LevelFilter::DEBUG))
-        .try_init()?;
+	// initialize early so we don't miss any spans
+	tracing_subscriber::registry()
+		.with(layer.with_filter(tracing_subscriber::filter::LevelFilter::DEBUG))
+		.try_init()?;
 
-    Ok(plugin)
+	Ok(plugin)
 }

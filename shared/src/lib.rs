@@ -84,7 +84,7 @@ pub struct LogEntry {
 	pub message: Option<String>,
 }
 
-impl<'a> LogEntry {
+impl LogEntry {
 	pub fn new(span: Option<u64>, meta: Metadata, message: Option<String>) -> Self {
 		Self { span, meta, message }
 	}
