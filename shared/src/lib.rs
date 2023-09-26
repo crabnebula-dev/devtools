@@ -1,7 +1,6 @@
 pub use asset::{Asset, AssetParams};
 pub use field::{Field, FieldSet};
 pub use filter::{Filter, Filterable};
-pub use inspector::{Inspector, InspectorBuilder, InspectorChannels, InspectorMetrics};
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 pub use tauri::{AppHandle, Manager, Runtime};
@@ -10,51 +9,45 @@ pub use tracing::Level;
 mod asset;
 mod field;
 mod filter;
-mod inspector;
 mod ser;
-
-/// Panic if the given expression does not evaluate to `Ok`.
-///
-/// # Examples
-/// ```no_test
-/// assert_ok!(some_result);
-/// assert_ok!(some_result, expected_ok_value);
-/// ```
-#[macro_export]
-macro_rules! assert_ok {
-	( $x:expr $(,)? ) => {
-		match $x {
-			Ok(_) => (),
-			_ => assert!(false, "Expected Ok(_). Got {:#?}", $x),
-		}
-	};
-	( $x:expr, $y:expr $(,)? ) => {
-		assert_eq!($x, Ok($y));
-	};
-}
 
 /// Enum representing a [LogEntry] or a [SpanEntry]
 #[derive(Debug, Serialize, Clone)]
-pub enum Tree<'a> {
-	Log(LogEntry<'a>),
-	Span(SpanEntry<'a>),
+pub enum Tree {
+	Log(LogEntry),
+	Span(SpanEntry),
+}
+
+/// Custom metrics.
+///
+/// These metrics are not inherently provided by Tauri. Instead, they are
+/// derived from various events and methods tailored for custom monitoring.
+/// This setup offers flexibility, allowing easy extension and addition of
+/// more metrics based on future needs.
+
+#[derive(Serialize, Debug, Clone)]
+pub struct Metrics {
+	/// Tauri application initialization time
+	pub initialized_at: u128,
+	/// Tauri application reported `AppReady` time
+	pub ready_at: u128,
 }
 
 /// Holds metadata for logs and spans entry.
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Metadata<'a> {
+pub struct Metadata {
 	/// The timestamp of the entry, represented as a unix timestamp in milliseconds.
 	pub timestamp: u128,
 	/// The entry level (e.g., INFO, ERROR).
 	#[serde(serialize_with = "ser::to_string")]
-	pub level: &'a Level,
+	pub level: &'static Level,
 	/// The target of the entry directive.
-	pub target: &'a str,
+	pub target: &'static str,
 	/// The path to the module where the entry was produced
-	pub module_path: Option<&'a str>,
+	pub module_path: Option<&'static str>,
 	/// The source file that produced the entry
-	pub file: Option<&'a str>,
+	pub file: Option<&'static str>,
 	/// The line number in the source file where the entry was produced
 	pub line: Option<u32>,
 	/// Additional key-value data associated with the entry.
@@ -62,8 +55,8 @@ pub struct Metadata<'a> {
 	pub fields: FieldSet,
 }
 
-impl<'a> Metadata<'a> {
-	pub fn new(meta: &'a tracing::Metadata<'a>, fields: Vec<Field>) -> Self {
+impl Metadata {
+	pub fn new(meta: &'static tracing::Metadata<'static>, fields: Vec<Field>) -> Self {
 		Self {
 			timestamp: now(),
 			level: meta.level(),
@@ -79,26 +72,26 @@ impl<'a> Metadata<'a> {
 /// A single log entry captured from the `tracing` crate.
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct LogEntry<'a> {
+pub struct LogEntry {
 	/// Span linked with this log entry.
 	pub span: Option<u64>,
 
 	/// Shared fields between events and spans.
 	#[serde(flatten)]
-	pub meta: Metadata<'a>,
+	pub meta: Metadata,
 
 	/// The main content of the log
 	pub message: Option<String>,
 }
 
-impl<'a> LogEntry<'a> {
-	pub fn new(span: Option<u64>, meta: Metadata<'a>, message: Option<String>) -> Self {
+impl<'a> LogEntry {
+	pub fn new(span: Option<u64>, meta: Metadata, message: Option<String>) -> Self {
 		Self { span, meta, message }
 	}
 }
 
-impl<'a> From<LogEntry<'a>> for Tree<'a> {
-	fn from(val: LogEntry<'a>) -> Self {
+impl From<LogEntry> for Tree {
+	fn from(val: LogEntry) -> Self {
 		Tree::Log(val)
 	}
 }
@@ -107,8 +100,8 @@ impl<'a> From<LogEntry<'a>> for Tree<'a> {
 ///
 /// This implementation provides the logic to determine whether a `LogEntry`
 /// matches a given filter.
-impl<'a> Filterable for LogEntry<'a> {
-	fn match_filter(&self, filter: &filter::Filter) -> bool {
+impl Filterable for LogEntry {
+	fn match_filter(&self, filter: &Filter) -> bool {
 		// match level
 		filter.matches_level(self.meta.level)
 			// match file
@@ -123,14 +116,14 @@ impl<'a> Filterable for LogEntry<'a> {
 /// A span represents a period of time or a unit of work in the application.
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
-pub struct SpanEntry<'a> {
+pub struct SpanEntry {
 	/// Span unique id
 	pub id: u64,
 	/// Span metadata
 	#[serde(flatten)]
-	pub meta: Metadata<'a>,
+	pub meta: Metadata,
 	/// Span name
-	pub name: &'a str,
+	pub name: &'static str,
 	/// Span status
 	pub status: SpanStatus,
 	/// Parent span
@@ -141,8 +134,8 @@ pub struct SpanEntry<'a> {
 ///
 /// This implementation provides the logic to determine whether a `SpanEntry`
 /// matches a given filter.
-impl<'a> Filterable for SpanEntry<'a> {
-	fn match_filter(&self, filter: &filter::Filter) -> bool {
+impl Filterable for SpanEntry {
+	fn match_filter(&self, filter: &Filter) -> bool {
 		// match level
 		filter.matches_level(self.meta.level)
 			// match file
@@ -183,14 +176,14 @@ pub enum SpanStatus {
 	},
 }
 
-impl<'a> From<SpanEntry<'a>> for Tree<'a> {
-	fn from(val: SpanEntry<'a>) -> Self {
+impl From<SpanEntry> for Tree {
+	fn from(val: SpanEntry) -> Self {
 		Tree::Span(val)
 	}
 }
 
-impl<'a> SpanEntry<'a> {
-	pub fn new(id: u64, parent: Option<u64>, meta: Metadata<'a>, name: &'static str) -> Self {
+impl SpanEntry {
+	pub fn new(id: u64, parent: Option<u64>, meta: Metadata, name: &'static str) -> Self {
 		Self {
 			id,
 			meta,
@@ -232,7 +225,7 @@ mod tests {
 		file: Option<&'a str>,
 		target: &'a str,
 		name: &'a str,
-	) -> (SpanEntry<'a>, LogEntry<'a>) {
+	) -> (SpanEntry, LogEntry) {
 		let meta = Metadata {
 			level,
 			file,

@@ -1,22 +1,17 @@
 [package]
-name = "inspector-protocol-primitives"
-publish = false
-readme = "../README.md"
-description = ""
-keywords = ["tauri", "inspector", "devtool", "protocol"]
-version.workspace = true
+name = "tauri_devtools_shared"
 authors.workspace = true
 edition.workspace = true
+version.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 documentation.workspace = true
 homepage.workspace = true
 
-[features]
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 serde.workspace = true
-tokio.workspace = true
-tauri.workspace = true
 tracing.workspace = true
+tauri.workspace = true

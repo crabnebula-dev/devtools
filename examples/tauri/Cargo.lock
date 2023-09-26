@@ -63,6 +63,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
 
 [[package]]
+name = "api"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "tauri",
+ "tracing",
+]
+
+[[package]]
 name = "async-trait"
 version = "0.1.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1437,43 +1446,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a898e4b7951673fce96614ce5751d13c40fc5674bc2d759288e46c3ab62598b3"
 dependencies = [
  "cfb",
-]
-
-[[package]]
-name = "inspector-protocol-primitives"
-version = "0.1.0"
-dependencies = [
- "serde",
- "tauri",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "inspector-protocol-server"
-version = "0.1.0"
-dependencies = [
- "futures",
- "inspector-protocol-primitives",
- "jsonrpsee",
- "jsonrpsee-core",
- "serde",
- "serde_json",
- "thiserror",
- "tokio",
- "tokio-stream",
-]
-
-[[package]]
-name = "inspector-protocol-subscriber"
-version = "0.1.0"
-dependencies = [
- "inspector-protocol-primitives",
- "thiserror",
- "tokio",
- "tracing",
- "tracing-core",
- "tracing-subscriber",
 ]
 
 [[package]]
@@ -2984,6 +2956,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
+name = "subscriber"
+version = "0.1.0"
+dependencies = [
+ "api",
+ "futures",
+ "jsonrpsee",
+ "jsonrpsee-core",
+ "serde_json",
+ "tauri",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+ "tracing-core",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "syn"
 version = "1.0.109"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3196,9 +3186,9 @@ name = "tauri-example"
 version = "0.1.0"
 dependencies = [
  "reqwest",
+ "subscriber",
  "tauri",
  "tauri-build",
- "tauri-plugin-devtools",
  "tokio",
  "tracing",
 ]
@@ -3214,21 +3204,6 @@ dependencies = [
  "syn 1.0.109",
  "tauri-codegen",
  "tauri-utils",
-]
-
-[[package]]
-name = "tauri-plugin-devtools"
-version = "0.1.0"
-dependencies = [
- "inspector-protocol-primitives",
- "inspector-protocol-server",
- "inspector-protocol-subscriber",
- "log",
- "serde_json",
- "tauri",
- "tokio",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]
@@ -3423,7 +3398,6 @@ dependencies = [
  "libc",
  "mio",
  "num_cpus",
- "parking_lot",
  "pin-project-lite",
  "socket2 0.5.4",
  "tokio-macros",
