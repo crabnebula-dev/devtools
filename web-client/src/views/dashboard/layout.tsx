@@ -1,17 +1,15 @@
+import type { WSEventSignal } from "~/lib/ws/types";
 import { Show, createEffect, onMount } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Outlet, useLocation, useNavigate, useParams } from "@solidjs/router";
 import { Button } from "@kobalte/core";
-import { SOCKET_STATES, WSContext, connectWS } from "~/lib/ws";
 import { Navigation } from "~/components/navigation";
 import { createEventSignal } from "@solid-primitives/event-listener";
-import { LOGS_WATCH, PERF_METRICS, TAURI_CONFIG } from "~/lib/requests";
-import {
-  initialStoreData,
-  DataContext,
-  type WSEventSignal,
-} from "~/lib/ws-store";
 import { BootTime } from "~/components/boot-time";
+import { useSubscriber } from "~/lib/ws/queries";
+import { SOCKET_STATES, connectWS } from "~/lib/ws/connection";
+import { initialStoreData } from "~/lib/ws/store";
+import { DataContext, WSContext } from "~/lib/ws/context";
 
 export default function Layout() {
   const [wsData, setData] = createStore(initialStoreData);
@@ -19,13 +17,15 @@ export default function Layout() {
   const { wsPort, wsUrl } = useParams();
   const navigate = useNavigate();
   const { socket, state: status } = connectWS(`ws://${wsUrl}:${wsPort}`);
+  const subscriber = useSubscriber(socket);
   const { pathname } = useLocation();
   const message = createEventSignal<WSEventSignal>(socket, "message");
 
   onMount(() => {
-    socket.send(JSON.stringify(TAURI_CONFIG));
-    socket.send(JSON.stringify(PERF_METRICS));
-    socket.send(JSON.stringify(LOGS_WATCH));
+    subscriber("logs_watch");
+    subscriber("tauri_getConfig");
+    subscriber("metrics");
+    subscriber("spans_watch");
   });
 
   createEffect(() => {
@@ -36,6 +36,7 @@ export default function Layout() {
        * @FIXME
        * this is a bad way to check each event 🍝
        */
+
       if (data.id === "metrics") {
         setData("perf", data.result);
       }
@@ -46,6 +47,19 @@ export default function Layout() {
 
       if (data.id === "logs_watch" || data.method === "logs_added") {
         setData("logs", (prevList) => {
+          if (data?.params?.result) {
+            return [...prevList, ...data.params.result];
+          } else {
+            return prevList;
+          }
+        });
+      }
+
+      if (data.id === "spans_watch" || data.method === "spans_added") {
+        /**
+         * @TODO split spans according to level (INFO or DEBUG)
+         */
+        setData("spans", (prevList) => {
           if (data?.params?.result) {
             return [...prevList, ...data.params.result];
           } else {

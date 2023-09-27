@@ -1,5 +1,5 @@
 import { createWS, createWSState } from "@solid-primitives/websocket";
-import { Accessor, createContext, useContext } from "solid-js";
+import { Accessor } from "solid-js";
 
 export const SOCKET_STATES = new Map([
   [WebSocket.CONNECTING, "Connecting" as const],
@@ -26,16 +26,4 @@ export function connectWS(wsUrl: string) {
   const state = () => SOCKET_STATES.get(stateAccessor()) as string;
 
   return { socket, state };
-}
-
-export const WSContext = createContext<{
-  socket: WebSocket;
-  state: () => string;
-}>();
-
-export function useWs() {
-  const ctx = useContext(WSContext);
-
-  if (!ctx) throw new Error("can not find context");
-  return ctx;
 }

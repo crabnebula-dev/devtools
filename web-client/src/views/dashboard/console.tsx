@@ -2,7 +2,7 @@ import { For, Show, createSignal } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { formatTimestamp } from "~/lib/formaters";
-import { useSocketData } from "~/lib/ws-store";
+import { useSocketData } from "~/lib/ws/context";
 
 export default function Console() {
   const { data } = useSocketData();
@@ -13,7 +13,7 @@ export default function Console() {
     <>
       <FilterToggle
         defaultPressed
-        aria-label="timstamps"
+        aria-label="time stamps"
         changeHandler={() => toggleTimeStamp((prev) => !prev)}
         fallbackElement={<span>show timestamp</span>}
       >
