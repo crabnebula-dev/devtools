@@ -1,6 +1,7 @@
+import { Router } from "@solidjs/router";
 import { render } from "@solidjs/testing-library";
 import { describe, expect, it } from "vitest";
-import Entry from "~/entry";
+import Connect from "~/views/connect";
 
 /**
  * @TODO
@@ -8,7 +9,7 @@ import Entry from "~/entry";
  */
 describe("App", () => {
   it("should render the app", () => {
-    const { getByText } = render(() => <Entry />);
+    const { getByText } = render(() => <Connect />, { wrapper: Router });
     expect(getByText("Web Socket")).toBeInTheDocument();
   });
 });
