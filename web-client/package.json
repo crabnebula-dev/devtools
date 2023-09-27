@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --fix --ext .ts,.tsx",
-    "test": "vitest"
+    "test": "vitest",
+    "proto": "protoc --ts_out generated --proto_path ../wire/proto ../wire/proto/common.proto ../wire/proto/instrument.proto ../wire/proto/logs.proto ../wire/proto/spans.proto ../wire/proto/tauri.proto"
   },
   "devDependencies": {
     "@solidjs/testing-library": "^0.7.1",
@@ -38,6 +39,10 @@
     "@solidjs/router": "^0.8.3",
     "@tauri-apps/cli": "^2.0.0-alpha.14",
     "csp_evaluator": "^1.1.1",
-    "solid-js": "^1.7.6"
+    "solid-js": "^1.7.6",
+    "@protobuf-ts/plugin": "^2.9.1",
+    "@protobuf-ts/runtime": "^2.9.1",
+    "@protobuf-ts/runtime-rpc": "^2.9.1",
+    "@protobuf-ts/grpcweb-transport": "^2.9.1"
   }
 }

@@ -1,24 +1,20 @@
 import { For } from "solid-js";
 import { Tabs } from "@kobalte/core";
-import { LOGS_WATCH, PERF_METRICS, TAURI_CONFIG } from "../lib/requests";
 import { A, useParams } from "@solidjs/router";
 
 const TABS = [
   {
     url: (wsUrl: string, wsPort: string) => `/dash/${wsUrl}/${wsPort}/tauri`,
     title: "Tauri",
-    query: TAURI_CONFIG,
   },
   {
     url: (wsUrl: string, wsPort: string) =>
       `/dash/${wsUrl}/${wsPort}/performance`,
     title: "Performance",
-    query: PERF_METRICS,
   },
   {
     url: (wsUrl: string, wsPort: string) => `/dash/${wsUrl}/${wsPort}/console`,
     title: "Console",
-    query: LOGS_WATCH,
   },
 ];
 

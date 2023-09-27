@@ -1,69 +1,42 @@
-import { createEventSignal } from "@solid-primitives/event-listener";
 import { For, createEffect, createSignal, onCleanup } from "solid-js";
-import { useWs } from "../../lib/ws";
-import { LOGS_UNWATCH, LOGS_WATCH } from "../../lib/requests";
-
-type WSEventSignal = Record<"message", MessageEvent<string>>;
-
-type Log = {
-  timestamp: number;
-  message: string;
-  target: string;
-  level: "TRACE" | string;
-  module_path: string;
-  file: string;
-  line: number;
-};
-
-type LogMessage = {
-  id: string;
-  jsonrpc: "2.0";
-  method: "logs_added";
-  params: {
-    subscription: string;
-    result?: Log[];
-  };
-};
+import {InstrumentClient} from "../../../generated/instrument.client.ts";
+import {InstrumentRequest} from "../../../generated/instrument.ts";
+import {LogEvent} from "../../../generated/logs.ts";
+import {useTransport} from "~/lib/transport.tsx";
 
 function formatTimestamp(stamp: Date) {
   return `${stamp.getHours()}:${stamp.getMinutes()}:${stamp.getSeconds()}`;
 }
 
 export default function Console() {
-  const { socket } = useWs();
-  const message = createEventSignal<WSEventSignal>(socket, "message");
-  const [logs, setLogs] = createSignal<Log[]>([]);
-  const [currentSubscription, setCurrentSubscription] = createSignal();
+  const { transport } = useTransport();
+  const [logs, setLogs] = createSignal<LogEvent[]>([]);
 
-  const logData = (): LogMessage | undefined => {
-    const m = message();
-    if (m) {
-      return JSON.parse(m.data);
-    }
-  };
+  let abort: AbortController;
 
   createEffect(() => {
-    const log = logData()?.params?.result || null;
-    if (log !== null) {
-      setCurrentSubscription(log);
-      setLogs((prev) => [...log, ...prev]);
-    }
+    const client = new InstrumentClient(transport)
+
+    abort = new AbortController();
+    const updates = client.watchUpdates(InstrumentRequest.create({}), { abort: abort.signal });
+
+    updates.responses.onError((err) => {
+      console.error(err)
+    })
+
+    updates.responses.onMessage((update) => {
+      setLogs((prev) => [...(update.logsUpdate?.logEvents || []), ...prev]);
+    })
   });
 
-  createEffect(() => {
-    socket.send(JSON.stringify(LOGS_WATCH));
-  });
-
-  onCleanup(() => {
-    socket.send(JSON.stringify(LOGS_UNWATCH(currentSubscription)));
-  });
+  onCleanup(() => { abort.abort() })
 
   return (
     <>
       <ul>
         <For each={logs()}>
-          {({ message, timestamp }) => {
-            const timeDate = new Date(timestamp);
+          {({ message, at }) => {
+            const timeDate = new Date(Number(at!.seconds * 1000n) + (at!.nanos / 1e6));
             return (
               <li class="py-1">
                 <time dateTime={timeDate.toISOString()} class="font-mono pr-4">

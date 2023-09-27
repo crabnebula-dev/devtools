@@ -50,7 +50,9 @@ use crate::broadcaster::Broadcaster;
 use crate::layer::Layer;
 use crate::tauri_plugin::TauriPlugin;
 pub use error::Error;
-use tokio::sync::{broadcast, mpsc, watch};
+use std::time::Instant;
+use tauri_devtools_wire_format as wire;
+use tokio::sync::{mpsc, watch};
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::util::SubscriberInitExt;
 
@@ -59,8 +61,6 @@ pub(crate) type Result<T> = std::result::Result<T, Error>;
 /// CLI flag that determines whether the inspector protocol
 /// should be active or not.
 const INSPECT_FLAG: &str = "--inspect";
-/// Default [broadcast] channels capacity.
-const DEFAULT_CAPACITY: usize = 10_000;
 
 pub fn init() -> TauriPlugin {
 	try_init().unwrap()
@@ -72,15 +72,14 @@ pub fn try_init() -> Result<TauriPlugin> {
 		.contains(&INSPECT_FLAG.to_string());
 
 	// set up data channels
-	let (trees_tx, trees_rx) = mpsc::unbounded_channel();
-	let (logs_tx, _) = broadcast::channel(DEFAULT_CAPACITY);
-	let (spans_tx, _) = broadcast::channel(DEFAULT_CAPACITY);
+	let (event_tx, event_rx) = mpsc::channel(256);
+	let (cmd_tx, cmd_rx) = mpsc::channel(256);
 	let (shutdown_tx, shutdown_rx) = watch::channel(());
 
 	// set up components
-	let layer = Layer::new(trees_tx);
-	let broadcaster = Broadcaster::new(trees_rx, shutdown_rx, logs_tx.clone(), spans_tx.clone());
-	let plugin = TauriPlugin::new(enabled, broadcaster, logs_tx, spans_tx, shutdown_tx);
+	let layer = Layer::new(event_tx);
+	let broadcaster = Broadcaster::new(event_rx, cmd_rx, shutdown_rx);
+	let plugin = TauriPlugin::new(enabled, broadcaster, cmd_tx, shutdown_tx);
 
 	// initialize early so we don't miss any spans
 	tracing_subscriber::registry()
@@ -88,4 +87,52 @@ pub fn try_init() -> Result<TauriPlugin> {
 		.try_init()?;
 
 	Ok(plugin)
+}
+
+#[derive(Debug)]
+enum Event {
+	Metadata(&'static tracing_core::Metadata<'static>),
+	LogEvent {
+		at: Instant,
+		metadata: &'static tracing_core::Metadata<'static>,
+		message: String,
+		fields: Vec<wire::Field>,
+		maybe_parent: Option<tracing_core::span::Id>,
+	},
+	NewSpan {
+		at: Instant,
+		id: tracing_core::span::Id,
+		metadata: &'static tracing_core::Metadata<'static>,
+		fields: Vec<wire::Field>,
+		maybe_parent: Option<tracing_core::span::Id>,
+	},
+	EnterSpan {
+		at: Instant,
+		thread_id: u64,
+		span_id: tracing_core::span::Id,
+	},
+	ExitSpan {
+		at: Instant,
+		thread_id: u64,
+		span_id: tracing_core::span::Id,
+	},
+	CloseSpan {
+		at: Instant,
+		span_id: tracing_core::span::Id,
+	},
+}
+
+#[derive(Debug)]
+enum Command {
+	Instrument(Watcher),
+}
+
+#[derive(Debug)]
+struct Watcher {
+	// TODO use these fields
+	interests: wire::instrument::Interests,
+	log_filter: Option<wire::instrument::Filter>,
+	span_filter: Option<wire::instrument::Filter>,
+
+	tx: mpsc::Sender<std::result::Result<wire::instrument::Update, tonic::Status>>,
 }

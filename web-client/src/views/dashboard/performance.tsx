@@ -1,36 +1,28 @@
-import { createEffect } from "solid-js";
-import { createEventSignal } from "@solid-primitives/event-listener";
-import { useWs } from "~/lib/ws";
-import { PERF_METRICS } from "~/lib/requests";
+import {createResource, Show} from "solid-js";
+import {useTransport} from "~/lib/transport.tsx";
+import {TauriClient} from "../../../generated/tauri.client.ts";
+import {MetricsRequest} from "../../../generated/tauri.ts";
+import {Timestamp} from "../../../generated/google/protobuf/timestamp.ts";
 
-type WSEventSignal = Record<"message", MessageEvent<string>>;
-
-type PerfLog = {
-  id: "metrics";
-  jsonrpc: "2.0";
-  result: {
-    initialized_at: number;
-    ready_at: number;
-  };
-};
+function formatTimestamp(timestamp: Timestamp) {
+    return Number(timestamp.seconds) * 1000 + (timestamp.nanos / 1e6)
+}
 
 export default function Performance() {
-  const { socket } = useWs();
-  const message = createEventSignal<WSEventSignal>(socket, "message");
+  const { transport } = useTransport();
+  const client = new TauriClient(transport);
 
-  const perfData = (): PerfLog | undefined => {
-    if (message()) {
-      const log = JSON.parse(message().data);
+  const [metrics] = createResource(async () => {
+    const res = await client.getMetrics(MetricsRequest.create({}));
+    return res.response
+  })
 
-      if (log.id === PERF_METRICS.id) {
-        return log;
-      }
-    }
-  };
-
-  createEffect(() => {
-    socket.send(JSON.stringify(PERF_METRICS));
-  });
-
-  return <pre class="text-white">{JSON.stringify(perfData(), null, 2)}</pre>;
+  return <Show when={!metrics.loading}>
+    <pre class="text-white">
+      InitializedAt: {formatTimestamp(metrics()?.initializedAt!)}
+    </pre>
+    <pre class="text-white">
+      ReadyAt: {formatTimestamp(metrics()?.readyAt!)}
+    </pre>
+  </Show>;
 }

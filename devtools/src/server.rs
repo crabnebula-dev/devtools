@@ -1,181 +1,134 @@
-use ::tauri::{AppHandle, Runtime};
-use futures::{future, future::Either, StreamExt};
-use jsonrpsee::server::{ServerBuilder, ServerHandle};
-use jsonrpsee::types::Params;
-use jsonrpsee_core::id_providers::RandomStringIdProvider;
-use jsonrpsee_core::server::{PendingSubscriptionSink, RpcModule, SubscriptionMessage};
-use jsonrpsee_core::Serialize;
+use crate::{Command, Watcher};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use std::sync::{Arc, Mutex};
-use tauri_devtools_shared::{Filter, Filterable, LogEntry, Metrics, SpanEntry, SubscriptionParams};
-use tokio::sync::broadcast;
-use tokio_stream::wrappers::BroadcastStream;
+use std::sync::Arc;
+use tauri::{AppHandle, Runtime};
+use tauri_devtools_wire_format as wire;
+use tauri_devtools_wire_format::instrument::{InstrumentRequest, Interests};
+use tauri_devtools_wire_format::tauri::{Asset, AssetRequest, Config, ConfigRequest, Metrics, MetricsRequest};
+use tokio::sync::{mpsc, RwLock};
+use tonic::codegen::http::Method;
+use tonic::{Request, Response, Status};
+use tower_http::cors::{AllowHeaders, CorsLayer};
 
-mod logs;
-mod performance;
-mod spans;
-mod tauri;
+/// Default maximum capacity for the channel of events sent from a
+/// [`Server`] to each subscribed client.
+///
+/// When this capacity is exhausted, the client is assumed to be inactive,
+/// and may be disconnected.
+const DEFAULT_CLIENT_BUFFER_CAPACITY: usize = 1024 * 4;
+pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 3000);
 
 pub(crate) struct Server<R: Runtime> {
-	logs: broadcast::Sender<Vec<LogEntry>>,
-	spans: broadcast::Sender<Vec<SpanEntry>>,
+	instrument: InstrumentServer,
+	tauri: TauriServer<R>,
+}
+
+struct InstrumentServer {
+	tx: mpsc::Sender<Command>,
+}
+
+struct TauriServer<R: Runtime> {
 	app_handle: AppHandle<R>,
-	metrics: Arc<Mutex<Metrics>>,
+	metrics: Arc<RwLock<Metrics>>,
 }
 
 impl<R: Runtime> Server<R> {
-	pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 3000);
-
-	pub fn new(
-		logs: broadcast::Sender<Vec<LogEntry>>,
-		spans: broadcast::Sender<Vec<SpanEntry>>,
-		app_handle: AppHandle<R>,
-		metrics: Arc<Mutex<Metrics>>,
-	) -> Self {
+	pub fn new(tx: mpsc::Sender<Command>, app_handle: AppHandle<R>, metrics: Arc<RwLock<Metrics>>) -> Self {
 		Self {
-			logs,
-			spans,
-			app_handle,
-			metrics,
+			instrument: InstrumentServer { tx },
+			tauri: TauriServer { app_handle, metrics },
 		}
 	}
-	pub async fn run(self, addr: &SocketAddr) -> crate::Result<(SocketAddr, ServerHandle)> {
-		// Important
-		// - denies HTTP requests which isn't a WS upgrade request
-		// - include additional methods from `inject_additional_rpc_methods`
-		let builder = ServerBuilder::new()
-			.ws_only()
-			.ping_interval(std::time::Duration::from_secs(30))
-			.set_id_provider(RandomStringIdProvider::new(16));
 
-		let server = builder.build(addr).await?;
-		let server_addr = server.local_addr()?;
-		let handle = server.start(self.assemble_rpc_apis()?);
+	pub async fn run(self, addr: SocketAddr) -> crate::Result<()> {
+		tracing::info!("Listening on {}", addr);
 
-		Ok((server_addr, handle))
-	}
+		let cors = CorsLayer::new()
+			// allow `GET` and `POST` when accessing the resource
+			.allow_methods([Method::GET, Method::POST])
+			.allow_headers(AllowHeaders::any())
+			// allow requests from any origin
+			.allow_origin(tower_http::cors::Any);
 
-	fn assemble_rpc_apis(self) -> crate::Result<RpcModule<Self>> {
-		let mut module = RpcModule::new(self);
+		tonic::transport::Server::builder()
+			.accept_http1(true)
+			.layer(cors)
+			.add_service(tonic_web::enable(
+				wire::instrument::instrument_server::InstrumentServer::new(self.instrument),
+			))
+			.add_service(tonic_web::enable(wire::tauri::tauri_server::TauriServer::new(
+				self.tauri,
+			)))
+			.serve(addr)
+			.await?;
 
-		// register `spans_*` methods
-		spans::module(&mut module)?;
-
-		// register `logs_*` methods
-		logs::module(&mut module)?;
-
-		// register `tauri_*` methods
-		tauri::module(&mut module)?;
-
-		// register `performance_*` methods
-		performance::module(&mut module)?;
-
-		let mut available_methods = module.method_names().collect::<Vec<_>>();
-		available_methods.sort();
-
-		module
-			.register_method("rpc_methods", move |_, _| {
-				serde_json::json!({
-					"methods": available_methods,
-				})
-			})
-			.expect("infallible all other methods have their own address space; qed");
-
-		Ok(module)
+		Ok(())
 	}
 }
 
-/// Parses the subscription filter from the given JSON-RPC [`Params`].
-///
-/// This function tries to parse the JSON-RPC parameters into a `SubscriptionParams`
-/// and extracts the `Filter` object, if it exists. If parsing fails, or if the
-/// parameters are not in object form, it returns `None`.
-///
-/// # Parameters
-///
-/// - `maybe_params`: The JSON-RPC [`Params`] object that might contain a filter.
-///
-/// # Returns
-///
-/// An `Option<Filter>` that contains the filter if parsing is successful.
-pub(super) fn parse_subscription_filter(maybe_params: Params<'_>) -> Option<Filter> {
-	if maybe_params.is_object() {
-		maybe_params
-			.parse::<SubscriptionParams>()
-			.ok()
-			.map(|params| params.filter)
-	} else {
-		None
+#[tonic::async_trait]
+impl wire::instrument::instrument_server::Instrument for InstrumentServer {
+	type WatchUpdatesStream = tokio_stream::wrappers::ReceiverStream<Result<wire::instrument::Update, Status>>;
+
+	async fn watch_updates(
+		&self,
+		req: Request<InstrumentRequest>,
+	) -> Result<Response<Self::WatchUpdatesStream>, Status> {
+		match req.remote_addr() {
+			Some(addr) => tracing::debug!(client.addr = %addr, "starting a new watch"),
+			None => tracing::debug!(client.addr = %"<unknown>", "starting a new watch"),
+		}
+
+		// reserve capacity to message the broadcaster
+		let permit = self
+			.tx
+			.reserve()
+			.await
+			.map_err(|_| Status::internal("cannot start new watch, aggregation task is not running"))?;
+
+		// create output channel and send tx to the aggregator for tracking
+		let (tx, rx) = mpsc::channel(DEFAULT_CLIENT_BUFFER_CAPACITY);
+
+		let params = req.into_inner();
+		let interests = Interests::from_bits(params.interests)
+			.ok_or(Status::invalid_argument("could not parse sources"))?;
+
+		permit.send(Command::Instrument(Watcher {
+			interests,
+			log_filter: params.log_filter,
+			span_filter: params.span_filter,
+			tx,
+		}));
+
+		tracing::debug!("watch started");
+
+		let stream = tokio_stream::wrappers::ReceiverStream::new(rx);
+		Ok(Response::new(stream))
 	}
 }
 
-/// Pipes messages from a broadcast channel to a WebSocket stream with bounded buffering.
-///
-/// This function transforms each event received from a `BroadcastStream` into a WebSocket message.
-/// Upon receiving a new event from the broadcast channel, it gets sent to all subscribers of the WebSocket.
-/// If the internal buffer of the WebSocket becomes full, this function will block until there's space available.
-///
-/// The transformation supports any type `T` that implements `Clone`, `Send`, `Serialize`, and has a static lifetime.
-/// The transformed message will then be serialized using the `Serialize` trait.
-///
-/// This function handles three major scenarios:
-/// 1. The WebSocket subscription gets closed: This function will then terminate.
-/// 2. A new item is received from the stream: This item will be transformed into a WebSocket message.
-/// 3. An error occurs during the transformation or any other stage: The error will be returned.
-///
-/// # Parameters
-///
-/// * `pending`: The pending WebSocket subscription which will be accepted to start the messaging.
-/// * `stream`: The source of events, represented as a `BroadcastStream<T>`.
-///
-/// # Returns
-///
-/// This function returns a `Result` which is an `Ok(())` if the process completes without errors
-/// or an `Err` wrapping the encountered error.
-///
-/// # Notes
-///
-/// In the event that the WebSocket's internal buffer is full, this function will block until space becomes available.
-/// If the most recent item's delivery is critical upon its production, a smarter buffering or delivery approach might be needed.
-async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Send + Serialize + Filterable>(
-	pending: PendingSubscriptionSink,
-	stream: BroadcastStream<Vec<T>>,
-	maybe_filter: Option<Filter>,
-) -> crate::Result<()> {
-	let sink = pending.accept().await?;
-	let closed = sink.closed();
+#[tonic::async_trait]
+impl<R: Runtime> wire::tauri::tauri_server::Tauri for TauriServer<R> {
+	async fn get_config(&self, _req: Request<ConfigRequest>) -> Result<Response<Config>, Status> {
+		let config: Config = (&*self.app_handle.config()).into();
 
-	futures::pin_mut!(closed, stream);
+		Ok(Response::new(config))
+	}
 
-	loop {
-		match future::select(closed, stream.next()).await {
-			// subscription closed.
-			Either::Left((_, _)) => break Ok(()),
+	async fn get_asset(&self, req: Request<AssetRequest>) -> Result<Response<Asset>, Status> {
+		let asset: Asset = self
+			.app_handle
+			.asset_resolver()
+			.get(req.into_inner().path)
+			.ok_or(Status::invalid_argument("Could not find asset with specified path"))?
+			.into();
 
-			// received new item from the stream.
-			Either::Right((Some(Ok(item)), c)) => {
-				let maybe_filtered = if let Some(filter) = &maybe_filter {
-					// filter entries that matches the provided filter
-					item.into_iter().filter(|item| item.match_filter(filter)).collect()
-				} else {
-					item
-				};
+		Ok(Response::new(asset))
+	}
 
-				let notif = SubscriptionMessage::from_json(&maybe_filtered)?;
+	async fn get_metrics(&self, _req: Request<MetricsRequest>) -> Result<Response<Metrics>, Status> {
+		let metrics = self.metrics.read().await;
 
-				// NOTE: this will block until there a spot in the queue
-				if sink.send(notif).await.is_err() {
-					break Ok(());
-				}
-
-				closed = c;
-			}
-
-			// Send back back the error.
-			Either::Right((Some(Err(e)), _)) => break Err(e.into()),
-
-			// Stream is closed.
-			Either::Right((None, _)) => break Ok(()),
-		}
+		Ok(Response::new(metrics.clone()))
 	}
 }
