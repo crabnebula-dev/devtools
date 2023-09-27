@@ -12,7 +12,7 @@ import { initialStoreData } from "~/lib/ws/store";
 import { DataContext, WSContext } from "~/lib/ws/context";
 
 export default function Layout() {
-  const [wsData, setData] = createStore(initialStoreData);
+  const [appData, setData] = createStore(initialStoreData);
 
   const { wsPort, wsUrl } = useParams();
   const navigate = useNavigate();
@@ -102,7 +102,7 @@ export default function Layout() {
             Close Connection
           </Button.Root>
         </div>
-        <DataContext.Provider value={{ data: wsData }}>
+        <DataContext.Provider value={{ data: appData }}>
           <BootTime />
           <Navigation />
           <Outlet />
