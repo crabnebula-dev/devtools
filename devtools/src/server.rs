@@ -90,8 +90,8 @@ impl wire::instrument::instrument_server::Instrument for InstrumentServer {
 		let (tx, rx) = mpsc::channel(DEFAULT_CLIENT_BUFFER_CAPACITY);
 
 		let params = req.into_inner();
-		let interests = Interests::from_bits(params.interests)
-			.ok_or(Status::invalid_argument("could not parse sources"))?;
+		let interests =
+			Interests::from_bits(params.interests).ok_or(Status::invalid_argument("could not parse sources"))?;
 
 		permit.send(Command::Instrument(Watcher {
 			interests,
@@ -130,5 +130,67 @@ impl<R: Runtime> wire::tauri::tauri_server::Tauri for TauriServer<R> {
 		let metrics = self.metrics.read().await;
 
 		Ok(Response::new(metrics.clone()))
+	}
+}
+
+#[cfg(test)]
+mod test {
+	use super::*;
+	use std::time::SystemTime;
+	use futures::StreamExt;
+	use tauri_devtools_wire_format as wire;
+	use tauri_devtools_wire_format::instrument::instrument_server::Instrument;
+	use tauri_devtools_wire_format::instrument::Filter;
+	use tauri_devtools_wire_format::metadata::Level;
+	use wire::tauri::tauri_server::Tauri;
+
+	#[tokio::test]
+	async fn tauri_get_config() {
+		let tauri = TauriServer {
+			app_handle: tauri::test::mock_app().handle(),
+			metrics: Default::default(),
+		};
+
+		let cfg = tauri.get_config(Request::new(ConfigRequest {})).await.unwrap();
+
+		assert_eq!(cfg.into_inner(), wire::tauri::Config::from(&*tauri.app_handle.config()));
+	}
+
+	#[tokio::test]
+	async fn tauri_get_metrics() {
+		let srv = TauriServer {
+			app_handle: tauri::test::mock_app().handle(),
+			metrics: Default::default(),
+		};
+
+		let metrics = srv.get_metrics(Request::new(MetricsRequest {})).await.unwrap();
+		assert_eq!(metrics.into_inner(), *srv.metrics.read().await);
+
+		let mut m = srv.metrics.write().await;
+		m.initialized_at = Some(SystemTime::now().into());
+		drop(m);
+
+		let metrics = srv.get_metrics(Request::new(MetricsRequest {})).await.unwrap();
+		assert_eq!(metrics.into_inner(), *srv.metrics.read().await);
+	}
+
+	#[tokio::test]
+	async fn subscription() {
+		let (cmd_tx, mut cmd_rx) = mpsc::channel(1);
+		let srv = InstrumentServer { tx: cmd_tx };
+
+		let stream = srv.watch_updates(Request::new(InstrumentRequest {
+			interests: Interests::all().bits(),
+			log_filter: Some(Filter {
+				level: Some(Level::Error as i32),
+				file: None,
+				text: None,
+			}),
+			span_filter: None,
+		})).await.unwrap();
+
+		let cmd = cmd_rx.recv().await.unwrap();
+
+		assert!(matches!(cmd, Command::Instrument(Watcher { interests, log_filter: Some(Filter { level: Some(0), ..}), .. })));
 	}
 }
