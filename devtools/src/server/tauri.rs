@@ -30,11 +30,11 @@ pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Server<R>>) -> Result<()
 
 #[cfg(test)]
 mod tests {
+	use crate::test_util::setup_ws_client_and_server;
 	use jsonrpsee_core::{client::ClientT, rpc_params};
 	use serde_json::Value;
 	use tauri::test::mock_app;
 	use tokio::sync::broadcast;
-	use crate::test_util::setup_ws_client_and_server;
 
 	#[tokio::test]
 	async fn tauri_get_config() -> crate::Result<()> {

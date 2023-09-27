@@ -24,14 +24,14 @@ pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Server<R>>) -> Result<()
 
 #[cfg(test)]
 mod tests {
+	use crate::test_util::setup_ws_client_and_server;
 	use fake::{Fake, Faker};
 	use jsonrpsee_core::{
 		client::{Subscription, SubscriptionClientT},
 		rpc_params,
 	};
-	use tokio::sync::{broadcast, oneshot};
 	use tauri_devtools_shared::SpanEntry;
-	use crate::test_util::setup_ws_client_and_server;
+	use tokio::sync::{broadcast, oneshot};
 
 	#[tokio::test]
 	async fn spans_subscription() -> crate::Result<()> {

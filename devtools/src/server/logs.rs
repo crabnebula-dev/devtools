@@ -24,14 +24,14 @@ pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Server<R>>) -> Result<()
 
 #[cfg(test)]
 mod tests {
+	use crate::test_util::setup_ws_client_and_server;
 	use fake::{Fake, Faker};
 	use jsonrpsee_core::{
 		client::{Subscription, SubscriptionClientT},
 		rpc_params,
 	};
-	use tokio::sync::broadcast;
 	use tauri_devtools_shared::LogEntry;
-	use crate::test_util::setup_ws_client_and_server;
+	use tokio::sync::broadcast;
 
 	#[tokio::test]
 	async fn logs_subscription() -> crate::Result<()> {
@@ -40,7 +40,8 @@ mod tests {
 
 		let (client, handle) = setup_ws_client_and_server(logs_tx.clone(), spans_tx.clone()).await?;
 
-		let mut test_sub: Subscription<Vec<LogEntry>> = client.subscribe("logs_watch", rpc_params![], "logs_unwatch").await?;
+		let mut test_sub: Subscription<Vec<LogEntry>> =
+			client.subscribe("logs_watch", rpc_params![], "logs_unwatch").await?;
 
 		let mut input: Vec<LogEntry> = vec![Faker.fake()];
 		logs_tx.send(input.clone()).unwrap();

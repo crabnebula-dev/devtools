@@ -7,11 +7,11 @@ pub use tauri::{AppHandle, Manager, Runtime};
 pub use tracing::Level;
 
 mod asset;
+#[cfg(feature = "test_util")]
+mod de;
 mod field;
 mod filter;
 mod ser;
-#[cfg(feature = "test_util")]
-mod de;
 
 /// Enum representing a [LogEntry] or a [SpanEntry]
 #[derive(Debug, Serialize, Clone)]

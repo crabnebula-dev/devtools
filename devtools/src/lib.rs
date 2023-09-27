@@ -42,9 +42,9 @@ mod error;
 mod layer;
 mod server;
 mod tauri_plugin;
-mod visitors;
 #[cfg(test)]
 mod test_util;
+mod visitors;
 
 use crate::broadcaster::Broadcaster;
 use crate::layer::Layer;
