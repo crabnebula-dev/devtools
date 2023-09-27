@@ -1,6 +1,6 @@
-import { ToggleButton } from "@kobalte/core";
-import { For, Show, createSignal, on } from "solid-js";
+import { For, Show, createSignal } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
+import { FilterToggle } from "~/components/filter-toggle";
 import { formatTimestamp } from "~/lib/formaters";
 import { useSocketData } from "~/lib/ws-store";
 
@@ -11,31 +11,23 @@ export default function Console() {
 
   return (
     <>
-      <ToggleButton.Root
+      <FilterToggle
         defaultPressed
         aria-label="timstamps"
-        onChange={() => toggleTimeStamp((prev) => !prev)}
-        class="py-px px-2 border rounded-lg"
+        changeHandler={() => toggleTimeStamp((prev) => !prev)}
+        fallbackElement={<span>show timestamp</span>}
       >
-        {(state) => (
-          <Show when={state.pressed()} fallback={<span>show timstamps</span>}>
-            <span>hide timestamps</span>
-          </Show>
-        )}
-      </ToggleButton.Root>
+        <span>hide timestamps</span>
+      </FilterToggle>
       {"   "}
-      <ToggleButton.Root
-        defaultPressed
+      <FilterToggle
         aria-label="auto scroll"
-        class="py-px px-2 border rounded-lg"
-        onChange={() => toggleAutoScroll((prev) => !prev)}
+        defaultPressed
+        fallbackElement={<span>autoscroll off</span>}
+        changeHandler={() => toggleAutoScroll((prev) => !prev)}
       >
-        {(state) => (
-          <Show when={state.pressed()} fallback={<span>autoscroll off</span>}>
-            <span>autoscroll on</span>
-          </Show>
-        )}
-      </ToggleButton.Root>
+        <span>autoscroll on</span>
+      </FilterToggle>
 
       <AutoscrollPane
         dataStream={data.logs[0]}
