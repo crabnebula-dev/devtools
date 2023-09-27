@@ -10,7 +10,7 @@ Change directory into `web-client` and install dependencies.
 cd web-client && pnpm install
 ```
 
-Now you're ready to run and access it from [localhost]()
+Now you're ready to run and access it from [localhost](http://localhost:5173/)
 
 ```sh
 pnpm dev
@@ -47,6 +47,20 @@ JSX based reactivity library for building user interfaces.
 We follow the flat File-System Architecture, route definitions currently live inside `src/entry.tsx`.
 
 [Solid Router Docs](https://docs.solidjs.com/guides/how-to-guides/routing-in-solid/solid-router)
+
+#### Data
+
+Instrumentation data comes in the app through the Web Socket connection and is stored in a `ws/store.ts` before be made available via the `DataProvider` context.
+
+So, there are 2 contexts that are important:
+
+- `WSContext`: provides the WebSocket instance and the current connection state.
+- `DataProvider`: provides the data store to used.
+
+Both of them are made available to every child component via their custom hooks:
+
+- `useSocketData`: returns the data store.
+- `useWs`: returns the WebSocket and its connection state.
 
 #### Web Sockets
 
