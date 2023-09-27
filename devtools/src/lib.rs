@@ -50,7 +50,7 @@ use crate::tauri_plugin::TauriPlugin;
 pub use error::Error;
 use std::time::Instant;
 use tauri_devtools_wire_format as wire;
-use tokio::sync::{mpsc, watch};
+use tokio::sync::{mpsc, oneshot, watch};
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::util::SubscriberInitExt;
 
@@ -72,7 +72,7 @@ pub fn try_init() -> Result<TauriPlugin> {
 	// set up data channels
 	let (event_tx, event_rx) = mpsc::channel(256);
 	let (cmd_tx, cmd_rx) = mpsc::channel(256);
-	let (shutdown_tx, shutdown_rx) = watch::channel(());
+	let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
 	// set up components
 	let layer = Layer::new(event_tx);

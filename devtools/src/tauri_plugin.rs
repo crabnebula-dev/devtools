@@ -6,7 +6,7 @@ use std::thread;
 use std::time::SystemTime;
 use tauri::{AppHandle, RunEvent, Runtime};
 use tauri_devtools_wire_format::tauri::Metrics;
-use tokio::sync::{mpsc, watch, RwLock};
+use tokio::sync::{mpsc, watch, RwLock, oneshot};
 
 /// URL of the web-based devtool
 /// The server host is added automatically eg: `127.0.0.1:56609`.
@@ -17,7 +17,7 @@ pub struct TauriPlugin {
 	enabled: bool,
 	init: Option<(Broadcaster, mpsc::Sender<Command>)>,
 	metrics: Arc<RwLock<Metrics>>,
-	shutdown_tx: watch::Sender<()>,
+	shutdown_tx: Option<oneshot::Sender<()>>,
 }
 
 impl TauriPlugin {
@@ -25,7 +25,7 @@ impl TauriPlugin {
 		enabled: bool,
 		broadcaster: Broadcaster,
 		cmd_tx: mpsc::Sender<Command>,
-		shutdown_tx: watch::Sender<()>,
+		shutdown_tx: oneshot::Sender<()>,
 	) -> Self {
 		Self {
 			enabled,
@@ -34,7 +34,7 @@ impl TauriPlugin {
 				initialized_at: Some(SystemTime::now().into()),
 				ready_at: None,
 			})),
-			shutdown_tx,
+			shutdown_tx: Some(shutdown_tx),
 		}
 	}
 }
@@ -72,9 +72,8 @@ impl<R: Runtime> tauri::plugin::Plugin<R> for TauriPlugin {
 			RunEvent::Exit => {
 				// Shutdown signal for the `Broadcaster`, this will make sure all queued items
 				// are sent to all event subscribers.
-				if let Err(e) = self.shutdown_tx.send(()) {
-					tracing::error!("{e}");
-				}
+				let tx = self.shutdown_tx.take().unwrap();
+				tx.send(()).unwrap();
 			}
 			RunEvent::WindowEvent { label, .. } => {
 				tracing::debug!("Window {} received an event", label);
