@@ -24,3 +24,9 @@ tokio = { workspace = true, features = ["macros", "time"] }
 tokio-stream = { workspace = true, features = ["sync"] }
 futures.workspace = true
 tauri.workspace = true
+
+[dev-dependencies]
+tauri_devtools_shared = { path = "../shared", features = ["test_util"] }
+fake = { version = "2.8", features = ["derive", "time", "dummy"] }
+tauri = { workspace = true, features = ["test"] }
+jsonrpsee = { workspace = true, features = [ "client-core", "ws-client", "server", "macros" ] }

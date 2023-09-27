@@ -106,7 +106,7 @@ fn spawn_handler_thread<R: Runtime>(broadcaster: Broadcaster, server: Server<R>)
 		rt.block_on(async move {
 			let broadcaster = tokio::spawn(broadcaster.run());
 
-			let (server_addr, server_handle) = server.run().await.unwrap();
+			let (server_addr, server_handle) = server.run(&Server::<R>::DEFAULT_ADDRESS).await.unwrap();
 
 			println!("--------- Tauri Plugin Devtools ---------\n");
 			println!("Listening at:\n  ws://{server_addr}\n",);

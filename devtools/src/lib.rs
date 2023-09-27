@@ -43,6 +43,8 @@ mod layer;
 mod server;
 mod tauri_plugin;
 mod visitors;
+#[cfg(test)]
+mod test_util;
 
 use crate::broadcaster::Broadcaster;
 use crate::layer::Layer;

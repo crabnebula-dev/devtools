@@ -19,7 +19,7 @@ impl Visit for EventVisitor {
 			// skip fields that are `log` metadata that have already been handled
 			name if name.starts_with("log.") => (),
 			"message" if self.message.is_none() => self.message = Some(format!("{value:?}")),
-			key => self.fields.push(InspectorField::new(key, value.into())),
+			key => self.fields.push(InspectorField::new(key.to_string(), value.into())),
 		}
 	}
 }

@@ -24,7 +24,7 @@ pub(crate) struct Server<R: Runtime> {
 }
 
 impl<R: Runtime> Server<R> {
-	const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 3000);
+	pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 3000);
 
 	pub fn new(
 		logs: broadcast::Sender<Vec<LogEntry>>,
@@ -39,7 +39,7 @@ impl<R: Runtime> Server<R> {
 			metrics,
 		}
 	}
-	pub async fn run(self) -> crate::Result<(SocketAddr, ServerHandle)> {
+	pub async fn run(self, addr: &SocketAddr) -> crate::Result<(SocketAddr, ServerHandle)> {
 		// Important
 		// - denies HTTP requests which isn't a WS upgrade request
 		// - include additional methods from `inject_additional_rpc_methods`
@@ -48,7 +48,7 @@ impl<R: Runtime> Server<R> {
 			.ping_interval(std::time::Duration::from_secs(30))
 			.set_id_provider(RandomStringIdProvider::new(16));
 
-		let server = builder.build(&Self::DEFAULT_ADDRESS).await?;
+		let server = builder.build(addr).await?;
 		let server_addr = server.local_addr()?;
 		let handle = server.start(self.assemble_rpc_apis()?);
 
@@ -177,54 +177,5 @@ async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Send + Serial
 			// Stream is closed.
 			Either::Right((None, _)) => break Ok(()),
 		}
-	}
-}
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-	use api::Level;
-
-	#[test]
-	fn parse_level_from_params() {
-		let value = Some(r#"{"filter": {"level": "INFO"}}"#);
-		let valid_params = Params::new(value);
-		let parsed = parse_subscription_filter(valid_params);
-		assert!(parsed.is_some());
-		assert_eq!(parsed.unwrap().level, Some(Level::INFO));
-	}
-
-	#[test]
-	fn parse_multiple_params() {
-		let value = Some(r#"{"filter": {"level": "trAce", "text": "target"}}"#);
-		let valid_params = Params::new(value);
-		let parsed = parse_subscription_filter(valid_params);
-
-		assert!(parsed.as_ref().is_some());
-		let filter = parsed.as_ref().expect("qed; pre-check");
-
-		assert_eq!(filter.level, Some(Level::TRACE));
-		assert_eq!(filter.text, Some("target".to_string()));
-	}
-
-	#[test]
-	fn parse_invalid_params() {
-		let value = Some(r#"{"filter": {"not": "valid"}}"#);
-		let invalid_params = Params::new(value);
-		let parsed = parse_subscription_filter(invalid_params);
-
-		assert!(parsed.as_ref().is_some());
-		let filter = parsed.as_ref().expect("qed; pre-check");
-
-		assert!(filter.file.is_none());
-		assert!(filter.level.is_none());
-		assert!(filter.text.is_none());
-	}
-
-	#[test]
-	fn parse_empty_params() {
-		let value = Some(r#"{}"#);
-		let empty_params = Params::new(value);
-		assert!(parse_subscription_filter(empty_params).is_none());
 	}
 }

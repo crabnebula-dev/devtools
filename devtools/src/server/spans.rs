@@ -21,3 +21,41 @@ pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Server<R>>) -> Result<()
 
 	Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+	use fake::{Fake, Faker};
+	use jsonrpsee_core::{
+		client::{Subscription, SubscriptionClientT},
+		rpc_params,
+	};
+	use tokio::sync::{broadcast, oneshot};
+	use tauri_devtools_shared::SpanEntry;
+	use crate::test_util::setup_ws_client_and_server;
+
+	#[tokio::test]
+	async fn spans_subscription() -> crate::Result<()> {
+		let (logs_tx, _) = broadcast::channel(1);
+		let (spans_tx, _) = broadcast::channel(1);
+
+		let (client, handle) = setup_ws_client_and_server(logs_tx.clone(), spans_tx.clone()).await?;
+		let mut test_sub: Subscription<Vec<SpanEntry>> =
+			client.subscribe("spans_watch", rpc_params![], "spans_unwatch").await?;
+
+		let mut input: Vec<SpanEntry> = vec![Faker.fake()];
+		spans_tx.send(input.clone()).unwrap();
+
+		let mut output = test_sub.next().await.expect("valid content")?;
+
+		// FieldSet is currently not round-trip stable
+		// so we ignore it
+		input[0].meta.fields = Vec::new();
+		output[0].meta.fields = Vec::new();
+
+		assert_eq!(input, output);
+
+		test_sub.unsubscribe().await?;
+		handle.abort();
+		Ok(())
+	}
+}

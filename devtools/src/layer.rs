@@ -113,13 +113,13 @@ impl ActiveSpan {
 		let meta = attrs.metadata();
 
 		attrs.record(&mut |field: &tracing_core::Field, value: &dyn fmt::Debug| {
-			fields.push(Field::new(field.name(), value.into()));
+			fields.push(Field::new(field.name().to_string(), value.into()));
 		});
 
 		let shared = Metadata::new(meta, fields);
 
 		ActiveSpan {
-			span: SpanEntry::new(id.into_u64(), maybe_parent, shared, meta.name()),
+			span: SpanEntry::new(id.into_u64(), maybe_parent, shared, meta.name().to_string()),
 			start: Instant::now(),
 			enter: Instant::now(),
 		}
