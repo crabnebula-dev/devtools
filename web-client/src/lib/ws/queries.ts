@@ -1,6 +1,7 @@
-import type { Filter, Query, QueryID } from "./types";
+import type { Filter, Query, QueryID, WSQuery } from "./types";
 
-const query = (id: QueryID, filter?: Filter): Query<QueryID> | null => {
+function query<T extends QueryID>(id: T, filter?: Filter): Query<T>;
+function query(id: QueryID, filter?: Filter): WSQuery {
   switch (id) {
     case "logs_unwatch":
       return {
@@ -47,9 +48,9 @@ const query = (id: QueryID, filter?: Filter): Query<QueryID> | null => {
         params: {},
       };
     default:
-      return null;
+      throw new Error("QueryID does not exist");
   }
-};
+}
 
 export function useSubscriber(socket: WebSocket) {
   return (id: QueryID, params?: Filter) => {

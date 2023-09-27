@@ -26,49 +26,59 @@ export type Filter = {
   text?: string;
 };
 
-type WSQuery =
-  | {
-      id: "tauri_getConfig";
-      jsonrpc: "2.0";
-      method: "tauri_getConfig";
-      params: object;
-    }
-  | {
-      id: "logs_watch";
-      jsonrpc: "2.0";
+type TauriGetConfigPayload = {
+  id: "tauri_getConfig";
+  jsonrpc: "2.0";
+  method: "tauri_getConfig";
+  params: object;
+};
 
-      method: "logs_watch";
-      params: {
-        filter?: Filter;
-      };
-    }
-  | {
-      id: "spans_watch";
-      jsonrpc: "2.0";
+type LogsWatchPayload = {
+  id: "logs_watch";
+  jsonrpc: "2.0";
 
-      method: "spans_watch";
-      params: {
-        filter?: Filter;
-      };
-    }
-  | {
-      id: "logs_unwatch";
-      jsonrpc: "2.0";
+  method: "logs_watch";
+  params: {
+    filter?: Filter;
+  };
+};
 
-      method: "logs_unwatch";
-      params: {
-        subscription: object;
-      };
-    }
-  | {
-      id: "metrics";
-      jsonrpc: "2.0";
+type LogsUnwatchPayload = {
+  id: "logs_unwatch";
+  jsonrpc: "2.0";
 
-      method: "performance_getMetrics";
-      params: {
-        filter?: Filter;
-      };
-    };
+  method: "logs_unwatch";
+  params: {
+    subscription: object;
+  };
+};
+
+type SpansWatchPayload = {
+  id: "spans_watch";
+  jsonrpc: "2.0";
+
+  method: "spans_watch";
+  params: {
+    filter?: Filter;
+  };
+};
+
+type PerfMetricsPayload = {
+  id: "metrics";
+  jsonrpc: "2.0";
+
+  method: "performance_getMetrics";
+  params: {
+    filter?: Filter;
+  };
+};
+
+export type WSQuery =
+  | TauriGetConfigPayload
+  | LogsWatchPayload
+  | SpansWatchPayload
+  | LogsUnwatchPayload
+  | PerfMetricsPayload;
 
 export type QueryID = WSQuery["id"];
 export type Query<T extends QueryID, U = WSQuery> = U extends {
