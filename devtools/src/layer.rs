@@ -37,18 +37,6 @@ impl<S> layer::Layer<S> for Layer
 where
 	S: Subscriber + for<'a> LookupSpan<'a>,
 {
-	// Notifies this layer that an event has occurred.
-	fn on_event(&self, event: &tracing_core::Event<'_>, ctx: layer::Context<'_, S>) {
-		let mut visitor = EventVisitor::default();
-		event.record(&mut visitor);
-
-		let meta = Metadata::new(event.metadata(), visitor.fields);
-		let span = ctx.event_span(event).as_ref().map(|s| s.id().into_u64());
-		let log_entry = LogEntry::new(span, meta, visitor.message);
-
-		self.dispatch(log_entry.into());
-	}
-
 	// Notifies this layer that a new span was constructed with the given `Attributes` and `Id`.
 	fn on_new_span(
 		&self,
@@ -60,6 +48,18 @@ where
 		let mut extensions = span.extensions_mut();
 		let maybe_parent = span.parent().map(|s| s.id().into_u64());
 		extensions.insert(ActiveSpan::new(id, maybe_parent, attrs, &ctx));
+	}
+
+	// Notifies this layer that an event has occurred.
+	fn on_event(&self, event: &tracing_core::Event<'_>, ctx: layer::Context<'_, S>) {
+		let mut visitor = EventVisitor::default();
+		event.record(&mut visitor);
+
+		let meta = Metadata::new(event.metadata(), visitor.fields);
+		let span = ctx.event_span(event).as_ref().map(|s| s.id().into_u64());
+		let log_entry = LogEntry::new(span, meta, visitor.message);
+
+		self.dispatch(log_entry.into());
 	}
 
 	// Notifies this layer that a span with the given `Id` was entered.

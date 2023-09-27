@@ -36,21 +36,3 @@ pub async fn setup_ws_client_and_server(
 	let handle = tokio::spawn(handle.stopped());
 	Ok((client, handle))
 }
-
-pub fn fake_log_entry() -> LogEntry {
-	Faker.fake()
-
-	// LogEntry {
-	//     span: Faker.fake(),
-	//     meta: Metadata {
-	//         timestamp: Faker.fake(),
-	//         level: &Level::DEBUG,
-	//         target: &Faker.fake::<String>(),
-	//         module_path: Some(&Faker.fake::<String>()),
-	//         file: Some(&Faker.fake::<String>()),
-	//         line: Faker.fake(),
-	//         fields: vec![],
-	//     },
-	//     message: Faker.fake()
-	// }
-}

@@ -31,7 +31,7 @@ mod tests {
 		rpc_params,
 	};
 	use tauri_devtools_shared::SpanEntry;
-	use tokio::sync::{broadcast, oneshot};
+	use tokio::sync::broadcast;
 
 	#[tokio::test]
 	async fn spans_subscription() -> crate::Result<()> {
