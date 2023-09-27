@@ -42,7 +42,7 @@ export default function Entry() {
   const Routes = useRoutes(ROUTES);
 
   return (
-    <main class="bg-black text-white min-h-screen">
+    <main class="root-bg text-white min-h-screen">
       <Routes />
     </main>
   );

@@ -7,3 +7,15 @@
     @apply scrollbar-thin scrollbar-track-neutral-900 scrollbar-thumb-rounded scrollbar-thumb-neutral-600;
   }
 }
+
+@layer components {
+  .root-bg {
+    background: theme(colors.black)
+      linear-gradient(
+        130deg,
+        theme(colors.zinc.800),
+        theme(colors.black),
+        theme(colors.zinc.900)
+      );
+  }
+}
