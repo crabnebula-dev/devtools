@@ -24,7 +24,7 @@ const ROUTES = [
       },
       {
         path: "/calls",
-        component: lazy(() => import("./views/dashboard/comming-soon.tsx")),
+        component: lazy(() => import("./views/dashboard/span-waterfall.tsx")),
       },
       {
         path: "/tauri",
