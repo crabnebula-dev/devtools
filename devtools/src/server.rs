@@ -136,8 +136,8 @@ impl<R: Runtime> wire::tauri::tauri_server::Tauri for TauriServer<R> {
 #[cfg(test)]
 mod test {
 	use super::*;
-	use std::time::SystemTime;
 	use futures::StreamExt;
+	use std::time::SystemTime;
 	use tauri_devtools_wire_format as wire;
 	use tauri_devtools_wire_format::instrument::instrument_server::Instrument;
 	use tauri_devtools_wire_format::instrument::Filter;
@@ -179,18 +179,28 @@ mod test {
 		let (cmd_tx, mut cmd_rx) = mpsc::channel(1);
 		let srv = InstrumentServer { tx: cmd_tx };
 
-		let stream = srv.watch_updates(Request::new(InstrumentRequest {
-			interests: Interests::all().bits(),
-			log_filter: Some(Filter {
-				level: Some(Level::Error as i32),
-				file: None,
-				text: None,
-			}),
-			span_filter: None,
-		})).await.unwrap();
+		let stream = srv
+			.watch_updates(Request::new(InstrumentRequest {
+				interests: Interests::all().bits(),
+				log_filter: Some(Filter {
+					level: Some(Level::Error as i32),
+					file: None,
+					text: None,
+				}),
+				span_filter: None,
+			}))
+			.await
+			.unwrap();
 
 		let cmd = cmd_rx.recv().await.unwrap();
 
-		assert!(matches!(cmd, Command::Instrument(Watcher { interests, log_filter: Some(Filter { level: Some(0), ..}), .. })));
+		assert!(matches!(
+			cmd,
+			Command::Instrument(Watcher {
+				interests,
+				log_filter: Some(Filter { level: Some(0), .. }),
+				..
+			})
+		));
 	}
 }

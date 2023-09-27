@@ -50,7 +50,7 @@ use crate::tauri_plugin::TauriPlugin;
 pub use error::Error;
 use std::time::Instant;
 use tauri_devtools_wire_format as wire;
-use tokio::sync::{mpsc, oneshot, watch};
+use tokio::sync::{mpsc, oneshot};
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::util::SubscriberInitExt;
 
@@ -81,7 +81,7 @@ pub fn try_init() -> Result<TauriPlugin> {
 
 	// initialize early so we don't miss any spans
 	tracing_subscriber::registry()
-		.with(layer.with_filter(tracing_subscriber::filter::LevelFilter::DEBUG))
+		.with(layer.with_filter(tracing_subscriber::filter::LevelFilter::TRACE))
 		.try_init()?;
 
 	Ok(plugin)

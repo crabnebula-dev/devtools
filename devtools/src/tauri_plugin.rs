@@ -6,7 +6,7 @@ use std::thread;
 use std::time::SystemTime;
 use tauri::{AppHandle, RunEvent, Runtime};
 use tauri_devtools_wire_format::tauri::Metrics;
-use tokio::sync::{mpsc, watch, RwLock, oneshot};
+use tokio::sync::{mpsc, oneshot, RwLock};
 
 /// URL of the web-based devtool
 /// The server host is added automatically eg: `127.0.0.1:56609`.
@@ -104,7 +104,7 @@ fn spawn_handler_thread<R: Runtime>(broadcaster: Broadcaster, server: Server<R>)
 			let addr = DEFAULT_ADDRESS;
 
 			println!("--------- Tauri Plugin Devtools ---------\n");
-			println!("Listening at:\n  ws://{addr}\n",);
+			println!("Listening at:\n  http://{addr}\n",);
 			println!("Inspect in browser:\n  {DEVTOOL_URL}{addr}");
 			println!("\n--------- Tauri Plugin Devtools ---------");
 

@@ -3,7 +3,7 @@ use futures::FutureExt;
 use std::mem;
 use std::time::{Duration, Instant, SystemTime};
 use tauri_devtools_wire_format as wire;
-use tokio::sync::{mpsc, watch};
+use tokio::sync::{mpsc, oneshot};
 
 /// The interval for broadcasting logs and spans.
 const BROADCAST_INTERVAL: Duration = Duration::from_millis(400);
@@ -19,7 +19,7 @@ const BROADCAST_INTERVAL: Duration = Duration::from_millis(400);
 pub(crate) struct Broadcaster {
 	events: mpsc::Receiver<Event>,
 	cmds: mpsc::Receiver<Command>,
-	shutdown_in: watch::Receiver<()>,
+	shutdown_in: oneshot::Receiver<()>,
 
 	watchers: Vec<Watcher>,
 
@@ -32,7 +32,11 @@ pub(crate) struct Broadcaster {
 }
 
 impl Broadcaster {
-	pub fn new(events: mpsc::Receiver<Event>, cmds: mpsc::Receiver<Command>, shutdown_in: watch::Receiver<()>) -> Self {
+	pub fn new(
+		events: mpsc::Receiver<Event>,
+		cmds: mpsc::Receiver<Command>,
+		shutdown_in: oneshot::Receiver<()>,
+	) -> Self {
 		Self {
 			events,
 			cmds,
@@ -52,7 +56,8 @@ impl Broadcaster {
 				// Handle interval ticks.
 				_ = interval.tick() => true,
 				// Wait for shutdown signal.
-				_ = self.shutdown_in.changed() => {
+				_ = &mut self.shutdown_in => {
+					// flush the queues before we close
 					self.broadcast();
 					break;
 				}
