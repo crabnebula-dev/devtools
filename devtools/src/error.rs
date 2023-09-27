@@ -10,5 +10,5 @@ pub enum Error {
 	JsonError(#[from] serde_json::Error),
 
 	#[error(transparent)]
-	Tonic(#[from] tonic::transport::Error)
+	Tonic(#[from] tonic::transport::Error),
 }

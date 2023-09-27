@@ -1,5 +1,5 @@
-use crate::{common, logs, spans};
 use crate::metadata::Level;
+use crate::{common, logs, spans};
 
 mod generated {
 	#![allow(clippy::all)]
@@ -8,6 +8,7 @@ mod generated {
 	tonic::include_proto!("rs.devtools.instrument");
 }
 
+use crate::tauri::Metrics;
 pub use generated::*;
 
 bitflags::bitflags! {

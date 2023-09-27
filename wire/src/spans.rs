@@ -15,7 +15,7 @@ impl SpanEvent {
 		id: tracing_core::span::Id,
 		metadata: &'static tracing_core::Metadata<'static>,
 		fields: Vec<common::Field>,
-		parent: Option<tracing_core::span::Id>
+		parent: Option<tracing_core::span::Id>,
 	) -> Self {
 		Self {
 			event: Some(span_event::Event::NewSpan(span_event::Span {
@@ -23,7 +23,7 @@ impl SpanEvent {
 				metadata_id: Some(metadata.into()),
 				fields,
 				at: Some(at),
-				parent: parent.map(|id| id.into())
+				parent: parent.map(|id| id.into()),
 			})),
 		}
 	}

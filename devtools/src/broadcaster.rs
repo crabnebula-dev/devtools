@@ -128,7 +128,7 @@ impl Broadcaster {
 				id,
 				metadata,
 				fields,
-                maybe_parent
+				maybe_parent,
 			)),
 			Event::EnterSpan { at, span_id, thread_id } => self.new_spans.push(wire::spans::SpanEvent::enter_span(
 				self.base_time.to_timestamp(at),

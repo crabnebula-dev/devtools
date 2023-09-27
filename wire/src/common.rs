@@ -58,7 +58,10 @@ impl<'a> From<&'a tracing_core::Metadata<'a>> for Metadata {
 
 impl From<&'static tracing_core::Metadata<'static>> for NewMetadata {
 	fn from(value: &'static tracing_core::Metadata<'static>) -> Self {
-		NewMetadata { id: Some(value.into()), metadata: Some(value.into()) }
+		NewMetadata {
+			id: Some(value.into()),
+			metadata: Some(value.into()),
+		}
 	}
 }
 

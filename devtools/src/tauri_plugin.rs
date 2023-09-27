@@ -1,5 +1,5 @@
 use crate::broadcaster::Broadcaster;
-use crate::server::{DEFAULT_ADDRESS, Server};
+use crate::server::{Server, DEFAULT_ADDRESS};
 use crate::Command;
 use std::sync::Arc;
 use std::thread;
