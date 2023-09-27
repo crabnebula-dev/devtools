@@ -1,25 +1,14 @@
-import { For, Show, createSignal } from "solid-js";
+import { For, createSignal } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
-import { formatTimestamp } from "~/lib/formaters";
-import { useSocketData } from "~/lib/ws-store";
+import { useSocketData } from "~/lib/ws/context";
 
 export default function SpanWaterfall() {
   const { data } = useSocketData();
-  const [showTimestamp, toggleTimeStamp] = createSignal(true);
   const [shouldAutoScroll, toggleAutoScroll] = createSignal<boolean>(true);
 
   return (
     <>
-      <FilterToggle
-        defaultPressed
-        aria-label="timstamps"
-        changeHandler={() => toggleTimeStamp((prev) => !prev)}
-        fallbackElement={<span>show timestamp</span>}
-      >
-        <span>hide timestamps</span>
-      </FilterToggle>
-      {"   "}
       <FilterToggle
         aria-label="auto scroll"
         defaultPressed
@@ -30,7 +19,7 @@ export default function SpanWaterfall() {
       </FilterToggle>
 
       <AutoscrollPane
-        dataStream={data.logs[0]}
+        dataStream={data.spans[0]}
         shouldAutoScroll={shouldAutoScroll}
       >
         <For each={data.spans}>

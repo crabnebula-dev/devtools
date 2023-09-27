@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import { useSocketData } from "~/lib/ws-store";
+import { useSocketData } from "~/lib/ws/context";
 
 export function BootTime() {
   const { data } = useSocketData();

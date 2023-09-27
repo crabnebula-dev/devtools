@@ -1,5 +1,4 @@
 import { For } from "solid-js";
-import { Tabs } from "@kobalte/core";
 import { A, useParams } from "@solidjs/router";
 
 const TABS = [
