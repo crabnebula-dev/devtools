@@ -1,21 +1,46 @@
-import { For, Show, createSignal } from "solid-js";
+import { ToggleButton } from "@kobalte/core";
+import { For, Show, createSignal, on } from "solid-js";
+import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { formatTimestamp } from "~/lib/formaters";
 import { useSocketData } from "~/lib/ws-store";
 
 export default function Console() {
   const { data } = useSocketData();
   const [showTimestamp, toggleTimeStamp] = createSignal(true);
+  const [shouldAutoScroll, toggleAutoScroll] = createSignal<boolean>(true);
 
   return (
     <>
-      <button
-        class="border border-neutral-200 rounded-lg py-px px-2"
-        type="button"
-        onClick={() => toggleTimeStamp((prev) => !prev)}
+      <ToggleButton.Root
+        defaultPressed
+        aria-label="timstamps"
+        onChange={() => toggleTimeStamp((prev) => !prev)}
+        class="py-px px-2 border rounded-lg"
       >
-        Show timestamp
-      </button>
-      <ul class="m-5 px-5 border border-neutral-800 rounded-md max-h-80 overflow-y-auto">
+        {(state) => (
+          <Show when={state.pressed()} fallback={<span>show timstamps</span>}>
+            <span>hide timestamps</span>
+          </Show>
+        )}
+      </ToggleButton.Root>
+      {"   "}
+      <ToggleButton.Root
+        defaultPressed
+        aria-label="auto scroll"
+        class="py-px px-2 border rounded-lg"
+        onChange={() => toggleAutoScroll((prev) => !prev)}
+      >
+        {(state) => (
+          <Show when={state.pressed()} fallback={<span>autoscroll off</span>}>
+            <span>autoscroll on</span>
+          </Show>
+        )}
+      </ToggleButton.Root>
+
+      <AutoscrollPane
+        dataStream={data.logs[0]}
+        shouldAutoScroll={shouldAutoScroll}
+      >
         <For each={data.logs}>
           {({ message, timestamp }) => {
             const timeDate = new Date(timestamp);
@@ -37,7 +62,7 @@ export default function Console() {
             );
           }}
         </For>
-      </ul>
+      </AutoscrollPane>
     </>
   );
 }
