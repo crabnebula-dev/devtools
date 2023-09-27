@@ -87,6 +87,7 @@ pub fn try_init() -> Result<TauriPlugin> {
 	Ok(plugin)
 }
 
+/// Data sent from the `Layer` to the `Broadcaster`
 #[derive(Debug)]
 enum Event {
 	Metadata(&'static tracing_core::Metadata<'static>),
@@ -120,6 +121,7 @@ enum Event {
 	},
 }
 
+/// Commands send from the `Server` to the `Broadcaster`
 #[derive(Debug)]
 enum Command {
 	Instrument(Watcher),
@@ -128,7 +130,6 @@ enum Command {
 #[derive(Debug)]
 struct Watcher {
 	// TODO use these fields
-	interests: wire::instrument::Interests,
 	log_filter: Option<wire::instrument::Filter>,
 	span_filter: Option<wire::instrument::Filter>,
 

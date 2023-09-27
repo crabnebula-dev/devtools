@@ -171,12 +171,14 @@ impl Broadcaster {
 
 	/// Broadcasts new log or span events to the outbound channels if necessary
 	fn broadcast(&mut self) {
+		let now = Instant::now();
+		let new_metadata = mem::take(&mut self.new_metadata);
 		let logs_update = (!self.new_logs.is_empty()).then(|| self.logs_update());
 		let spans_update = (!self.new_spans.is_empty()).then(|| self.spans_update());
 
 		let update = wire::instrument::Update {
-			now: Some(self.base_time.to_timestamp(Instant::now())),
-			new_metadata: mem::take(&mut self.new_metadata),
+			at: Some(self.base_time.to_timestamp(now)),
+			new_metadata,
 			logs_update,
 			spans_update,
 		};

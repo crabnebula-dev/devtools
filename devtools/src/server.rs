@@ -90,11 +90,8 @@ impl wire::instrument::instrument_server::Instrument for InstrumentServer {
 		let (tx, rx) = mpsc::channel(DEFAULT_CLIENT_BUFFER_CAPACITY);
 
 		let params = req.into_inner();
-		let interests =
-			Interests::from_bits(params.interests).ok_or(Status::invalid_argument("could not parse sources"))?;
 
 		permit.send(Command::Instrument(Watcher {
-			interests,
 			log_filter: params.log_filter,
 			span_filter: params.span_filter,
 			tx,
@@ -181,7 +178,6 @@ mod test {
 
 		let stream = srv
 			.watch_updates(Request::new(InstrumentRequest {
-				interests: Interests::all().bits(),
 				log_filter: Some(Filter {
 					level: Some(Level::Error as i32),
 					file: None,

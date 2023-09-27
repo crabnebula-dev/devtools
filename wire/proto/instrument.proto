@@ -14,10 +14,6 @@ service Instrument {
 }
 
 message InstrumentRequest {
-  // A bitfield representing the data sources the client is interested in.
-  // 1 = Logs
-  // 2 = Spans
-  uint32 interests = 1;
   // Allows filtering the log events.
   Filter log_filter = 2;
   // Allows filtering the span events.
@@ -33,7 +29,7 @@ message Filter {
 }
 
 message Update {
-    google.protobuf.Timestamp now = 1;
+    google.protobuf.Timestamp at = 1;
     repeated common.NewMetadata new_metadata = 2;
     logs.Update logs_update = 3;
     spans.Update spans_update = 4;
