@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  * {
+    @apply scrollbar-thin scrollbar-track-neutral-900 scrollbar-thumb-rounded scrollbar-thumb-neutral-600;
+  }
+}
+
+@layer components {
+  .root-bg {
+    background: theme(colors.black)
+      linear-gradient(
+        130deg,
+        theme(colors.gray.800),
+        theme(colors.gray.950),
+        theme(colors.gray.900)
+      );
+  }
+}
