@@ -43,6 +43,7 @@
     "@protobuf-ts/plugin": "^2.9.1",
     "@protobuf-ts/runtime": "^2.9.1",
     "@protobuf-ts/runtime-rpc": "^2.9.1",
-    "@protobuf-ts/grpcweb-transport": "^2.9.1"
+    "@protobuf-ts/grpcweb-transport": "^2.9.1",
+    "tailwind-scrollbar": "^3.0.5"
   }
 }

@@ -1,53 +1,60 @@
-import { For, createEffect, createSignal, onCleanup } from "solid-js";
-import {InstrumentClient} from "../../../generated/instrument.client.ts";
-import {InstrumentRequest} from "../../../generated/instrument.ts";
-import {LogEvent} from "../../../generated/logs.ts";
-import {useTransport} from "~/lib/transport.tsx";
-
-function formatTimestamp(stamp: Date) {
-  return `${stamp.getHours()}:${stamp.getMinutes()}:${stamp.getSeconds()}`;
-}
+import { For, Show, createSignal } from "solid-js";
+import { AutoscrollPane } from "~/components/autoscroll-pane";
+import { FilterToggle } from "~/components/filter-toggle";
+import { formatTimestamp, timestampToDate } from "~/lib/formaters";
+import { useState } from "~/lib/state";
 
 export default function Console() {
-  const { transport } = useTransport();
-  const [logs, setLogs] = createSignal<LogEvent[]>([]);
-
-  let abort: AbortController;
-
-  createEffect(() => {
-    const client = new InstrumentClient(transport)
-
-    abort = new AbortController();
-    const updates = client.watchUpdates(InstrumentRequest.create({}), { abort: abort.signal });
-
-    updates.responses.onError((err) => {
-      console.error(err)
-    })
-
-    updates.responses.onMessage((update) => {
-      setLogs((prev) => [...(update.logsUpdate?.logEvents || []), ...prev]);
-    })
-  });
-
-  onCleanup(() => { abort.abort() })
+  const { state } = useState();
+  const [showTimestamp, toggleTimeStamp] = createSignal(true);
+  const [shouldAutoScroll, toggleAutoScroll] = createSignal<boolean>(true);
 
   return (
     <>
-      <ul>
-        <For each={logs()}>
+      <FilterToggle
+        defaultPressed
+        aria-label="time stamps"
+        changeHandler={() => toggleTimeStamp((prev) => !prev)}
+        fallbackElement={<span>show timestamp</span>}
+      >
+        <span>hide timestamps</span>
+      </FilterToggle>
+      {"   "}
+      <FilterToggle
+        aria-label="auto scroll"
+        defaultPressed
+        fallbackElement={<span>autoscroll off</span>}
+        changeHandler={() => toggleAutoScroll((prev) => !prev)}
+      >
+        <span>autoscroll on</span>
+      </FilterToggle>
+
+      <AutoscrollPane
+        dataStream={state.logs[0]}
+        shouldAutoScroll={shouldAutoScroll}
+      >
+        <For each={state.logs}>
           {({ message, at }) => {
-            const timeDate = new Date(Number(at!.seconds * 1000n) + (at!.nanos / 1e6));
+            const timeDate = timestampToDate(at!);
+
             return (
-              <li class="py-1">
-                <time dateTime={timeDate.toISOString()} class="font-mono pr-4">
-                  {formatTimestamp(timeDate)}
-                </time>
+              <li class="py-1 flex ">
+                <Show when={showTimestamp()}>
+                  <div class="text-right min-w-[9em]">
+                    <time
+                      dateTime={timeDate.toISOString()}
+                      class="font-mono pr-4"
+                    >
+                      {formatTimestamp(timeDate)}
+                    </time>
+                  </div>
+                </Show>
                 <span>{message}</span>
               </li>
             );
           }}
         </For>
-      </ul>
+      </AutoscrollPane>
     </>
   );
 }
