@@ -6,13 +6,21 @@ import "google/protobuf/timestamp.proto";
 import "common.proto";
 
 message Update {
+  // A list of log events that happened since the last update.
   repeated LogEvent log_events = 1;
+  // A count of how many log events were dropped because
+  // the event buffer was at capacity.
+  //
+  // If everything is working correctly, this should be 0. If this
+  // number is greater than zero this indicates the event buffers capacity
+  // should be increased or the publish interval decreased.
   uint64 dropped_events = 2;
 }
 
 message LogEvent {
-  /// The main message body of the log.
+  // The main message body of the log.
   string message = 1;
+  // Log events can happen inside of spans and if they do, this field will indicate which span it was.
   optional common.SpanId parent = 2;
   // Identifier for metadata describing static characteristics of all spans originating
   // from that call site, such as its name, source code location, verbosity level, and
