@@ -13,9 +13,9 @@
     background: theme(colors.black)
       linear-gradient(
         130deg,
-        theme(colors.zinc.800),
-        theme(colors.black),
-        theme(colors.zinc.900)
+        theme(colors.gray.800),
+        theme(colors.gray.950),
+        theme(colors.gray.900)
       );
   }
 }

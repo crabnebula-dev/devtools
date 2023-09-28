@@ -10,6 +10,7 @@ import { useSubscriber } from "~/lib/ws/queries";
 import { SOCKET_STATES, connectWS } from "~/lib/ws/connection";
 import { initialStoreData } from "~/lib/ws/store";
 import { DataContext, WSContext } from "~/lib/ws/context";
+import { ConnectionStatus } from "~/components/connection-status";
 
 export default function Layout() {
   const [appData, setData] = createStore(initialStoreData);
@@ -87,26 +88,19 @@ export default function Layout() {
   return (
     <WSContext.Provider value={{ socket, state: status }}>
       <Show when={status() === SOCKET_STATES.get(WebSocket.OPEN)}>
-        <div class="flex justify-between w-full p-4">
-          <div id="status" class="inline-block text-sm py-1 my-4">
-            Status: <span class="text-emerald-500">{status()}</span>
-          </div>
-          <Button.Root
-            type="button"
-            id="close"
-            class=" py-1 px-3 mx-1 text-sm border-2 font-bold border-red-500 hover:bg-red-500 hover:text-black focus:bg-red-500 focus:text-black"
-            onClick={() => {
-              socket.close();
-            }}
-          >
-            Close Connection
-          </Button.Root>
-        </div>
-        <DataContext.Provider value={{ data: appData }}>
-          <BootTime />
-          <Navigation />
-          <Outlet />
-        </DataContext.Provider>
+        <main class="grid grid-rows-[auto,auto,1fr,auto] h-full">
+          <ConnectionStatus socket={socket} status={status} />
+          <DataContext.Provider value={{ data: appData }}>
+            <header>
+              <BootTime />
+              <Navigation />
+            </header>
+            <article class="bg-gray-900 pt-10 h-full">
+              <Outlet />
+            </article>
+          </DataContext.Provider>
+          <footer>Built by CrabNebula</footer>
+        </main>
       </Show>
     </WSContext.Provider>
   );

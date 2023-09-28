@@ -42,8 +42,8 @@ export default function Entry() {
   const Routes = useRoutes(ROUTES);
 
   return (
-    <main class="root-bg text-white min-h-screen">
+    <div class="root-bg text-white h-screen overflow-x-hidden">
       <Routes />
-    </main>
+    </div>
   );
 }
