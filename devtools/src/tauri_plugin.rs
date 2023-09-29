@@ -17,7 +17,6 @@ pub struct TauriPlugin {
 	enabled: bool,
 	init: Option<(Broadcaster, mpsc::Sender<Command>)>,
 	metrics: Arc<RwLock<Metrics>>,
-	shutdown_tx: Option<oneshot::Sender<()>>,
 }
 
 impl TauriPlugin {
