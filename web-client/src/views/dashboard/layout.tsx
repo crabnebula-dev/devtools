@@ -10,6 +10,7 @@ import { SOCKET_STATES, connectWS } from "~/lib/ws/connection";
 import { initialStoreData } from "~/lib/ws/store";
 import { DataContext, WSContext } from "~/lib/ws/context";
 import { ConnectionStatus } from "~/components/connection-status";
+import { Logo } from "~/components/crabnebula-logo";
 
 export default function Layout() {
   const [appData, setData] = createStore(initialStoreData);
@@ -89,7 +90,7 @@ export default function Layout() {
       <DataContext.Provider value={{ data: appData }}>
         <Show when={status() === SOCKET_STATES.get(WebSocket.OPEN)}>
           <header class="grid">
-            <div class="flex px-2 py-1 items-center justify-between">
+            <div class="border-b border-gray-800 flex px-2 py-1 items-center justify-between">
               <ConnectionStatus socket={socket} status={status} />
               <BootTime />
             </div>
@@ -98,7 +99,12 @@ export default function Layout() {
           <main class="max-h-full overflow-auto">
             <Outlet />
           </main>
-          <footer class="p-2">Built by CrabNebula</footer>
+          <footer class="p-2 flex justify-center border-t border-gray-800 gap-2 items-center">
+            Built by <Logo size={16} /> CrabNebula
+          </footer>
+          <div class="surf-container">
+            <img class="bg-surface static" src="/bg.jpeg" alt="" />
+          </div>
         </Show>
       </DataContext.Provider>
     </WSContext.Provider>
