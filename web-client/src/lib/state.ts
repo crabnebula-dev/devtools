@@ -1,11 +1,13 @@
-import { createContext, useContext } from 'solid-js';
-import { LogEvent } from '../../generated/logs'
-import { Metrics } from 'generated/tauri';
-import { Timestamp } from 'generated/google/protobuf/timestamp';
-import { SpanEvent } from 'generated/spans';
-import { MetaId, Metadata } from 'generated/common';
+import {createContext, useContext} from 'solid-js';
+import {LogEvent} from '../../generated/logs'
+import {Metrics} from 'generated/tauri';
+import {Timestamp} from 'generated/google/protobuf/timestamp';
+import {SpanEvent} from 'generated/spans';
+import {Metadata, MetaId} from 'generated/common';
+import {HealthCheckResponse_ServingStatus} from "../../generated/health.ts";
 
 export type State = {
+  health: HealthCheckResponse_ServingStatus
   metadata: Map<MetaId, Metadata>,
   logs: LogEvent[];
   spans: SpanEvent[];
@@ -22,13 +24,16 @@ export function timestampToDate(ts: Timestamp): Date {
 }
 
 export const initialState: State = {
+  health: HealthCheckResponse_ServingStatus.UNKNOWN,
+  metadata: new  Map(),
+  logs: [],
+  spans: [],
+
   tauriConfig: undefined,
   perf: {
     initializedAt: undefined,
     readyAt: undefined,
   },
-  logs: [],
-  spans: [],
 
   get perfStartDate() {
     return this.perf.initializedAt ? timestampToDate(this.perf.initializedAt) : null
@@ -39,10 +44,7 @@ export const initialState: State = {
   },
 
   get perfElapsed() {
-    if (
-      typeof this.perf.initializedAt?.seconds === "number" &&
-      typeof this.perf.readyAt?.seconds === "number"
-    ) {
+    if (this.perf.initializedAt && this.perf.readyAt) {
       return {
         seconds: this.perf.readyAt.seconds - this.perf.initializedAt.seconds,
         nanos: this.perf.readyAt.nanos - this.perf.initializedAt.nanos

@@ -11,7 +11,7 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --fix --ext .ts,.tsx",
     "test": "vitest",
-    "proto": "protoc --ts_out generated --proto_path ../wire/proto ../wire/proto/common.proto ../wire/proto/instrument.proto ../wire/proto/logs.proto ../wire/proto/spans.proto ../wire/proto/tauri.proto"
+    "proto": "protoc --ts_out generated --proto_path ../wire/proto ../wire/proto/common.proto ../wire/proto/instrument.proto ../wire/proto/logs.proto ../wire/proto/spans.proto ../wire/proto/tauri.proto ../wire/proto/health.proto"
   },
   "devDependencies": {
     "@solidjs/testing-library": "^0.7.1",

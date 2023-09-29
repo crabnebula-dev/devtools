@@ -22,14 +22,6 @@ import { Metadata_Level } from "./common";
  */
 export interface InstrumentRequest {
     /**
-     * A bitfield representing the data sources the client is interested in.
-     * 1 = Logs
-     * 2 = Spans
-     *
-     * @generated from protobuf field: uint32 interests = 1;
-     */
-    interests: number;
-    /**
      * Allows filtering the log events.
      *
      * @generated from protobuf field: rs.devtools.instrument.Filter log_filter = 2;
@@ -63,22 +55,40 @@ export interface Filter {
     text?: string;
 }
 /**
+ * An update about the state of the instrumented application.
+ *
+ * An updated is comprised of a set of sub-updates about each tracked data source,
+ * they are combined into one message however to reduce the complexity for both
+ * the server and client as well as deduplicate data between updates:
+ * - a single timestamp for all updates
+ * - a single place for new_metadata
+ *
  * @generated from protobuf message rs.devtools.instrument.Update
  */
 export interface Update {
     /**
-     * @generated from protobuf field: google.protobuf.Timestamp now = 1;
+     * The system time when this update was recorded.
+     *
+     * @generated from protobuf field: google.protobuf.Timestamp at = 1;
      */
-    now?: Timestamp;
+    at?: Timestamp;
     /**
+     * Any new metadata that was registered since the last update.
+     *
+     * The metadata_id fields in `LogEvent` and `Span` refer back to metadata registered through these updates.
+     *
      * @generated from protobuf field: repeated rs.devtools.common.NewMetadata new_metadata = 2;
      */
     newMetadata: NewMetadata[];
     /**
+     * Log events update.
+     *
      * @generated from protobuf field: rs.devtools.logs.Update logs_update = 3;
      */
     logsUpdate?: Update$;
     /**
+     * Span events update.
+     *
      * @generated from protobuf field: rs.devtools.spans.Update spans_update = 4;
      */
     spansUpdate?: Update$2;
@@ -87,13 +97,12 @@ export interface Update {
 class InstrumentRequest$Type extends MessageType<InstrumentRequest> {
     constructor() {
         super("rs.devtools.instrument.InstrumentRequest", [
-            { no: 1, name: "interests", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
             { no: 2, name: "log_filter", kind: "message", T: () => Filter },
             { no: 3, name: "span_filter", kind: "message", T: () => Filter }
         ]);
     }
     create(value?: PartialMessage<InstrumentRequest>): InstrumentRequest {
-        const message = { interests: 0 };
+        const message = {};
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<InstrumentRequest>(this, message, value);
@@ -104,9 +113,6 @@ class InstrumentRequest$Type extends MessageType<InstrumentRequest> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* uint32 interests */ 1:
-                    message.interests = reader.uint32();
-                    break;
                 case /* rs.devtools.instrument.Filter log_filter */ 2:
                     message.logFilter = Filter.internalBinaryRead(reader, reader.uint32(), options, message.logFilter);
                     break;
@@ -125,9 +131,6 @@ class InstrumentRequest$Type extends MessageType<InstrumentRequest> {
         return message;
     }
     internalBinaryWrite(message: InstrumentRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* uint32 interests = 1; */
-        if (message.interests !== 0)
-            writer.tag(1, WireType.Varint).uint32(message.interests);
         /* rs.devtools.instrument.Filter log_filter = 2; */
         if (message.logFilter)
             Filter.internalBinaryWrite(message.logFilter, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
@@ -209,7 +212,7 @@ export const Filter = new Filter$Type();
 class Update$Type extends MessageType<Update> {
     constructor() {
         super("rs.devtools.instrument.Update", [
-            { no: 1, name: "now", kind: "message", T: () => Timestamp },
+            { no: 1, name: "at", kind: "message", T: () => Timestamp },
             { no: 2, name: "new_metadata", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => NewMetadata },
             { no: 3, name: "logs_update", kind: "message", T: () => Update$ },
             { no: 4, name: "spans_update", kind: "message", T: () => Update$2 }
@@ -227,8 +230,8 @@ class Update$Type extends MessageType<Update> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* google.protobuf.Timestamp now */ 1:
-                    message.now = Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.now);
+                case /* google.protobuf.Timestamp at */ 1:
+                    message.at = Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.at);
                     break;
                 case /* repeated rs.devtools.common.NewMetadata new_metadata */ 2:
                     message.newMetadata.push(NewMetadata.internalBinaryRead(reader, reader.uint32(), options));
@@ -251,9 +254,9 @@ class Update$Type extends MessageType<Update> {
         return message;
     }
     internalBinaryWrite(message: Update, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* google.protobuf.Timestamp now = 1; */
-        if (message.now)
-            Timestamp.internalBinaryWrite(message.now, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
+        /* google.protobuf.Timestamp at = 1; */
+        if (message.at)
+            Timestamp.internalBinaryWrite(message.at, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
         /* repeated rs.devtools.common.NewMetadata new_metadata = 2; */
         for (let i = 0; i < message.newMetadata.length; i++)
             NewMetadata.internalBinaryWrite(message.newMetadata[i], writer.tag(2, WireType.LengthDelimited).fork(), options).join();

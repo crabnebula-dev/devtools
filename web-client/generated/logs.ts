@@ -20,10 +20,19 @@ import { SpanId } from "./common";
  */
 export interface Update {
     /**
+     * A list of log events that happened since the last update.
+     *
      * @generated from protobuf field: repeated rs.devtools.logs.LogEvent log_events = 1;
      */
     logEvents: LogEvent[];
     /**
+     * A count of how many log events were dropped because
+     * the event buffer was at capacity.
+     *
+     * If everything is working correctly, this should be 0. If this
+     * number is greater than zero this indicates the event buffers capacity
+     * should be increased or the publish interval decreased.
+     *
      * @generated from protobuf field: uint64 dropped_events = 2;
      */
     droppedEvents: bigint;
@@ -33,12 +42,14 @@ export interface Update {
  */
 export interface LogEvent {
     /**
-     * / The main message body of the log.
+     * The main message body of the log.
      *
      * @generated from protobuf field: string message = 1;
      */
     message: string;
     /**
+     * Log events can happen inside of spans and if they do, this field will indicate which span it was.
+     *
      * @generated from protobuf field: optional rs.devtools.common.SpanId parent = 2;
      */
     parent?: SpanId;

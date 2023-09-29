@@ -1,13 +1,19 @@
 use crate::{Command, Watcher};
+use futures::stream::BoxStream;
+use futures::{FutureExt, TryStreamExt};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::Arc;
 use tauri::{AppHandle, Runtime};
 use tauri_devtools_wire_format as wire;
-use tauri_devtools_wire_format::instrument::{InstrumentRequest, Interests};
+use tauri_devtools_wire_format::instrument::InstrumentRequest;
 use tauri_devtools_wire_format::tauri::{Asset, AssetRequest, Config, ConfigRequest, Metrics, MetricsRequest};
 use tokio::sync::{mpsc, RwLock};
+use tokio_stream::wrappers::ReceiverStream;
 use tonic::codegen::http::Method;
 use tonic::{Request, Response, Status};
+use tonic_health::pb::health_server::HealthServer;
+use tonic_health::server::HealthReporter;
+use tonic_health::ServingStatus;
 use tower_http::cors::{AllowHeaders, CorsLayer};
 
 /// Default maximum capacity for the channel of events sent from a
@@ -21,10 +27,12 @@ pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOC
 pub(crate) struct Server<R: Runtime> {
 	instrument: InstrumentServer,
 	tauri: TauriServer<R>,
+	health: HealthServer<tonic_health::server::HealthService>,
 }
 
 struct InstrumentServer {
 	tx: mpsc::Sender<Command>,
+	health_reporter: HealthReporter,
 }
 
 struct TauriServer<R: Runtime> {
@@ -34,9 +42,21 @@ struct TauriServer<R: Runtime> {
 
 impl<R: Runtime> Server<R> {
 	pub fn new(tx: mpsc::Sender<Command>, app_handle: AppHandle<R>, metrics: Arc<RwLock<Metrics>>) -> Self {
+		let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
+
+		health_reporter
+			.set_serving::<wire::instrument::instrument_server::InstrumentServer<InstrumentServer>>()
+			.now_or_never()
+			.unwrap();
+		health_reporter
+			.set_serving::<wire::tauri::tauri_server::TauriServer<TauriServer<R>>>()
+			.now_or_never()
+			.unwrap();
+
 		Self {
-			instrument: InstrumentServer { tx },
-			tauri: TauriServer { app_handle, metrics },
+			instrument: InstrumentServer { tx, health_reporter },
+			tauri: TauriServer { app_handle, metrics }, // the TauriServer doesn't need a health_reporter. It can never fail.
+			health: unsafe { std::mem::transmute(health_service) },
 		}
 	}
 
@@ -59,6 +79,7 @@ impl<R: Runtime> Server<R> {
 			.add_service(tonic_web::enable(wire::tauri::tauri_server::TauriServer::new(
 				self.tauri,
 			)))
+			.add_service(tonic_web::enable(self.health))
 			.serve(addr)
 			.await?;
 
@@ -66,9 +87,16 @@ impl<R: Runtime> Server<R> {
 	}
 }
 
+impl InstrumentServer {
+	async fn set_status(&self, status: ServingStatus) {
+		let mut r = self.health_reporter.clone();
+		r.set_service_status("rs.devtools.instrument.Instrument", status).await;
+	}
+}
+
 #[tonic::async_trait]
 impl wire::instrument::instrument_server::Instrument for InstrumentServer {
-	type WatchUpdatesStream = tokio_stream::wrappers::ReceiverStream<Result<wire::instrument::Update, Status>>;
+	type WatchUpdatesStream = BoxStream<'static, Result<wire::instrument::Update, Status>>;
 
 	async fn watch_updates(
 		&self,
@@ -80,11 +108,12 @@ impl wire::instrument::instrument_server::Instrument for InstrumentServer {
 		}
 
 		// reserve capacity to message the broadcaster
-		let permit = self
-			.tx
-			.reserve()
-			.await
-			.map_err(|_| Status::internal("cannot start new watch, aggregation task is not running"))?;
+		let Ok(permit) = self.tx.reserve().await else {
+			self.set_status(ServingStatus::NotServing).await;
+			return Err(Status::internal(
+				"cannot start new watch, aggregation task is not running",
+			));
+		};
 
 		// create output channel and send tx to the aggregator for tracking
 		let (tx, rx) = mpsc::channel(DEFAULT_CLIENT_BUFFER_CAPACITY);
@@ -99,11 +128,17 @@ impl wire::instrument::instrument_server::Instrument for InstrumentServer {
 
 		tracing::debug!("watch started");
 
-		let stream = tokio_stream::wrappers::ReceiverStream::new(rx);
-		Ok(Response::new(stream))
+		let stream = ReceiverStream::new(rx).or_else(|err| async move {
+			tracing::error!("Aggregator failed with error {err:?}");
+
+			// TODO set the health service status to NotServing here
+
+			Err(Status::internal("boom"))
+		});
+
+		Ok(Response::new(Box::pin(stream)))
 	}
 }
-
 #[tonic::async_trait]
 impl<R: Runtime> wire::tauri::tauri_server::Tauri for TauriServer<R> {
 	async fn get_config(&self, _req: Request<ConfigRequest>) -> Result<Response<Config>, Status> {
@@ -133,7 +168,6 @@ impl<R: Runtime> wire::tauri::tauri_server::Tauri for TauriServer<R> {
 #[cfg(test)]
 mod test {
 	use super::*;
-	use futures::StreamExt;
 	use std::time::SystemTime;
 	use tauri_devtools_wire_format as wire;
 	use tauri_devtools_wire_format::instrument::instrument_server::Instrument;
@@ -173,10 +207,14 @@ mod test {
 
 	#[tokio::test]
 	async fn subscription() {
+		let (health_reporter, _) = tonic_health::server::health_reporter();
 		let (cmd_tx, mut cmd_rx) = mpsc::channel(1);
-		let srv = InstrumentServer { tx: cmd_tx };
+		let srv = InstrumentServer {
+			tx: cmd_tx,
+			health_reporter,
+		};
 
-		let stream = srv
+		let _stream = srv
 			.watch_updates(Request::new(InstrumentRequest {
 				log_filter: Some(Filter {
 					level: Some(Level::Error as i32),
@@ -193,7 +231,6 @@ mod test {
 		assert!(matches!(
 			cmd,
 			Command::Instrument(Watcher {
-				interests,
 				log_filter: Some(Filter { level: Some(0), .. }),
 				..
 			})

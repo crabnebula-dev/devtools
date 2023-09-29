@@ -20,15 +20,28 @@ import { SpanId } from "./common";
  */
 export interface Update {
     /**
+     * A list of span events that happened since the last update.
+     *
      * @generated from protobuf field: repeated rs.devtools.spans.SpanEvent span_events = 1;
      */
     spanEvents: SpanEvent[];
     /**
+     * A count of how many log events were dropped because
+     * the event buffer was at capacity.
+     *
+     * If everything is working correctly, this should be 0. If this
+     * number is greater than zero this indicates the event buffers capacity
+     * should be increased or the publish interval decreased.
+     *
      * @generated from protobuf field: uint64 dropped_events = 2;
      */
     droppedEvents: bigint;
 }
 /**
+ * A span event
+ *
+ * Span events are emitted whenever a span lifecycle event happens and are thus rather low-level by nature.
+ *
  * @generated from protobuf message rs.devtools.spans.SpanEvent
  */
 export interface SpanEvent {
@@ -79,7 +92,7 @@ export interface SpanEvent_Span {
     id?: SpanId;
     /**
      * Identifier for metadata describing static characteristics of all spans originating
-     * from that callsite, such as its name, source code location, verbosity level, and
+     * from that call site, such as its name, source code location, verbosity level, and
      * the names of its fields.
      *
      * @generated from protobuf field: rs.devtools.common.MetaId metadata_id = 2;
