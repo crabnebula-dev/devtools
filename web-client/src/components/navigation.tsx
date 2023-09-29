@@ -23,8 +23,8 @@ const TABS = [
 export function Navigation() {
   const { host, port } = useParams();
   return (
-    <nav class="pt-10">
-      <ul class="flex flex-start text-lg border-b-[1px] border-b-neutral-800">
+    <nav>
+      <ul class="flex flex-start border-b-neutral-800">
         <For each={TABS}>
           {(tab) => (
             <li>
