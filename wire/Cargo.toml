@@ -14,7 +14,6 @@ homepage.workspace = true
 [dependencies]
 serde_json.workspace = true
 tauri.workspace = true
-#fake = { version = "2.8", features = ["derive"], optional = true }
 bitflags = "2.1.0"
 prost = "0.12"
 prost-types = "0.12"
@@ -24,6 +23,3 @@ tracing-core.workspace = true
 [build-dependencies]
 tonic-build = "0.10"
 prost-build = "0.12"
-
-[features]
-test_util = []

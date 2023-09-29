@@ -21,9 +21,6 @@ documentation = "https://docs.rs/inspector-protocol"
 homepage = "https://www.crabnebula.dev/"
 
 [workspace.dependencies]
-jsonrpsee = { version = "0.20" }
-jsonrpsee-core = { version = "0.20" }
-
 log = "0.4.17"
 serde = "1"
 serde_json = "1"
@@ -35,6 +32,6 @@ tokio-stream = "0.1"
 
 tracing = "0.1"
 tracing-core = "0.1"
-tracing-subscriber = "0.3.17"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 
 tauri = { git = "https://github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing-v1" }
