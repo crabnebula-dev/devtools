@@ -24,14 +24,14 @@ export function Navigation() {
   const { host, port } = useParams();
   return (
     <nav>
-      <ul class="flex flex-start border-b-neutral-800">
+      <ul class="flex border-b flex-start border-b-neutral-800">
         <For each={TABS}>
           {(tab) => (
             <li>
               <A
                 href={tab.url(host, port)}
-                class="border-[1px] border-gray-700  border-b-0 py-2 px-8"
-                activeClass=" border-[1px] border-b-0 border-gray-700 py-2 bg-gray-900"
+                class="flex border-b-neutral-800 -mb-[1px] items-center justify-center leading-none border-b py-2 px-4 hover:bg-gray-800 hover:border-gray-800"
+                activeClass="border-b-gray-600 hover:border-b-gray-500"
               >
                 {tab.title}
               </A>
