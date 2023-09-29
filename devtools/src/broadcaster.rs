@@ -1,28 +1,26 @@
 use crate::{Command, Event, Watcher};
 use futures::FutureExt;
+use std::collections::HashMap;
 use std::mem;
 use std::time::{Duration, Instant, SystemTime};
 use tauri_devtools_wire_format as wire;
+use tauri_devtools_wire_format::instrument::Filterable;
 use tokio::sync::mpsc;
 
 /// The interval for broadcasting logs and spans.
-const BROADCAST_INTERVAL: Duration = Duration::from_millis(400);
+const BROADCAST_INTERVAL: Duration = Duration::from_millis(400); // TODO find good value for this
 
-/// `Broadcaster` serves as the default [`Dispatcher`] used for the inspector protocol.
+/// Broadcaster acts as the central component of the app instrumentation
 ///
-/// It relays [`Tree`] entries directly to broadcast channel subscribers. If there are no subscribers,
-/// the event is dropped.
-///
-/// The `Broadcaster` holds two separate queues:
-/// - `logs_queue` for log entries, and
-/// - `spans_queue` for span entries.
+/// It receives raw [`Event`]s from the [`Layer`], preprocesses them and relays them to all attached `watchers` through the [`Server`].
+/// It can also receive [`Command`]s from the [`Server`] which control the behaviour of the broadcaster.
 pub(crate) struct Broadcaster {
 	events: mpsc::Receiver<Event>,
 	cmds: mpsc::Receiver<Command>,
 
 	watchers: Vec<Watcher>,
 
-	new_metadata: Vec<wire::NewMetadata>,
+	new_metadata: HashMap<wire::MetaId, wire::Metadata>,
 
 	new_logs: Vec<wire::logs::LogEvent>,
 	new_spans: Vec<wire::spans::SpanEvent>,
@@ -38,7 +36,7 @@ impl Broadcaster {
 			watchers: vec![],
 			new_logs: vec![],
 			new_spans: vec![],
-			new_metadata: vec![],
+			new_metadata: HashMap::new(),
 			base_time: TimeAnchor::new(),
 		}
 	}
@@ -95,10 +93,10 @@ impl Broadcaster {
 	}
 
 	/// Takes in a Tree and pushes it to the internal queues of the broadcaster
-	fn update_state(&mut self, tree: Event) {
-		match tree {
+	fn update_state(&mut self, event: Event) {
+		match event {
 			Event::Metadata(meta) => {
-				self.new_metadata.push(meta.into());
+				self.new_metadata.insert(meta.into(), meta.into());
 			}
 			// Received a new log (event)
 			Event::LogEvent {
@@ -166,19 +164,40 @@ impl Broadcaster {
 	/// Broadcasts new log or span events to the outbound channels if necessary
 	fn broadcast(&mut self) {
 		let now = Instant::now();
-		let new_metadata = mem::take(&mut self.new_metadata);
 		let logs_update = (!self.new_logs.is_empty()).then(|| self.logs_update());
 		let spans_update = (!self.new_spans.is_empty()).then(|| self.spans_update());
 
-		let update = wire::instrument::Update {
-			at: Some(self.base_time.to_timestamp(now)),
-			new_metadata,
-			logs_update,
-			spans_update,
-		};
+		let new_metadata = mem::take(&mut self.new_metadata);
 
-		self.watchers
-			.retain(|watcher| watcher.tx.try_send(Ok(update.clone())).is_ok());
+		self.watchers.retain(|watcher| {
+			let mut logs_update = logs_update.clone();
+			if let (Some(logs_update), Some(filter)) = (&mut logs_update, &watcher.log_filter) {
+				logs_update.log_events.retain(|log_event| {
+					let meta = new_metadata.get(&log_event.metadata_id.as_ref().unwrap()).unwrap();
+					log_event.match_filter(meta, &filter)
+				})
+			};
+
+			let update = wire::instrument::Update {
+				at: Some(self.base_time.to_timestamp(now)),
+				new_metadata: new_metadata // TODO this isn't ideal
+					.clone()
+					.into_iter()
+					.map(|(id, metadata)| wire::NewMetadata {
+						id: Some(id.into()),
+						metadata: Some(metadata),
+					})
+					.collect(),
+				logs_update,
+				spans_update: spans_update.clone(),
+			};
+
+			let res = watcher.tx.try_send(Ok(update));
+			if let Err(err) = &res {
+				tracing::warn!("Failed to send update to client because of error {err:?}, removing from watchers...");
+			}
+			res.is_ok()
+		});
 	}
 }
 
