@@ -23,15 +23,15 @@ const TABS = [
 export function Navigation() {
   const { wsUrl, wsPort } = useParams();
   return (
-    <nav class="pt-10">
-      <ul class="flex flex-start text-lg border-b-[1px] border-b-neutral-800">
+    <nav>
+      <ul class="flex flex-start border-b-neutral-800">
         <For each={TABS}>
           {(tab) => (
-            <li class="">
+            <li>
               <A
                 href={tab.url(wsUrl, wsPort)}
-                class="border-[1px] border-gray-700  border-b-0 py-2 px-8"
-                activeClass=" border-[1px] border-b-0 border-gray-700 py-2 bg-gray-900"
+                class="border-black bg-black flex items-center justify-center leading-none border-b-2 py-2 px-4 hover:bg-gray-800 hover:border-gray-800"
+                activeClass="border-gray-600 hover:border-gray-500"
               >
                 {tab.title}
               </A>

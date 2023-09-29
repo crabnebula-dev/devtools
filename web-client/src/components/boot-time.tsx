@@ -5,10 +5,10 @@ export function BootTime() {
   const { data } = useSocketData();
 
   return (
-    <Show when={data.perfElapsed} fallback={"waiting for data..."}>
+    <Show when={data.perfElapsed} fallback={"Waiting for data..."}>
       {(e) => (
         <section>
-          <strong>Loading time:</strong> <span class="font-mono">{e()}ms</span>
+          Loaded in <span class="font-bold">{e()}ms</span>
         </section>
       )}
     </Show>
