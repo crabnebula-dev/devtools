@@ -3,7 +3,7 @@ use futures::FutureExt;
 use std::mem;
 use std::time::{Duration, Instant, SystemTime};
 use tauri_devtools_wire_format as wire;
-use tokio::sync::{mpsc, oneshot};
+use tokio::sync::mpsc;
 
 /// The interval for broadcasting logs and spans.
 const BROADCAST_INTERVAL: Duration = Duration::from_millis(400);
@@ -19,7 +19,6 @@ const BROADCAST_INTERVAL: Duration = Duration::from_millis(400);
 pub(crate) struct Broadcaster {
 	events: mpsc::Receiver<Event>,
 	cmds: mpsc::Receiver<Command>,
-	shutdown_in: oneshot::Receiver<()>,
 
 	watchers: Vec<Watcher>,
 
@@ -32,15 +31,10 @@ pub(crate) struct Broadcaster {
 }
 
 impl Broadcaster {
-	pub fn new(
-		events: mpsc::Receiver<Event>,
-		cmds: mpsc::Receiver<Command>,
-		shutdown_in: oneshot::Receiver<()>,
-	) -> Self {
+	pub fn new(events: mpsc::Receiver<Event>, cmds: mpsc::Receiver<Command>) -> Self {
 		Self {
 			events,
 			cmds,
-			shutdown_in,
 			watchers: vec![],
 			new_logs: vec![],
 			new_spans: vec![],
@@ -48,27 +42,22 @@ impl Broadcaster {
 			base_time: TimeAnchor::new(),
 		}
 	}
-	pub async fn run(mut self) {
+	pub async fn run(mut self) -> Self {
 		let mut interval = tokio::time::interval(BROADCAST_INTERVAL);
 
 		loop {
 			let should_broadcast = tokio::select! {
 				// Handle interval ticks.
 				_ = interval.tick() => true,
-				// Wait for shutdown signal.
-				_ = &mut self.shutdown_in => {
-					// flush the queues before we close
-					self.broadcast();
-					break;
-				}
 				cmd = self.cmds.recv() => {
 					match cmd {
 						Some(Command::Instrument(watcher)) => {
 							self.add_instrument_watcher(watcher);
 						}
 						None => {
-							tracing::debug!("rpc server closed, terminating");
-							return;
+							tracing::debug!("gRPC server closed, terminating...");
+							// TODO set health status to NOT_SERVING?
+							break;
 						}
 					};
 					false
@@ -83,8 +72,9 @@ impl Broadcaster {
 					// The channel closed, no more events will be emitted...time
 					// to stop aggregating.
 					None => {
-						tracing::debug!("event channel closed; terminating");
-						return;
+						tracing::debug!("Event channel closed; terminating...");
+						// TODO set health status to NOT_SERVING
+						break;
 					}
 				};
 			}
@@ -93,6 +83,10 @@ impl Broadcaster {
 				self.broadcast();
 			}
 		}
+
+		// attempt to flush updates to all watchers before closing
+		self.broadcast();
+		self
 	}
 
 	fn add_instrument_watcher(&mut self, watcher: Watcher) {
@@ -210,5 +204,76 @@ impl TimeAnchor {
 
 	pub fn to_timestamp(&self, t: Instant) -> prost_types::Timestamp {
 		self.to_system_time(t).into()
+	}
+}
+
+#[cfg(test)]
+mod test {
+	use super::*;
+	use crate::layer::Layer;
+	use tauri_devtools_wire_format::instrument::Update;
+	use tokio::sync::mpsc;
+	use tracing_subscriber::prelude::*;
+
+	async fn drain_updates(mf: Broadcaster, cmd_tx: mpsc::Sender<Command>) -> Vec<Update> {
+		let (client_tx, mut client_rx) = mpsc::channel(1);
+		cmd_tx
+			.send(Command::Instrument(Watcher {
+				log_filter: None,
+				span_filter: None,
+				tx: client_tx,
+			}))
+			.await
+			.unwrap();
+		drop(cmd_tx);
+
+		mf.run().await; // run the broadcasters event loop to completion
+
+		println!("done");
+
+		let mut out = Vec::new();
+		while let Some(Ok(update)) = client_rx.recv().await {
+			out.push(update);
+		}
+		out
+	}
+
+	#[tokio::test]
+	async fn attach_watcher() {
+		let (_, evt_rx) = mpsc::channel(1);
+		let (cmd_tx, cmd_rx) = mpsc::channel(1);
+
+		let mf = Broadcaster::new(evt_rx, cmd_rx);
+
+		let (client_tx, _) = mpsc::channel(1);
+		cmd_tx
+			.send(Command::Instrument(Watcher {
+				log_filter: None,
+				span_filter: None,
+				tx: client_tx,
+			}))
+			.await
+			.unwrap();
+		drop(cmd_tx); // drop the cmd_tx connection here, this will stop the broadcaster
+
+		let mf = mf.run().await;
+
+		assert_eq!(mf.watchers.len(), 1);
+	}
+
+	#[tokio::test]
+	async fn log_events() {
+		let (evt_tx, evt_rx) = mpsc::channel(1);
+		let (cmd_tx, cmd_rx) = mpsc::channel(1);
+
+		let mf = Broadcaster::new(evt_rx, cmd_rx);
+		let layer = Layer::new(evt_tx);
+
+		tracing_subscriber::registry().with(layer).set_default();
+
+		tracing::debug!("an event!");
+
+		let updates = drain_updates(mf, cmd_tx).await;
+		assert_eq!(updates.len(), 1);
 	}
 }

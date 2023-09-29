@@ -6,7 +6,7 @@ use std::thread;
 use std::time::SystemTime;
 use tauri::{AppHandle, RunEvent, Runtime};
 use tauri_devtools_wire_format::tauri::Metrics;
-use tokio::sync::{mpsc, oneshot, RwLock};
+use tokio::sync::{mpsc, RwLock};
 
 /// URL of the web-based devtool
 /// The server host is added automatically eg: `127.0.0.1:56609`.
@@ -21,12 +21,7 @@ pub struct TauriPlugin {
 }
 
 impl TauriPlugin {
-	pub(crate) fn new(
-		enabled: bool,
-		broadcaster: Broadcaster,
-		cmd_tx: mpsc::Sender<Command>,
-		shutdown_tx: oneshot::Sender<()>,
-	) -> Self {
+	pub(crate) fn new(enabled: bool, broadcaster: Broadcaster, cmd_tx: mpsc::Sender<Command>) -> Self {
 		Self {
 			enabled,
 			init: Some((broadcaster, cmd_tx)),
@@ -34,7 +29,6 @@ impl TauriPlugin {
 				initialized_at: Some(SystemTime::now().into()),
 				ready_at: None,
 			})),
-			shutdown_tx: Some(shutdown_tx),
 		}
 	}
 }
@@ -69,21 +63,14 @@ impl<R: Runtime> tauri::plugin::Plugin<R> for TauriPlugin {
 
 				tracing::debug!("Application is ready");
 			}
-			RunEvent::Exit => {
-				// Shutdown signal for the `Broadcaster`, this will make sure all queued items
-				// are sent to all event subscribers.
-				let tx = self.shutdown_tx.take().unwrap();
-				tx.send(()).unwrap();
-			}
-			RunEvent::WindowEvent { label, .. } => {
-				tracing::debug!("Window {} received an event", label);
-			}
-			RunEvent::ExitRequested { .. } => {
-				tracing::debug!("Exit requested");
-			}
-			RunEvent::Resumed => {
-				tracing::debug!("Event loop is being resumed");
-			}
+			// RunEvent::ExitRequested { api, .. } => {
+			// 	// We signal the gRPC server to gracefully shut down,
+			// 	// which in-turn will cause the broadcaster to flush all updates and shut down
+			// 	// this takes some time however so we prevent the app from exiting right now
+			// 	tracing::debug!("Received exit request, terminating...");
+			// 	SHUTDOWN_SIGNAL.notify_one();
+			// 	api.prevent_exit();
+			// }
 			_ => {}
 		}
 	}

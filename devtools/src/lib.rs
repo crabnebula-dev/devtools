@@ -50,7 +50,7 @@ use crate::tauri_plugin::TauriPlugin;
 pub use error::Error;
 use std::time::Instant;
 use tauri_devtools_wire_format as wire;
-use tokio::sync::{mpsc, oneshot};
+use tokio::sync::mpsc;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::util::SubscriberInitExt;
 
@@ -72,12 +72,11 @@ pub fn try_init() -> Result<TauriPlugin> {
 	// set up data channels
 	let (event_tx, event_rx) = mpsc::channel(256);
 	let (cmd_tx, cmd_rx) = mpsc::channel(256);
-	let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
 	// set up components
 	let layer = Layer::new(event_tx);
-	let broadcaster = Broadcaster::new(event_rx, cmd_rx, shutdown_rx);
-	let plugin = TauriPlugin::new(enabled, broadcaster, cmd_tx, shutdown_tx);
+	let broadcaster = Broadcaster::new(event_rx, cmd_rx);
+	let plugin = TauriPlugin::new(enabled, broadcaster, cmd_tx);
 
 	// initialize early so we don't miss any spans
 	tracing_subscriber::registry()
@@ -133,5 +132,5 @@ struct Watcher {
 	log_filter: Option<wire::instrument::Filter>,
 	span_filter: Option<wire::instrument::Filter>,
 
-	tx: mpsc::Sender<std::result::Result<wire::instrument::Update, tonic::Status>>,
+	tx: mpsc::Sender<Result<wire::instrument::Update>>,
 }
