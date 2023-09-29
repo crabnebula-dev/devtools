@@ -2,7 +2,6 @@ import type { WSEventSignal } from "~/lib/ws/types";
 import { Show, createEffect, onMount } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Outlet, useLocation, useNavigate, useParams } from "@solidjs/router";
-import { Button } from "@kobalte/core";
 import { Navigation } from "~/components/navigation";
 import { createEventSignal } from "@solid-primitives/event-listener";
 import { BootTime } from "~/components/boot-time";
@@ -87,21 +86,21 @@ export default function Layout() {
 
   return (
     <WSContext.Provider value={{ socket, state: status }}>
-      <Show when={status() === SOCKET_STATES.get(WebSocket.OPEN)}>
-        <main class="grid grid-rows-[auto,auto,1fr,auto] h-full">
-          <ConnectionStatus socket={socket} status={status} />
-          <DataContext.Provider value={{ data: appData }}>
-            <header>
+      <DataContext.Provider value={{ data: appData }}>
+        <Show when={status() === SOCKET_STATES.get(WebSocket.OPEN)}>
+          <header class="grid">
+            <div class="flex px-2 py-1 items-center justify-between">
+              <ConnectionStatus socket={socket} status={status} />
               <BootTime />
-              <Navigation />
-            </header>
-            <article class="bg-gray-900 pt-10 h-full">
-              <Outlet />
-            </article>
-          </DataContext.Provider>
-          <footer>Built by CrabNebula</footer>
-        </main>
-      </Show>
+            </div>
+            <Navigation />
+          </header>
+          <main class="max-h-full overflow-auto">
+            <Outlet />
+          </main>
+          <footer class="p-2">Built by CrabNebula</footer>
+        </Show>
+      </DataContext.Provider>
     </WSContext.Provider>
   );
 }
