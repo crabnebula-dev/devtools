@@ -1,15 +1,7 @@
+use crate::common;
 use crate::metadata::Level;
-use crate::{common, logs, spans};
 
-mod generated {
-	#![allow(clippy::all)]
-	#![allow(warnings)]
-
-	tonic::include_proto!("rs.devtools.instrument");
-}
-
-use crate::tauri::Metrics;
-pub use generated::*;
+pub use crate::generated::rs::devtools::instrument::*;
 
 bitflags::bitflags! {
 	#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -21,7 +13,7 @@ bitflags::bitflags! {
 
 pub trait Filterable {
 	/// Determines if the current item matches the provided filter.
-	fn match_filter(&self, filter: &Filter) -> bool;
+	fn match_filter(&self, metadata: &common::Metadata, filter: &Filter) -> bool;
 }
 
 impl Filter {

@@ -1,13 +1,6 @@
 use crate::common;
 
-mod generated {
-	#![allow(clippy::all)]
-	#![allow(warnings)]
-
-	tonic::include_proto!("rs.devtools.spans");
-}
-
-pub use generated::*;
+pub use crate::generated::rs::devtools::spans::*;
 
 impl SpanEvent {
 	pub fn new_span(

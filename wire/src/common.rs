@@ -1,11 +1,6 @@
-mod generated {
-	#![allow(clippy::all)]
-	#![allow(warnings)]
+use std::hash::{Hash, Hasher};
 
-	tonic::include_proto!("rs.devtools.common");
-}
-
-pub use generated::*;
+pub use crate::generated::rs::devtools::common::*;
 
 impl From<tracing_core::span::Id> for SpanId {
 	fn from(value: tracing_core::span::Id) -> Self {
@@ -94,6 +89,14 @@ impl From<&'static tracing_core::Metadata<'static>> for MetaId {
 		}
 	}
 }
+
+impl Hash for MetaId {
+	fn hash<H: Hasher>(&self, state: &mut H) {
+		state.write(&self.id.to_le_bytes())
+	}
+}
+
+impl Eq for MetaId {}
 
 impl From<i64> for field::Value {
 	fn from(val: i64) -> Self {

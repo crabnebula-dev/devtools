@@ -1,11 +1,4 @@
-mod generated {
-	#![allow(clippy::all)]
-	#![allow(warnings)]
-
-	tonic::include_proto!("rs.devtools.tauri");
-}
-
-pub use generated::*;
+pub use crate::generated::rs::devtools::tauri::*;
 
 impl From<tauri::Asset> for Asset {
 	fn from(value: tauri::Asset) -> Self {

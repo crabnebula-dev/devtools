@@ -32,10 +32,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 	cfg.bytes(["."]);
 
 	tonic_build::configure()
-		.build_client(true)
 		.build_server(true)
 		.protoc_arg("--experimental_allow_proto3_optional")
 		.enum_attribute("rs.tauri.devtools.common.Field.name", "#[derive(Hash, Eq)]")
+		.include_file("include.rs")
 		.compile_with_config(cfg, &proto_files, &[proto_dir])?;
 
 	Ok(())
