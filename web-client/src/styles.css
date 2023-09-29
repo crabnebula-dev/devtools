@@ -11,3 +11,25 @@ html {
     @apply scrollbar-thin scrollbar-track-neutral-900 scrollbar-thumb-rounded scrollbar-thumb-neutral-600;
   }
 }
+
+.surf-container {
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  z-index: -1;
+  top: 0px;
+  animation: 3s cubic-bezier(0.165, 0.84, 0.44, 1) 0s 1 fadein;
+}
+
+.bg-surface {
+  position: relative;
+  filter: blur(32px);
+  height: 170%;
+  width: 160%;
+  max-height: 90vh;
+  top: -250px;
+  opacity: 0.3;
+  scale: 1.1;
+}
