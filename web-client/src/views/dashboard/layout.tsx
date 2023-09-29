@@ -1,6 +1,6 @@
 import { createEffect, onCleanup } from "solid-js";
 import { createStore } from "solid-js/store";
-import { Outlet, useRouteData } from "@solidjs/router";
+import { Outlet } from "@solidjs/router";
 import { Navigation } from "~/components/navigation";
 import { BootTime } from "~/components/boot-time";
 import { HealthStatus } from "~/components/health-status.tsx";
@@ -106,18 +106,18 @@ export default function Layout() {
   });
 
   return (
-    <main class="grid grid-rows-[auto,auto,1fr,auto] h-full">
-      <MonitorContext.Provider value={{ monitorData }}>
-        <header class="flex gap-2 px-2">
+    <MonitorContext.Provider value={{ monitorData }}>
+      <header class="grid">
+        <div class="flex px-2 py-1 items-center justify-between">
           <HealthStatus />
           <BootTime />
-          <Navigation />
-        </header>
-        <article class="bg-gray-900 pt-10 h-full">
-          <Outlet />
-        </article>
-      </MonitorContext.Provider>
-      <footer>Built by CrabNebula</footer>
-    </main>
+        </div>
+        <Navigation />
+      </header>
+      <main class="max-h-full overflow-auto">
+        <Outlet />
+      </main>
+      <footer class="p-2">Built by CrabNebula</footer>
+    </MonitorContext.Provider>
   );
 }
