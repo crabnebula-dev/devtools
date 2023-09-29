@@ -77,7 +77,11 @@ impl<R: Runtime> tauri::plugin::Plugin<R> for TauriPlugin {
 
 fn spawn_handler_thread<R: Runtime>(broadcaster: Broadcaster, server: Server<R>) {
 	thread::spawn(move || {
-		let _subscriber_guard = tracing::subscriber::set_default(tracing_core::subscriber::NoSubscriber::default());
+		use tracing_subscriber::EnvFilter;
+		let s = tracing_subscriber::fmt()
+			.with_env_filter(EnvFilter::from_default_env())
+			.finish();
+		let _subscriber_guard = tracing::subscriber::set_default(s);
 
 		let rt = tokio::runtime::Builder::new_current_thread()
 			.enable_all()
