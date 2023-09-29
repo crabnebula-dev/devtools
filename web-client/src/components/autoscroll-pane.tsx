@@ -31,12 +31,5 @@ export function AutoscrollPane(props: AutoScrollPaneProps) {
     )
   );
 
-  return (
-    <ul
-      ref={(e) => (logPanel = e)}
-      class="px-5 border border-neutral-800 rounded-md max-h-80 max-w-prose overflow-y-auto"
-    >
-      {props.children}
-    </ul>
-  );
+  return <ul ref={(e) => (logPanel = e)}>{props.children}</ul>;
 }
