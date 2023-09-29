@@ -10,7 +10,7 @@ export default function Console() {
 
   return (
     <>
-      <div class="sticky top-0 bg-black">
+      <div class="sticky top-0 bg-black bg-opacity-30 backdrop-blur flex justify-end border-b border-gray-800">
         <FilterToggle
           defaultPressed
           aria-label="time stamps"
