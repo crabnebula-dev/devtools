@@ -26,7 +26,7 @@ export default function SpanWaterfall() {
           {(span) => {
             return (
               <li class="py-1 flex ">
-                <pre>{JSON.stringify(span, null, 2)}</pre>
+                <pre>{JSON.stringify(span, (_, v) => typeof v === 'bigint' ? v.toString() : v, 2)}</pre>
               </li>
             );
           }}
