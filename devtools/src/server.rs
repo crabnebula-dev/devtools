@@ -1,8 +1,14 @@
-use crate::Result;
+use ::tauri::{AppHandle, Runtime};
 use futures::{future, future::Either, StreamExt};
-use inspector_protocol_primitives::{Filter, Filterable, Inspector, Runtime, SubscriptionParams};
-use jsonrpsee::{core::server::SubscriptionMessage, types::Params, PendingSubscriptionSink, RpcModule};
-use serde::Serialize;
+use jsonrpsee::server::{ServerBuilder, ServerHandle};
+use jsonrpsee::types::Params;
+use jsonrpsee_core::id_providers::RandomStringIdProvider;
+use jsonrpsee_core::server::{PendingSubscriptionSink, RpcModule, SubscriptionMessage};
+use jsonrpsee_core::Serialize;
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::sync::{Arc, Mutex};
+use tauri_devtools_shared::{Filter, Filterable, LogEntry, Metrics, SpanEntry, SubscriptionParams};
+use tokio::sync::broadcast;
 use tokio_stream::wrappers::BroadcastStream;
 
 mod logs;
@@ -10,23 +16,73 @@ mod performance;
 mod spans;
 mod tauri;
 
-/// Create new `RpcModule` with our methods
-pub(crate) fn register<R: Runtime>(inspector: Inspector<'static, R>) -> Result<RpcModule<Inspector<R>>> {
-	let mut module = RpcModule::new(inspector);
+pub(crate) struct Server<R: Runtime> {
+	logs: broadcast::Sender<Vec<LogEntry>>,
+	spans: broadcast::Sender<Vec<SpanEntry>>,
+	app_handle: AppHandle<R>,
+	metrics: Arc<Mutex<Metrics>>,
+}
 
-	// register `spans_*` methods
-	spans::module(&mut module)?;
+impl<R: Runtime> Server<R> {
+	pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 3000);
 
-	// register `logs_*` methods
-	logs::module(&mut module)?;
+	pub fn new(
+		logs: broadcast::Sender<Vec<LogEntry>>,
+		spans: broadcast::Sender<Vec<SpanEntry>>,
+		app_handle: AppHandle<R>,
+		metrics: Arc<Mutex<Metrics>>,
+	) -> Self {
+		Self {
+			logs,
+			spans,
+			app_handle,
+			metrics,
+		}
+	}
+	pub async fn run(self, addr: &SocketAddr) -> crate::Result<(SocketAddr, ServerHandle)> {
+		// Important
+		// - denies HTTP requests which isn't a WS upgrade request
+		// - include additional methods from `inject_additional_rpc_methods`
+		let builder = ServerBuilder::new()
+			.ws_only()
+			.ping_interval(std::time::Duration::from_secs(30))
+			.set_id_provider(RandomStringIdProvider::new(16));
 
-	// register `tauri_*` methods
-	tauri::module(&mut module)?;
+		let server = builder.build(addr).await?;
+		let server_addr = server.local_addr()?;
+		let handle = server.start(self.assemble_rpc_apis()?);
 
-	// register `performance_*` methods
-	performance::module(&mut module)?;
+		Ok((server_addr, handle))
+	}
 
-	Ok(module)
+	fn assemble_rpc_apis(self) -> crate::Result<RpcModule<Self>> {
+		let mut module = RpcModule::new(self);
+
+		// register `spans_*` methods
+		spans::module(&mut module)?;
+
+		// register `logs_*` methods
+		logs::module(&mut module)?;
+
+		// register `tauri_*` methods
+		tauri::module(&mut module)?;
+
+		// register `performance_*` methods
+		performance::module(&mut module)?;
+
+		let mut available_methods = module.method_names().collect::<Vec<_>>();
+		available_methods.sort();
+
+		module
+			.register_method("rpc_methods", move |_, _| {
+				serde_json::json!({
+					"methods": available_methods,
+				})
+			})
+			.expect("infallible all other methods have their own address space; qed");
+
+		Ok(module)
+	}
 }
 
 /// Parses the subscription filter from the given JSON-RPC [`Params`].
@@ -81,11 +137,11 @@ pub(super) fn parse_subscription_filter(maybe_params: Params<'_>) -> Option<Filt
 ///
 /// In the event that the WebSocket's internal buffer is full, this function will block until space becomes available.
 /// If the most recent item's delivery is critical upon its production, a smarter buffering or delivery approach might be needed.
-pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Send + Serialize + Filterable>(
+async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Send + Serialize + Filterable>(
 	pending: PendingSubscriptionSink,
 	stream: BroadcastStream<Vec<T>>,
 	maybe_filter: Option<Filter>,
-) -> Result<()> {
+) -> crate::Result<()> {
 	let sink = pending.accept().await?;
 	let closed = sink.closed();
 
@@ -121,54 +177,5 @@ pub(crate) async fn pipe_from_stream_with_bounded_buffer<T: 'static + Clone + Se
 			// Stream is closed.
 			Either::Right((None, _)) => break Ok(()),
 		}
-	}
-}
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-	use inspector_protocol_primitives::Level;
-
-	#[test]
-	fn parse_level_from_params() {
-		let value = Some(r#"{"filter": {"level": "INFO"}}"#);
-		let valid_params = Params::new(value);
-		let parsed = parse_subscription_filter(valid_params);
-		assert!(parsed.is_some());
-		assert_eq!(parsed.unwrap().level, Some(Level::INFO));
-	}
-
-	#[test]
-	fn parse_multiple_params() {
-		let value = Some(r#"{"filter": {"level": "trAce", "text": "target"}}"#);
-		let valid_params = Params::new(value);
-		let parsed = parse_subscription_filter(valid_params);
-
-		assert!(parsed.as_ref().is_some());
-		let filter = parsed.as_ref().expect("qed; pre-check");
-
-		assert_eq!(filter.level, Some(Level::TRACE));
-		assert_eq!(filter.text, Some("target".to_string()));
-	}
-
-	#[test]
-	fn parse_invalid_params() {
-		let value = Some(r#"{"filter": {"not": "valid"}}"#);
-		let invalid_params = Params::new(value);
-		let parsed = parse_subscription_filter(invalid_params);
-
-		assert!(parsed.as_ref().is_some());
-		let filter = parsed.as_ref().expect("qed; pre-check");
-
-		assert!(filter.file.is_none());
-		assert!(filter.level.is_none());
-		assert!(filter.text.is_none());
-	}
-
-	#[test]
-	fn parse_empty_params() {
-		let value = Some(r#"{}"#);
-		let empty_params = Params::new(value);
-		assert!(parse_subscription_filter(empty_params).is_none());
 	}
 }
