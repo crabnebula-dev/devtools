@@ -1,8 +1,21 @@
 name: CI
 on: [push, pull_request]
 jobs:
-  cargo-deny:
+  check-licenses:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: EmbarkStudios/cargo-deny-action@v1
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install -g license-checker
+      - name: Check JavaScript Licenses
+        run:  license-checker --summary --onlyAllow="MIT;Apache-2.0;BSD-2-Clause" --excludePackages="spa-client@0.0.0"
+      - name: Check Rust Licenses
+        uses: EmbarkStudios/cargo-deny-action@v1
