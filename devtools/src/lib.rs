@@ -90,34 +90,49 @@ pub fn try_init() -> Result<TauriPlugin> {
 #[derive(Debug)]
 enum Event {
 	Metadata(&'static tracing_core::Metadata<'static>),
-	LogEvent {
-		at: Instant,
-		metadata: &'static tracing_core::Metadata<'static>,
-		message: String,
-		fields: Vec<wire::Field>,
-		maybe_parent: Option<tracing_core::span::Id>,
-	},
-	NewSpan {
-		at: Instant,
-		id: tracing_core::span::Id,
-		metadata: &'static tracing_core::Metadata<'static>,
-		fields: Vec<wire::Field>,
-		maybe_parent: Option<tracing_core::span::Id>,
-	},
-	EnterSpan {
-		at: Instant,
-		thread_id: u64,
-		span_id: tracing_core::span::Id,
-	},
-	ExitSpan {
-		at: Instant,
-		thread_id: u64,
-		span_id: tracing_core::span::Id,
-	},
-	CloseSpan {
-		at: Instant,
-		span_id: tracing_core::span::Id,
-	},
+	LogEvent(LogEvent),
+	NewSpan(NewSpan),
+	EnterSpan(EnterSpan),
+	ExitSpan(ExitSpan),
+	CloseSpan(CloseSpan),
+}
+
+#[derive(Debug)]
+struct LogEvent {
+	at: Instant,
+	metadata: &'static tracing_core::Metadata<'static>,
+	message: String,
+	fields: Vec<wire::Field>,
+	maybe_parent: Option<tracing_core::span::Id>,
+}
+
+#[derive(Debug)]
+struct NewSpan {
+	at: Instant,
+	id: tracing_core::span::Id,
+	metadata: &'static tracing_core::Metadata<'static>,
+	fields: Vec<wire::Field>,
+	maybe_parent: Option<tracing_core::span::Id>,
+}
+
+#[derive(Debug)]
+struct EnterSpan {
+	at: Instant,
+	thread_id: u64,
+	span_id: tracing_core::span::Id,
+}
+
+#[derive(Debug)]
+struct ExitSpan {
+	at: Instant,
+	thread_id: u64,
+	span_id: tracing_core::span::Id,
+}
+
+#[derive(Debug)]
+struct CloseSpan {
+	at: Instant,
+	span_id: tracing_core::span::Id,
 }
 
 /// Commands send from the `Server` to the `Broadcaster`

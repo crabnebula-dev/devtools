@@ -579,6 +579,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "dashmap"
+version = "5.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "978747c1d849a7d2ee5e8adc0159961c48fb7e5db2f06af6723b80123bb53856"
+dependencies = [
+ "cfg-if",
+ "hashbrown 0.14.0",
+ "lock_api",
+ "once_cell",
+ "parking_lot_core",
+]
+
+[[package]]
 name = "deranged"
 version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1210,7 +1223,7 @@ dependencies = [
  "slab",
  "tokio",
  "tokio-util",
- "tracing 0.1.37",
+ "tracing",
 ]
 
 [[package]]
@@ -1355,7 +1368,7 @@ dependencies = [
  "socket2 0.4.9",
  "tokio",
  "tower-service",
- "tracing 0.1.37",
+ "tracing",
  "want",
 ]
 
@@ -1654,8 +1667,8 @@ dependencies = [
  "scoped-tls",
  "serde",
  "serde_json",
- "tracing 0.1.37",
- "tracing-subscriber 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -2647,6 +2660,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "serial_test"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0e56dd856803e253c8f298af3f4d7eb0ae5e23a737252cd90bb4f3b435033b2d"
+dependencies = [
+ "dashmap",
+ "futures",
+ "lazy_static",
+ "log",
+ "parking_lot",
+ "serial_test_derive",
+]
+
+[[package]]
+name = "serial_test_derive"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "91d129178576168c589c9ec973feedf7d3126c01ac2bf08795109aa35b69fb8f"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.37",
+]
+
+[[package]]
 name = "serialize-to-javascript"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2986,7 +3024,7 @@ dependencies = [
  "tempfile",
  "thiserror",
  "tokio",
- "tracing 0.1.37",
+ "tracing",
  "url",
  "uuid",
  "webkit2gtk",
@@ -3063,7 +3101,7 @@ dependencies = [
  "raw-window-handle",
  "tauri-runtime",
  "tauri-utils",
- "tracing 0.1.37",
+ "tracing",
  "uuid",
  "webkit2gtk",
  "webview2-com",
@@ -3107,6 +3145,7 @@ dependencies = [
  "prost",
  "prost-types",
  "serde_json",
+ "serial_test",
  "tauri",
  "tauri_devtools_wire_format",
  "thiserror",
@@ -3116,10 +3155,9 @@ dependencies = [
  "tonic-health",
  "tonic-web",
  "tower-http",
- "tracing 0.1.37",
- "tracing-core 0.1.31 (registry+https://github.com/rust-lang/crates.io-index)",
- "tracing-mock",
- "tracing-subscriber 0.3.17 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tracing",
+ "tracing-core",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -3134,7 +3172,7 @@ dependencies = [
  "tauri",
  "tonic",
  "tonic-build",
- "tracing-core 0.1.31 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tracing-core",
 ]
 
 [[package]]
@@ -3301,7 +3339,7 @@ dependencies = [
  "futures-sink",
  "pin-project-lite",
  "tokio",
- "tracing 0.1.37",
+ "tracing",
 ]
 
 [[package]]
@@ -3371,7 +3409,7 @@ dependencies = [
  "tower",
  "tower-layer",
  "tower-service",
- "tracing 0.1.37",
+ "tracing",
 ]
 
 [[package]]
@@ -3417,7 +3455,7 @@ dependencies = [
  "tower-http",
  "tower-layer",
  "tower-service",
- "tracing 0.1.37",
+ "tracing",
 ]
 
 [[package]]
@@ -3437,7 +3475,7 @@ dependencies = [
  "tokio-util",
  "tower-layer",
  "tower-service",
- "tracing 0.1.37",
+ "tracing",
 ]
 
 [[package]]
@@ -3472,30 +3510,18 @@ checksum = "b6bc1c9ce2b5135ac7f93c72918fc37feb872bdc6a5533a8b85eb4b86bfdae52"
 
 [[package]]
 name = "tracing"
-version = "0.1.37"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8ce8c33a8d48bd45d624a6e523445fd21ec13d3653cd51f681abf67418f54eb8"
+version = "0.1.38"
+source = "git+https://github.com/tokio-rs/tracing?branch=v0.1.x#7f0cc09d0b626da3749d49748773a9e2f1d6e080"
 dependencies = [
- "cfg-if",
  "pin-project-lite",
  "tracing-attributes",
- "tracing-core 0.1.31 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "tracing"
-version = "0.1.38"
-source = "git+https://github.com/tokio-rs/tracing?branch=v0.1.x#430206459badca1f52963f3a6349784a5cea42aa"
-dependencies = [
- "pin-project-lite",
- "tracing-core 0.1.31 (git+https://github.com/tokio-rs/tracing?branch=v0.1.x)",
+ "tracing-core",
 ]
 
 [[package]]
 name = "tracing-attributes"
 version = "0.1.26"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f4f31f56159e98206da9efd823404b79b6ef3143b4a7ab76e67b1751b25a4ab"
+source = "git+https://github.com/tokio-rs/tracing?branch=v0.1.x#7f0cc09d0b626da3749d49748773a9e2f1d6e080"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3505,17 +3531,11 @@ dependencies = [
 [[package]]
 name = "tracing-core"
 version = "0.1.31"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0955b8137a1df6f1a2e9a37d8a6656291ff0297c1a97c24e0d8425fe2312f79a"
+source = "git+https://github.com/tokio-rs/tracing?branch=v0.1.x#7f0cc09d0b626da3749d49748773a9e2f1d6e080"
 dependencies = [
  "once_cell",
  "valuable",
 ]
-
-[[package]]
-name = "tracing-core"
-version = "0.1.31"
-source = "git+https://github.com/tokio-rs/tracing?branch=v0.1.x#430206459badca1f52963f3a6349784a5cea42aa"
 
 [[package]]
 name = "tracing-log"
@@ -3525,17 +3545,7 @@ checksum = "78ddad33d2d10b1ed7eb9d1f518a5674713876e97e5bb9b7345a7984fbb4f922"
 dependencies = [
  "lazy_static",
  "log",
- "tracing-core 0.1.31 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "tracing-mock"
-version = "0.1.0"
-source = "git+https://github.com/tokio-rs/tracing?branch=v0.1.x#430206459badca1f52963f3a6349784a5cea42aa"
-dependencies = [
- "tracing 0.1.38",
- "tracing-core 0.1.31 (git+https://github.com/tokio-rs/tracing?branch=v0.1.x)",
- "tracing-subscriber 0.3.17 (git+https://github.com/tokio-rs/tracing?branch=v0.1.x)",
+ "tracing-core",
 ]
 
 [[package]]
@@ -3551,17 +3561,9 @@ dependencies = [
  "sharded-slab",
  "smallvec",
  "thread_local",
- "tracing 0.1.37",
- "tracing-core 0.1.31 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tracing",
+ "tracing-core",
  "tracing-log",
-]
-
-[[package]]
-name = "tracing-subscriber"
-version = "0.3.17"
-source = "git+https://github.com/tokio-rs/tracing?branch=v0.1.x#430206459badca1f52963f3a6349784a5cea42aa"
-dependencies = [
- "tracing-core 0.1.31 (git+https://github.com/tokio-rs/tracing?branch=v0.1.x)",
 ]
 
 [[package]]
@@ -4065,7 +4067,7 @@ dependencies = [
  "soup2",
  "tao",
  "thiserror",
- "tracing 0.1.37",
+ "tracing",
  "url",
  "webkit2gtk",
  "webkit2gtk-sys",

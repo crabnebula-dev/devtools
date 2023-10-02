@@ -32,4 +32,4 @@ prost-types = "0.12"
 
 [dev-dependencies]
 tauri = { workspace = true, features = ["test"] }
-tracing-mock = { git = "https://github.com/tokio-rs/tracing", branch = "v0.1.x", features = ["tracing-subscriber"] }
+serial_test = "2.0.0"

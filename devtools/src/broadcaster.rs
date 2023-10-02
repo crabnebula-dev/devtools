@@ -1,4 +1,4 @@
-use crate::{Command, Event, Watcher};
+use crate::{CloseSpan, Command, EnterSpan, Event, ExitSpan, LogEvent, NewSpan, Watcher};
 use futures::FutureExt;
 use std::collections::HashMap;
 use std::mem;
@@ -99,13 +99,13 @@ impl Broadcaster {
 				self.new_metadata.insert(meta.into(), meta.into());
 			}
 			// Received a new log (event)
-			Event::LogEvent {
+			Event::LogEvent(LogEvent {
 				at,
 				metadata,
 				message,
 				fields,
 				maybe_parent,
-			} => {
+			}) => {
 				self.new_logs.push(wire::logs::LogEvent {
 					at: Some(self.base_time.to_timestamp(at)),
 					metadata_id: Some(metadata.into()),
@@ -114,30 +114,26 @@ impl Broadcaster {
 					parent: maybe_parent.map(|id| id.into()),
 				});
 			}
-			Event::NewSpan {
+			Event::NewSpan(NewSpan {
 				at,
 				id,
 				metadata,
 				fields,
 				maybe_parent,
-			} => self.new_spans.push(wire::spans::SpanEvent::new_span(
+			}) => self.new_spans.push(wire::spans::SpanEvent::new_span(
 				self.base_time.to_timestamp(at),
 				id,
 				metadata,
 				fields,
 				maybe_parent,
 			)),
-			Event::EnterSpan { at, span_id, thread_id } => self.new_spans.push(wire::spans::SpanEvent::enter_span(
-				self.base_time.to_timestamp(at),
-				span_id,
-				thread_id,
-			)),
-			Event::ExitSpan { at, span_id, thread_id } => self.new_spans.push(wire::spans::SpanEvent::exit_span(
-				self.base_time.to_timestamp(at),
-				span_id,
-				thread_id,
-			)),
-			Event::CloseSpan { at, span_id } => self.new_spans.push(wire::spans::SpanEvent::close_span(
+			Event::EnterSpan(EnterSpan { at, span_id, thread_id }) => self.new_spans.push(
+				wire::spans::SpanEvent::enter_span(self.base_time.to_timestamp(at), span_id, thread_id),
+			),
+			Event::ExitSpan(ExitSpan { at, span_id, thread_id }) => self.new_spans.push(
+				wire::spans::SpanEvent::exit_span(self.base_time.to_timestamp(at), span_id, thread_id),
+			),
+			Event::CloseSpan(CloseSpan { at, span_id }) => self.new_spans.push(wire::spans::SpanEvent::close_span(
 				self.base_time.to_timestamp(at),
 				span_id,
 			)),
