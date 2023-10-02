@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 /// An asset can be any form of data bundled with the application,
 /// such as images, scripts, or stylesheets.
 #[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct Asset {
 	/// The asset bytes.
 	pub bytes: Vec<u8>,

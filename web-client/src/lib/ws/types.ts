@@ -11,8 +11,15 @@ export type Log = {
   line: number;
 };
 
+export type Asset = {
+  bytes: number[];
+  mimeType: string;
+}
+
 export type WSdata = {
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;
+  assetPaths: string[];
+  currentAsset?: Asset;
   perf: Record<"initialized_at" | "ready_at", number | undefined>;
   logs: Log[];
   spans: unknown[];
@@ -31,6 +38,20 @@ type TauriGetConfigPayload = {
   jsonrpc: "2.0";
   method: "tauri_getConfig";
   params: object;
+};
+
+type TauriListAssetsPayload = {
+  id: "tauri_listAssets";
+  jsonrpc: "2.0";
+  method: "tauri_listAssets";
+  params: object;
+};
+
+type TauriGetAssetPayload = {
+  id: "tauri_getAsset";
+  jsonrpc: "2.0";
+  method: "tauri_getAsset";
+  params: { path: string };
 };
 
 type LogsWatchPayload = {
@@ -75,6 +96,8 @@ type PerfMetricsPayload = {
 
 export type WSQuery =
   | TauriGetConfigPayload
+  | TauriListAssetsPayload
+  | TauriGetAssetPayload
   | LogsWatchPayload
   | SpansWatchPayload
   | LogsUnwatchPayload

@@ -8,6 +8,8 @@ export const initialStoreData: WSdata = {
   },
   logs: [],
   spans: [],
+  assetPaths: [],
+  currentAsset: null,
 
   get perfStartDate() {
     return typeof this.perf.initialized_at === "number"

@@ -32,7 +32,7 @@ const ROUTES = [
       },
       {
         path: "/assets",
-        component: lazy(() => import("./views/dashboard/comming-soon.tsx")),
+        component: lazy(() => import("./views/dashboard/tauri-assets.tsx")),
       },
     ],
   },

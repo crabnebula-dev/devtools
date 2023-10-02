@@ -10,6 +10,13 @@ pub(crate) fn module<R: Runtime>(module: &mut RpcModule<Server<R>>) -> Result<()
 		serde_json::to_value(tauri_config.as_ref()).map_err(|_| ErrorCode::InternalError)
 	})?;
 
+	module.register_method("tauri_listAssets", |_, ctx| {
+		let asset_resolver = ctx.app_handle.asset_resolver();
+		let assets: Vec<_> = asset_resolver.iter().map(|(path, _asset)| path).collect();
+
+		serde_json::to_value(assets).map_err(|_| ErrorCode::InternalError)
+	})?;
+
 	module.register_method("tauri_getAsset", |maybe_params, ctx| {
 		let params = maybe_params
 			.parse::<AssetParams>()

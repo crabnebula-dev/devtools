@@ -63,15 +63,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
 
 [[package]]
-name = "api"
-version = "0.1.0"
-dependencies = [
- "serde",
- "tauri",
- "tracing",
-]
-
-[[package]]
 name = "async-trait"
 version = "0.1.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2956,24 +2947,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
-name = "subscriber"
-version = "0.1.0"
-dependencies = [
- "api",
- "futures",
- "jsonrpsee",
- "jsonrpsee-core",
- "serde_json",
- "tauri",
- "thiserror",
- "tokio",
- "tokio-stream",
- "tracing",
- "tracing-core",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "syn"
 version = "1.0.109"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3098,8 +3071,8 @@ checksum = "9d0e916b1148c8e263850e1ebcbd046f333e0683c724876bb0da63ea4373dc8a"
 
 [[package]]
 name = "tauri"
-version = "1.4.1"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#855adf0bafdd604d389caa3d0e3a8572f2a3af4a"
+version = "1.5.0"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
 dependencies = [
  "anyhow",
  "cocoa",
@@ -3143,11 +3116,12 @@ dependencies = [
 
 [[package]]
 name = "tauri-build"
-version = "1.4.0"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#855adf0bafdd604d389caa3d0e3a8572f2a3af4a"
+version = "1.5.0"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
 dependencies = [
  "anyhow",
  "cargo_toml",
+ "dirs-next",
  "heck 0.4.1",
  "json-patch",
  "semver",
@@ -3155,12 +3129,13 @@ dependencies = [
  "serde_json",
  "tauri-utils",
  "tauri-winres",
+ "walkdir",
 ]
 
 [[package]]
 name = "tauri-codegen"
-version = "1.4.0"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#855adf0bafdd604d389caa3d0e3a8572f2a3af4a"
+version = "1.4.1"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
 dependencies = [
  "base64 0.21.4",
  "brotli",
@@ -3186,17 +3161,17 @@ name = "tauri-example"
 version = "0.1.0"
 dependencies = [
  "reqwest",
- "subscriber",
  "tauri",
  "tauri-build",
+ "tauri_devtools",
  "tokio",
  "tracing",
 ]
 
 [[package]]
 name = "tauri-macros"
-version = "1.4.0"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#855adf0bafdd604d389caa3d0e3a8572f2a3af4a"
+version = "1.4.1"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
 dependencies = [
  "heck 0.4.1",
  "proc-macro2",
@@ -3208,8 +3183,8 @@ dependencies = [
 
 [[package]]
 name = "tauri-runtime"
-version = "0.14.0"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#855adf0bafdd604d389caa3d0e3a8572f2a3af4a"
+version = "0.14.1"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
 dependencies = [
  "gtk",
  "http",
@@ -3228,8 +3203,8 @@ dependencies = [
 
 [[package]]
 name = "tauri-runtime-wry"
-version = "0.14.0"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#855adf0bafdd604d389caa3d0e3a8572f2a3af4a"
+version = "0.14.1"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
 dependencies = [
  "cocoa",
  "gtk",
@@ -3248,8 +3223,8 @@ dependencies = [
 
 [[package]]
 name = "tauri-utils"
-version = "1.4.0"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#855adf0bafdd604d389caa3d0e3a8572f2a3af4a"
+version = "1.5.0"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
 dependencies = [
  "brotli",
  "ctor",
@@ -3260,6 +3235,7 @@ dependencies = [
  "infer",
  "json-patch",
  "kuchikiki",
+ "log",
  "memchr",
  "phf 0.10.1",
  "proc-macro2",
@@ -3282,6 +3258,33 @@ checksum = "5993dc129e544393574288923d1ec447c857f3f644187f4fbf7d9a875fbfc4fb"
 dependencies = [
  "embed-resource",
  "toml 0.7.8",
+]
+
+[[package]]
+name = "tauri_devtools"
+version = "0.1.0"
+dependencies = [
+ "futures",
+ "jsonrpsee",
+ "jsonrpsee-core",
+ "serde_json",
+ "tauri",
+ "tauri_devtools_shared",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+ "tracing-core",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "tauri_devtools_shared"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "tauri",
+ "tracing",
 ]
 
 [[package]]

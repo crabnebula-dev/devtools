@@ -2,7 +2,6 @@ import type { WSEventSignal } from "~/lib/ws/types";
 import { Show, createEffect, onMount } from "solid-js";
 import { createStore } from "solid-js/store";
 import { Outlet, useLocation, useNavigate, useParams } from "@solidjs/router";
-import { Button } from "@kobalte/core";
 import { Navigation } from "~/components/navigation";
 import { createEventSignal } from "@solid-primitives/event-listener";
 import { BootTime } from "~/components/boot-time";
@@ -25,6 +24,7 @@ export default function Layout() {
   onMount(() => {
     subscriber("logs_watch");
     subscriber("tauri_getConfig");
+    subscriber("tauri_listAssets");
     subscriber("metrics");
     subscriber("spans_watch");
   });
@@ -44,6 +44,17 @@ export default function Layout() {
 
       if (data.result?.build) {
         setData("tauriConfig", data.result);
+      }
+
+      if (data.id === "tauri_listAssets") {
+        setData("assetPaths", data.result);
+        for (const asset of data.result) {
+          subscriber("tauri_getAsset", { path: asset });
+        }
+      }
+      
+      if (data.id === "tauri_getAsset") {
+        setData("currentAsset", data.result);
       }
 
       if (data.id === "logs_watch" || data.method === "logs_added") {
