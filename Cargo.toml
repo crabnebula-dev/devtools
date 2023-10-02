@@ -1,10 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-    "server",
-    "subscriber",
-    "primitives",
-    "plugins/tauri",
+    "devtools",
+    "shared"
 ]
 
 exclude = [
@@ -25,10 +23,6 @@ homepage = "https://www.crabnebula.dev/"
 [workspace.dependencies]
 jsonrpsee = { version = "0.20" }
 jsonrpsee-core = { version = "0.20" }
-
-inspector-protocol-subscriber = { path = "./subscriber" }
-inspector-protocol-primitives = { path = "./primitives" }
-inspector-protocol-server = { path = "./server" }
 
 log = "0.4.17"
 serde = "1"

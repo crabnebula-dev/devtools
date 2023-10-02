@@ -9,8 +9,9 @@ pub type FieldSet = Vec<Field>;
 /// in a tracing context. They provide context about the event, for example:
 /// its severity, location, execution time, etc.
 #[derive(Clone, Debug, PartialEq)]
+#[cfg_attr(feature = "test_util", derive(fake::Dummy))]
 pub struct Field {
-	key: &'static str,
+	key: String,
 	value: FieldValue,
 }
 
@@ -20,6 +21,7 @@ pub struct Field {
 /// with a tracing event, from simple types like `bool` and `String`, to
 /// integers and even debug representations.
 #[derive(PartialEq, Debug, Clone, Serialize)]
+#[cfg_attr(feature = "test_util", derive(fake::Dummy, serde::Deserialize))]
 #[serde(untagged)]
 pub enum FieldValue {
 	Bool(bool),
@@ -27,20 +29,20 @@ pub enum FieldValue {
 	F64(f64),
 	U64(u64),
 	I64(i64),
-	U128(u128),
-	I128(i128),
+	U128(u64),
+	I128(i64),
 	Debug(String),
 }
 
 impl Field {
 	/// Constructs a new `Field` with the provided key and value.
-	pub fn new(key: &'static str, value: FieldValue) -> Self {
+	pub fn new(key: String, value: FieldValue) -> Self {
 		Field { key, value }
 	}
 
 	/// Retrieves the key associated with this field.
-	pub fn key(&self) -> &'static str {
-		self.key
+	pub fn key(&self) -> &str {
+		&self.key
 	}
 
 	/// Retrieves the value associated with this field.
@@ -63,13 +65,13 @@ impl From<u64> for FieldValue {
 
 impl From<i128> for FieldValue {
 	fn from(val: i128) -> Self {
-		FieldValue::I128(val)
+		FieldValue::I128(val as i64)
 	}
 }
 
 impl From<u128> for FieldValue {
 	fn from(val: u128) -> Self {
-		FieldValue::U128(val)
+		FieldValue::U128(val as u64)
 	}
 }
 

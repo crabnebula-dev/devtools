@@ -1,0 +1,23 @@
+[package]
+name = "tauri_devtools_shared"
+authors.workspace = true
+edition.workspace = true
+version.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde.workspace = true
+tracing.workspace = true
+tauri.workspace = true
+fake = { version = "2.8", features = ["derive"], optional = true }
+
+[dev-dependencies]
+
+[features]
+test_util = ["dep:fake"]

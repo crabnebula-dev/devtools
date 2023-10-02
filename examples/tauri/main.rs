@@ -1,7 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::time::Duration;
-use tauri_plugin_devtools::devtools;
 
 #[tauri::command]
 async fn test1() -> String {
@@ -17,7 +16,7 @@ async fn test1() -> String {
 }
 
 fn main() {
-	let devtools = devtools().with_port(3000).init();
+	let devtools = subscriber::init();
 
 	tauri::Builder::default()
 		.invoke_handler(tauri::generate_handler![test1])
