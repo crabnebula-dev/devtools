@@ -38,6 +38,7 @@
     "@solidjs/router": "^0.8.3",
     "@tauri-apps/cli": "^2.0.0-alpha.14",
     "csp_evaluator": "^1.1.1",
-    "solid-js": "^1.7.6"
+    "solid-js": "^1.7.6",
+    "tailwind-scrollbar": "^3.0.5"
   }
 }
