@@ -9,7 +9,7 @@ path = "main.rs"
 
 [dependencies]
 tauri = { git = "https://github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing-v1" }
-subscriber = { path = "../../subscriber" }
+tauri_devtools = { path = "../../devtools" }
 tracing = "0.1"
 tokio = "1"
 reqwest = "0.11"

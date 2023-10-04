@@ -63,15 +63,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
 
 [[package]]
-name = "api"
-version = "0.1.0"
-dependencies = [
- "serde",
- "tauri",
- "tracing",
-]
-
-[[package]]
 name = "async-trait"
 version = "0.1.73"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2956,24 +2947,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
-name = "subscriber"
-version = "0.1.0"
-dependencies = [
- "api",
- "futures",
- "jsonrpsee",
- "jsonrpsee-core",
- "serde_json",
- "tauri",
- "thiserror",
- "tokio",
- "tokio-stream",
- "tracing",
- "tracing-core",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "syn"
 version = "1.0.109"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3186,9 +3159,9 @@ name = "tauri-example"
 version = "0.1.0"
 dependencies = [
  "reqwest",
- "subscriber",
  "tauri",
  "tauri-build",
+ "tauri_devtools",
  "tokio",
  "tracing",
 ]
@@ -3282,6 +3255,33 @@ checksum = "5993dc129e544393574288923d1ec447c857f3f644187f4fbf7d9a875fbfc4fb"
 dependencies = [
  "embed-resource",
  "toml 0.7.8",
+]
+
+[[package]]
+name = "tauri_devtools"
+version = "0.1.0"
+dependencies = [
+ "futures",
+ "jsonrpsee",
+ "jsonrpsee-core",
+ "serde_json",
+ "tauri",
+ "tauri_devtools_shared",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tracing",
+ "tracing-core",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "tauri_devtools_shared"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "tauri",
+ "tracing",
 ]
 
 [[package]]
