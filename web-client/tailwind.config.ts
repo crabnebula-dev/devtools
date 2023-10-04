@@ -7,6 +7,9 @@ export default {
       spacing: {
         toolbar: 'var(--toolbar-height)',
       },
+      fontFamily: {
+        'cn': ['Euclid Circular B', 'Inter', 'sans-serif']
+      },
       colors: {
         navy: "#0C1326"
       }
