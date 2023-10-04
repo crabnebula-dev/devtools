@@ -1,5 +1,6 @@
 use crate::broadcaster::Broadcaster;
 use crate::server::Server;
+use colored::Colorize;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use tauri::{AppHandle, RunEvent, Runtime};
@@ -108,10 +109,21 @@ fn spawn_handler_thread<R: Runtime>(broadcaster: Broadcaster, server: Server<R>)
 
 			let (server_addr, server_handle) = server.run(&Server::<R>::DEFAULT_ADDRESS).await.unwrap();
 
-			println!("--------- Tauri Plugin Devtools ---------\n");
-			println!("Listening at:\n  ws://{server_addr}\n",);
-			println!("Inspect in browser:\n  {DEVTOOL_URL}{server_addr}");
-			println!("\n--------- Tauri Plugin Devtools ---------");
+			let version = env!("CARGO_PKG_VERSION");
+
+			// This is pretty ugly code I know
+			let url = format!("{DEVTOOL_URL}{}/{}", server_addr.ip(), server_addr.port());
+			println!(
+				r#"
+   {} {}{}
+   {}   Local:   {}
+"#,
+				"Tauri Devtools".bright_purple(),
+				"v".purple(),
+				version.purple(),
+				"→".bright_purple(),
+				url.underline().blue()
+			);
 
 			server_handle.stopped().await;
 			broadcaster.abort();
