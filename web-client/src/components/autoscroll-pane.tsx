@@ -31,5 +31,12 @@ export function AutoscrollPane(props: AutoScrollPaneProps) {
     )
   );
 
-  return <ul ref={(e) => (logPanel = e)}>{props.children}</ul>;
+  return (
+    <ul
+      class="h-[calc(100%-var(--toolbar-height))] overflow-auto"
+      ref={(e) => (logPanel = e)}
+    >
+      {props.children}
+    </ul>
+  );
 }
