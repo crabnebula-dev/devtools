@@ -10,7 +10,7 @@ use tokio::sync::{broadcast, watch};
 
 /// URL of the web-based devtool
 /// The server host is added automatically eg: `127.0.0.1:56609`.
-const DEVTOOL_URL: &str = "https://crabnebula.dev/debug/#";
+const DEVTOOL_URL: &str = "http://localhost:5173/dash/";
 
 #[allow(clippy::type_complexity)]
 pub struct TauriPlugin {
