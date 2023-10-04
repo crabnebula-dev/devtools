@@ -84,7 +84,7 @@ pub fn try_init() -> Result<TauriPlugin> {
 
 	// initialize early so we don't miss any spans
 	tracing_subscriber::registry()
-		.with(layer.with_filter(tracing_subscriber::filter::LevelFilter::DEBUG))
+		.with(layer.with_filter(tracing_subscriber::filter::LevelFilter::TRACE))
 		.try_init()?;
 
 	Ok(plugin)

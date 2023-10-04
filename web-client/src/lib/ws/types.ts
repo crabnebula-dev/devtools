@@ -5,7 +5,7 @@ export type Log = {
   timestamp: number;
   message: string;
   target: string;
-  level: "TRACE" | "DEBUG";
+  level: "TRACE" | "DEBUG" | "INFO" | "WARN" | "ERROR";
   module_path: string;
   file: string;
   line: number;

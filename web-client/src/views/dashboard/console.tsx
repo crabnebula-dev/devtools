@@ -3,6 +3,15 @@ import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { formatTimestamp } from "~/lib/formaters";
 import { useSocketData } from "~/lib/ws/context";
+import { Log } from "~/lib/ws/types.ts"
+
+const levelStyles: Record<Log['level'], string> = {
+    TRACE: '',
+    DEBUG: '',
+    INFO: '',
+    WARN: 'text-yellow-800 bg-yellow-400',
+    ERROR: 'text-red-600 bg-red-300'
+}
 
 export default function Console() {
   const { data } = useSocketData();
@@ -32,11 +41,11 @@ export default function Console() {
         shouldAutoScroll={shouldAutoScroll}
       >
         <For each={data.logs}>
-          {({ message, timestamp }) => {
+          {({ message, timestamp, level }) => {
             const timeDate = new Date(timestamp);
 
             return (
-              <li class="p-1 items-center flex">
+              <li class={`p-1 m-2 items-center rounded flex ${levelStyles[level]}`}>
                 <Show when={showTimestamp()}>
                   <time
                     dateTime={timeDate.toISOString()}

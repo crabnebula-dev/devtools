@@ -24,6 +24,7 @@ tokio = { workspace = true, features = ["macros", "time"] }
 tokio-stream = { workspace = true, features = ["sync"] }
 futures.workspace = true
 tauri.workspace = true
+colored = "2.0.4"
 
 [dev-dependencies]
 tauri_devtools_shared = { path = "../shared", features = ["test_util"] }
