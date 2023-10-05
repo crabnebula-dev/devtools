@@ -4,6 +4,7 @@ import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
 export function connect(wsUrl: string) {
   const abort = new AbortController();
   const transport = new GrpcWebFetchTransport({
+    format: 'binary',
     baseUrl: wsUrl,
     abort: abort.signal
   });
