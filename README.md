@@ -50,10 +50,10 @@ We are continually working on improving and expanding the capabilities of the In
 
 <sup>
 
-The Instrumentation (i.e. the folders `/plugin`, `/primitives`, `/server` and `/subscriber`) is licensed under either 
-of <a href="LICENSE-APACHE">Apache License, Version 2.0</a> or <a href="LICENSE-MIT">MIT license</a> at your option.
+The Instrumentation (i.e. the folders `/plugin`, `/primitives`, `/server` and `/subscriber`) is licensed under either
+of [Apache License, Version 2.0](./LICENSES/Apache-2.0.md) or [MIT license](./LICENSES/MIT.md)  at your option.
 
-All other code is licensed under the <a href="LICENSE-POLYFORM-NONCOMMERCIAL">PolyForm Noncommercial License 1.0.0.</a>
+All other code is licensed under the [PolyForm Noncommercial License 1.0.0](./LICENSES/Polyform-Noncommercial.md).
 
 </sup>
 
