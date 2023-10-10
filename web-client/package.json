@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "description": "Solid CSR Template",
   "type": "module",
+  "license": "PolyForm-Noncommercial-1.0.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
