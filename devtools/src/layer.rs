@@ -160,7 +160,8 @@ mod test {
 		};
 	}
 
-	// #[tokio::test]
+	#[tokio::test]
+	#[ignore = "Currently broken, apparently tracing leaks events cross-thread"]
 	async fn log_event() {
 		let (evt_tx, evt_rx) = mpsc::channel(10);
 		let layer = Layer::new(Default::default(), evt_tx);
@@ -182,7 +183,8 @@ mod test {
 		assert!(log_event.fields.is_empty());
 	}
 
-	// #[tokio::test]
+	#[tokio::test]
+	#[ignore = "Currently broken, apparently tracing leaks events cross-thread"]
 	async fn span() {
 		let (evt_tx, evt_rx) = mpsc::channel(10);
 		let layer = Layer::new(Default::default(), evt_tx);
