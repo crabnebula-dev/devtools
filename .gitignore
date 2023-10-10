@@ -3,3 +3,7 @@
 .idea
 
 target
+
+
+# Web-Client
+web-client/src/lib/proto
