@@ -2988,7 +2988,7 @@ checksum = "9d0e916b1148c8e263850e1ebcbd046f333e0683c724876bb0da63ea4373dc8a"
 [[package]]
 name = "tauri"
 version = "1.5.0"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "anyhow",
  "cocoa",
@@ -3033,7 +3033,7 @@ dependencies = [
 [[package]]
 name = "tauri-codegen"
 version = "1.4.1"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "base64 0.21.4",
  "brotli",
@@ -3057,7 +3057,7 @@ dependencies = [
 [[package]]
 name = "tauri-macros"
 version = "1.4.1"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "heck 0.4.1",
  "proc-macro2",
@@ -3070,7 +3070,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime"
 version = "0.14.1"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "gtk",
  "http",
@@ -3090,7 +3090,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime-wry"
 version = "0.14.1"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "cocoa",
  "gtk",
@@ -3110,7 +3110,7 @@ dependencies = [
 [[package]]
 name = "tauri-utils"
 version = "1.5.0"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#a3a42672d29a7fd6bdc3802fca39607c96e330f4"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "brotli",
  "ctor",
