@@ -35,7 +35,3 @@ tracing-core = "0.1"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 
 tauri = { git = "https://github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing-v1" }
-
-[patch.crates-io]
-tracing = { git = "https://github.com/tokio-rs/tracing", branch = "v0.1.x" }
-tracing-core = { git = "https://github.com/tokio-rs/tracing", branch = "v0.1.x" }

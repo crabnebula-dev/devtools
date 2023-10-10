@@ -366,8 +366,6 @@ mod test {
 
 		mf.run().await; // run the broadcasters event loop to completion
 
-		println!("done");
-
 		let mut out = Vec::new();
 		while let Some(Ok(update)) = client_rx.recv().await {
 			out.push(update);
@@ -376,13 +374,13 @@ mod test {
 	}
 
 	#[tokio::test]
-	async fn attach_watcher() {
+	async fn initial_update() {
 		let (_, evt_rx) = mpsc::channel(1);
 		let (cmd_tx, cmd_rx) = mpsc::channel(1);
 
 		let mf = Broadcaster::new(Default::default(), evt_rx, cmd_rx);
 
-		let (client_tx, _) = mpsc::channel(1);
+		let (client_tx, mut client_rx) = mpsc::channel(1);
 		cmd_tx
 			.send(Command::Instrument(Watcher {
 				log_filter: None,
@@ -393,9 +391,11 @@ mod test {
 			.unwrap();
 		drop(cmd_tx); // drop the cmd_tx connection here, this will stop the broadcaster
 
-		let mf = mf.run().await;
-
-		assert_eq!(mf.watchers.len(), 1);
+		let (maybe_update, _) = futures::join!(client_rx.recv(), mf.run());
+		let update = maybe_update.unwrap().unwrap();
+		assert_eq!(update.logs_update.unwrap().log_events.len(), 0);
+		assert_eq!(update.spans_update.unwrap().span_events.len(), 0);
+		assert_eq!(update.new_metadata.len(), 0);
 	}
 
 	#[tokio::test]
