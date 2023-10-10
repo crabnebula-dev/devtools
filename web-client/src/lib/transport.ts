@@ -1,20 +1,20 @@
 import { createContext, useContext } from "solid-js";
 import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
 
-export function connect(wsUrl: string) {
+export function connect(url: string) {
   const abort = new AbortController();
   const transport = new GrpcWebFetchTransport({
-    format: 'binary',
-    baseUrl: wsUrl,
-    abort: abort.signal
+    format: "binary",
+    baseUrl: url,
+    abort: abort.signal,
   });
 
-  return { transport, abort }
+  return { transport, abort };
 }
 
 export const TransportContext = createContext<{
-  transport: GrpcWebFetchTransport,
-  abort: AbortController
+  transport: GrpcWebFetchTransport;
+  abort: AbortController;
 }>();
 
 export function useTransport() {

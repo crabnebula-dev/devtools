@@ -12,7 +12,7 @@ export default function Connect() {
       <form class="text-2xl flex flex-col gap-4 border-2 border-neutral-800 p-8 rounded-sm">
         <legend class="text-3xl text-neutral-600">Connect to App</legend>
         <fieldset>
-          <legend class="sr-only">web socket URL host</legend>
+          <legend class="sr-only">instrumentation URL host</legend>
           <label for="port" class="text-neutral-600">
             Host:{" "}
           </label>
@@ -25,7 +25,7 @@ export default function Connect() {
           />
         </fieldset>
         <fieldset>
-          <legend class="sr-only">web socket URL port</legend>
+          <legend class="sr-only">instrumentation URL port</legend>
           <label for="port" class="text-neutral-600">
             Port:{" "}
           </label>

@@ -7,7 +7,7 @@ const ROUTES = [
     component: lazy(() => import("./views/connect.tsx")),
   },
   {
-    path: "/dash/:wsUrl/:wsPort",
+    path: "/dash/:host/:port",
     component: lazy(() => import("./views/dashboard/layout.tsx")),
     children: [
       {
