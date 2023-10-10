@@ -55,22 +55,11 @@ impl<R: Runtime> tauri::plugin::Plugin<R> for TauriPlugin {
 			return;
 		}
 
-		match event {
-			RunEvent::Ready => {
-				let mut metrics = self.metrics.blocking_write();
-				metrics.ready_at = Some(SystemTime::now().into());
+		if let RunEvent::Ready = event {
+			let mut metrics = self.metrics.blocking_write();
+			metrics.ready_at = Some(SystemTime::now().into());
 
-				tracing::debug!("Application is ready");
-			}
-			// RunEvent::ExitRequested { api, .. } => {
-			// 	// We signal the gRPC server to gracefully shut down,
-			// 	// which in-turn will cause the broadcaster to flush all updates and shut down
-			// 	// this takes some time however so we prevent the app from exiting right now
-			// 	tracing::debug!("Received exit request, terminating...");
-			// 	SHUTDOWN_SIGNAL.notify_one();
-			// 	api.prevent_exit();
-			// }
-			_ => {}
+			tracing::debug!("Application is ready");
 		}
 	}
 }

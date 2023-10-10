@@ -1,22 +1,41 @@
 use crate::visitors::{EventVisitor, FieldVisitor};
-use crate::{CloseSpan, EnterSpan, Event, ExitSpan, LogEvent, NewSpan};
+use crate::{CloseSpan, EnterSpan, Event, ExitSpan, LogEvent, NewSpan, Shared};
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::mpsc;
+use tokio::sync::mpsc::error::TrySendError;
 use tracing_core::{Interest, Metadata, Subscriber};
 use tracing_subscriber::layer;
 use tracing_subscriber::registry::LookupSpan;
 
 pub(crate) struct Layer {
+	shared: Arc<Shared>,
 	tx: mpsc::Sender<Event>,
 }
 
 impl Layer {
-	pub fn new(tx: mpsc::Sender<Event>) -> Self {
-		Self { tx }
+	pub fn new(shared: Arc<Shared>, tx: mpsc::Sender<Event>) -> Self {
+		Self { shared, tx }
 	}
 
-	pub fn dispatch(&self, event: Event) {
-		let _ = self.tx.try_send(event); // TODO handle error here
+	pub fn dispatch(&self, dropped: &AtomicUsize, mk_event: impl FnOnce() -> Event) {
+		match self.tx.try_reserve() {
+			Ok(permit) => {
+				permit.send(mk_event());
+			}
+			Err(TrySendError::Closed(_)) => {
+				// we should warn here eventually, but nop for now because we
+				// can't trigger tracing events...
+			}
+			Err(TrySendError::Full(_)) => {
+				// this shouldn't happen, since we trigger a flush when
+				// approaching the high water line...but if the executor wait
+				// time is very high, maybe the aggregator task hasn't been
+				// polled yet. so... eek?!
+				dropped.fetch_add(1, Ordering::Release);
+			}
+		}
 	}
 }
 
@@ -25,7 +44,12 @@ where
 	S: Subscriber + for<'a> LookupSpan<'a>,
 {
 	fn register_callsite(&self, meta: &'static Metadata<'static>) -> Interest {
-		self.dispatch(Event::Metadata(meta));
+		let dropped = if meta.is_event() {
+			&self.shared.dropped_log_events
+		} else {
+			&self.shared.dropped_span_events
+		};
+		self.dispatch(dropped, || Event::Metadata(meta));
 
 		Interest::always()
 	}
@@ -37,73 +61,85 @@ where
 		ctx: layer::Context<'_, S>,
 	) {
 		let at = Instant::now();
-		let span = ctx.span(id).expect("Span not in context, probably a bug");
-		let metadata = span.metadata();
-		let maybe_parent = span.parent().map(|s| s.id());
 
-		let mut visitor = FieldVisitor::new(metadata.into());
-		attrs.record(&mut visitor);
-		let fields = visitor.result();
+		self.dispatch(&self.shared.dropped_span_events, move || {
+			let span = ctx.span(id).expect("Span not in context, probably a bug");
+			let metadata = span.metadata();
+			let maybe_parent = span.parent().map(|s| s.id());
 
-		self.dispatch(Event::NewSpan(NewSpan {
-			at,
-			id: id.clone(),
-			metadata: span.metadata(),
-			fields,
-			maybe_parent,
-		}));
+			let mut visitor = FieldVisitor::new(metadata.into());
+			attrs.record(&mut visitor);
+			let fields = visitor.result();
+
+			Event::NewSpan(NewSpan {
+				at,
+				id: id.clone(),
+				metadata: span.metadata(),
+				fields,
+				maybe_parent,
+			})
+		});
 	}
 
 	// Notifies this layer that an event has occurred.
 	fn on_event(&self, event: &tracing_core::Event<'_>, ctx: layer::Context<'_, S>) {
 		let at = Instant::now();
-		let metadata = event.metadata();
 
-		let mut visitor = EventVisitor::new(metadata.into());
-		event.record(&mut visitor);
-		let (message, fields) = visitor.result();
+		self.dispatch(&self.shared.dropped_log_events, || {
+			let metadata = event.metadata();
 
-		let maybe_parent = ctx.event_span(event).as_ref().map(|s| s.id());
+			let mut visitor = EventVisitor::new(metadata.into());
+			event.record(&mut visitor);
+			let (message, fields) = visitor.result();
 
-		self.dispatch(Event::LogEvent(LogEvent {
-			at,
-			metadata,
-			message,
-			fields,
-			maybe_parent,
-		}));
+			let maybe_parent = ctx.event_span(event).as_ref().map(|s| s.id());
+
+			Event::LogEvent(LogEvent {
+				at,
+				metadata,
+				message,
+				fields,
+				maybe_parent,
+			})
+		});
 	}
 
 	// Notifies this layer that a span with the given `Id` was entered.
 	fn on_enter(&self, id: &tracing_core::span::Id, _: layer::Context<'_, S>) {
 		let at = Instant::now();
 
-		self.dispatch(Event::EnterSpan(EnterSpan {
-			at,
-			thread_id: 0,
-			span_id: id.clone(),
-		}));
+		self.dispatch(&self.shared.dropped_span_events, || {
+			Event::EnterSpan(EnterSpan {
+				at,
+				thread_id: 0,
+				span_id: id.clone(),
+			})
+		});
 	}
 
 	// Notifies this layer that the span with the given `Id` was exited.
 	fn on_exit(&self, id: &tracing_core::span::Id, _: layer::Context<'_, S>) {
 		let at = Instant::now();
 
-		self.dispatch(Event::ExitSpan(ExitSpan {
-			at,
-			thread_id: 0,
-			span_id: id.clone(),
-		}));
+		self.dispatch(&self.shared.dropped_span_events, || {
+			Event::ExitSpan(ExitSpan {
+				at,
+				thread_id: 0,
+				span_id: id.clone(),
+			})
+		});
 	}
 
 	// Notifies this layer that the span with the given `Id` has been closed.
 	fn on_close(&self, id: tracing_core::span::Id, _: layer::Context<'_, S>) {
 		let at = Instant::now();
 
-		self.dispatch(Event::CloseSpan(CloseSpan {
-			at,
-			span_id: id.clone(),
-		}));
+		self.dispatch(&self.shared.dropped_span_events, || {
+			Event::CloseSpan(CloseSpan {
+				at,
+				span_id: id.clone(),
+			})
+		});
 	}
 }
 
@@ -127,7 +163,7 @@ mod test {
 	// #[tokio::test]
 	async fn log_event() {
 		let (evt_tx, evt_rx) = mpsc::channel(10);
-		let layer = Layer::new(evt_tx);
+		let layer = Layer::new(Default::default(), evt_tx);
 		let subscriber = tracing_subscriber::registry().with(layer);
 
 		tracing::subscriber::with_default(subscriber, || {
@@ -149,7 +185,7 @@ mod test {
 	// #[tokio::test]
 	async fn span() {
 		let (evt_tx, evt_rx) = mpsc::channel(10);
-		let layer = Layer::new(evt_tx);
+		let layer = Layer::new(Default::default(), evt_tx);
 		let subscriber = tracing_subscriber::registry().with(layer);
 
 		tracing::subscriber::with_default(subscriber, || {

@@ -48,6 +48,8 @@ use crate::broadcaster::Broadcaster;
 use crate::layer::Layer;
 use crate::tauri_plugin::TauriPlugin;
 pub use error::Error;
+use std::sync::atomic::AtomicUsize;
+use std::sync::Arc;
 use std::time::Instant;
 use tauri_devtools_wire_format as wire;
 use tokio::sync::mpsc;
@@ -69,13 +71,14 @@ pub fn try_init() -> Result<TauriPlugin> {
 		.collect::<Vec<String>>()
 		.contains(&INSPECT_FLAG.to_string());
 
-	// set up data channels
+	// set up data channels & shared data
+	let shared = Arc::new(Shared::default());
 	let (event_tx, event_rx) = mpsc::channel(256);
 	let (cmd_tx, cmd_rx) = mpsc::channel(256);
 
 	// set up components
-	let layer = Layer::new(event_tx);
-	let broadcaster = Broadcaster::new(event_rx, cmd_rx);
+	let layer = Layer::new(shared.clone(), event_tx);
+	let broadcaster = Broadcaster::new(shared, event_rx, cmd_rx);
 	let plugin = TauriPlugin::new(enabled, broadcaster, cmd_tx);
 
 	// initialize early so we don't miss any spans
@@ -148,4 +151,11 @@ struct Watcher {
 	span_filter: Option<wire::instrument::Filter>,
 
 	tx: mpsc::Sender<Result<wire::instrument::Update>>,
+}
+
+#[derive(Debug, Default)]
+struct Shared {
+	dropped_log_events: AtomicUsize,
+
+	dropped_span_events: AtomicUsize,
 }

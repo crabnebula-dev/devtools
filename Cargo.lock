@@ -2484,6 +2484,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dbb5fb1acd8a1a18b3dd5be62d25485eb770e05afb408a9627d14d451bae12da"
 
 [[package]]
+name = "ringbuf"
+version = "0.4.0-rc.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b8f7d58e4f67752d63318605656be063e333154aa35b70126075e9d05552979"
+dependencies = [
+ "crossbeam-utils",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3144,6 +3153,7 @@ dependencies = [
  "futures",
  "prost",
  "prost-types",
+ "ringbuf",
  "serde_json",
  "serial_test",
  "tauri",
