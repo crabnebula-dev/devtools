@@ -1,9 +1,9 @@
-import { useState } from "~/lib/state";
+import { useMonitor } from "~/lib/connection/monitor";
 import { Tooltip } from "@kobalte/core";
 import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
 
 export function HealthStatus() {
-  const { state } = useState();
+  const { monitorData } = useMonitor();
 
   const variant = (status: HealthCheckResponse_ServingStatus) => {
     return [
@@ -29,7 +29,7 @@ export function HealthStatus() {
     <section>
       <Tooltip.Root>
         <Tooltip.Trigger>
-          <span class={variant(state.health).style} />
+          <span class={variant(monitorData.health).style} />
         </Tooltip.Trigger>
         <Tooltip.Portal>
           <Tooltip.Content
@@ -38,7 +38,7 @@ export function HealthStatus() {
             }
           >
             <Tooltip.Arrow />
-            <p>{variant(state.health).tooltip}</p>
+            <p>{variant(monitorData.health).tooltip}</p>
           </Tooltip.Content>
         </Tooltip.Portal>
       </Tooltip.Root>

@@ -1,7 +1,7 @@
 import { For, Show } from "solid-js";
 import { Collapsible } from "@kobalte/core";
 import { evaluateCSP } from "~/lib/security";
-import { useState } from "~/lib/state";
+import { useState } from "~/lib/connection/monitor";
 
 function formatBooleanProp(prop?: boolean) {
   return prop ? "✅" : "❌";

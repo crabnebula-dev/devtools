@@ -1,7 +1,7 @@
-import { Timestamp } from "../../generated/google/protobuf/timestamp";
+import { Timestamp } from "./proto/google/protobuf/timestamp";
 
 export function timestampToDate(ts: Timestamp): Date {
-  return new Date(Number(ts.seconds * 1000n) + (ts.nanos / 1e6))
+  return new Date(Number(ts.seconds * 1000n) + ts.nanos / 1e6);
 }
 
 function formatMs(ms: string) {

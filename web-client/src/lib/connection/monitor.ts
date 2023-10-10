@@ -1,22 +1,13 @@
 import { createContext, useContext } from "solid-js";
 import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
-import { LogEvent } from "./proto/logs";
-import { SpanEvent } from "./proto/spans";
-import { MetaId, Metadata } from "./proto/common";
-import { Metrics } from "./proto/tauri";
+import { LogEvent } from "../proto/logs";
+import { SpanEvent } from "../proto/spans";
+import { MetaId, Metadata } from "../proto/common";
+import { Metrics } from "../proto/tauri";
 import { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
+import { timestampToDate } from "~/lib/formatters";
 
-const healthMap = new Map([
-  [HealthCheckResponse_ServingStatus.NOT_SERVING, "not serving"] as const,
-  [
-    HealthCheckResponse_ServingStatus.SERVICE_UNKNOWN,
-    "service unknown",
-  ] as const,
-  [HealthCheckResponse_ServingStatus.SERVING, "serving"] as const,
-  [HealthCheckResponse_ServingStatus.UNKNOWN, "unknown"] as const,
-]);
-
-export type State = {
+export type MonitorData = {
   health: HealthCheckResponse_ServingStatus;
   metadata: Map<MetaId, Metadata>;
   logs: LogEvent[];
@@ -29,11 +20,7 @@ export type State = {
   perfElapsed: Timestamp | null;
 };
 
-export function timestampToDate(ts: Timestamp): Date {
-  return new Date(Number(ts.seconds * 1000n) + ts.nanos / 1e6);
-}
-
-export const initialState: State = {
+export const initialMonitorData: MonitorData = {
   health: HealthCheckResponse_ServingStatus.UNKNOWN,
   metadata: new Map(),
   logs: [],
@@ -67,12 +54,12 @@ export const initialState: State = {
   },
 };
 
-export const StateContext = createContext<{
-  state: State;
+export const MonitorContext = createContext<{
+  monitorData: MonitorData;
 }>();
 
-export function useState() {
-  const ctx = useContext(StateContext);
+export function useMonitor() {
+  const ctx = useContext(MonitorContext);
 
   if (!ctx) throw new Error("can not find context");
   return ctx;

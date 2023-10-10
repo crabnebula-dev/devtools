@@ -2,7 +2,7 @@ import { For, Show, createSignal } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { formatTimestamp, timestampToDate } from "~/lib/formaters";
-import { useState } from "~/lib/state";
+import { useState } from "~/lib/connection/monitor";
 
 export default function Console() {
   const { state } = useState();
@@ -35,7 +35,9 @@ export default function Console() {
       >
         <For each={state.logs}>
           {({ message, at }) => {
-            const timeDate = timestampToDate(at!);
+            if (!at) return null;
+
+            const timeDate = timestampToDate(at);
 
             return (
               <li class="py-1 flex ">
