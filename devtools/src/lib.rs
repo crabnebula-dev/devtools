@@ -42,15 +42,17 @@ mod error;
 mod layer;
 mod server;
 mod tauri_plugin;
-#[cfg(test)]
-mod test_util;
 mod visitors;
 
 use crate::broadcaster::Broadcaster;
 use crate::layer::Layer;
 use crate::tauri_plugin::TauriPlugin;
 pub use error::Error;
-use tokio::sync::{broadcast, mpsc, watch};
+use std::sync::atomic::AtomicUsize;
+use std::sync::Arc;
+use std::time::Instant;
+use tauri_devtools_wire_format as wire;
+use tokio::sync::mpsc;
 use tracing_subscriber::prelude::*;
 use tracing_subscriber::util::SubscriberInitExt;
 
@@ -59,8 +61,6 @@ pub(crate) type Result<T> = std::result::Result<T, Error>;
 /// CLI flag that determines whether the inspector protocol
 /// should be active or not.
 const INSPECT_FLAG: &str = "--inspect";
-/// Default [broadcast] channels capacity.
-const DEFAULT_CAPACITY: usize = 10_000;
 
 pub fn init() -> TauriPlugin {
 	try_init().unwrap()
@@ -71,21 +71,91 @@ pub fn try_init() -> Result<TauriPlugin> {
 		.collect::<Vec<String>>()
 		.contains(&INSPECT_FLAG.to_string());
 
-	// set up data channels
-	let (trees_tx, trees_rx) = mpsc::unbounded_channel();
-	let (logs_tx, _) = broadcast::channel(DEFAULT_CAPACITY);
-	let (spans_tx, _) = broadcast::channel(DEFAULT_CAPACITY);
-	let (shutdown_tx, shutdown_rx) = watch::channel(());
+	// set up data channels & shared data
+	let shared = Arc::new(Shared::default());
+	let (event_tx, event_rx) = mpsc::channel(256);
+	let (cmd_tx, cmd_rx) = mpsc::channel(256);
 
 	// set up components
-	let layer = Layer::new(trees_tx);
-	let broadcaster = Broadcaster::new(trees_rx, shutdown_rx, logs_tx.clone(), spans_tx.clone());
-	let plugin = TauriPlugin::new(enabled, broadcaster, logs_tx, spans_tx, shutdown_tx);
+	let layer = Layer::new(shared.clone(), event_tx);
+	let broadcaster = Broadcaster::new(shared, event_rx, cmd_rx);
+	let plugin = TauriPlugin::new(enabled, broadcaster, cmd_tx);
 
 	// initialize early so we don't miss any spans
 	tracing_subscriber::registry()
-		.with(layer.with_filter(tracing_subscriber::filter::LevelFilter::DEBUG))
+		.with(layer.with_filter(tracing_subscriber::filter::LevelFilter::TRACE))
 		.try_init()?;
 
 	Ok(plugin)
+}
+
+/// Data sent from the `Layer` to the `Broadcaster`
+#[derive(Debug)]
+enum Event {
+	Metadata(&'static tracing_core::Metadata<'static>),
+	LogEvent(LogEvent),
+	NewSpan(NewSpan),
+	EnterSpan(EnterSpan),
+	ExitSpan(ExitSpan),
+	CloseSpan(CloseSpan),
+}
+
+#[derive(Debug)]
+struct LogEvent {
+	at: Instant,
+	metadata: &'static tracing_core::Metadata<'static>,
+	message: String,
+	fields: Vec<wire::Field>,
+	maybe_parent: Option<tracing_core::span::Id>,
+}
+
+#[derive(Debug)]
+struct NewSpan {
+	at: Instant,
+	id: tracing_core::span::Id,
+	metadata: &'static tracing_core::Metadata<'static>,
+	fields: Vec<wire::Field>,
+	maybe_parent: Option<tracing_core::span::Id>,
+}
+
+#[derive(Debug)]
+struct EnterSpan {
+	at: Instant,
+	thread_id: u64,
+	span_id: tracing_core::span::Id,
+}
+
+#[derive(Debug)]
+struct ExitSpan {
+	at: Instant,
+	thread_id: u64,
+	span_id: tracing_core::span::Id,
+}
+
+#[derive(Debug)]
+struct CloseSpan {
+	at: Instant,
+	span_id: tracing_core::span::Id,
+}
+
+/// Commands send from the `Server` to the `Broadcaster`
+#[derive(Debug)]
+enum Command {
+	Instrument(Watcher),
+}
+
+#[derive(Debug)]
+struct Watcher {
+	// TODO use these fields
+	log_filter: Option<wire::instrument::Filter>,
+	span_filter: Option<wire::instrument::Filter>,
+
+	tx: mpsc::Sender<Result<wire::instrument::Update>>,
+}
+
+#[derive(Debug, Default)]
+struct Shared {
+	dropped_log_events: AtomicUsize,
+
+	dropped_span_events: AtomicUsize,
 }

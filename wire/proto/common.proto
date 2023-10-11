@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package rs.devtools.common;
+
+// Unique identifier for metadata.
+message MetaId {
+  // The unique identifier's concrete value.
+  uint64 id = 1;
+}
+
+// Unique identifier for spans.
+message SpanId {
+  // The unique identifier's concrete value.
+  uint64 id = 1;
+}
+
+// A Rust source code location.
+message Location {
+  // The file path
+  optional string file = 1;
+  // The Rust module path
+  optional string module_path = 2;
+  // The line number in the source code file.
+  optional uint32 line = 3;
+  // The character in `line`.
+  optional uint32 column = 4;
+}
+
+// Metadata associated with an event of span.
+message Metadata {
+  // The name of the span or event.
+  string name = 1;
+  // Describes the part of the system where the span or event that this
+  // metadata describes occurred.
+  string target = 2;
+  // The Rust source location associated with the span or event.
+  Location location = 3;
+  // Indicates whether metadata is associated with a span or with an event.
+  Kind kind = 4;
+  // Describes the level of verbosity of a span or event.
+  Level level = 5;
+
+  // The names of the key-value fields attached to the
+  // span or event this metadata is associated with.
+  repeated string field_names = 6;
+
+  // Indicates whether metadata is associated with a span or with an event.
+  enum Kind {
+    // Indicates metadata is associated with a span.
+    SPAN = 0;
+    // Indicates metadata is associated with an event.
+    EVENT = 1;
+  }
+
+  // Describes the level of verbosity of a span or event.
+  //
+  // Corresponds to `Level` in the `tracing` crate.
+  enum Level {
+    // The "error" level.
+    //
+    // Designates very serious errors.
+    ERROR = 0;
+    // The "warn" level.
+    //
+    // Designates hazardous situations.
+    WARN = 1;
+    // The "info" level.
+    // Designates useful information.
+    INFO = 2;
+    // The "debug" level.
+    //
+    // Designates lower priority information.
+    DEBUG = 3;
+    // The "trace" level.
+    //
+    // Designates very low priority, often extremely verbose, information.
+    TRACE = 4;
+  }
+}
+
+// One metadata element registered since the last update.
+message NewMetadata {
+  // Unique identifier for `metadata`.
+  MetaId id = 1;
+  // The metadata payload.
+  Metadata metadata = 2;
+}
+
+// A message representing a key-value pair of data associated with a `Span`
+message Field {
+  // The key of the key-value pair.
+  //
+  // This is either represented as a string, or as an index into a `Metadata`'s
+  // array of field name strings.
+  oneof name {
+    // The string representation of the name.
+    string str_name = 1;
+    // An index position into the `Metadata.field_names` of the metadata
+    // for the task span that the field came from.
+    uint64 name_idx = 2;
+  }
+  // The value of the key-value pair.
+  oneof value {
+    // A value serialized to a string using `fmt::Debug`.
+    string debug_val = 3;
+    // A string value.
+    string str_val = 4;
+    // An unsigned integer value.
+    uint64 u64_val = 5;
+    // A signed integer value.
+    sint64 i64_val = 6;
+    // A boolean value.
+    bool bool_val = 7;
+  }
+  // Metadata for the task span that the field came from.
+  MetaId metadata_id = 8;
+}

@@ -10,7 +10,7 @@ export default function Connect() {
   return (
     <div class="w-full min-h-screen grid place-items-center">
       <form class="text-2xl flex flex-col gap-4 border-2 border-neutral-800 p-8 rounded-sm">
-        <legend class="text-3xl text-neutral-600">Web Socket</legend>
+        <legend class="text-3xl text-neutral-600">Connect to App</legend>
         <fieldset>
           <legend class="sr-only">web socket URL host</legend>
           <label for="port" class="text-neutral-600">
@@ -46,7 +46,7 @@ export default function Connect() {
         >
           Inspect:{" "}
           <code>
-            ws://{host()}:{port()}
+            http://{host()}:{port()}
           </code>
         </Button.Root>
       </form>

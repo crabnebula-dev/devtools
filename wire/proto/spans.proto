@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package rs.devtools.spans;
+
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+
+message Update {
+  // A list of span events that happened since the last update.
+  repeated SpanEvent span_events = 1;
+  // A count of how many log events were dropped because
+  // the event buffer was at capacity.
+  //
+  // If everything is working correctly, this should be 0. If this
+  // number is greater than zero this indicates the event buffers capacity
+  // should be increased or the publish interval decreased.
+  uint64 dropped_events = 2;
+}
+
+// A span event
+//
+// Span events are emitted whenever a span lifecycle event happens and are thus rather low-level by nature.
+message SpanEvent {
+  oneof event {
+    Span new_span = 1;
+    Enter enter_span = 2;
+    Exit exit_span = 3;
+    Close close_span = 4;
+  }
+
+  // Represents a period of time in which a program was executing in a particular context.
+  //
+  // Corresponds to `Span` in the `tracing` crate.
+  message Span {
+    // An Id that uniquely identifies it in relation to other spans.
+    common.SpanId id = 1;
+    // Identifier for metadata describing static characteristics of all spans originating
+    // from that call site, such as its name, source code location, verbosity level, and
+    // the names of its fields.
+    common.MetaId metadata_id = 2;
+    // User-defined key-value pairs of arbitrary data that describe the context the span represents,
+    repeated common.Field fields = 3;
+    optional common.SpanId parent = 4;
+    // Timestamp for the span.
+    google.protobuf.Timestamp at = 5;
+  }
+
+
+  message Enter {
+    common.SpanId span_id = 1;
+    uint64 thread_id = 2;
+    google.protobuf.Timestamp at = 3;
+  }
+
+  message Exit {
+    common.SpanId span_id = 1;
+    uint64 thread_id = 2;
+    google.protobuf.Timestamp at = 3;
+  }
+
+  message Close {
+    common.SpanId span_id = 1;
+    google.protobuf.Timestamp at = 3;
+  }
+}

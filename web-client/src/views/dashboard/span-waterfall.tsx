@@ -1,10 +1,10 @@
 import { For, createSignal } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
-import { useSocketData } from "~/lib/ws/context";
+import { useState } from "~/lib/state";
 
 export default function SpanWaterfall() {
-  const { data } = useSocketData();
+  const { state } = useState();
   const [shouldAutoScroll, toggleAutoScroll] = createSignal<boolean>(true);
 
   return (
@@ -19,14 +19,14 @@ export default function SpanWaterfall() {
       </FilterToggle>
 
       <AutoscrollPane
-        dataStream={data.spans[0]}
+        dataStream={state.spans[0]}
         shouldAutoScroll={shouldAutoScroll}
       >
-        <For each={data.spans}>
+        <For each={state.spans}>
           {(span) => {
             return (
               <li class="py-1 flex ">
-                <pre>{JSON.stringify(span, null, 2)}</pre>
+                <pre>{JSON.stringify(span, (_, v) => typeof v === 'bigint' ? v.toString() : v, 2)}</pre>
               </li>
             );
           }}
