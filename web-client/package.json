@@ -6,7 +6,7 @@
   "type": "module",
   "license": "PolyForm-Noncommercial-1.0.0",
   "scripts": {
-    "proto": "protoc --ts_out src/lib/proto --proto_path ../wire/proto ../wire/proto/common.proto ../wire/proto/instrument.proto ../wire/proto/logs.proto ../wire/proto/spans.proto ../wire/proto/tauri.proto ../wire/proto/health.proto",
+    "proto": "protoc --ts_out generated --proto_path ../wire/proto ../wire/proto/common.proto ../wire/proto/instrument.proto ../wire/proto/logs.proto ../wire/proto/spans.proto ../wire/proto/tauri.proto ../wire/proto/workspace.proto ../wire/proto/health.proto"
     "dev": "pnpm proto && vite",
     "build": "pnpm proto && tsc && vite build",
     "preview": "pnpm proto && vite preview",

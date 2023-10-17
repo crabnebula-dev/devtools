@@ -15,9 +15,10 @@ tracing.workspace = true
 tracing-core.workspace = true
 tracing-subscriber.workspace = true
 thiserror.workspace = true
+tokio = { workspace = true, features = ["macros", "time"] }
+tokio-stream = { version = "0.1.14", features = ["fs"] }
 tauri.workspace = true
 tonic.workspace = true
-tokio = { workspace = true, features = ["macros", "time"] }
 tonic-web = "0.10"
 tonic-health = "0.10"
 tower-http = "0.4"
