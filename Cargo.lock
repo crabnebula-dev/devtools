@@ -3169,6 +3169,7 @@ dependencies = [
 name = "tauri_devtools"
 version = "0.1.0"
 dependencies = [
+ "async-stream",
  "colored",
  "futures",
  "prost",
@@ -3180,7 +3181,6 @@ dependencies = [
  "tauri_devtools_wire_format",
  "thiserror",
  "tokio",
- "tokio-stream",
  "tonic",
  "tonic-health",
  "tonic-web",
@@ -3356,7 +3356,6 @@ dependencies = [
  "futures-core",
  "pin-project-lite",
  "tokio",
- "tokio-util",
 ]
 
 [[package]]

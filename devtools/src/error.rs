@@ -11,4 +11,7 @@ pub enum Error {
 
 	#[error(transparent)]
 	Tonic(#[from] tonic::transport::Error),
+
+	#[error(transparent)]
+	RelativizePathError(#[from] std::path::StripPrefixError),
 }
