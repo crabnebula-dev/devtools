@@ -3,12 +3,6 @@
 pub struct ConfigRequest {}
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct AssetRequest {
-    #[prost(string, tag = "1")]
-    pub path: ::prost::alloc::string::String,
-}
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct MetricsRequest {}
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -16,19 +10,6 @@ pub struct Config {
     /// / The raw JSON string of the configuration
     #[prost(string, tag = "1")]
     pub raw: ::prost::alloc::string::String,
-}
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct Asset {
-    /// / The asset bytes.
-    #[prost(bytes = "bytes", tag = "1")]
-    pub bytes: ::prost::bytes::Bytes,
-    /// / The asset's mime type.
-    #[prost(string, tag = "2")]
-    pub mime_type: ::prost::alloc::string::String,
-    /// / The `Content-Security-Policy` header value.
-    #[prost(string, optional, tag = "3")]
-    pub csp_header: ::core::option::Option<::prost::alloc::string::String>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -147,28 +128,6 @@ pub mod tauri_client {
                 .insert(GrpcMethod::new("rs.devtools.tauri.Tauri", "GetConfig"));
             self.inner.unary(req, path, codec).await
         }
-        pub async fn get_asset(
-            &mut self,
-            request: impl tonic::IntoRequest<super::AssetRequest>,
-        ) -> std::result::Result<tonic::Response<super::Asset>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/rs.devtools.tauri.Tauri/GetAsset",
-            );
-            let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("rs.devtools.tauri.Tauri", "GetAsset"));
-            self.inner.unary(req, path, codec).await
-        }
         pub async fn get_metrics(
             &mut self,
             request: impl tonic::IntoRequest<super::MetricsRequest>,
@@ -204,10 +163,6 @@ pub mod tauri_server {
             &self,
             request: tonic::Request<super::ConfigRequest>,
         ) -> std::result::Result<tonic::Response<super::Config>, tonic::Status>;
-        async fn get_asset(
-            &self,
-            request: tonic::Request<super::AssetRequest>,
-        ) -> std::result::Result<tonic::Response<super::Asset>, tonic::Status>;
         async fn get_metrics(
             &self,
             request: tonic::Request<super::MetricsRequest>,
@@ -321,50 +276,6 @@ pub mod tauri_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = GetConfigSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            )
-                            .apply_max_message_size_config(
-                                max_decoding_message_size,
-                                max_encoding_message_size,
-                            );
-                        let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
-                "/rs.devtools.tauri.Tauri/GetAsset" => {
-                    #[allow(non_camel_case_types)]
-                    struct GetAssetSvc<T: Tauri>(pub Arc<T>);
-                    impl<T: Tauri> tonic::server::UnaryService<super::AssetRequest>
-                    for GetAssetSvc<T> {
-                        type Response = super::Asset;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<super::AssetRequest>,
-                        ) -> Self::Future {
-                            let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Tauri>::get_asset(&inner, request).await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let max_decoding_message_size = self.max_decoding_message_size;
-                    let max_encoding_message_size = self.max_encoding_message_size;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let inner = inner.0;
-                        let method = GetAssetSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
