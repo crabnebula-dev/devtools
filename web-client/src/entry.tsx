@@ -1,4 +1,4 @@
-import { RouteDefinition, useNavigate, useRoutes } from "@solidjs/router";
+import { type RouteDefinition, useNavigate, useRoutes } from "@solidjs/router";
 import { lazy } from "solid-js";
 import { connect } from "./lib/connection/transport.ts";
 
