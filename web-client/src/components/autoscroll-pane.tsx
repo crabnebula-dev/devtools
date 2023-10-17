@@ -18,14 +18,14 @@ type AutoScrollPaneProps = {
 };
 
 export function AutoscrollPane(props: AutoScrollPaneProps) {
-  let logPannel: HTMLUListElement | undefined;
+  let logPanel: HTMLUListElement | undefined;
 
   createEffect(
     on(
       () => props.dataStream,
       () => {
         if (props.shouldAutoScroll()) {
-          scrollEnd(logPannel);
+          scrollEnd(logPanel);
         }
       }
     )
@@ -33,7 +33,7 @@ export function AutoscrollPane(props: AutoScrollPaneProps) {
 
   return (
     <ul
-      ref={(e) => (logPannel = e)}
+      ref={(e) => (logPanel = e)}
       class="px-5 border border-neutral-800 rounded-md max-h-80 max-w-prose overflow-y-auto"
     >
       {props.children}

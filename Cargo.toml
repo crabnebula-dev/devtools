@@ -1,37 +1,24 @@
 [workspace]
 resolver = "2"
-members = [
-    "devtools",
-    "wire"
-]
-
-exclude = [
-    "examples/tauri",
-    "web-client/src-tauri"
-]
+members = ["api", "probe", "examples/*"]
 
 [workspace.package]
 authors = ["CrabNebula <hello@crabnebula.dev>"]
 edition = "2021"
 version = "0.1.0"
 rust-version = "1.70.0"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/crabnebula-dev/inspector-protocol"
-documentation = "https://docs.rs/inspector-protocol"
-homepage = "https://www.crabnebula.dev/"
+license = "MIT or Apache-2.0"
+repository = "https://github.com/crabnebula-dev/devtools"
 
 [workspace.dependencies]
-log = "0.4.17"
-serde = "1"
-serde_json = "1"
-thiserror = "1.0.30"
-
-tokio = "1"
-futures = "0.3"
-tokio-stream = "0.1"
-
 tracing = "0.1"
 tracing-core = "0.1"
-tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
-
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+thiserror = "1.0"
+tokio-stream = "0.1"
 tauri = { git = "https://github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing-v1" }
+tauri-build = { git = "https://github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing-v1" }
+tonic = "0.10"
+prost = "0.12"
+prost-types = "0.12"
+tokio = "1.33.0"

@@ -1,0 +1,29 @@
+[package]
+name = "probe"
+authors.workspace = true
+edition.workspace = true
+version.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+api = { path = "../api" }
+tracing.workspace = true
+tracing-core.workspace = true
+tracing-subscriber.workspace = true
+thiserror.workspace = true
+tauri.workspace = true
+tonic.workspace = true
+tokio = { workspace = true, features = ["macros", "time"] }
+tonic-web = "0.10"
+tonic-health = "0.10"
+tower-http = "0.4"
+futures = "0.3"
+ringbuf = "0.4.0-rc.2"
+prost-types.workspace = true
+
+[dev-dependencies]
+tauri = { workspace = true, features = ["test"] }
