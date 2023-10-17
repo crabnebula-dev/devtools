@@ -6,8 +6,6 @@ import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
 import { Tauri } from "./tauri";
 import type { Metrics } from "./tauri";
 import type { MetricsRequest } from "./tauri";
-import type { Asset } from "./tauri";
-import type { AssetRequest } from "./tauri";
 import { stackIntercept } from "@protobuf-ts/runtime-rpc";
 import type { Config } from "./tauri";
 import type { ConfigRequest } from "./tauri";
@@ -21,10 +19,6 @@ export interface ITauriClient {
      * @generated from protobuf rpc: GetConfig(rs.devtools.tauri.ConfigRequest) returns (rs.devtools.tauri.Config);
      */
     getConfig(input: ConfigRequest, options?: RpcOptions): UnaryCall<ConfigRequest, Config>;
-    /**
-     * @generated from protobuf rpc: GetAsset(rs.devtools.tauri.AssetRequest) returns (rs.devtools.tauri.Asset);
-     */
-    getAsset(input: AssetRequest, options?: RpcOptions): UnaryCall<AssetRequest, Asset>;
     /**
      * @generated from protobuf rpc: GetMetrics(rs.devtools.tauri.MetricsRequest) returns (rs.devtools.tauri.Metrics);
      */
@@ -47,17 +41,10 @@ export class TauriClient implements ITauriClient, ServiceInfo {
         return stackIntercept<ConfigRequest, Config>("unary", this._transport, method, opt, input);
     }
     /**
-     * @generated from protobuf rpc: GetAsset(rs.devtools.tauri.AssetRequest) returns (rs.devtools.tauri.Asset);
-     */
-    getAsset(input: AssetRequest, options?: RpcOptions): UnaryCall<AssetRequest, Asset> {
-        const method = this.methods[1], opt = this._transport.mergeOptions(options);
-        return stackIntercept<AssetRequest, Asset>("unary", this._transport, method, opt, input);
-    }
-    /**
      * @generated from protobuf rpc: GetMetrics(rs.devtools.tauri.MetricsRequest) returns (rs.devtools.tauri.Metrics);
      */
     getMetrics(input: MetricsRequest, options?: RpcOptions): UnaryCall<MetricsRequest, Metrics> {
-        const method = this.methods[2], opt = this._transport.mergeOptions(options);
+        const method = this.methods[1], opt = this._transport.mergeOptions(options);
         return stackIntercept<MetricsRequest, Metrics>("unary", this._transport, method, opt, input);
     }
 }

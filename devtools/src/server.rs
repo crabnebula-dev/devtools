@@ -251,7 +251,6 @@ impl<R: Runtime> WorkspaceService<R> {
 }
 
 fn is_asset(path: &Path, app_url: &AppUrl) -> bool {
-	tracing::debug!("is_asset {:?} {:?}", path, app_url);
 	match app_url {
 		AppUrl::Url(WindowUrl::External(_)) => false,
 		AppUrl::Url(WindowUrl::App(p)) => p == path,

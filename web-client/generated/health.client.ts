@@ -4,6 +4,7 @@
 //
 // The definition for the official gRPC health checking service
 // as defined here https://github.com/grpc/grpc/blob/master/doc/health-checking.md
+// This service should be used by clients to determine whether the instrumentation is still running.
 //
 import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
 import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";

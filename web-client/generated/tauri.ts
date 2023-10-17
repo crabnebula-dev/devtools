@@ -19,15 +19,6 @@ import { Timestamp } from "./google/protobuf/timestamp";
 export interface ConfigRequest {
 }
 /**
- * @generated from protobuf message rs.devtools.tauri.AssetRequest
- */
-export interface AssetRequest {
-    /**
-     * @generated from protobuf field: string path = 1;
-     */
-    path: string;
-}
-/**
  * @generated from protobuf message rs.devtools.tauri.MetricsRequest
  */
 export interface MetricsRequest {
@@ -42,29 +33,6 @@ export interface Config {
      * @generated from protobuf field: string raw = 1;
      */
     raw: string;
-}
-/**
- * @generated from protobuf message rs.devtools.tauri.Asset
- */
-export interface Asset {
-    /**
-     * / The asset bytes.
-     *
-     * @generated from protobuf field: bytes bytes = 1;
-     */
-    bytes: Uint8Array;
-    /**
-     * / The asset's mime type.
-     *
-     * @generated from protobuf field: string mime_type = 2;
-     */
-    mimeType: string;
-    /**
-     * / The `Content-Security-Policy` header value.
-     *
-     * @generated from protobuf field: optional string csp_header = 3;
-     */
-    cspHeader?: string;
 }
 /**
  * @generated from protobuf message rs.devtools.tauri.Metrics
@@ -109,53 +77,6 @@ class ConfigRequest$Type extends MessageType<ConfigRequest> {
  * @generated MessageType for protobuf message rs.devtools.tauri.ConfigRequest
  */
 export const ConfigRequest = new ConfigRequest$Type();
-// @generated message type with reflection information, may provide speed optimized methods
-class AssetRequest$Type extends MessageType<AssetRequest> {
-    constructor() {
-        super("rs.devtools.tauri.AssetRequest", [
-            { no: 1, name: "path", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
-        ]);
-    }
-    create(value?: PartialMessage<AssetRequest>): AssetRequest {
-        const message = { path: "" };
-        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== undefined)
-            reflectionMergePartial<AssetRequest>(this, message, value);
-        return message;
-    }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: AssetRequest): AssetRequest {
-        let message = target ?? this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-            let [fieldNo, wireType] = reader.tag();
-            switch (fieldNo) {
-                case /* string path */ 1:
-                    message.path = reader.string();
-                    break;
-                default:
-                    let u = options.readUnknownField;
-                    if (u === "throw")
-                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-                    let d = reader.skip(wireType);
-                    if (u !== false)
-                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-            }
-        }
-        return message;
-    }
-    internalBinaryWrite(message: AssetRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* string path = 1; */
-        if (message.path !== "")
-            writer.tag(1, WireType.LengthDelimited).string(message.path);
-        let u = options.writeUnknownFields;
-        if (u !== false)
-            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-    }
-}
-/**
- * @generated MessageType for protobuf message rs.devtools.tauri.AssetRequest
- */
-export const AssetRequest = new AssetRequest$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class MetricsRequest$Type extends MessageType<MetricsRequest> {
     constructor() {
@@ -230,67 +151,6 @@ class Config$Type extends MessageType<Config> {
  */
 export const Config = new Config$Type();
 // @generated message type with reflection information, may provide speed optimized methods
-class Asset$Type extends MessageType<Asset> {
-    constructor() {
-        super("rs.devtools.tauri.Asset", [
-            { no: 1, name: "bytes", kind: "scalar", T: 12 /*ScalarType.BYTES*/ },
-            { no: 2, name: "mime_type", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "csp_header", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
-        ]);
-    }
-    create(value?: PartialMessage<Asset>): Asset {
-        const message = { bytes: new Uint8Array(0), mimeType: "" };
-        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== undefined)
-            reflectionMergePartial<Asset>(this, message, value);
-        return message;
-    }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Asset): Asset {
-        let message = target ?? this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-            let [fieldNo, wireType] = reader.tag();
-            switch (fieldNo) {
-                case /* bytes bytes */ 1:
-                    message.bytes = reader.bytes();
-                    break;
-                case /* string mime_type */ 2:
-                    message.mimeType = reader.string();
-                    break;
-                case /* optional string csp_header */ 3:
-                    message.cspHeader = reader.string();
-                    break;
-                default:
-                    let u = options.readUnknownField;
-                    if (u === "throw")
-                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-                    let d = reader.skip(wireType);
-                    if (u !== false)
-                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-            }
-        }
-        return message;
-    }
-    internalBinaryWrite(message: Asset, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* bytes bytes = 1; */
-        if (message.bytes.length)
-            writer.tag(1, WireType.LengthDelimited).bytes(message.bytes);
-        /* string mime_type = 2; */
-        if (message.mimeType !== "")
-            writer.tag(2, WireType.LengthDelimited).string(message.mimeType);
-        /* optional string csp_header = 3; */
-        if (message.cspHeader !== undefined)
-            writer.tag(3, WireType.LengthDelimited).string(message.cspHeader);
-        let u = options.writeUnknownFields;
-        if (u !== false)
-            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-    }
-}
-/**
- * @generated MessageType for protobuf message rs.devtools.tauri.Asset
- */
-export const Asset = new Asset$Type();
-// @generated message type with reflection information, may provide speed optimized methods
 class Metrics$Type extends MessageType<Metrics> {
     constructor() {
         super("rs.devtools.tauri.Metrics", [
@@ -349,6 +209,5 @@ export const Metrics = new Metrics$Type();
  */
 export const Tauri = new ServiceType("rs.devtools.tauri.Tauri", [
     { name: "GetConfig", options: {}, I: ConfigRequest, O: Config },
-    { name: "GetAsset", options: {}, I: AssetRequest, O: Asset },
     { name: "GetMetrics", options: {}, I: MetricsRequest, O: Metrics }
 ]);
