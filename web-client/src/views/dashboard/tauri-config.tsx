@@ -1,18 +1,18 @@
 import { For, Show } from "solid-js";
 import { Collapsible } from "@kobalte/core";
 import { evaluateCSP } from "~/lib/security";
-import { useState } from "~/lib/connection/monitor";
+import { useMonitor } from "~/lib/connection/monitor";
 
 function formatBooleanProp(prop?: boolean) {
   return prop ? "✅" : "❌";
 }
 
 export default function TauriConfig() {
-  const { state } = useState();
+  const { monitorData } = useMonitor();
 
   return (
     <>
-      <Show when={state.tauriConfig?.package}>
+      <Show when={monitorData.tauriConfig?.package}>
         {(pkg) => (
           <header class="my-8 text-3xl">
             <h2 class="text-neutral-300">
@@ -25,7 +25,7 @@ export default function TauriConfig() {
         )}
       </Show>
 
-      <Show when={state.tauriConfig?.tauri.security}>
+      <Show when={monitorData.tauriConfig?.tauri.security}>
         {(sec) => (
           <section class="mt-4">
             <Collapsible.Root>
@@ -57,7 +57,7 @@ export default function TauriConfig() {
           </section>
         )}
       </Show>
-      <Show when={state.tauriConfig?.tauri.bundle}>
+      <Show when={monitorData.tauriConfig?.tauri.bundle}>
         {(bundle) => (
           <section class="mt-4">
             <h3 class="text-2xl text-cyan-300">Icons</h3>
@@ -75,7 +75,7 @@ export default function TauriConfig() {
           <Collapsible.Content>
             <pre class="text-white">
               {/* {JSON.stringify(tauriConfig()?.result.tauri, null, 2)} */}
-              {JSON.stringify(state.tauriConfig, null, 2)}
+              {JSON.stringify(monitorData.tauriConfig, null, 2)}
             </pre>
           </Collapsible.Content>
         </Collapsible.Root>

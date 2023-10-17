@@ -1,9 +1,9 @@
 import { createContext, useContext } from "solid-js";
 import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
-import { LogEvent } from "../proto/logs";
-import { SpanEvent } from "../proto/spans";
-import { MetaId, Metadata } from "../proto/common";
-import { Metrics } from "../proto/tauri";
+import { LogEvent } from "~/lib/proto/logs";
+import { SpanEvent } from "~/lib/proto/spans";
+import { MetaId, Metadata } from "~/lib/proto/common";
+import { Metrics } from "~/lib/proto/tauri";
 import { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
 import { timestampToDate } from "~/lib/formatters";
 

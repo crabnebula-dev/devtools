@@ -35,8 +35,6 @@
   },
   "dependencies": {
     "@kobalte/core": "^0.11.0",
-    "@solid-primitives/event-listener": "^2.3.0",
-    "@solid-primitives/websocket": "^1.1.0",
     "@solidjs/router": "^0.8.3",
     "csp_evaluator": "^1.1.1",
     "solid-js": "^1.7.6",

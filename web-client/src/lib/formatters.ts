@@ -1,4 +1,4 @@
-import { Timestamp } from "./proto/google/protobuf/timestamp";
+import type { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
 
 export function timestampToDate(ts: Timestamp): Date {
   return new Date(Number(ts.seconds * 1000n) + ts.nanos / 1e6);

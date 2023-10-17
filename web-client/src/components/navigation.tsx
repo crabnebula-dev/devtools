@@ -27,7 +27,7 @@ export function Navigation() {
       <ul class="flex flex-start text-lg border-b-[1px] border-b-neutral-800">
         <For each={TABS}>
           {(tab) => (
-            <li class="">
+            <li>
               <A
                 href={tab.url(host, port)}
                 class="border-[1px] border-gray-700  border-b-0 py-2 px-8"
