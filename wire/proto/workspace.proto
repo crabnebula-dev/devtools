@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package rs.devtools.workspace;
+
+service Workspace {
+  rpc ListEntries(ListEntriesRequest) returns (stream Entry) {}
+}
+
+message ListEntriesRequest {}
+
+message Entry {
+  // The path of the entry relative to the workspace root
+  string path = 1;
+  // The size of the entry in bytes
+  uint64 size = 2;
+  // A set of bitflags representing the type of the entry.
+  // The following entries are defined:
+  // 1 - Directory
+  // 2 - File
+  // 4 - Symbolic Link
+  // 8 - Asset
+  // 16 - Resource
+  uint32 file_type = 3;
+}

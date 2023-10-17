@@ -1,7 +1,7 @@
 import { For, Show, createSignal } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
-import { formatTimestamp, timestampToDate } from "~/lib/formaters";
+import { formatTimestamp, timestampToDate } from "~/lib/formatters";
 import { useState } from "~/lib/state";
 
 export default function Console() {

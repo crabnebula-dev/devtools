@@ -19,7 +19,6 @@ tracing-subscriber.workspace = true
 thiserror.workspace = true
 serde_json.workspace = true
 tokio = { workspace = true, features = ["macros", "time"] }
-tokio-stream = { workspace = true, features = ["sync"] }
 futures.workspace = true
 tauri.workspace = true
 tonic = "0.10"
@@ -30,7 +29,7 @@ tower-http = "0.4"
 prost-types = "0.12"
 ringbuf = "0.4.0-rc.2"
 colored = "2.0"
-
+async-stream = "0.3.5"
 
 [dev-dependencies]
 tauri = { workspace = true, features = ["test"] }
