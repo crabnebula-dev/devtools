@@ -1,6 +1,7 @@
 use crate::broadcaster::Broadcaster;
 use crate::server::{Server, DEFAULT_ADDRESS};
 use crate::Command;
+use colored::Colorize;
 use std::sync::Arc;
 use std::thread;
 use std::time::SystemTime;
@@ -10,7 +11,7 @@ use tokio::sync::{mpsc, RwLock};
 
 /// URL of the web-based devtool
 /// The server host is added automatically eg: `127.0.0.1:56609`.
-const DEVTOOL_URL: &str = "https://crabnebula.dev/debug/#";
+const DEVTOOL_URL: &str = "http://localhost:5173/dash/";
 
 #[allow(clippy::type_complexity)]
 pub struct TauriPlugin {
@@ -82,10 +83,21 @@ fn spawn_handler_thread<R: Runtime>(broadcaster: Broadcaster, server: Server<R>)
 
 			let addr = DEFAULT_ADDRESS;
 
-			println!("--------- Tauri Plugin Devtools ---------\n");
-			println!("Listening at:\n  http://{addr}\n",);
-			println!("Inspect in browser:\n  {DEVTOOL_URL}{addr}");
-			println!("\n--------- Tauri Plugin Devtools ---------");
+			let version = env!("CARGO_PKG_VERSION");
+
+			// This is pretty ugly code I know
+			let url = format!("{DEVTOOL_URL}{}/{}", addr.ip(), addr.port());
+			println!(
+				r#"
+   {} {}{}
+   {}   Local:   {}
+"#,
+				"Tauri Devtools".bright_purple(),
+				"v".purple(),
+				version.purple(),
+				"→".bright_purple(),
+				url.underline().blue()
+			);
 
 			server.run(addr).await.unwrap();
 

@@ -22,14 +22,15 @@ tokio = { workspace = true, features = ["macros", "time"] }
 tokio-stream = { workspace = true, features = ["sync"] }
 futures.workspace = true
 tauri.workspace = true
-ringbuf = "0.4.0-rc.2"
-
 tonic = "0.10"
 prost = "0.12"
 tonic-web = "0.10"
 tonic-health = "0.10"
 tower-http = "0.4"
 prost-types = "0.12"
+ringbuf = "0.4.0-rc.2"
+colored = "2.0"
+
 
 [dev-dependencies]
 tauri = { workspace = true, features = ["test"] }
