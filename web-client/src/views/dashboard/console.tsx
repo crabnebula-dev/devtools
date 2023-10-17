@@ -1,11 +1,11 @@
 import { For, Show, createSignal } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
-import { formatTimestamp } from "~/lib/formaters";
-import { useSocketData } from "~/lib/ws/context";
+import { formatTimestamp, timestampToDate } from "~/lib/formaters";
+import { useState } from "~/lib/state";
 
 export default function Console() {
-  const { data } = useSocketData();
+  const { state } = useState();
   const [showTimestamp, toggleTimeStamp] = createSignal(true);
   const [shouldAutoScroll, toggleAutoScroll] = createSignal<boolean>(true);
 
@@ -30,12 +30,12 @@ export default function Console() {
       </FilterToggle>
 
       <AutoscrollPane
-        dataStream={data.logs[0]}
+        dataStream={state.logs[0]}
         shouldAutoScroll={shouldAutoScroll}
       >
-        <For each={data.logs}>
-          {({ message, timestamp }) => {
-            const timeDate = new Date(timestamp);
+        <For each={state.logs}>
+          {({ message, at }) => {
+            const timeDate = timestampToDate(at!);
 
             return (
               <li class="py-1 flex ">

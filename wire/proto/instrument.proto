@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package rs.devtools.instrument;
+
+import "google/protobuf/timestamp.proto";
+import "common.proto";
+import "logs.proto";
+import "spans.proto";
+
+// Real time updates about components of an instrumented application.
+service Instrument {
+  // Produces a stream of updates about the behavior of the  instrumented application.
+  rpc WatchUpdates(InstrumentRequest) returns (stream Update) {}
+}
+
+message InstrumentRequest {
+  // Allows filtering the log events.
+  Filter log_filter = 2;
+  // Allows filtering the span events.
+  Filter span_filter = 3;
+}
+
+// A filter configuration
+// You can filter by level, file, log message or a combination of all three.
+message Filter {
+  optional common.Metadata.Level level = 1;
+  optional string file = 2;
+  optional string text = 3;
+}
+
+// An update about the state of the instrumented application.
+//
+// An updated is comprised of a set of sub-updates about each tracked data source,
+// they are combined into one message however to reduce the complexity for both
+// the server and client as well as deduplicate data between updates:
+// - a single timestamp for all updates
+// - a single place for new_metadata
+message Update {
+    // The system time when this update was recorded.
+    google.protobuf.Timestamp at = 1;
+    // Any new metadata that was registered since the last update.
+    //
+    // The metadata_id fields in `LogEvent` and `Span` refer back to metadata registered through these updates.
+    repeated common.NewMetadata new_metadata = 2;
+    // Log events update.
+    logs.Update logs_update = 3;
+    // Span events update.
+    spans.Update spans_update = 4;
+}
