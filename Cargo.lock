@@ -3181,6 +3181,7 @@ dependencies = [
  "tauri_devtools_wire_format",
  "thiserror",
  "tokio",
+ "tokio-stream",
  "tonic",
  "tonic-health",
  "tonic-web",

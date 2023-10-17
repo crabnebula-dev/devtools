@@ -3,10 +3,16 @@ syntax = "proto3";
 package rs.devtools.workspace;
 
 service Workspace {
-  rpc ListEntries(ListEntriesRequest) returns (stream Entry) {}
+  // List entries of a directory in the workspace
+  rpc ListEntries(EntryRequest) returns (stream Entry) {}
+  rpc GetEntryBytes(EntryRequest) returns (stream Chunk) {}
 }
 
-message ListEntriesRequest {}
+message EntryRequest {
+  // The path of the directory to list
+  // This is relative to the workspace root
+  string path = 1;
+}
 
 message Entry {
   // The path of the entry relative to the workspace root
@@ -21,4 +27,9 @@ message Entry {
   // 8 - Asset
   // 16 - Resource
   uint32 file_type = 3;
+}
+
+// A chunk of bytes that make up a file
+message Chunk {
+  bytes bytes = 1;
 }
