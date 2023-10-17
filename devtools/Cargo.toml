@@ -19,7 +19,7 @@ tracing-subscriber.workspace = true
 thiserror.workspace = true
 serde_json.workspace = true
 tokio = { workspace = true, features = ["macros", "time"] }
-tokio-stream = { version = "0.1.14", features = ["fs"] }
+tokio-stream = { workspace = true, features = ["fs"] }
 futures.workspace = true
 tauri.workspace = true
 tonic = "0.10"
