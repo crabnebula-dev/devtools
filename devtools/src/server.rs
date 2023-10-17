@@ -2,6 +2,7 @@ use crate::{Command, Watcher};
 use async_stream::try_stream;
 use futures::stream::BoxStream;
 use futures::{FutureExt, Stream, TryStreamExt};
+use prost::bytes::BytesMut;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -10,7 +11,8 @@ use tauri::{AppHandle, Runtime, WindowUrl};
 use tauri_devtools_wire_format as wire;
 use tauri_devtools_wire_format::instrument::InstrumentRequest;
 use tauri_devtools_wire_format::tauri::{Config, ConfigRequest, Metrics, MetricsRequest};
-use tauri_devtools_wire_format::workspace::{Entry, FileType, ListEntriesRequest};
+use tauri_devtools_wire_format::workspace::{Chunk, Entry, EntryRequest, FileType};
+use tokio::io::AsyncRead;
 use tokio::sync::{mpsc, RwLock};
 use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
@@ -172,13 +174,10 @@ impl<R: Runtime> wire::tauri::tauri_server::Tauri for TauriServer<R> {
 #[tonic::async_trait]
 impl<R: Runtime> wire::workspace::workspace_server::Workspace for WorkspaceService<R> {
 	type ListEntriesStream = BoxStream<'static, Result<Entry, Status>>;
-
-	async fn list_entries(
-		&self,
-		_req: Request<ListEntriesRequest>,
-	) -> Result<Response<Self::ListEntriesStream>, Status> {
+	async fn list_entries(&self, req: Request<EntryRequest>) -> Result<Response<Self::ListEntriesStream>, Status> {
 		tracing::debug!("list entries");
-		let cwd = std::env::current_dir()?;
+		let mut cwd = std::env::current_dir()?;
+		cwd.push(req.into_inner().path);
 
 		let stream = self.list_entries_inner(cwd).or_else(|err| async move {
 			tracing::error!("Aggregator failed with error {err:?}");
@@ -187,6 +186,28 @@ impl<R: Runtime> wire::workspace::workspace_server::Workspace for WorkspaceServi
 
 			Err(Status::internal("boom"))
 		});
+
+		Ok(Response::new(Box::pin(stream)))
+	}
+
+	type GetEntryBytesStream = BoxStream<'static, Result<Chunk, Status>>;
+
+	async fn get_entry_bytes(&self, req: Request<EntryRequest>) -> Result<Response<Self::GetEntryBytesStream>, Status> {
+		let mut path = std::env::current_dir()?;
+		path.push(req.into_inner().path);
+
+		let stream = try_stream! {
+			use tokio::io::AsyncReadExt;
+			let mut file = tokio::fs::File::open(path).await?;
+			let mut buf = BytesMut::with_capacity(512);
+
+			while let Ok(n) = file.read_buf(&mut buf).await {
+				if n == 0 {
+					break;
+				}
+				yield Chunk { bytes: buf.split().freeze() };
+			}
+		};
 
 		Ok(Response::new(Box::pin(stream)))
 	}
