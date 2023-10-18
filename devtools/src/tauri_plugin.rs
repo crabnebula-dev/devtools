@@ -1,107 +1,55 @@
-use crate::broadcaster::Broadcaster;
+use crate::aggregator::Aggregator;
 use crate::server::{Server, DEFAULT_ADDRESS};
 use crate::Command;
-use colored::Colorize;
 use std::sync::Arc;
 use std::thread;
 use std::time::SystemTime;
-use tauri::{AppHandle, RunEvent, Runtime};
+use tauri::{RunEvent, Runtime};
 use tauri_devtools_wire_format::tauri::Metrics;
 use tokio::sync::{mpsc, RwLock};
 
-/// URL of the web-based devtool
-/// The server host is added automatically eg: `127.0.0.1:56609`.
-const DEVTOOL_URL: &str = "http://localhost:5173/dash/";
+pub(crate) fn init<R: Runtime>(
+    aggregator: Aggregator,
+    cmd_tx: mpsc::Sender<Command>,
+) -> tauri::plugin::TauriPlugin<R> {
+    let metrics = Arc::new(RwLock::new(Metrics::default()));
 
-#[allow(clippy::type_complexity)]
-pub struct TauriPlugin {
-	enabled: bool,
-	init: Option<(Broadcaster, mpsc::Sender<Command>)>,
-	metrics: Arc<RwLock<Metrics>>,
-}
+    let m = metrics.clone();
+    tauri::plugin::Builder::new("probe")
+        .setup(move |app_handle| {
+            let server = Server::new(cmd_tx, app_handle.clone(), m);
 
-impl TauriPlugin {
-	pub(crate) fn new(enabled: bool, broadcaster: Broadcaster, cmd_tx: mpsc::Sender<Command>) -> Self {
-		Self {
-			enabled,
-			init: Some((broadcaster, cmd_tx)),
-			metrics: Arc::new(RwLock::new(Metrics {
-				initialized_at: Some(SystemTime::now().into()),
-				ready_at: None,
-			})),
-		}
-	}
-}
+            // spawn the server and aggregator in a separate thread
+            // so we don't interfere with the application we're trying to instrument
+            // TODO find a way to move this out of the tauri plugin
+            thread::spawn(move || {
+                use tracing_subscriber::EnvFilter;
+                let s = tracing_subscriber::fmt()
+                    .with_env_filter(EnvFilter::from_default_env())
+                    .finish();
+                let _subscriber_guard = tracing::subscriber::set_default(s);
 
-impl<R: Runtime> tauri::plugin::Plugin<R> for TauriPlugin {
-	fn name(&self) -> &'static str {
-		"devtools"
-	}
+                let rt = tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
+                    .unwrap();
 
-	fn initialize(&mut self, app_handle: &AppHandle<R>, _: serde_json::Value) -> tauri::plugin::Result<()> {
-		if !self.enabled {
-			return Ok(());
-		}
+                rt.block_on(async move {
+                    let aggregator = tokio::spawn(aggregator.run());
+                    server.run(DEFAULT_ADDRESS).await.unwrap();
+                    aggregator.abort();
+                })
+            });
 
-		let (broadcaster, cmd_tx) = self.init.take().unwrap();
+            Ok(())
+        })
+        .on_event(move |_, event| {
+            if let RunEvent::Ready = event {
+                let mut metrics = metrics.blocking_write();
+                metrics.ready_at = Some(SystemTime::now().into());
 
-		let server = Server::new(cmd_tx, app_handle.clone(), self.metrics.clone());
-		spawn_handler_thread(broadcaster, server);
-
-		Ok(())
-	}
-
-	fn on_event(&mut self, _: &AppHandle<R>, event: &RunEvent) {
-		if !self.enabled {
-			return;
-		}
-
-		if let RunEvent::Ready = event {
-			let mut metrics = self.metrics.blocking_write();
-			metrics.ready_at = Some(SystemTime::now().into());
-
-			tracing::debug!("Application is ready");
-		}
-	}
-}
-
-fn spawn_handler_thread<R: Runtime>(broadcaster: Broadcaster, server: Server<R>) {
-	thread::spawn(move || {
-		use tracing_subscriber::EnvFilter;
-		let s = tracing_subscriber::fmt()
-			.with_env_filter(EnvFilter::from_default_env())
-			.finish();
-		let _subscriber_guard = tracing::subscriber::set_default(s);
-
-		let rt = tokio::runtime::Builder::new_current_thread()
-			.enable_all()
-			.build()
-			.unwrap();
-
-		rt.block_on(async move {
-			let broadcaster = tokio::spawn(broadcaster.run());
-
-			let addr = DEFAULT_ADDRESS;
-
-			let version = env!("CARGO_PKG_VERSION");
-
-			// This is pretty ugly code I know
-			let url = format!("{DEVTOOL_URL}{}/{}", addr.ip(), addr.port());
-			println!(
-				r#"
-   {} {}{}
-   {}   Local:   {}
-"#,
-				"Tauri Devtools".bright_purple(),
-				"v".purple(),
-				version.purple(),
-				"→".bright_purple(),
-				url.underline().blue()
-			);
-
-			server.run(addr).await.unwrap();
-
-			broadcaster.abort();
-		})
-	});
+                tracing::debug!("Application is ready");
+            }
+        })
+        .build()
 }

@@ -1,218 +1,255 @@
 use crate::visitors::{EventVisitor, FieldVisitor};
-use crate::{CloseSpan, EnterSpan, Event, ExitSpan, LogEvent, NewSpan, Shared};
+use crate::{Event, Shared};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::error::TrySendError;
-use tracing_core::{Interest, Metadata, Subscriber};
-use tracing_subscriber::layer;
-use tracing_subscriber::registry::LookupSpan;
+use tracing_core::span::{Attributes, Id};
+use tracing_core::{Interest, Metadata};
+use tracing_subscriber::layer::Context;
 
+/// A tracing layer that forwards all events to the aggregator
+/// This is intentionally kept as simple as possible to avoid any performance overhead on
+/// the application thread. All the heavy lifting is done in the aggregator.
 pub(crate) struct Layer {
-	shared: Arc<Shared>,
-	tx: mpsc::Sender<Event>,
+    shared: Arc<Shared>,
+    tx: mpsc::Sender<Event>,
 }
 
 impl Layer {
-	pub fn new(shared: Arc<Shared>, tx: mpsc::Sender<Event>) -> Self {
-		Self { shared, tx }
-	}
+    pub fn new(shared: Arc<Shared>, tx: mpsc::Sender<Event>) -> Self {
+        Self { shared, tx }
+    }
 
-	pub fn dispatch(&self, dropped: &AtomicUsize, mk_event: impl FnOnce() -> Event) {
-		match self.tx.try_reserve() {
-			Ok(permit) => {
-				permit.send(mk_event());
-			}
-			Err(TrySendError::Closed(_)) => {
-				// we should warn here eventually, but nop for now because we
-				// can't trigger tracing events...
-			}
-			Err(TrySendError::Full(_)) => {
-				// this shouldn't happen, since we trigger a flush when
-				// approaching the high water line...but if the executor wait
-				// time is very high, maybe the aggregator task hasn't been
-				// polled yet. so... eek?!
-				dropped.fetch_add(1, Ordering::Release);
-			}
-		}
-	}
+    pub fn send_event(&self, dropped: &AtomicUsize, mk_event: impl FnOnce() -> Event) {
+        match self.tx.try_reserve() {
+            Ok(permit) => {
+                permit.send(mk_event());
+            }
+            Err(TrySendError::Closed(_)) => {
+                tracing::error!("Event channel closed!");
+            }
+            Err(TrySendError::Full(_)) => {
+                dropped.fetch_add(1, Ordering::Release);
+            }
+        }
+    }
 }
 
-impl<S> layer::Layer<S> for Layer
+impl<S> tracing_subscriber::layer::Layer<S> for Layer
 where
-	S: Subscriber + for<'a> LookupSpan<'a>,
+    S: tracing_core::Subscriber + for<'a> tracing_subscriber::registry::LookupSpan<'a>,
 {
-	fn register_callsite(&self, meta: &'static Metadata<'static>) -> Interest {
-		let dropped = if meta.is_event() {
-			&self.shared.dropped_log_events
-		} else {
-			&self.shared.dropped_span_events
-		};
-		self.dispatch(dropped, || Event::Metadata(meta));
+    fn register_callsite(&self, metadata: &'static Metadata<'static>) -> Interest {
+        let dropped = if metadata.is_event() {
+            &self.shared.dropped_log_events
+        } else {
+            &self.shared.dropped_span_events
+        };
+        self.send_event(dropped, || Event::Metadata(metadata));
 
-		Interest::always()
-	}
-	// Notifies this layer that a new span was constructed with the given `Attributes` and `Id`.
-	fn on_new_span(
-		&self,
-		attrs: &tracing_core::span::Attributes<'_>,
-		id: &tracing_core::span::Id,
-		ctx: layer::Context<'_, S>,
-	) {
-		let at = Instant::now();
+        Interest::always()
+    }
 
-		self.dispatch(&self.shared.dropped_span_events, move || {
-			let span = ctx.span(id).expect("Span not in context, probably a bug");
-			let metadata = span.metadata();
-			let maybe_parent = span.parent().map(|s| s.id());
+    fn on_new_span(&self, attrs: &Attributes<'_>, id: &Id, ctx: Context<'_, S>) {
+        let at = Instant::now();
 
-			let mut visitor = FieldVisitor::new(metadata.into());
-			attrs.record(&mut visitor);
-			let fields = visitor.result();
+        self.send_event(&self.shared.dropped_span_events, move || {
+            let span = ctx.span(id).expect("Span not in context, probably a bug");
+            let metadata = span.metadata();
+            let maybe_parent = span.parent().map(|s| s.id());
 
-			Event::NewSpan(NewSpan {
-				at,
-				id: id.clone(),
-				metadata: span.metadata(),
-				fields,
-				maybe_parent,
-			})
-		});
-	}
+            let mut visitor = FieldVisitor::new(metadata.into());
+            attrs.record(&mut visitor);
+            let fields = visitor.result();
 
-	// Notifies this layer that an event has occurred.
-	fn on_event(&self, event: &tracing_core::Event<'_>, ctx: layer::Context<'_, S>) {
-		let at = Instant::now();
+            Event::NewSpan {
+                at,
+                id: id.clone(),
+                metadata: span.metadata(),
+                fields,
+                maybe_parent,
+            }
+        });
+    }
 
-		self.dispatch(&self.shared.dropped_log_events, || {
-			let metadata = event.metadata();
+    fn on_event(&self, event: &tracing_core::Event<'_>, ctx: Context<'_, S>) {
+        let at = Instant::now();
 
-			let mut visitor = EventVisitor::new(metadata.into());
-			event.record(&mut visitor);
-			let (message, fields) = visitor.result();
+        self.send_event(&self.shared.dropped_log_events, || {
+            let metadata = event.metadata();
 
-			let maybe_parent = ctx.event_span(event).as_ref().map(|s| s.id());
+            let mut visitor = EventVisitor::new(metadata.into());
+            event.record(&mut visitor);
+            let (message, fields) = visitor.result();
 
-			Event::LogEvent(LogEvent {
-				at,
-				metadata,
-				message,
-				fields,
-				maybe_parent,
-			})
-		});
-	}
+            let maybe_parent = ctx.event_span(event).as_ref().map(|s| s.id());
 
-	// Notifies this layer that a span with the given `Id` was entered.
-	fn on_enter(&self, id: &tracing_core::span::Id, _: layer::Context<'_, S>) {
-		let at = Instant::now();
+            Event::Event {
+                at,
+                metadata,
+                message,
+                fields,
+                maybe_parent,
+            }
+        });
+    }
 
-		self.dispatch(&self.shared.dropped_span_events, || {
-			Event::EnterSpan(EnterSpan {
-				at,
-				thread_id: 0,
-				span_id: id.clone(),
-			})
-		});
-	}
+    fn on_enter(&self, id: &Id, _ctx: Context<'_, S>) {
+        let at = Instant::now();
 
-	// Notifies this layer that the span with the given `Id` was exited.
-	fn on_exit(&self, id: &tracing_core::span::Id, _: layer::Context<'_, S>) {
-		let at = Instant::now();
+        self.send_event(&self.shared.dropped_span_events, || {
+            Event::EnterSpan {
+                at,
+                thread_id: 0, // TODO actually track thread id
+                span_id: id.clone(),
+            }
+        });
+    }
 
-		self.dispatch(&self.shared.dropped_span_events, || {
-			Event::ExitSpan(ExitSpan {
-				at,
-				thread_id: 0,
-				span_id: id.clone(),
-			})
-		});
-	}
+    fn on_exit(&self, id: &Id, _ctx: Context<'_, S>) {
+        let at = Instant::now();
 
-	// Notifies this layer that the span with the given `Id` has been closed.
-	fn on_close(&self, id: tracing_core::span::Id, _: layer::Context<'_, S>) {
-		let at = Instant::now();
+        self.send_event(&self.shared.dropped_span_events, || {
+            Event::ExitSpan {
+                at,
+                thread_id: 0, // TODO actually track thread id
+                span_id: id.clone(),
+            }
+        });
+    }
 
-		self.dispatch(&self.shared.dropped_span_events, || {
-			Event::CloseSpan(CloseSpan {
-				at,
-				span_id: id.clone(),
-			})
-		});
-	}
+    fn on_close(&self, id: Id, _ctx: Context<'_, S>) {
+        let at = Instant::now();
+
+        self.send_event(&self.shared.dropped_span_events, || Event::CloseSpan {
+            at,
+            span_id: id.clone(),
+        });
+    }
 }
 
 // TODO reenable tests. These are currently broken bc apparently `tracing` leaks events cross-thread
 // even when we explicitly set a subscriber only for the current test. Don't ask me why.
 #[cfg(test)]
 mod test {
-	use super::*;
-	use futures::StreamExt;
-	use tokio::sync::mpsc;
-	use tokio_stream::wrappers::ReceiverStream;
-	use tracing_subscriber::prelude::*;
+    use super::*;
+    use futures::StreamExt;
+    use tokio::sync::mpsc;
+    use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
+    use tracing_subscriber::prelude::*;
 
-	/// Asserts that a value matches a given pattern, bringing all name bindings from the pattern into scope
-	macro_rules! assert_matches {
-		($value:expr, $pattern:pat, $msg:expr) => {
-			let $pattern = $value else { panic!($msg) };
-		};
-	}
+    /// Asserts that a value matches a given pattern, bringing all name bindings from the pattern into scope
+    macro_rules! assert_matches {
+        ($value:expr, $pattern:pat, $msg:expr) => {
+            let $pattern = $value else { panic!($msg) };
+        };
+    }
 
-	#[tokio::test]
-	#[ignore = "Currently broken, apparently tracing leaks events cross-thread"]
-	async fn log_event() {
-		let (evt_tx, evt_rx) = mpsc::channel(10);
-		let layer = Layer::new(Default::default(), evt_tx);
-		let subscriber = tracing_subscriber::registry().with(layer);
+    #[tokio::test]
+    #[ignore = "Currently broken, apparently tracing leaks events cross-thread"]
+    async fn log_event() {
+        let (evt_tx, evt_rx) = mpsc::channel(10);
+        let layer = Layer::new(Default::default(), evt_tx);
+        let subscriber = tracing_subscriber::registry().with(layer);
 
-		tracing::subscriber::with_default(subscriber, || {
-			tracing::debug!("a debug event");
-		});
+        tracing::subscriber::with_default(subscriber, || {
+            tracing::debug!("a debug event");
+        });
 
-		let events: Vec<_> = ReceiverStream::new(evt_rx).collect().await;
-		assert_eq!(events.len(), 2, "{events:#?}");
+        let events: Vec<_> = ReceiverStream::new(evt_rx).collect().await;
+        assert_eq!(events.len(), 2, "{events:#?}");
 
-		assert_matches!(events[0], Event::Metadata(metadata), "expected metadata event");
-		assert_eq!(*metadata.level(), tracing_core::Level::DEBUG);
+        assert_matches!(
+            events[0],
+            Event::Metadata(metadata),
+            "expected metadata event"
+        );
+        assert_eq!(*metadata.level(), tracing_core::Level::DEBUG);
 
-		assert_matches!(&events[1], Event::LogEvent(log_event), "expected log event");
-		assert_eq!(metadata, log_event.metadata);
-		assert!(log_event.maybe_parent.is_none());
-		assert!(log_event.fields.is_empty());
-	}
+        assert_matches!(
+            &events[1],
+            Event::Event {
+                metadata,
+                maybe_parent,
+                fields,
+                message,
+                ..
+            },
+            "expected log event"
+        );
+        assert_eq!(metadata, metadata);
+        assert!(maybe_parent.is_none());
+        assert!(fields.is_empty());
+        assert_eq!(message, "a debug event");
+    }
 
-	#[tokio::test]
-	#[ignore = "Currently broken, apparently tracing leaks events cross-thread"]
-	async fn span() {
-		let (evt_tx, evt_rx) = mpsc::channel(10);
-		let layer = Layer::new(Default::default(), evt_tx);
-		let subscriber = tracing_subscriber::registry().with(layer);
+    #[tokio::test]
+    #[ignore = "Currently broken, apparently tracing leaks events cross-thread"]
+    async fn span() {
+        let (evt_tx, evt_rx) = mpsc::channel(10);
+        let layer = Layer::new(Default::default(), evt_tx);
+        let subscriber = tracing_subscriber::registry().with(layer);
 
-		tracing::subscriber::with_default(subscriber, || {
-			let _enter = tracing::debug_span!("a span").entered();
-			drop(_enter);
-		});
+        tracing::subscriber::with_default(subscriber, || {
+            let _enter = tracing::debug_span!("a span").entered();
+            drop(_enter);
+        });
 
-		let events: Vec<_> = ReceiverStream::new(evt_rx).collect().await;
-		assert_eq!(events.len(), 5, "{events:#?}");
+        let events: Vec<_> = ReceiverStream::new(evt_rx).collect().await;
+        assert_eq!(events.len(), 5, "{events:#?}");
 
-		assert_matches!(events[0], Event::Metadata(metadata), "expected metadata event");
-		assert_eq!(*metadata.level(), tracing_core::Level::DEBUG);
+        assert_matches!(
+            events[0],
+            Event::Metadata(metadata),
+            "expected metadata event"
+        );
+        assert_eq!(*metadata.level(), tracing_core::Level::DEBUG);
 
-		assert_matches!(&events[1], Event::NewSpan(new_span), "expected new span event");
-		assert_eq!(metadata, new_span.metadata);
-		assert!(new_span.maybe_parent.is_none());
-		assert!(new_span.fields.is_empty());
+        assert_matches!(
+            &events[1],
+            Event::NewSpan {
+                metadata,
+                maybe_parent,
+                fields,
+                id: new_span_id,
+                ..
+            },
+            "expected new span event"
+        );
+        assert_eq!(metadata, metadata);
+        assert!(maybe_parent.is_none());
+        assert!(fields.is_empty());
 
-		assert_matches!(&events[2], Event::EnterSpan(enter_span), "expected enter span event");
-		assert_eq!(enter_span.span_id, new_span.id);
+        assert_matches!(
+            &events[2],
+            Event::EnterSpan {
+                span_id: enter_span_id,
+                ..
+            },
+            "expected enter span event"
+        );
+        assert_eq!(enter_span_id, new_span_id);
 
-		assert_matches!(&events[3], Event::ExitSpan(exit_span), "expected exit span event");
-		assert_eq!(exit_span.span_id, new_span.id);
+        assert_matches!(
+            &events[3],
+            Event::ExitSpan {
+                span_id: exit_span_id,
+                ..
+            },
+            "expected exit span event"
+        );
+        assert_eq!(exit_span_id, new_span_id);
 
-		assert_matches!(&events[4], Event::CloseSpan(close_span), "expected close span event");
-		assert_eq!(close_span.span_id, new_span.id);
-	}
+        assert_matches!(
+            &events[4],
+            Event::CloseSpan {
+                span_id: close_span_id,
+                ..
+            },
+            "expected close span event"
+        );
+        assert_eq!(close_span_id, new_span_id);
+    }
 }
