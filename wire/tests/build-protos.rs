@@ -4,7 +4,7 @@ use std::process::Command;
 
 #[test]
 fn build_protos() {
-    let root_dir = PathBuf::from(std::env!("CARGO_MANIFEST_DIR"));
+    let root_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let proto_dir = root_dir.join("proto");
     let proto_ext = std::ffi::OsStr::new("proto");
     let proto_files = fs::read_dir(&proto_dir).and_then(|dir| {
@@ -41,7 +41,8 @@ fn build_protos() {
         .protoc_arg("--experimental_allow_proto3_optional")
         .enum_attribute("rs.tauri.devtools.common.Field.name", "#[derive(Hash, Eq)]")
         .out_dir(&out_dir)
-        .compile_with_config(cfg, &proto_files, &[proto_dir])?;
+        .compile_with_config(cfg, &proto_files, &[proto_dir])
+        .unwrap();
 
     // a neat trick from tokio-console: fail if the generated files are not committed.
     // Especially useful in CI
