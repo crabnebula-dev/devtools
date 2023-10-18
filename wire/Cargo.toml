@@ -1,5 +1,5 @@
 [package]
-name = "api"
+name = "tauri-devtools-wire-format"
 authors.workspace = true
 edition.workspace = true
 version.workspace = true

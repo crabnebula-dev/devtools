@@ -1,5 +1,5 @@
-use api::{Field, MetaId};
 use std::fmt::Debug;
+use tauri_devtools_wire_format::{Field, MetaId};
 use tracing_subscriber::field::Visit;
 
 pub struct FieldVisitor {

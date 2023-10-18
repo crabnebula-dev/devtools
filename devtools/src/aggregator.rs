@@ -1,8 +1,4 @@
 use crate::{Command, Event, Shared, Watcher};
-use api::instrument::Interests;
-use api::logs::LogEvent;
-use api::spans::SpanEvent;
-use api::{instrument, logs, spans, NewMetadata};
 use futures::FutureExt;
 use ringbuf::consumer::Consumer;
 use ringbuf::traits::{Observer, RingBuffer};
@@ -12,6 +8,10 @@ use std::mem::MaybeUninit;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
+use tauri_devtools_wire_format::instrument::Interests;
+use tauri_devtools_wire_format::logs::LogEvent;
+use tauri_devtools_wire_format::spans::SpanEvent;
+use tauri_devtools_wire_format::{instrument, logs, spans, NewMetadata};
 use tokio::sync::mpsc;
 
 const BROADCAST_INTERVAL: Duration = Duration::from_millis(400); // TODO find good value for this

@@ -1,13 +1,15 @@
 use crate::{Command, Watcher};
-use api::instrument;
-use api::instrument::instrument_server::InstrumentServer;
-use api::instrument::InstrumentRequest;
-use api::tauri::tauri_server::TauriServer;
-use api::tauri::{Asset, AssetRequest, Config, ConfigRequest, Metrics, MetricsRequest};
 use futures::{FutureExt, TryStreamExt};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::Arc;
 use tauri::{AppHandle, Runtime};
+use tauri_devtools_wire_format::instrument;
+use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
+use tauri_devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
+use tauri_devtools_wire_format::tauri::tauri_server::TauriServer;
+use tauri_devtools_wire_format::tauri::{
+    tauri_server, Asset, AssetRequest, Config, ConfigRequest, Metrics, MetricsRequest,
+};
 use tokio::sync::{mpsc, RwLock};
 use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
@@ -107,7 +109,7 @@ impl InstrumentService {
 }
 
 #[tonic::async_trait]
-impl instrument::instrument_server::Instrument for InstrumentService {
+impl instrument_server::Instrument for InstrumentService {
     type WatchUpdatesStream = BoxStream<instrument::Update>;
 
     async fn watch_updates(
@@ -150,7 +152,7 @@ impl instrument::instrument_server::Instrument for InstrumentService {
 }
 
 #[tonic::async_trait]
-impl<R: Runtime> api::tauri::tauri_server::Tauri for TauriService<R> {
+impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
     async fn get_config(&self, _req: Request<ConfigRequest>) -> Result<Response<Config>, Status> {
         let config: Config = (&*self.app_handle.config()).into();
 
@@ -183,10 +185,10 @@ impl<R: Runtime> api::tauri::tauri_server::Tauri for TauriService<R> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use api::instrument::instrument_server::Instrument;
-    use api::instrument::Interests;
-    use api::tauri::tauri_server::Tauri;
     use std::time::SystemTime;
+    use tauri_devtools_wire_format::instrument::instrument_server::Instrument;
+    use tauri_devtools_wire_format::instrument::Interests;
+    use tauri_devtools_wire_format::tauri::tauri_server::Tauri;
 
     #[tokio::test]
     async fn tauri_get_config() {
@@ -202,7 +204,7 @@ mod test {
 
         assert_eq!(
             cfg.into_inner(),
-            api::tauri::Config::from(&*tauri.app_handle.config())
+            tauri_devtools_wire_format::tauri::Config::from(&*tauri.app_handle.config())
         );
     }
 

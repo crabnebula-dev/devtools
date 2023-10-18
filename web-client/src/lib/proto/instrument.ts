@@ -16,43 +16,21 @@ import { Update as Update$2 } from "./spans";
 import { Update as Update$ } from "./logs";
 import { NewMetadata } from "./common";
 import { Timestamp } from "./google/protobuf/timestamp";
-import { Metadata_Level } from "./common";
 /**
  * @generated from protobuf message rs.devtools.instrument.InstrumentRequest
  */
 export interface InstrumentRequest {
     /**
-     * Allows filtering the log events.
+     * A set of bitflags indicating which data sources the client is interested in.
+     * There are currently 2 data sources defined:
+     * - 1: logs
+     * - 2: spans
      *
-     * @generated from protobuf field: rs.devtools.instrument.Filter log_filter = 2;
-     */
-    logFilter?: Filter;
-    /**
-     * Allows filtering the span events.
+     * But other clients or future version of the API might define additional flags.
      *
-     * @generated from protobuf field: rs.devtools.instrument.Filter span_filter = 3;
+     * @generated from protobuf field: uint32 interests = 1;
      */
-    spanFilter?: Filter;
-}
-/**
- * A filter configuration
- * You can filter by level, file, log message or a combination of all three.
- *
- * @generated from protobuf message rs.devtools.instrument.Filter
- */
-export interface Filter {
-    /**
-     * @generated from protobuf field: optional rs.devtools.common.Metadata.Level level = 1;
-     */
-    level?: Metadata_Level;
-    /**
-     * @generated from protobuf field: optional string file = 2;
-     */
-    file?: string;
-    /**
-     * @generated from protobuf field: optional string text = 3;
-     */
-    text?: string;
+    interests: number;
 }
 /**
  * An update about the state of the instrumented application.
@@ -97,12 +75,11 @@ export interface Update {
 class InstrumentRequest$Type extends MessageType<InstrumentRequest> {
     constructor() {
         super("rs.devtools.instrument.InstrumentRequest", [
-            { no: 2, name: "log_filter", kind: "message", T: () => Filter },
-            { no: 3, name: "span_filter", kind: "message", T: () => Filter }
+            { no: 1, name: "interests", kind: "scalar", T: 13 /*ScalarType.UINT32*/ }
         ]);
     }
     create(value?: PartialMessage<InstrumentRequest>): InstrumentRequest {
-        const message = {};
+        const message = { interests: 0 };
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial<InstrumentRequest>(this, message, value);
@@ -113,11 +90,8 @@ class InstrumentRequest$Type extends MessageType<InstrumentRequest> {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* rs.devtools.instrument.Filter log_filter */ 2:
-                    message.logFilter = Filter.internalBinaryRead(reader, reader.uint32(), options, message.logFilter);
-                    break;
-                case /* rs.devtools.instrument.Filter span_filter */ 3:
-                    message.spanFilter = Filter.internalBinaryRead(reader, reader.uint32(), options, message.spanFilter);
+                case /* uint32 interests */ 1:
+                    message.interests = reader.uint32();
                     break;
                 default:
                     let u = options.readUnknownField;
@@ -131,12 +105,9 @@ class InstrumentRequest$Type extends MessageType<InstrumentRequest> {
         return message;
     }
     internalBinaryWrite(message: InstrumentRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* rs.devtools.instrument.Filter log_filter = 2; */
-        if (message.logFilter)
-            Filter.internalBinaryWrite(message.logFilter, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
-        /* rs.devtools.instrument.Filter span_filter = 3; */
-        if (message.spanFilter)
-            Filter.internalBinaryWrite(message.spanFilter, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* uint32 interests = 1; */
+        if (message.interests !== 0)
+            writer.tag(1, WireType.Varint).uint32(message.interests);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -147,67 +118,6 @@ class InstrumentRequest$Type extends MessageType<InstrumentRequest> {
  * @generated MessageType for protobuf message rs.devtools.instrument.InstrumentRequest
  */
 export const InstrumentRequest = new InstrumentRequest$Type();
-// @generated message type with reflection information, may provide speed optimized methods
-class Filter$Type extends MessageType<Filter> {
-    constructor() {
-        super("rs.devtools.instrument.Filter", [
-            { no: 1, name: "level", kind: "enum", opt: true, T: () => ["rs.devtools.common.Metadata.Level", Metadata_Level] },
-            { no: 2, name: "file", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "text", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
-        ]);
-    }
-    create(value?: PartialMessage<Filter>): Filter {
-        const message = {};
-        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== undefined)
-            reflectionMergePartial<Filter>(this, message, value);
-        return message;
-    }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Filter): Filter {
-        let message = target ?? this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-            let [fieldNo, wireType] = reader.tag();
-            switch (fieldNo) {
-                case /* optional rs.devtools.common.Metadata.Level level */ 1:
-                    message.level = reader.int32();
-                    break;
-                case /* optional string file */ 2:
-                    message.file = reader.string();
-                    break;
-                case /* optional string text */ 3:
-                    message.text = reader.string();
-                    break;
-                default:
-                    let u = options.readUnknownField;
-                    if (u === "throw")
-                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-                    let d = reader.skip(wireType);
-                    if (u !== false)
-                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-            }
-        }
-        return message;
-    }
-    internalBinaryWrite(message: Filter, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* optional rs.devtools.common.Metadata.Level level = 1; */
-        if (message.level !== undefined)
-            writer.tag(1, WireType.Varint).int32(message.level);
-        /* optional string file = 2; */
-        if (message.file !== undefined)
-            writer.tag(2, WireType.LengthDelimited).string(message.file);
-        /* optional string text = 3; */
-        if (message.text !== undefined)
-            writer.tag(3, WireType.LengthDelimited).string(message.text);
-        let u = options.writeUnknownFields;
-        if (u !== false)
-            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-    }
-}
-/**
- * @generated MessageType for protobuf message rs.devtools.instrument.Filter
- */
-export const Filter = new Filter$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class Update$Type extends MessageType<Update> {
     constructor() {

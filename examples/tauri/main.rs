@@ -16,7 +16,7 @@ async fn test1() -> String {
 }
 
 fn main() {
-    let devtools = probe::init();
+    let devtools = tauri_devtools::init();
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![test1])

@@ -7,22 +7,26 @@ mod visitors;
 
 use crate::aggregator::Aggregator;
 use crate::layer::Layer;
-use api::{instrument, Field};
+use colored::Colorize;
 pub use error::Error;
 use server::DEFAULT_ADDRESS;
 use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 use std::time::Instant;
 use tauri::Runtime;
+use tauri_devtools_wire_format::{instrument, Field};
 use tokio::sync::mpsc;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::Layer as _;
+
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 
 /// URL of the web-based devtool
 /// The server host is added automatically eg: `127.0.0.1:56609`.
-const DEVTOOL_URL: &str = "https://crabnebula.dev/debug/#";
+const DEVTOOL_URL: &str = "http://localhost:5173/dash/";
+
+// const DEVTOOL_URL: &str = "https://crabnebula.dev/debug/#";
 
 pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
     try_init().unwrap()
@@ -43,10 +47,23 @@ pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
         .with(layer.with_filter(tracing_subscriber::filter::LevelFilter::TRACE))
         .try_init()?;
 
-    println!("--------- Tauri Plugin Devtools ---------\n");
-    println!("Listening at:\n  http://{DEFAULT_ADDRESS}\n",);
-    println!("Inspect in browser:\n  {DEVTOOL_URL}{DEFAULT_ADDRESS}");
-    println!("\n--------- Tauri Plugin Devtools ---------");
+    // This is pretty ugly code I know, but it looks nice in the terminal soo ¯\_(ツ)_/¯
+    let url = format!(
+        "{DEVTOOL_URL}{}/{}",
+        DEFAULT_ADDRESS.ip(),
+        DEFAULT_ADDRESS.port()
+    );
+    println!(
+        r#"
+   {} {}{}
+   {}   Local:   {}
+"#,
+        "Tauri Devtools".bright_purple(),
+        "v".purple(),
+        env!("CARGO_PKG_VERSION").purple(),
+        "→".bright_purple(),
+        url.underline().blue()
+    );
 
     let plugin = tauri_plugin::init(aggregator, cmd_tx);
     Ok(plugin)
