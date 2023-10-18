@@ -1,7 +1,12 @@
 use crate::common;
 use crate::metadata::Level;
 
-pub use crate::generated::rs::devtools::instrument::*;
+mod generated {
+    #![allow(warnings)]
+    include!("./generated/rs.devtools.instrument.rs");
+}
+
+pub use generated::*;
 
 pub trait Filterable {
     /// Determines if the current item matches the provided filter.
