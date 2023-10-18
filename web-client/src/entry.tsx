@@ -1,14 +1,21 @@
-import { useNavigate, useRoutes } from "@solidjs/router";
+import { type RouteDefinition, useNavigate, useRoutes } from "@solidjs/router";
 import { lazy } from "solid-js";
+import { connect } from "./lib/connection/transport.ts";
 
-const ROUTES = [
+const ROUTES: RouteDefinition[] = [
   {
     path: "/",
     component: lazy(() => import("./views/connect.tsx")),
   },
   {
-    path: "/dash/:wsUrl/:wsPort",
+    path: "/dash/:host/:port",
     component: lazy(() => import("./views/dashboard/layout.tsx")),
+    data: ({ params }) => {
+      const { host, port } = params;
+      const connection = connect(`http://${host}:${port}`);
+
+      return connection;
+    },
     children: [
       {
         path: "/",

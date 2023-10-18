@@ -1,5 +1,5 @@
 [package]
-name = "probe"
+name = "tauri-devtools"
 authors.workspace = true
 edition.workspace = true
 version.workspace = true
@@ -10,7 +10,7 @@ repository.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-api = { path = "../api" }
+tauri-devtools-wire-format = { path = "../wire" }
 tracing.workspace = true
 tracing-core.workspace = true
 tracing-subscriber.workspace = true
@@ -24,6 +24,7 @@ tower-http = "0.4"
 futures = "0.3"
 ringbuf = "0.4.0-rc.2"
 prost-types.workspace = true
+colored = "2.0"
 
 [dev-dependencies]
 tauri = { workspace = true, features = ["test"] }

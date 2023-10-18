@@ -1,11 +1,11 @@
 use crate::aggregator::Aggregator;
 use crate::server::{Server, DEFAULT_ADDRESS};
 use crate::Command;
-use api::tauri::Metrics;
 use std::sync::Arc;
 use std::thread;
 use std::time::SystemTime;
 use tauri::{RunEvent, Runtime};
+use tauri_devtools_wire_format::tauri::Metrics;
 use tokio::sync::{mpsc, RwLock};
 
 pub(crate) fn init<R: Runtime>(
