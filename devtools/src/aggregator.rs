@@ -13,11 +13,20 @@ use tauri_devtools_wire_format::spans::SpanEvent;
 use tauri_devtools_wire_format::{instrument, logs, spans, NewMetadata};
 use tokio::sync::mpsc;
 
+/// How often to send updates to all connected clients
 const BROADCAST_INTERVAL: Duration = Duration::from_millis(400); // TODO find good value for this
 
+/// The event aggregator
+///
+/// This is the heart of the instrumentation, it receives events from the
+/// [`Layer`], does light pre-processing, buffers them up into `Update`s and
+/// send these to all subscribed clients.
 pub(crate) struct Aggregator {
+    /// Data shared with the [`Layer`]
     shared: Arc<Shared>,
+    /// Channel of events from the [`Layer`]
     events: mpsc::Receiver<Event>,
+    /// Channel of commands from the gRPC server
     cmds: mpsc::Receiver<Command>,
 
     /// All metadata entries that were ever registered
@@ -27,16 +36,25 @@ pub(crate) struct Aggregator {
     /// This is emptied on every update
     new_metadata: Vec<NewMetadata>,
 
+    /// Buffered log events.
+    /// Up to 256 events are retained before the oldest will be dropped.
     logs: EventBuf<LogEvent, 256>,
-    spans: EventBuf<SpanEvent, 256>,
+    /// Buffered span events.
+    /// Up to 256 events are retained before the oldest will be dropped.
+    spans: EventBuf<SpanEvent, 512>,
 
+    /// All connected clients
     watchers: Vec<Watcher>,
 
+    /// Used to convert `Instant`s to `SystemTime`s and `Timestamp`s
     base_time: TimeAnchor,
 }
 
+/// Whether to include all buffered events or only those that were buffered since the last update
 enum Include {
+    /// Include all buffered events
     All,
+    /// Include only events that were buffered since the last update
     IncrementalOnly,
 }
 
@@ -250,6 +268,7 @@ impl Aggregator {
     }
 }
 
+/// Used to convert `Instant`s to `SystemTime`s and `Timestamp`s
 pub struct TimeAnchor {
     mono: Instant,
     sys: SystemTime,
@@ -275,6 +294,12 @@ impl TimeAnchor {
     }
 }
 
+/// A fixed-size buffer for events
+///
+/// This is essentially a FIFO queue, that will discard the oldest item when full.
+///
+/// It also keeps a counter of how many events in the buffer were sent to clients.
+/// [`EventBuf::take_unsent`] will return all events that were not sent yet and reset the counter.
 struct EventBuf<T, const CAP: usize> {
     inner: LocalRb<[MaybeUninit<T>; CAP]>,
     sent: usize,
@@ -288,6 +313,8 @@ impl<T, const CAP: usize> EventBuf<T, CAP> {
         }
     }
 
+    /// Push an event into the buffer, overwriting the oldest event if the buffer is full.
+    // TODO does it really make sense to track the dropped events here?
     pub fn push_overwrite(&mut self, dropped: &AtomicUsize, mk_item: impl FnOnce() -> T) {
         if self.inner.push_overwrite(mk_item()).is_some() {
             dropped.fetch_add(1, Ordering::Release);
@@ -295,12 +322,14 @@ impl<T, const CAP: usize> EventBuf<T, CAP> {
         }
     }
 
+    /// Returns an iterator over all events that were not sent yet.
     pub fn take_unsent(&mut self) -> impl Iterator<Item = &T> {
         let iter = self.inner.iter().skip(self.sent);
         self.sent = self.inner.occupied_len();
         iter
     }
 
+    /// Returns an iterator over all events in the buffer.
     pub fn iter(&self) -> impl Iterator<Item = &T> {
         self.inner.iter()
     }

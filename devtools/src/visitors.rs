@@ -2,13 +2,14 @@ use std::fmt::Debug;
 use tauri_devtools_wire_format::{Field, MetaId};
 use tracing_subscriber::field::Visit;
 
+/// A visitor that collects all fields from tracing events and spans.
 pub struct FieldVisitor {
     meta_id: MetaId,
     /// A set of custom fields that provide additional data about the event.
     fields: Vec<Field>,
 }
 
-/// Represents an event visitor that collects information about tracing events.
+/// A visitor that collects metadata needed to construct a log event from a tracing event.
 pub struct EventVisitor {
     field_visitor: FieldVisitor,
     /// The optional message associated with the event.

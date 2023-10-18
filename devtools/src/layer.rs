@@ -9,6 +9,9 @@ use tracing_core::span::{Attributes, Id};
 use tracing_core::{Interest, Metadata};
 use tracing_subscriber::layer::Context;
 
+/// A tracing layer that forwards all events to the aggregator
+/// This is intentionally kept as simple as possible to avoid any performance overhead on
+/// the application thread. All the heavy lifting is done in the aggregator.
 pub(crate) struct Layer {
     shared: Arc<Shared>,
     tx: mpsc::Sender<Event>,
