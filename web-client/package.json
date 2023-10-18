@@ -15,6 +15,7 @@
     "test": "vitest"
   },
   "devDependencies": {
+    "@protobuf-ts/protoc": "^2.9.1",
     "@solidjs/testing-library": "^0.7.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@types/testing-library__jest-dom": "^5.14.6",
@@ -35,13 +36,13 @@
   },
   "dependencies": {
     "@kobalte/core": "^0.11.0",
-    "@solidjs/router": "^0.8.3",
-    "csp_evaluator": "^1.1.1",
-    "solid-js": "^1.7.6",
+    "@protobuf-ts/grpcweb-transport": "^2.9.1",
     "@protobuf-ts/plugin": "^2.9.1",
     "@protobuf-ts/runtime": "^2.9.1",
     "@protobuf-ts/runtime-rpc": "^2.9.1",
-    "@protobuf-ts/grpcweb-transport": "^2.9.1",
+    "@solidjs/router": "^0.8.3",
+    "csp_evaluator": "^1.1.1",
+    "solid-js": "^1.7.6",
     "tailwind-scrollbar": "^3.0.5"
   }
 }
