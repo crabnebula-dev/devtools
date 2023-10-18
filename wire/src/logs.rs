@@ -1,3 +1,4 @@
+use crate::common;
 use crate::instrument::{Filter, Filterable};
 use crate::metadata::Level;
 use crate::Metadata;

@@ -1,5 +1,7 @@
 use crate::common;
+use crate::logs;
 use crate::metadata::Level;
+use crate::spans;
 
 mod generated {
     #![allow(warnings)]
