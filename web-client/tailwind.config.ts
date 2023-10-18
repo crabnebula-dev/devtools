@@ -1,4 +1,5 @@
 import scrollbar from "tailwind-scrollbar";
+import defaultTheme from "tailwindcss/defaultTheme";
 
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
@@ -8,7 +9,7 @@ export default {
         toolbar: 'var(--toolbar-height)',
       },
       fontFamily: {
-        'cn': ['Euclid Circular B', 'Inter', 'sans-serif']
+        'sans': ['Euclid Circular B', 'Inter', ...defaultTheme.fontFamily.sans]
       },
       colors: {
         navy: "#0C1326"

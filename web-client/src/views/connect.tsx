@@ -12,10 +12,10 @@ export default function Connect() {
   return (
     <div class="w-full min-h-screen flex items-center justify-center">
       <div class="grid gap-16 max-w-screen-sm mx-auto">
-        <div class="mx-auto text-3xl font-cn flex items-center gap-4 font-bold">
+        <div class="mx-auto text-3xl font-sans flex items-center gap-4 font-bold">
           <Logo size={32} /> <h1>CrabNebula</h1>
         </div>
-        <h2 class="text-6xl font-cn font-bold mx-auto">Developer Tools</h2>
+        <h2 class="text-6xl font-sans font-bold mx-auto">Developer Tools</h2>
         <p class="text-xl">
           To get started, instrument your application and run it with the{" "}
           <code>--inspect</code> flag. Then, paste the appropriate connection
