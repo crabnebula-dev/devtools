@@ -14,13 +14,18 @@ service Instrument {
 }
 
 message InstrumentRequest {
-  // A set of bitflags indicating which data sources the client is interested in.
-  // There are currently 2 data sources defined:
-  // - 1: logs
-  // - 2: spans
-  //
-  // But other clients or future version of the API might define additional flags.
-  uint32 interests = 1;
+  // Allows filtering the log events.
+  Filter log_filter = 2;
+  // Allows filtering the span events.
+  Filter span_filter = 3;
+}
+
+// A filter configuration
+// You can filter by level, file, log message or a combination of all three.
+message Filter {
+  optional common.Metadata.Level level = 1;
+  optional string file = 2;
+  optional string text = 3;
 }
 
 // An update about the state of the instrumented application.

@@ -128,5 +128,4 @@ pub(crate) enum Command {
 
 struct Watcher {
     tx: mpsc::Sender<Result<instrument::Update>>,
-    interests: instrument::Interests,
 }

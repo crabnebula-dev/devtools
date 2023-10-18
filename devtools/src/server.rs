@@ -132,10 +132,7 @@ impl instrument_server::Instrument for InstrumentService {
         // create output channel and send tx to the aggregator for tracking
         let (tx, rx) = mpsc::channel(DEFAULT_CLIENT_BUFFER_CAPACITY);
 
-        permit.send(Command::Instrument(Watcher {
-            tx,
-            interests: instrument::Interests::from_bits_retain(req.into_inner().interests),
-        }));
+        permit.send(Command::Instrument(Watcher { tx }));
 
         tracing::debug!("watch started");
 
@@ -187,7 +184,6 @@ mod test {
     use super::*;
     use std::time::SystemTime;
     use tauri_devtools_wire_format::instrument::instrument_server::Instrument;
-    use tauri_devtools_wire_format::instrument::Interests;
     use tauri_devtools_wire_format::tauri::tauri_server::Tauri;
 
     #[tokio::test]
@@ -243,7 +239,8 @@ mod test {
 
         let _stream = srv
             .watch_updates(Request::new(InstrumentRequest {
-                interests: Interests::all().bits(),
+                log_filter: None,
+                span_filter: None,
             }))
             .await
             .unwrap();

@@ -8,7 +8,6 @@ use std::mem::MaybeUninit;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
-use tauri_devtools_wire_format::instrument::Interests;
 use tauri_devtools_wire_format::logs::LogEvent;
 use tauri_devtools_wire_format::spans::SpanEvent;
 use tauri_devtools_wire_format::{instrument, logs, spans, NewMetadata};
@@ -32,7 +31,6 @@ pub(crate) struct Aggregator {
     spans: EventBuf<SpanEvent, 256>,
 
     watchers: Vec<Watcher>,
-    all_interests: instrument::Interests,
 
     base_time: TimeAnchor,
 }
@@ -58,9 +56,6 @@ impl Aggregator {
             all_metadata: vec![],
             new_metadata: vec![],
             base_time: TimeAnchor::new(),
-            // Start out with all data sources enabled,
-            // so we don't loose any data before clients attach
-            all_interests: Interests::all(),
         }
     }
 
@@ -122,7 +117,6 @@ impl Aggregator {
         match watcher.tx.send(Ok(update)).await {
             Ok(_) => {
                 self.watchers.push(watcher);
-                self.recalculate_interests();
             }
             Err(err) => {
                 tracing::warn!("Failed to send initial update to client because of error {err:?}")
@@ -254,14 +248,6 @@ impl Aggregator {
         self.watchers
             .retain(|w| w.tx.try_send(Ok(update.clone())).is_ok());
     }
-    fn recalculate_interests(&mut self) {
-        self.all_interests = self
-            .watchers
-            .iter()
-            .fold(Interests::empty(), |total, watcher| {
-                total | watcher.interests
-            });
-    }
 }
 
 pub struct TimeAnchor {
@@ -324,7 +310,7 @@ impl<T, const CAP: usize> EventBuf<T, CAP> {
 mod test {
     use super::*;
     use crate::layer::Layer;
-    use api::instrument::Update;
+    use tauri_devtools_wire_format::instrument::Update;
     use tokio::sync::mpsc;
     use tracing_subscriber::prelude::*;
 
@@ -354,10 +340,7 @@ mod test {
     async fn drain_updates(mf: Aggregator, cmd_tx: mpsc::Sender<Command>) -> Vec<Update> {
         let (client_tx, mut client_rx) = mpsc::channel(1);
         cmd_tx
-            .send(Command::Instrument(Watcher {
-                interests: Interests::all(),
-                tx: client_tx,
-            }))
+            .send(Command::Instrument(Watcher { tx: client_tx }))
             .await
             .unwrap();
         drop(cmd_tx);
@@ -380,10 +363,7 @@ mod test {
 
         let (client_tx, mut client_rx) = mpsc::channel(1);
         cmd_tx
-            .send(Command::Instrument(Watcher {
-                interests: Interests::all(),
-                tx: client_tx,
-            }))
+            .send(Command::Instrument(Watcher { tx: client_tx }))
             .await
             .unwrap();
         drop(cmd_tx); // drop the cmd_tx connection here, this will stop the aggregator
