@@ -6,9 +6,3 @@ pub mod tauri;
 pub mod workspace;
 
 pub use common::*;
-
-mod generated {
-    #![allow(clippy::all)]
-    #![allow(warnings)]
-    include!(concat!(env!("OUT_DIR"), "/include.rs"));
-}

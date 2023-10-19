@@ -1,4 +1,9 @@
-pub use crate::generated::rs::devtools::tauri::*;
+mod generated {
+    #![allow(warnings)]
+    include!("./generated/rs.devtools.tauri.rs");
+}
+
+pub use generated::*;
 
 // TODO improve this
 impl<'a> From<&'a tauri::Config> for Config {

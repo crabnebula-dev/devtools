@@ -7,7 +7,7 @@
 //!
 //! # Example
 //!
-//! ```rust,no_run
+//! ```ignore
 //! fn main() {
 //!     let devtools = tauri_devtools::init();
 //!
@@ -63,7 +63,7 @@ const DEVTOOL_URL: &str = "http://localhost:5173/dash/";
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```ignore
 /// fn main() {
 ///     let devtools = tauri_devtools::init();
 ///
@@ -92,13 +92,13 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
 ///
 /// # Example
 ///
-/// ```rust,no_run
+/// ```ignore
 /// fn main() {
 ///     let devtools = tauri_devtools::init();
 ///
 ///     tauri::Builder::default()
 ///         .plugin(devtools)
-///         .run(tauri::generate_context!())
+///         .run(tauri::generate_context!("../examples/tauri/tauri.conf.json"))
 ///         .expect("error while running tauri application");
 /// }
 /// ```

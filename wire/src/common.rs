@@ -1,6 +1,10 @@
 use std::hash::{Hash, Hasher};
+mod generated {
+    #![allow(warnings)]
+    include!("./generated/rs.devtools.common.rs");
+}
 
-pub use crate::generated::rs::devtools::common::*;
+pub use generated::*;
 
 impl From<tracing_core::span::Id> for SpanId {
     fn from(value: tracing_core::span::Id) -> Self {
