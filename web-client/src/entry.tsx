@@ -39,7 +39,7 @@ const ROUTES: RouteDefinition[] = [
       },
       {
         path: "/assets",
-        component: lazy(() => import("./views/dashboard/coming-soon.tsx")),
+        component: lazy(() => import("./views/dashboard/asset-viewer.tsx")),
       },
     ],
   },

@@ -33,3 +33,5 @@ export function getHealthStatus(res: HealthCheckResponse) {
   }
   return res.status;
 }
+
+export function getWorkspaceEntries(client: WorkspaceClient) {}
