@@ -79,3 +79,9 @@ html {
   font-weight: 600;
   font-display: swap;
 }
+
+.shiki {
+  padding: 1.5em;
+  max-width: 85vw;
+  text-wrap: normal;
+}

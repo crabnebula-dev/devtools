@@ -22,7 +22,7 @@ export function getTauriMetrics(client: TauriClient) {
       const a = await client.getMetrics({});
       return a.response;
     } catch (e) {
-      throw new Error("failed parsing Tauri config");
+      throw new Error("failed parsing Tauri metrics");
     }
   });
 }
@@ -33,5 +33,3 @@ export function getHealthStatus(res: HealthCheckResponse) {
   }
   return res.status;
 }
-
-export function getWorkspaceEntries(client: WorkspaceClient) {}

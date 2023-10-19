@@ -200,7 +200,7 @@ impl<R: Runtime> wire::workspace::workspace_server::Workspace for WorkspaceServi
         cwd.push(req.into_inner().path);
 
         let stream = self.list_entries_inner(cwd).or_else(|err| async move {
-            tracing::error!("Aggregator failed with error {err:?}");
+            tracing::error!("List Entries failed with error {err:?}");
 
             // TODO set the health service status to NotServing here
 

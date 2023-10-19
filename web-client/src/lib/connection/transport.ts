@@ -4,6 +4,7 @@ import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
 import { HealthClient } from "~/lib/proto/health.client";
 import { InstrumentClient } from "~/lib/proto/instrument.client";
 import { TauriClient } from "~/lib/proto/tauri.client";
+import {WorkspaceClient} from "~/lib/proto/workspace.client.ts";
 
 export function connect(url: string) {
   const abortController = new AbortController();
@@ -16,6 +17,7 @@ export function connect(url: string) {
   const instrumentClient = new InstrumentClient(transport);
   const tauriClient = new TauriClient(transport);
   const healthClient = new HealthClient(transport);
+  const workspaceClient = new WorkspaceClient(transport);
 
   return {
     abortController,
@@ -23,6 +25,7 @@ export function connect(url: string) {
       tauri: tauriClient,
       health: healthClient,
       instrument: instrumentClient,
+      workspace: workspaceClient
     },
   };
 }
