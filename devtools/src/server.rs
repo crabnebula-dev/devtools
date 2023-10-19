@@ -1,7 +1,7 @@
 use crate::{Command, Watcher};
 use async_stream::try_stream;
+use bytes::BytesMut;
 use futures::{FutureExt, Stream, TryStreamExt};
-use prost::bytes::BytesMut;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -15,6 +15,7 @@ use tauri_devtools_wire_format::tauri::tauri_server::TauriServer;
 use tauri_devtools_wire_format::tauri::{
     tauri_server, Config, ConfigRequest, Metrics, MetricsRequest,
 };
+use tauri_devtools_wire_format::workspace::workspace_server::WorkspaceServer;
 use tauri_devtools_wire_format::workspace::{Chunk, Entry, EntryRequest, FileType};
 use tokio::sync::{mpsc, RwLock};
 use tonic::codegen::http::Method;
@@ -104,15 +105,9 @@ impl<R: Runtime> Server<R> {
         tonic::transport::Server::builder()
             .accept_http1(true)
             .layer(cors)
-            .add_service(tonic_web::enable(
-                wire::instrument::instrument_server::InstrumentServer::new(self.instrument),
-            ))
-            .add_service(tonic_web::enable(
-                wire::tauri::tauri_server::TauriServer::new(self.tauri),
-            ))
-            .add_service(tonic_web::enable(
-                wire::workspace::workspace_server::WorkspaceServer::new(self.workspace),
-            ))
+            .add_service(tonic_web::enable(InstrumentServer::new(self.instrument)))
+            .add_service(tonic_web::enable(TauriServer::new(self.tauri)))
+            .add_service(tonic_web::enable(WorkspaceServer::new(self.workspace)))
             .add_service(tonic_web::enable(self.health))
             .serve(addr)
             .await?;
@@ -193,7 +188,7 @@ impl<R: Runtime> wire::workspace::workspace_server::Workspace for WorkspaceServi
 
     async fn list_entries(
         &self,
-        req: Request<ListEntriesRequest>,
+        req: Request<EntryRequest>,
     ) -> Result<Response<Self::ListEntriesStream>, Status> {
         tracing::debug!("list entries");
         let mut cwd = std::env::current_dir()?;
