@@ -1,6 +1,11 @@
 use crate::common;
 
-pub use crate::generated::rs::devtools::spans::*;
+mod generated {
+    #![allow(warnings)]
+    include!("./generated/rs.devtools.spans.rs");
+}
+
+pub use generated::*;
 
 impl SpanEvent {
     pub fn new_span(

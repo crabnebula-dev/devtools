@@ -1,8 +1,14 @@
+use crate::common;
 use crate::instrument::{Filter, Filterable};
 use crate::metadata::Level;
 use crate::Metadata;
 
-pub use crate::generated::rs::devtools::logs::*;
+mod generated {
+    #![allow(warnings)]
+    include!("./generated/rs.devtools.logs.rs");
+}
+
+pub use generated::*;
 
 impl Filterable for LogEvent {
     fn match_filter(&self, meta: &Metadata, filter: &Filter) -> bool {

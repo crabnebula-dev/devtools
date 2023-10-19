@@ -1,4 +1,9 @@
-pub use crate::generated::rs::devtools::tauri::*;
+mod generated {
+    #![allow(warnings)]
+    include!("./generated/rs.devtools.tauri.rs");
+}
+
+pub use generated::*;
 
 impl From<tauri::Asset> for Asset {
     fn from(value: tauri::Asset) -> Self {
