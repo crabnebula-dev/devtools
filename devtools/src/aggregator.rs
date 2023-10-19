@@ -47,7 +47,7 @@ pub(crate) struct Aggregator {
     watchers: Vec<Watcher>,
 
     /// Used to convert `Instant`s to `SystemTime`s and `Timestamp`s
-    base_time: TimeAnchor,
+    pub(crate) base_time: TimeAnchor,
 }
 
 /// Whether to include all buffered events or only those that were buffered since the last update
