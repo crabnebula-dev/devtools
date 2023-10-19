@@ -18,6 +18,8 @@ import {
 } from "~/lib/proto/health";
 import { Connection, disconnect } from "~/lib/connection/transport";
 import { Logo } from "~/components/crabnebula-logo";
+import { useNavigate } from "@solidjs/router";
+import { DisconnectButton } from "~/components/disconnect-button";
 
 export default function Layout() {
   const { abortController, client } = useRouteData<Connection>();
@@ -30,9 +32,12 @@ export default function Layout() {
     HealthCheckRequest.create({ service: "" })
   );
 
+  const navigate = useNavigate();
+
   function closeSession() {
     setMonitorData("health", HealthCheckResponse_ServingStatus.UNKNOWN);
-    disconnect(abortController, "/");
+    disconnect(abortController);
+    navigate("/");
   }
 
   healthStream.responses.onMessage((res: HealthCheckResponse) => {
@@ -112,6 +117,7 @@ export default function Layout() {
         <div class="border-b border-gray-800 flex px-2 py-1 items-center justify-between">
           <HealthStatus />
           <BootTime />
+          <DisconnectButton />
         </div>
         <Navigation />
       </header>
