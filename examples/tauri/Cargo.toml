@@ -1,18 +1,19 @@
 [package]
-name = "tauri-example"
+name = "example-tauri"
 version = "0.1.0"
 edition = "2021"
+publish = false
 
 [[bin]]
 name = "tauri-example"
 path = "main.rs"
 
 [dependencies]
-tauri = { git = "https://github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing-v1" }
-tauri_devtools = { path = "../../devtools" }
-tracing = "0.1"
-tokio = "1"
+tauri.workspace = true
+tauri-devtools = { path = "../../devtools" }
+tracing.workspace = true
+tokio = { workspace = true, features = ["time"] }
 reqwest = "0.11"
 
 [build-dependencies]
-tauri-build = { git = "https://github.com/crabnebula-dev/tauri.git", branch = "feat/core-tracing-v1" }
+tauri-build.workspace = true

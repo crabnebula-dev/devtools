@@ -1,6 +1,7 @@
-# macOS-specific files
-.DS_Store
-.idea
-
 target
 
+# macOS-specific files
+.DS_Store
+
+# jetbrains project files
+.idea

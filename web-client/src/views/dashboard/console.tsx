@@ -3,7 +3,6 @@ import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { formatTimestamp, timestampToDate } from "~/lib/formatters";
 import { useMonitor } from "~/lib/connection/monitor";
-
 export default function Console() {
   const { monitorData } = useMonitor();
   const [showTimestamp, toggleTimeStamp] = createSignal(true);
