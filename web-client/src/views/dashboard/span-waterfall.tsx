@@ -12,10 +12,9 @@ export default function SpanWaterfall() {
       <FilterToggle
         aria-label="auto scroll"
         defaultPressed
-        fallbackElement={<span>autoscroll off</span>}
         changeHandler={() => toggleAutoScroll((prev) => !prev)}
       >
-        <span>autoscroll on</span>
+        Autoscroll
       </FilterToggle>
 
       <AutoscrollPane

@@ -17,6 +17,7 @@ import {
   HealthCheckResponse_ServingStatus,
 } from "~/lib/proto/health";
 import { Connection, disconnect } from "~/lib/connection/transport";
+import { Logo } from "~/components/crabnebula-logo";
 
 export default function Layout() {
   const { abortController, client } = useRouteData<Connection>();
@@ -106,18 +107,23 @@ export default function Layout() {
   });
 
   return (
-    <main class="grid grid-rows-[auto,auto,1fr,auto] h-full">
-      <MonitorContext.Provider value={{ monitorData }}>
-        <header class="flex gap-2 px-2">
+    <MonitorContext.Provider value={{ monitorData }}>
+      <header class="grid">
+        <div class="border-b border-gray-800 flex px-2 py-1 items-center justify-between">
           <HealthStatus />
           <BootTime />
-          <Navigation />
-        </header>
-        <article class="bg-gray-900 pt-10 h-full">
-          <Outlet />
-        </article>
-      </MonitorContext.Provider>
-      <footer>Built by CrabNebula</footer>
-    </main>
+        </div>
+        <Navigation />
+      </header>
+      <main class="max-h-full overflow-auto">
+        <Outlet />
+      </main>
+      <footer class="p-2 flex justify-center border-t border-gray-800 gap-2 items-center">
+        Built by <Logo size={16} /> CrabNebula
+      </footer>
+      <div class="surf-container">
+        <img class="bg-surface static" src="/bg.jpeg" alt="" />
+      </div>
+    </MonitorContext.Provider>
   );
 }

@@ -10,24 +10,22 @@ export default function Console() {
 
   return (
     <>
-      <FilterToggle
-        defaultPressed
-        aria-label="time stamps"
-        changeHandler={() => toggleTimeStamp((prev) => !prev)}
-        fallbackElement={<span>show timestamp</span>}
-      >
-        <span>hide timestamps</span>
-      </FilterToggle>
-      {"   "}
-      <FilterToggle
-        aria-label="auto scroll"
-        defaultPressed
-        fallbackElement={<span>autoscroll off</span>}
-        changeHandler={() => toggleAutoScroll((prev) => !prev)}
-      >
-        <span>autoscroll on</span>
-      </FilterToggle>
-
+      <div class="sticky h-toolbar top-0 bg-black bg-opacity-30 backdrop-blur flex justify-end border-b border-gray-800">
+        <FilterToggle
+          defaultPressed
+          aria-label="time stamps"
+          changeHandler={() => toggleTimeStamp((prev) => !prev)}
+        >
+          <span>Timestamps</span>
+        </FilterToggle>
+        <FilterToggle
+          aria-label="auto scroll"
+          defaultPressed
+          changeHandler={() => toggleAutoScroll((prev) => !prev)}
+        >
+          <span>Autoscroll</span>
+        </FilterToggle>
+      </div>
       <AutoscrollPane
         dataStream={monitorData.logs[0]}
         shouldAutoScroll={shouldAutoScroll}
@@ -39,16 +37,14 @@ export default function Console() {
             const timeDate = timestampToDate(at);
 
             return (
-              <li class="py-1 flex ">
+              <li class="p-1 items-center flex">
                 <Show when={showTimestamp()}>
-                  <div class="text-right min-w-[9em]">
-                    <time
-                      dateTime={timeDate.toISOString()}
-                      class="font-mono pr-4"
-                    >
-                      {formatTimestamp(timeDate)}
-                    </time>
-                  </div>
+                  <time
+                    dateTime={timeDate.toISOString()}
+                    class="font-mono pr-4"
+                  >
+                    {formatTimestamp(timeDate)}
+                  </time>
                 </Show>
                 <span>{message}</span>
               </li>
