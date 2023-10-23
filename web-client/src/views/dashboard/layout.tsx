@@ -18,6 +18,8 @@ import {
 } from "~/lib/proto/health";
 import { Connection, disconnect } from "~/lib/connection/transport";
 import { Logo } from "~/components/crabnebula-logo";
+import { useNavigate } from "@solidjs/router";
+import { DisconnectButton } from "~/components/disconnect-button";
 
 export default function Layout() {
   const { abortController, client } = useRouteData<Connection>();
@@ -30,9 +32,15 @@ export default function Layout() {
     HealthCheckRequest.create({ service: "" })
   );
 
+  const navigate = useNavigate();
+
   function closeSession() {
+    // Clean up all the listeners to make sure we don't try to close the session multiple times.
+    removeListeners.forEach((removeListener) => removeListener());
+
     setMonitorData("health", HealthCheckResponse_ServingStatus.UNKNOWN);
-    disconnect(abortController, "/");
+    disconnect(abortController);
+    navigate("/");
   }
 
   healthStream.responses.onMessage((res: HealthCheckResponse) => {
@@ -56,18 +64,20 @@ export default function Layout() {
     InstrumentRequest.create({})
   );
 
-  healthStream.responses.onError(() => {
-    closeSession();
-  });
-  healthStream.responses.onComplete(() => {
-    closeSession();
-  });
-  updateStream.responses.onError(() => {
-    closeSession();
-  });
-  updateStream.responses.onComplete(() => {
-    closeSession();
-  });
+  const removeListeners = [
+    healthStream.responses.onError(() => {
+      closeSession();
+    }),
+    healthStream.responses.onComplete(() => {
+      closeSession();
+    }),
+    updateStream.responses.onError(() => {
+      closeSession();
+    }),
+    updateStream.responses.onComplete(() => {
+      closeSession();
+    }),
+  ];
 
   updateStream.responses.onMessage((update) => {
     if (update.newMetadata.length > 0) {
@@ -112,6 +122,7 @@ export default function Layout() {
         <div class="border-b border-gray-800 flex px-2 py-1 items-center justify-between">
           <HealthStatus />
           <BootTime />
+          <DisconnectButton closeSession={closeSession} />
         </div>
         <Navigation />
       </header>
