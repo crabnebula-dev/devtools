@@ -7,5 +7,5 @@ export const StatusIndicator = (props: Props) => {
   if (props.status === "on") {
     className = "bg-emerald-500";
   }
-  return <div class={`${className} rounded-full w-2 h-2`}></div>;
+  return <div class={`${className} rounded-full w-2 h-2`} />;
 };

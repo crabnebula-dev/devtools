@@ -32,7 +32,7 @@ export default function CodeView(props: { path: string, size: number, lang: stri
 
     return <div class={'min-h-full h-[max-content]'} style={{'background-color': 'rgb(7 7 7)'}}>
         <Suspense fallback={<span>Loading...</span>}>
-            <div innerHTML={html()}></div>
+            <div innerHTML={html()} />
         </Suspense>
     </div>
 }

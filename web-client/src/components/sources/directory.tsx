@@ -60,7 +60,7 @@ function TreeEntry(props: TreeEntryProps) {
     const { caret, icon, children, ...rest } = props;
 
     return <li {...rest} class={`grid gap-1.5 hover:bg-gray-800 justify-items-start text-left`} style={{'grid-template-columns': '1em 1em 1fr'}}>
-        {caret ? caret() : <span></span>}
+        {caret ? caret() : <span />}
         {icon}
         {children}
     </li>
