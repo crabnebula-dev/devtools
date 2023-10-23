@@ -35,6 +35,9 @@ export default function Layout() {
   const navigate = useNavigate();
 
   function closeSession() {
+    // Clean up all the listeners to make sure we don't try to close the session multiple times.
+    removeListeners.forEach((removeListener) => removeListener());
+
     setMonitorData("health", HealthCheckResponse_ServingStatus.UNKNOWN);
     disconnect(abortController);
     navigate("/");
@@ -61,18 +64,20 @@ export default function Layout() {
     InstrumentRequest.create({})
   );
 
-  healthStream.responses.onError(() => {
-    closeSession();
-  });
-  healthStream.responses.onComplete(() => {
-    closeSession();
-  });
-  updateStream.responses.onError(() => {
-    closeSession();
-  });
-  updateStream.responses.onComplete(() => {
-    closeSession();
-  });
+  const removeListeners = [
+    healthStream.responses.onError(() => {
+      closeSession();
+    }),
+    healthStream.responses.onComplete(() => {
+      closeSession();
+    }),
+    updateStream.responses.onError(() => {
+      closeSession();
+    }),
+    updateStream.responses.onComplete(() => {
+      closeSession();
+    }),
+  ];
 
   updateStream.responses.onMessage((update) => {
     if (update.newMetadata.length > 0) {
