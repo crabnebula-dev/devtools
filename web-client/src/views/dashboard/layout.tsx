@@ -117,7 +117,7 @@ export default function Layout() {
         <div class="border-b border-gray-800 flex px-2 py-1 items-center justify-between">
           <HealthStatus />
           <BootTime />
-          <DisconnectButton />
+          <DisconnectButton closeSession={closeSession} />
         </div>
         <Navigation />
       </header>
