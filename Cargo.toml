@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
-members = ["wire", "devtools", "examples/*"]
+members = ["wire", "devtools", "examples/*", "get_icon"]
+#exclude = ["icons"]
 
 [workspace.package]
 authors = ["CrabNebula <hello@crabnebula.dev>"]
@@ -22,3 +23,10 @@ tonic = "0.10"
 prost = "0.12"
 prost-types = "0.12"
 tokio = "1.33.0"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

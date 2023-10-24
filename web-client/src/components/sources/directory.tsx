@@ -39,7 +39,7 @@ export default function Directory(props: DirectoryProps) {
                             </Collapsible.Content>
                         </Collapsible.Root>
                     } else {
-                        return <TreeEntry icon={<FileIcon />}>
+                        return <TreeEntry icon={<FileIcon path={child.path}/>} isAssetOrResource={isAssetOrResource(child)}>
                             <A href={`${absolutePath}?sizeHint=${child.size}`}>
                                 {child.path}
                             </A>
