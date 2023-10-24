@@ -16,12 +16,12 @@ export default function AssetViewer() {
     const contentType = () => guessContentType(params.path);
     const sizeHint = () => parseInt(searchParams.sizeHint);
 
-    return <div class={"grid h-full"} style={{"grid-template-columns": "minmax(5vw, max-content) 1fr", "grid-template-rows": "1fr", "overflow-y": "hidden"}}>
+    return <div class={"grid h-full w-full"} style={{"grid-template-columns": "minmax(5vw, max-content) 1fr", "grid-template-rows": "1fr", "overflow-y": "hidden"}}>
         <div style={{ 'overflow-y': 'auto', 'resize': 'horizontal' }}>
             <Directory entry={root} />
         </div>
         <Show when={params.path && searchParams.sizeHint}>
-            <div style={{ 'overflow-y': 'auto' }}>
+            <div style={{ 'overflow': 'auto' }}>
                 <Suspense fallback={<span>Loading...</span>}>
                     <Switch fallback={<UnknownView path={params.path}/>}>
                         <Match when={contentType()?.startsWith('code/')}>

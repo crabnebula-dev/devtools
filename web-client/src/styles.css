@@ -86,6 +86,7 @@ html {
   text-wrap: normal;
   min-height: 100%;
   height: max-content;
+  width: max-content;
   background: transparent !important; /* override shiki's background */
 }
 
@@ -101,5 +102,6 @@ code .line::before {
   margin-right: 1.5rem;
   display: inline-block;
   text-align: right;
-  color: rgba(115,138,148,.4)
+  color: rgba(115,138,148,.4);
+  user-select: none;
 }

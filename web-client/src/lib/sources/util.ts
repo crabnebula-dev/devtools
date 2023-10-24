@@ -45,6 +45,10 @@ export const FileType = {
 export function isDirectory(entry: Entry): boolean {
     return !!(entry.fileType & FileType.DIR);
 }
+
+export function isAssetOrResource(entry: Entry): boolean {
+    return !!(entry.fileType & FileType.ASSET) || !!(entry.fileType & FileType.RESOURCE);
+}
 export function sortByPath(a: Entry, b: Entry) {
     return a.path.localeCompare(b.path);
 }

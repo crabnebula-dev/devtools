@@ -30,7 +30,7 @@ export default function CodeView(props: { path: string, size: number, lang: stri
 
     const html = () => highlighter()?.codeToHtml(text(), { lang: props.lang })
 
-    return <div class={'min-h-full h-[max-content]'} style={{'background-color': 'rgb(7 7 7)'}}>
+    return <div class={'min-h-full h-[max-content] min-w-full w-[max-content]'} style={{'background-color': 'rgb(7 7 7)'}}>
         <Suspense fallback={<span>Loading...</span>}>
             <div innerHTML={html()} />
         </Suspense>

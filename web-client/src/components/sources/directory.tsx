@@ -7,7 +7,7 @@ import CaretDown from "~/components/icons/caret-down.tsx";
 import CaretRight from "~/components/icons/caret-right.tsx";
 import FolderIcon from "~/components/icons/folder.tsx";
 import FileIcon from "~/components/icons/file.tsx";
-import {awaitEntries, isDirectory, sortByPath} from "~/lib/sources/util.ts";
+import {awaitEntries, isDirectory, sortByPath, isAssetOrResource} from "~/lib/sources/util.ts";
 
 interface DirectoryProps extends JSX.HTMLAttributes<HTMLDivElement> {
     entry: Entry
@@ -28,7 +28,7 @@ export default function Directory(props: DirectoryProps) {
                     if (isDirectory(child)) {
                         return <Collapsible.Root as={'li'} onOpenChange={(isOpen) => setIsOpen(isOpen)}>
                             <Collapsible.Trigger class={'w-full'}>
-                                <TreeEntry caret={() => isOpen() ? <CaretDown /> : <CaretRight/>} icon={<FolderIcon />}>
+                                <TreeEntry caret={() => isOpen() ? <CaretDown /> : <CaretRight/>} icon={<FolderIcon />} isAssetOrResource={isAssetOrResource(child)}>
                                     {child.path}
                                 </TreeEntry>
                             </Collapsible.Trigger>
@@ -53,15 +53,17 @@ export default function Directory(props: DirectoryProps) {
 
 interface TreeEntryProps extends Omit<JSX.HTMLAttributes<HTMLLIElement>, 'class'> {
     caret?: () => JSX.Element,
-    icon: JSX.Element
+    icon: JSX.Element,
+    isAssetOrResource: boolean
 }
 
 function TreeEntry(props: TreeEntryProps) {
     const { caret, icon, children, ...rest } = props;
 
-    return <li {...rest} class={`grid gap-1.5 hover:bg-gray-800 justify-items-start text-left`} style={{'grid-template-columns': '1em 1em 1fr'}}>
+    return <li {...rest} class={`grid gap-1.5 hover:bg-gray-800 items-center text-left`} style={{'grid-template-columns': '1em 1em 1fr', 'background-color': props.isAssetOrResource ? 'rgba(255,165,0, 0.35)' : ''}}>
         {caret ? caret() : <span />}
         {icon}
         {children}
+        {props.isAssetOrResource}
     </li>
 }
