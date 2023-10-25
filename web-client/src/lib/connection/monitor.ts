@@ -2,14 +2,14 @@ import { createContext, useContext } from "solid-js";
 import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
 import { LogEvent } from "~/lib/proto/logs";
 import { SpanEvent } from "~/lib/proto/spans";
-import { MetaId, Metadata } from "~/lib/proto/common";
+import { Metadata } from "~/lib/proto/common";
 import { Metrics } from "~/lib/proto/tauri";
 import { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
 import { timestampToDate } from "~/lib/formatters";
 
 export type MonitorData = {
   health: HealthCheckResponse_ServingStatus;
-  metadata: Map<MetaId, Metadata>;
+  metadata: Map<bigint, Metadata>;
   logs: LogEvent[];
   spans: SpanEvent[];
 

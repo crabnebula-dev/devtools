@@ -158,10 +158,10 @@ impl Aggregator {
                 self.logs
                     .push_overwrite(&self.shared.dropped_log_events, || LogEvent {
                         at: Some(self.base_time.to_timestamp(at)),
-                        metadata_id: Some(metadata.into()),
+                        metadata_id: metadata as *const _ as u64,
                         message,
                         fields,
-                        parent: maybe_parent.map(|id| id.into()),
+                        parent: maybe_parent.map(|id| id.into_u64()),
                     });
             }
             Event::NewSpan {

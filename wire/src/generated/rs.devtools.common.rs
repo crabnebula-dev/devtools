@@ -1,19 +1,3 @@
-/// Unique identifier for metadata.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MetaId {
-    /// The unique identifier's concrete value.
-    #[prost(uint64, tag = "1")]
-    pub id: u64,
-}
-/// Unique identifier for spans.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SpanId {
-    /// The unique identifier's concrete value.
-    #[prost(uint64, tag = "1")]
-    pub id: u64,
-}
 /// A Rust source code location.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -165,8 +149,8 @@ pub mod metadata {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NewMetadata {
     /// Unique identifier for `metadata`.
-    #[prost(message, optional, tag = "1")]
-    pub id: ::core::option::Option<MetaId>,
+    #[prost(uint64, optional, tag = "1")]
+    pub id: ::core::option::Option<u64>,
     /// The metadata payload.
     #[prost(message, optional, tag = "2")]
     pub metadata: ::core::option::Option<Metadata>,
@@ -176,8 +160,8 @@ pub struct NewMetadata {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Field {
     /// Metadata for the task span that the field came from.
-    #[prost(message, optional, tag = "8")]
-    pub metadata_id: ::core::option::Option<MetaId>,
+    #[prost(uint64, tag = "8")]
+    pub metadata_id: u64,
     /// The key of the key-value pair.
     ///
     /// This is either represented as a string, or as an index into a `Metadata`'s

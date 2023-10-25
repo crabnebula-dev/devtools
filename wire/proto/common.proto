@@ -2,18 +2,6 @@ syntax = "proto3";
 
 package rs.devtools.common;
 
-// Unique identifier for metadata.
-message MetaId {
-  // The unique identifier's concrete value.
-  uint64 id = 1;
-}
-
-// Unique identifier for spans.
-message SpanId {
-  // The unique identifier's concrete value.
-  uint64 id = 1;
-}
-
 // A Rust source code location.
 message Location {
   // The file path
@@ -81,7 +69,7 @@ message Metadata {
 // One metadata element registered since the last update.
 message NewMetadata {
   // Unique identifier for `metadata`.
-  MetaId id = 1;
+  optional uint64 id = 1;
   // The metadata payload.
   Metadata metadata = 2;
 }
@@ -113,5 +101,5 @@ message Field {
     bool bool_val = 7;
   }
   // Metadata for the task span that the field came from.
-  MetaId metadata_id = 8;
+  uint64 metadata_id = 8;
 }

@@ -1,18 +1,9 @@
-use std::hash::{Hash, Hasher};
 mod generated {
     #![allow(warnings)]
     include!("./generated/rs.devtools.common.rs");
 }
 
 pub use generated::*;
-
-impl From<tracing_core::span::Id> for SpanId {
-    fn from(value: tracing_core::span::Id) -> Self {
-        SpanId {
-            id: value.into_u64(),
-        }
-    }
-}
 
 impl From<tracing_core::Level> for metadata::Level {
     fn from(level: tracing_core::Level) -> Self {
@@ -59,7 +50,7 @@ impl<'a> From<&'a tracing_core::Metadata<'a>> for Metadata {
 impl From<&'static tracing_core::Metadata<'static>> for NewMetadata {
     fn from(value: &'static tracing_core::Metadata<'static>) -> Self {
         NewMetadata {
-            id: Some(value.into()),
+            id: Some(value as *const _ as u64),
             metadata: Some(value.into()),
         }
     }
@@ -86,22 +77,6 @@ impl<'a> From<&'a std::panic::Location<'a>> for Location {
         }
     }
 }
-
-impl From<&'static tracing_core::Metadata<'static>> for MetaId {
-    fn from(meta: &'static tracing_core::Metadata) -> Self {
-        MetaId {
-            id: meta as *const _ as u64,
-        }
-    }
-}
-
-impl Hash for MetaId {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        state.write(&self.id.to_le_bytes())
-    }
-}
-
-impl Eq for MetaId {}
 
 impl From<i64> for field::Value {
     fn from(val: i64) -> Self {
