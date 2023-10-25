@@ -5,3 +5,5 @@ target
 
 # jetbrains project files
 .idea
+
+node_modules

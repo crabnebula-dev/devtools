@@ -1,15 +1,22 @@
 use crate::{Command, Watcher};
-use futures::{FutureExt, TryStreamExt};
+use async_stream::try_stream;
+use bytes::BytesMut;
+use futures::{FutureExt, Stream, TryStreamExt};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use tauri::{AppHandle, Runtime};
+use tauri::utils::config::AppUrl;
+use tauri::{AppHandle, Runtime, WindowUrl};
+use tauri_devtools_wire_format as wire;
 use tauri_devtools_wire_format::instrument;
 use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
 use tauri_devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
 use tauri_devtools_wire_format::tauri::tauri_server::TauriServer;
 use tauri_devtools_wire_format::tauri::{
-    tauri_server, Asset, AssetRequest, Config, ConfigRequest, Metrics, MetricsRequest, SchemaRequest, Schema
+    tauri_server, Config, ConfigRequest, Metrics, MetricsRequest, SchemaRequest, Schema,
 };
+use tauri_devtools_wire_format::workspace::workspace_server::WorkspaceServer;
+use tauri_devtools_wire_format::workspace::{Chunk, Entry, EntryRequest, FileType};
 use tokio::sync::{mpsc, RwLock};
 use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
@@ -19,7 +26,6 @@ use tonic_health::pb::health_server::HealthServer;
 use tonic_health::server::HealthReporter;
 use tonic_health::ServingStatus;
 use tower_http::cors::{AllowHeaders, CorsLayer};
-use schemars::schema::RootSchema;
 
 /// Default maximum capacity for the channel of events sent from a
 /// [`Server`] to each subscribed client.
@@ -38,6 +44,7 @@ pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOC
 pub(crate) struct Server<R: Runtime> {
     instrument: InstrumentService,
     tauri: TauriService<R>,
+    workspace: WorkspaceService<R>,
     health: HealthServer<tonic_health::server::HealthService>,
 }
 
@@ -51,13 +58,16 @@ struct TauriService<R: Runtime> {
     metrics: Arc<RwLock<Metrics>>,
 }
 
+struct WorkspaceService<R: Runtime> {
+    app_handle: AppHandle<R>,
+}
 impl<R: Runtime> Server<R> {
     pub fn new(
         cmd_tx: mpsc::Sender<Command>,
         app_handle: AppHandle<R>,
         metrics: Arc<RwLock<Metrics>>,
     ) -> Self {
-        let (mut health_reporter, health_server) = tonic_health::server::health_reporter();
+        let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
 
         health_reporter
             .set_serving::<InstrumentServer<InstrumentService>>()
@@ -74,12 +84,11 @@ impl<R: Runtime> Server<R> {
                 health_reporter,
             },
             tauri: TauriService {
-                app_handle,
+                app_handle: app_handle.clone(),
                 metrics,
-            },
-            // Transmute the health_server type here bc the return type of `health_reporter` is
-            // weird. But we know it is the same type.
-            health: unsafe { std::mem::transmute(health_server) },
+            }, // the TauriServer doesn't need a health_reporter. It can never fail.
+            workspace: WorkspaceService { app_handle },
+            health: unsafe { std::mem::transmute(health_service) },
         }
     }
 
@@ -98,6 +107,7 @@ impl<R: Runtime> Server<R> {
             .layer(cors)
             .add_service(tonic_web::enable(InstrumentServer::new(self.instrument)))
             .add_service(tonic_web::enable(TauriServer::new(self.tauri)))
+            .add_service(tonic_web::enable(WorkspaceServer::new(self.workspace)))
             .add_service(tonic_web::enable(self.health))
             .serve(addr)
             .await?;
@@ -167,19 +177,6 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
         Ok(Response::new(schema))
     }
 
-    async fn get_asset(&self, req: Request<AssetRequest>) -> Result<Response<Asset>, Status> {
-        let asset: Asset = self
-            .app_handle
-            .asset_resolver()
-            .get(req.into_inner().path)
-            .ok_or(Status::invalid_argument(
-                "Could not find asset with specified path",
-            ))?
-            .into();
-
-        Ok(Response::new(asset))
-    }
-
     async fn get_metrics(
         &self,
         _req: Request<MetricsRequest>,
@@ -187,6 +184,101 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
         let metrics = self.metrics.read().await;
 
         Ok(Response::new(metrics.clone()))
+    }
+}
+
+#[tonic::async_trait]
+impl<R: Runtime> wire::workspace::workspace_server::Workspace for WorkspaceService<R> {
+    type ListEntriesStream = BoxStream<Entry>;
+
+    async fn list_entries(
+        &self,
+        req: Request<EntryRequest>,
+    ) -> Result<Response<Self::ListEntriesStream>, Status> {
+        tracing::debug!("list entries");
+        let mut cwd = std::env::current_dir()?;
+        cwd.push(req.into_inner().path);
+
+        let stream = self.list_entries_inner(cwd).or_else(|err| async move {
+            tracing::error!("List Entries failed with error {err:?}");
+
+            // TODO set the health service status to NotServing here
+
+            Err(Status::internal("boom"))
+        });
+
+        Ok(Response::new(Box::pin(stream)))
+    }
+
+    type GetEntryBytesStream = BoxStream<Chunk>;
+
+    async fn get_entry_bytes(
+        &self,
+        req: Request<EntryRequest>,
+    ) -> Result<Response<Self::GetEntryBytesStream>, Status> {
+        let mut path = std::env::current_dir()?;
+        path.push(req.into_inner().path);
+
+        let stream = try_stream! {
+            use tokio::io::AsyncReadExt;
+            let mut file = tokio::fs::File::open(path).await?;
+            let mut buf = BytesMut::with_capacity(512);
+
+            while let Ok(n) = file.read_buf(&mut buf).await {
+                if n == 0 {
+                    break;
+                }
+                yield Chunk { bytes: buf.split().freeze() };
+            }
+        };
+
+        Ok(Response::new(Box::pin(stream)))
+    }
+}
+
+impl<R: Runtime> WorkspaceService<R> {
+    fn list_entries_inner(&self, root: PathBuf) -> impl Stream<Item = crate::Result<Entry>> {
+        let app_handle = self.app_handle.clone();
+
+        try_stream! {
+            let mut entries = tokio::fs::read_dir(&root).await?;
+
+            while let Some(entry) = entries.next_entry().await? {
+                let raw_file_type = entry.file_type().await?;
+                let mut file_type = FileType::empty();
+                if raw_file_type.is_dir() {
+                    file_type |= FileType::DIR;
+                }
+                if raw_file_type.is_file() {
+                    file_type |= FileType::FILE;
+                }
+                if raw_file_type.is_symlink() {
+                    file_type |= FileType::SYMLINK;
+                }
+
+                let path = entry.path();
+                let path = path.strip_prefix(&root)?;
+
+                if is_asset(path, &app_handle.config().build.dist_dir) {
+                    file_type |= FileType::ASSET;
+                }
+
+                yield Entry {
+                    path: path.to_string_lossy().to_string(),
+                    size: entry.metadata().await?.len(),
+                    file_type: file_type.bits(),
+                };
+            }
+        }
+    }
+}
+
+fn is_asset(path: &Path, app_url: &AppUrl) -> bool {
+    match app_url {
+        AppUrl::Url(WindowUrl::External(_)) => false,
+        AppUrl::Url(WindowUrl::App(p)) => p == path,
+        AppUrl::Files(files) => files.iter().any(|p| p == path),
+        _ => unreachable!(),
     }
 }
 

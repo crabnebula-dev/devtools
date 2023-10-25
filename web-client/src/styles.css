@@ -7,7 +7,7 @@ html {
 }
 
 :root {
-  --toolbar-height: 2.15rem;
+  --toolbar-height: 28px;
 }
 
 @layer base {
@@ -72,4 +72,83 @@ html {
   src: url("/fonts/EuclidCircularB-Semibold.woff") format("woff");
   font-weight: 600;
   font-display: swap;
+}
+
+.bg-surface {
+  position: relative;
+  filter: blur(32px);
+  height: 170%;
+  width: 160%;
+  max-height: 90vh;
+  top: -250px;
+  opacity: 0.3;
+  scale: 1.1;
+}
+
+/** fonts */
+
+@font-face {
+  font-family: "Euclid Circular B";
+  font-style: normal;
+  src: url("/fonts/EuclidCircularB-Regular.woff") format("woff");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Euclid Circular B";
+  font-style: normal;
+  src: url("/fonts/EuclidCircularB-Bold.woff") format("woff");
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Euclid Circular B";
+  font-style: normal;
+  src: url("/fonts/EuclidCircularB-Light.woff") format("woff");
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Euclid Circular B";
+  font-style: normal;
+  src: url("/fonts/EuclidCircularB-Medium.woff") format("woff");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Euclid Circular B";
+  font-style: normal;
+  src: url("/fonts/EuclidCircularB-Semibold.woff") format("woff");
+  font-weight: 600;
+  font-display: swap;
+}
+
+.shiki {
+  padding: 1.5em;
+  max-width: 85vw;
+  text-wrap: normal;
+  min-height: 100%;
+  height: max-content;
+  width: max-content;
+  background: transparent !important; /* override shiki's background */
+}
+
+code {
+  counter-reset: step;
+  counter-increment: step 0;
+}
+
+code .line::before {
+  content: counter(step);
+  counter-increment: step;
+  width: 1rem;
+  margin-right: 1.5rem;
+  display: inline-block;
+  text-align: right;
+  color: rgba(115, 138, 148, 0.4);
+  user-select: none;
 }

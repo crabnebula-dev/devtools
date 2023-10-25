@@ -9,18 +9,12 @@ service Tauri {
 
   rpc GetSchema(SchemaRequest) returns (Schema) {}
 
-  rpc GetAsset(AssetRequest) returns (Asset) {}
-
   rpc GetMetrics(MetricsRequest) returns (Metrics) {}
 }
 
 message ConfigRequest {}
 
 message SchemaRequest {}
-
-message AssetRequest {
-  string path = 1;
-}
 
 message MetricsRequest {}
 
@@ -32,15 +26,6 @@ message Config {
 message Schema {
   /// The raw JSON string of the configuration schema
   string raw = 1;
-}
-
-message Asset {
-  /// The asset bytes.
-  bytes bytes = 1;
-  /// The asset's mime type.
-  string mime_type = 2;
-  /// The `Content-Security-Policy` header value.
-  optional string csp_header = 3;
 }
 
 message Metrics {
