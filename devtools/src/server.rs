@@ -29,6 +29,11 @@ const DEFAULT_CLIENT_BUFFER_CAPACITY: usize = 1024 * 4;
 
 pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 3000);
 
+/// The gRPC server that exposes the instrumenting API
+/// This is made up of 3 services:
+/// - [`InstrumentService`]: Instrumentation related functionality, such as logs, spans etc.
+/// - [`TauriService`]: Tauri-specific functionality, such as config, assets, metrics etc.
+/// - [`HealthServer`]: gRPC health service for monitoring the health of the instrumenting API itself.
 pub(crate) struct Server<R: Runtime> {
     instrument: InstrumentService,
     tauri: TauriService<R>,

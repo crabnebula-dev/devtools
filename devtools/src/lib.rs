@@ -1,3 +1,29 @@
+//! Instrumentation code that will make your Tauri app compatible with CrabNebula Devtools.
+//!
+//! CrabNebula Devtools offers seamless and intuitive debugging, and monitoring of Tauri applications.
+//!
+//! The instrumentation is compatible with both the [`log`](https://docs.rs/log/latest/log/)
+//! and [`tracing`](https://docs.rs/tracing/latest/tracing/) ecosystems out-of-the-box.
+//!
+//! # Example
+//!
+//! ```ignore
+//! fn main() {
+//!     let devtools = tauri_devtools::init();
+//!
+//!     tauri::Builder::default()
+//!         .plugin(devtools)
+//!         .setup(|| {
+//!             // It is compatible with the `tracing` ecosystem!
+//!             tracing::info!("Hello World!");
+//!
+//!             Ok(())
+//!         })
+//!         .run(tauri::generate_context!())
+//!         .expect("error while running tauri application");
+//! }
+//! ```
+
 mod aggregator;
 mod error;
 mod layer;
@@ -25,13 +51,62 @@ pub(crate) type Result<T> = std::result::Result<T, Error>;
 /// URL of the web-based devtool
 /// The server host is added automatically eg: `127.0.0.1:56609`.
 const DEVTOOL_URL: &str = "http://localhost:5173/dash/";
-
 // const DEVTOOL_URL: &str = "https://crabnebula.dev/debug/#";
 
+/// Initializes the global tracing subscriber.
+///
+/// This should be called as early in the execution of the app as possible.
+/// Any events that occur before initialization will be ignored.
+///
+/// This function returns a [`tauri::plugin::TauriPlugin`] that needs to be added to the
+/// Tauri app in order to properly instrument it.
+///
+/// # Example
+///
+/// ```ignore
+/// fn main() {
+///     let devtools = tauri_devtools::init();
+///
+///     tauri::Builder::default()
+///         .plugin(devtools)
+///         .run(tauri::generate_context!())
+///         .expect("error while running tauri application");
+/// }
+/// ```
+///
+/// # Panics
+///
+/// This function will panic if it is called more than once, or if another library has already initialized a global tracing subscriber.
+#[must_use = "This function returns a TauriPlugin that needs to be added to the Tauri app in order to properly instrument it."]
 pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
     try_init().unwrap()
 }
 
+/// Initializes the global tracing subscriber.
+///
+/// This should be called as early in the execution of the app as possible.
+/// Any events that occur before initialization will be ignored.
+///
+/// This function returns a [`tauri::plugin::TauriPlugin`] that needs to be added to the
+/// Tauri app in order to properly instrument it.
+///
+/// # Example
+///
+/// ```ignore
+/// fn main() {
+///     let devtools = tauri_devtools::init();
+///
+///     tauri::Builder::default()
+///         .plugin(devtools)
+///         .run(tauri::generate_context!("../examples/tauri/tauri.conf.json"))
+///         .expect("error while running tauri application");
+/// }
+/// ```
+///
+/// # Errors
+///
+/// This function will fail if it is called more than once, or if another library has already initialized a global tracing subscriber.
+#[must_use = "This function returns a TauriPlugin that needs to be added to the Tauri app in order to properly instrument it."]
 pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
     // set up data channels & shared data
     let shared = Arc::new(Shared::default());
@@ -69,6 +144,7 @@ pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
     Ok(plugin)
 }
 
+/// Shared data between the [`Layer`] and the [`Aggregator`]
 #[derive(Debug, Default)]
 pub(crate) struct Shared {
     dropped_log_events: AtomicUsize,

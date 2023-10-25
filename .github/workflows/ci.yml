@@ -1,6 +1,105 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+    paths:
+      - ".github/workflows/ci.yml"
+      - "**/*.rs"
+      - "**/*.proto"
+      - "**/Cargo.toml"
+  pull_request:
+    paths:
+      - ".github/workflows/ci.yml"
+      - "**/*.rs"
+      - "**/Cargo.toml"
+      - "**/*.proto"
+
+permissions:
+  contents: read
+
+env:
+  RUSTFLAGS: -Dwarnings
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
+  pre_ci:
+    uses: dtolnay/.github/.github/workflows/pre_ci.yml@master
+
+  test:
+    name: Rust ${{matrix.rust}}
+    needs: pre_ci
+    if: needs.pre_ci.outputs.continue
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: [nightly, stable]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v3
+      - name: install native dependecies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev protobuf-compiler
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{matrix.rust}}
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo test --workspace
+        env:
+          RUSTFLAGS: ${{matrix.rustflags}} ${{env.RUSTFLAGS}}
+
+  msrv:
+    name: Rust MSRV
+    needs: pre_ci
+    if: needs.pre_ci.outputs.continue
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v3
+      - name: install native dependecies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev protobuf-compiler
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.70.0 # MSRV
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo check --workspace --tests
+
+#  clippy:
+#    name: Clippy
+#    runs-on: ubuntu-latest
+#    if: github.event_name != 'pull_request'
+#    timeout-minutes: 45
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: install native dependecies
+#        run: |
+#          sudo apt-get update
+#          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libsoup-3.0-dev libjavascriptcoregtk-4.1-dev
+#      - uses: dtolnay/rust-toolchain@stable
+#        with:
+#          components: clippy
+#      - uses: Swatinem/rust-cache@v2
+#      - run: cargo clippy --workspace --features unstable -- -Dclippy::all -Dclippy::pedantic
+
+#  rustfmt:
+#    name: Rustfmt
+#    runs-on: ubuntu-latest
+#    if: github.event_name != 'pull_request'
+#    timeout-minutes: 45
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: Install rustfmt with nightly toolchain
+#        uses: dtolnay/rust-toolchain@nightly
+#        with:
+#          components: rustfmt
+#      - run: cargo fmt --all -- --check
+
   check-licenses:
     runs-on: ubuntu-latest
     steps:
@@ -21,3 +120,13 @@ jobs:
         run:  license-checker --summary --onlyAllow="MIT;Apache-2.0;BSD-2-Clause" --excludePackages="spa-client@0.0.0"
       - name: Check Rust Licenses
         uses: EmbarkStudios/cargo-deny-action@v1
+
+#  outdated:
+#     name: Outdated
+#     runs-on: ubuntu-latest
+#     if: github.event_name != 'pull_request'
+#     timeout-minutes: 45
+#     steps:
+#       - uses: actions/checkout@v3
+#       - uses: dtolnay/install@cargo-outdated
+#       - run: cargo outdated --workspace --exit-code 1
