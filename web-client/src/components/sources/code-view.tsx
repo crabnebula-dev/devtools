@@ -10,7 +10,7 @@ const TEXT_DECODER = new TextDecoder();
 
 function createHighlighter() {
     return createResource(async () => {
-        const responseWasm = await fetch("/shiki/dist/onig.wasm");
+        const responseWasm = await fetch("/shiki/onig.wasm");
         setWasm(responseWasm);
         setCDN("/shiki/");
 
