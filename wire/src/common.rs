@@ -77,39 +77,3 @@ impl<'a> From<&'a std::panic::Location<'a>> for Location {
         }
     }
 }
-
-impl From<i64> for field::Value {
-    fn from(val: i64) -> Self {
-        field::Value::I64Val(val)
-    }
-}
-
-impl From<u64> for field::Value {
-    fn from(val: u64) -> Self {
-        field::Value::U64Val(val)
-    }
-}
-
-impl From<bool> for field::Value {
-    fn from(val: bool) -> Self {
-        field::Value::BoolVal(val)
-    }
-}
-
-impl From<&str> for field::Value {
-    fn from(val: &str) -> Self {
-        field::Value::StrVal(val.into())
-    }
-}
-
-impl From<&str> for field::Name {
-    fn from(val: &str) -> Self {
-        field::Name::StrName(val.into())
-    }
-}
-
-impl From<&dyn std::fmt::Debug> for field::Value {
-    fn from(val: &dyn std::fmt::Debug) -> Self {
-        field::Value::DebugVal(format!("{:?}", val))
-    }
-}

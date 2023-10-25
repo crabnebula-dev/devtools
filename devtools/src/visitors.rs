@@ -47,8 +47,8 @@ impl Visit for FieldVisitor {
     fn record_debug(&mut self, field: &tracing_core::Field, value: &dyn Debug) {
         self.fields.push(Field {
             metadata_id: self.meta_id,
-            name: Some(field.name().into()),
-            value: Some(value.into()),
+            name: field.name().into(),
+            value: format!("{value:?}"),
         })
     }
 }

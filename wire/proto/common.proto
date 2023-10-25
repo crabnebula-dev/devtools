@@ -80,26 +80,9 @@ message Field {
   //
   // This is either represented as a string, or as an index into a `Metadata`'s
   // array of field name strings.
-  oneof name {
-    // The string representation of the name.
-    string str_name = 1;
-    // An index position into the `Metadata.field_names` of the metadata
-    // for the task span that the field came from.
-    uint64 name_idx = 2;
-  }
+  string name = 1;
   // The value of the key-value pair.
-  oneof value {
-    // A value serialized to a string using `fmt::Debug`.
-    string debug_val = 3;
-    // A string value.
-    string str_val = 4;
-    // An unsigned integer value.
-    uint64 u64_val = 5;
-    // A signed integer value.
-    sint64 i64_val = 6;
-    // A boolean value.
-    bool bool_val = 7;
-  }
+  string value = 2;
   // Metadata for the task span that the field came from.
-  uint64 metadata_id = 8;
+  uint64 metadata_id = 3;
 }

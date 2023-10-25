@@ -159,54 +159,16 @@ pub struct NewMetadata {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Field {
+    /// The key of the key-value pair.
+    ///
+    /// This is either represented as a string, or as an index into a `Metadata`'s
+    /// array of field name strings.
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// The value of the key-value pair.
+    #[prost(string, tag = "2")]
+    pub value: ::prost::alloc::string::String,
     /// Metadata for the task span that the field came from.
-    #[prost(uint64, tag = "8")]
+    #[prost(uint64, tag = "3")]
     pub metadata_id: u64,
-    /// The key of the key-value pair.
-    ///
-    /// This is either represented as a string, or as an index into a `Metadata`'s
-    /// array of field name strings.
-    #[prost(oneof = "field::Name", tags = "1, 2")]
-    pub name: ::core::option::Option<field::Name>,
-    /// The value of the key-value pair.
-    #[prost(oneof = "field::Value", tags = "3, 4, 5, 6, 7")]
-    pub value: ::core::option::Option<field::Value>,
-}
-/// Nested message and enum types in `Field`.
-pub mod field {
-    /// The key of the key-value pair.
-    ///
-    /// This is either represented as a string, or as an index into a `Metadata`'s
-    /// array of field name strings.
-    #[allow(clippy::derive_partial_eq_without_eq)]
-    #[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Name {
-        /// The string representation of the name.
-        #[prost(string, tag = "1")]
-        StrName(::prost::alloc::string::String),
-        /// An index position into the `Metadata.field_names` of the metadata
-        /// for the task span that the field came from.
-        #[prost(uint64, tag = "2")]
-        NameIdx(u64),
-    }
-    /// The value of the key-value pair.
-    #[allow(clippy::derive_partial_eq_without_eq)]
-    #[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Value {
-        /// A value serialized to a string using `fmt::Debug`.
-        #[prost(string, tag = "3")]
-        DebugVal(::prost::alloc::string::String),
-        /// A string value.
-        #[prost(string, tag = "4")]
-        StrVal(::prost::alloc::string::String),
-        /// An unsigned integer value.
-        #[prost(uint64, tag = "5")]
-        U64Val(u64),
-        /// A signed integer value.
-        #[prost(sint64, tag = "6")]
-        I64Val(i64),
-        /// A boolean value.
-        #[prost(bool, tag = "7")]
-        BoolVal(bool),
-    }
 }
