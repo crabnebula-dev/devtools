@@ -1,5 +1,5 @@
 [package]
-name = "get_icon"
+name = "file-icons"
 authors = ["CrabNebula <hello@crabnebula.dev>"]
 edition = "2021"
 version = "0.1.0"

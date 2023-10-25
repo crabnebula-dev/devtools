@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["wire", "devtools", "examples/*", "get_icon"]
-#exclude = ["icons"]
+members = ["wire", "devtools", "examples/*", "file-icons"]
 
 [workspace.package]
 authors = ["CrabNebula <hello@crabnebula.dev>"]
