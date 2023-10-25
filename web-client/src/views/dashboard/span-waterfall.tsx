@@ -1,7 +1,7 @@
-import { For, createSignal } from "solid-js";
+import { For, createSignal, createEffect } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
-import { useMonitor } from "~/lib/connection/monitor";
+import { Span, useMonitor } from "~/lib/connection/monitor";
 
 export default function SpanWaterfall() {
   const { monitorData } = useMonitor();
@@ -9,10 +9,14 @@ export default function SpanWaterfall() {
 
   const serializer = (_: unknown, v: unknown) => (typeof v === "bigint" ? v.toString() : v);
 
-  const filteredSpans = monitorData.spans.filter(s => {
-    const metadata = monitorData.metadata.get(s.metadataId);
-    return metadata && ['tauri', 'wry'].some(t => metadata.target.startsWith(t));
-  })
+  const [filteredSpans, setFilteredSpans] = createSignal<Span[]>([]);
+  createEffect(() => {
+    const spans = monitorData.spans.filter(s => {
+      const metadata = monitorData.metadata.get(s.metadataId);
+      return metadata && ['tauri', 'wry'].some(t => metadata.target.startsWith(t));
+    });
+    setFilteredSpans(spans);
+  });
 
   return (
     <>
@@ -28,7 +32,7 @@ export default function SpanWaterfall() {
         dataStream={monitorData.spans[0]}
         shouldAutoScroll={shouldAutoScroll}
       >
-        <For each={filteredSpans}>
+        <For each={filteredSpans()}>
           {(span) => {
             const metadata = monitorData.metadata.get(span.metadataId);
             return (
