@@ -12,6 +12,6 @@ export function ImageView(props: { path: string, size: number, type: string }) {
     const url = () => URL.createObjectURL(new Blob([bytes()!], { type: props.type }));
 
     return <Suspense fallback={<span>Loading...</span>}>
-        <img class={"w-full h-full"} src={url()}/>
+        <img class={"max-w-full max-h-full"} style={'margin: auto;'} src={url()}/>
     </Suspense>
 }

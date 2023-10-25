@@ -78,6 +78,7 @@ export function guessContentType(path: string): string | undefined {
         svg: "image/svg+xml",
         avif: "image/avif",
         webp: "image/webp",
+        ico: 'image/x-icon',
 
         mp4: "video/mp4",
         webm: "video/webm"
