@@ -1,17 +1,26 @@
 import { createContext, useContext } from "solid-js";
 import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
 import { LogEvent } from "~/lib/proto/logs";
-import { SpanEvent } from "~/lib/proto/spans";
-import { Metadata } from "~/lib/proto/common";
+import { Field, Metadata } from "~/lib/proto/common";
 import { Metrics } from "~/lib/proto/tauri";
 import { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
 import { timestampToDate } from "~/lib/formatters";
+
+export type Span = {
+  id: bigint;
+  metadataId: bigint;
+  fields: Field[];
+  children: Span[];
+  createdAt?: Timestamp;
+  enteredAt?: Timestamp;
+  exitedAt?: Timestamp;
+};
 
 export type MonitorData = {
   health: HealthCheckResponse_ServingStatus;
   metadata: Map<bigint, Metadata>;
   logs: LogEvent[];
-  spans: SpanEvent[];
+  spans: Span[];
 
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;
   perf: Metrics;
