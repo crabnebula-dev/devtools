@@ -8,7 +8,7 @@ use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
 use tauri_devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
 use tauri_devtools_wire_format::tauri::tauri_server::TauriServer;
 use tauri_devtools_wire_format::tauri::{
-    tauri_server, Asset, AssetRequest, Config, ConfigRequest, Metrics, MetricsRequest,
+    tauri_server, Asset, AssetRequest, Config, ConfigRequest, Metrics, MetricsRequest, SchemaRequest, Schema
 };
 use tokio::sync::{mpsc, RwLock};
 use tonic::codegen::http::Method;
@@ -19,6 +19,7 @@ use tonic_health::pb::health_server::HealthServer;
 use tonic_health::server::HealthReporter;
 use tonic_health::ServingStatus;
 use tower_http::cors::{AllowHeaders, CorsLayer};
+use schemars::schema::RootSchema;
 
 /// Default maximum capacity for the channel of events sent from a
 /// [`Server`] to each subscribed client.
@@ -159,6 +160,11 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
         let config: Config = (&*self.app_handle.config()).into();
 
         Ok(Response::new(config))
+    }
+
+    async fn get_schema(&self, _req: Request<SchemaRequest>) -> Result<Response<Schema>, Status>{
+        let schema: Schema = (&schemars::schema_for!(tauri_utils::config::Config)).into();
+        Ok(Response::new(schema))
     }
 
     async fn get_asset(&self, req: Request<AssetRequest>) -> Result<Response<Asset>, Status> {

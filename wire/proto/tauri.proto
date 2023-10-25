@@ -7,12 +7,16 @@ import "google/protobuf/timestamp.proto";
 service Tauri {
   rpc GetConfig(ConfigRequest) returns (Config) {}
 
+  rpc GetSchema(SchemaRequest) returns (Schema) {}
+
   rpc GetAsset(AssetRequest) returns (Asset) {}
 
   rpc GetMetrics(MetricsRequest) returns (Metrics) {}
 }
 
 message ConfigRequest {}
+
+message SchemaRequest {}
 
 message AssetRequest {
   string path = 1;
@@ -22,6 +26,11 @@ message MetricsRequest {}
 
 message Config {
   /// The raw JSON string of the configuration
+  string raw = 1;
+}
+
+message Schema {
+  /// The raw JSON string of the configuration schema
   string raw = 1;
 }
 

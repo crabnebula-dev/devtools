@@ -16,6 +16,17 @@ export function getTauriConfig(client: TauriClient) {
   });
 }
 
+export function getSchema(client: TauriClient) {
+  return createResource(client, async () => {
+    const buffer = await client.getSchema({});
+    try {
+      return JSON.parse(buffer.response.raw);
+    } catch (e) {
+      throw new Error("failed parsing config Schema");
+    }
+  });
+}
+
 export function getTauriMetrics(client: TauriClient) {
   return createResource(client, async () => {
     try {

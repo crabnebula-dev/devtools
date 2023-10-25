@@ -9,6 +9,7 @@ import { InstrumentRequest } from "~/lib/proto/instrument";
 import {
   getHealthStatus,
   getTauriConfig,
+  getSchema,
   getTauriMetrics,
 } from "~/lib/connection/getters";
 import {
@@ -27,6 +28,7 @@ export default function Layout() {
   const [monitorData, setMonitorData] = createStore(initialMonitorData);
   const [tauriMetrics] = getTauriMetrics(client.tauri);
   const [tauriConfig] = getTauriConfig(client.tauri);
+  const [schema] = getSchema(client.tauri);
 
   const healthStream = client.health.watch(
     HealthCheckRequest.create({ service: "" })
@@ -51,6 +53,10 @@ export default function Layout() {
 
   createEffect(() => {
     setMonitorData("tauriConfig", tauriConfig());
+  });
+
+  createEffect(() => {
+    setMonitorData("schema", schema());
   });
 
   createEffect(() => {

@@ -11,6 +11,10 @@ repository.workspace = true
 
 [dependencies]
 tauri-devtools-wire-format = { path = "../wire" }
+schemars = { version = "0.8", features = ["url", "preserve_order"] }
+tauri-utils = { features = [
+  "schema",
+]}
 tracing.workspace = true
 tracing-core.workspace = true
 tracing-subscriber.workspace = true
