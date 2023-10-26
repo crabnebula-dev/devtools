@@ -1,0 +1,18 @@
+{
+  "name": "file-icons",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Solid CSR Template",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "author": "CrabNebula <hello@crabnebula.dev>",
+  "type": "module",
+  "main": "dist/file_icons.js",
+  "types": "dist/file_icons.d.ts",
+  "files": ["dist", "icons"],
+  "scripts": {
+    "build": "wasm-pack build . --release --out-dir=dist -- -Z build-std=core,std,alloc,panic_abort -Z build-std-features=panic_immediate_abort"
+  },
+  "devDependencies": {
+    "wasm-pack": "^0.12.1"
+  }
+}

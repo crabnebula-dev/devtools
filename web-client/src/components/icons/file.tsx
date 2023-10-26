@@ -1,4 +1,4 @@
-import {get_icon} from "../../../../file-icons/pkg";
+import {get_icon} from "file-icons";
 
 export default function File(props: { path: string}) {
     const icon = get_icon(props.path);
