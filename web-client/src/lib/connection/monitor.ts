@@ -15,6 +15,7 @@ export type MonitorData = {
 
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;
   schema?: Record<string, object>;
+  schemaMap?: Map<string, { description: string }>;
   perf: Metrics;
   perfStartDate: Date | null;
   perfReadyDate: Date | null;
@@ -29,6 +30,7 @@ export const initialMonitorData: MonitorData = {
 
   tauriConfig: undefined,
   schema: undefined,
+  schemaMap: undefined,
   perf: {
     initializedAt: undefined,
     readyAt: undefined,

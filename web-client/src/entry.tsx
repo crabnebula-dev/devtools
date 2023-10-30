@@ -35,7 +35,7 @@ const ROUTES: RouteDefinition[] = [
       },
       {
         path: "/tauri",
-        component: lazy(() => import("./views/dashboard/tauri-config.tsx")),
+        component: lazy(() => import("./views/dashboard/tauri.tsx")),
       },
       {
         path: "/assets/*path",
