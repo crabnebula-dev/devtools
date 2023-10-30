@@ -1,6 +1,6 @@
 mod generated {
     #![allow(warnings)]
-    include!("./generated/rs.devtools.workspace.rs");
+    include!("./generated/rs.devtools.sources.rs");
 }
 
 use bitflags::bitflags;

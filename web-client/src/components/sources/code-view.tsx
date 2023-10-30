@@ -21,7 +21,7 @@ function createHighlighter() {
 export default function CodeView(props: { path: string, size: number, lang: string }) {
     const {client} = useRouteData<Connection>();
     const [bytes] = createResource(
-        () => [client.workspace, props.path, props.size] as const,
+        () => [client.sources, props.path, props.size] as const,
         ([client, path, size]) => getEntryBytes(client, path, size));
 
     const text = () => TEXT_DECODER.decode(bytes());

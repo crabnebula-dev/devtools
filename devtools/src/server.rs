@@ -11,12 +11,12 @@ use tauri_devtools_wire_format as wire;
 use tauri_devtools_wire_format::instrument;
 use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
 use tauri_devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
+use tauri_devtools_wire_format::sources::sources_server::SourcesServer;
+use tauri_devtools_wire_format::sources::{Chunk, Entry, EntryRequest, FileType};
 use tauri_devtools_wire_format::tauri::tauri_server::TauriServer;
 use tauri_devtools_wire_format::tauri::{
     tauri_server, Config, ConfigRequest, Metrics, MetricsRequest,
 };
-use tauri_devtools_wire_format::workspace::workspace_server::WorkspaceServer;
-use tauri_devtools_wire_format::workspace::{Chunk, Entry, EntryRequest, FileType};
 use tokio::sync::{mpsc, RwLock};
 use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
@@ -107,7 +107,7 @@ impl<R: Runtime> Server<R> {
             .layer(cors)
             .add_service(tonic_web::enable(InstrumentServer::new(self.instrument)))
             .add_service(tonic_web::enable(TauriServer::new(self.tauri)))
-            .add_service(tonic_web::enable(WorkspaceServer::new(self.workspace)))
+            .add_service(tonic_web::enable(SourcesServer::new(self.workspace)))
             .add_service(tonic_web::enable(self.health))
             .serve(addr)
             .await?;
@@ -183,7 +183,7 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
 }
 
 #[tonic::async_trait]
-impl<R: Runtime> wire::workspace::workspace_server::Workspace for WorkspaceService<R> {
+impl<R: Runtime> wire::sources::sources_server::Sources for WorkspaceService<R> {
     type ListEntriesStream = BoxStream<Entry>;
 
     async fn list_entries(

@@ -1,8 +1,8 @@
-import {WorkspaceClient} from "~/lib/proto/workspace.client.ts";
+import {SourcesClient} from "~/lib/proto/sources.client.ts";
 import {createResource} from "solid-js";
-import {Entry} from "~/lib/proto/workspace.ts";
+import {Entry} from "~/lib/proto/sources.ts";
 
-export function awaitEntries(client: WorkspaceClient, path: string) {
+export function awaitEntries(client: SourcesClient, path: string) {
     return createResource(client, async (client) => {
         const entries = []
         try {
@@ -19,7 +19,7 @@ export function awaitEntries(client: WorkspaceClient, path: string) {
     })
 }
 
-export async function getEntryBytes(client: WorkspaceClient, path: string, size: number) {
+export async function getEntryBytes(client: SourcesClient, path: string, size: number) {
     const call = client.getEntryBytes({ path });
 
     // we pre-allocate a uint8array with the correct size to avoid reallocation

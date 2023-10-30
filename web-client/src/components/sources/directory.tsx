@@ -1,5 +1,5 @@
 import {createSignal, For, JSX, Suspense} from "solid-js";
-import {Entry} from "~/lib/proto/workspace.ts";
+import {Entry} from "~/lib/proto/sources.ts";
 import {A, useRouteData} from "@solidjs/router";
 import {Connection} from "~/lib/connection/transport.ts";
 import {Collapsible} from "@kobalte/core";
@@ -15,7 +15,7 @@ interface DirectoryProps extends JSX.HTMLAttributes<HTMLDivElement> {
 
 export default function Directory(props: DirectoryProps) {
     const { client } = useRouteData<Connection>();
-    const [entries] = awaitEntries(client.workspace, props.entry.path);
+    const [entries] = awaitEntries(client.sources, props.entry.path);
     const sortedEntries = () => entries()?.sort(sortByPath);
 
     return <Suspense fallback={<span class={"pl-2"}>Loading...</span>}>

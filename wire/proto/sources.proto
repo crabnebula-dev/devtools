@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package rs.devtools.workspace;
+package rs.devtools.sources;
 
-service Workspace {
+service Sources {
   // Returns the entries of a directory in a streaming way. The idea is that this helps time-to-first-paint especially when the
   // folder is large. The client can start rendering the entries as they come in.
   //

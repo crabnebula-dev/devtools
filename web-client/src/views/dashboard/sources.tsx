@@ -1,5 +1,5 @@
 import {Match, Show, Suspense, Switch} from "solid-js";
-import {Entry} from "~/lib/proto/workspace.ts";
+import {Entry} from "~/lib/proto/sources.ts";
 import {useParams, useSearchParams} from "@solidjs/router";
 import {FileType, guessContentType} from "~/lib/sources/util.ts";
 import Directory from "~/components/sources/directory.tsx";
@@ -7,7 +7,7 @@ import {UnknownView} from "~/components/sources/unknown-view.tsx";
 import CodeView from "~/components/sources/code-view.tsx";
 import {ImageView} from "~/components/sources/image-view.tsx";
 
-export default function AssetViewer() {
+export default function Sources() {
     const root: Entry = { path: "", size: 0n, fileType: FileType.DIR };
     const params = useParams();
 

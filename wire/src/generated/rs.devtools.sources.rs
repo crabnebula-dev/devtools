@@ -33,15 +33,15 @@ pub struct Chunk {
     pub bytes: ::prost::bytes::Bytes,
 }
 /// Generated client implementations.
-pub mod workspace_client {
+pub mod sources_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
-    pub struct WorkspaceClient<T> {
+    pub struct SourcesClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-    impl WorkspaceClient<tonic::transport::Channel> {
+    impl SourcesClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
@@ -52,7 +52,7 @@ pub mod workspace_client {
             Ok(Self::new(conn))
         }
     }
-    impl<T> WorkspaceClient<T>
+    impl<T> SourcesClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
         T::Error: Into<StdError>,
@@ -70,7 +70,7 @@ pub mod workspace_client {
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
-        ) -> WorkspaceClient<InterceptedService<T, F>>
+        ) -> SourcesClient<InterceptedService<T, F>>
         where
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
@@ -84,7 +84,7 @@ pub mod workspace_client {
                 http::Request<tonic::body::BoxBody>,
             >>::Error: Into<StdError> + Send + Sync,
         {
-            WorkspaceClient::new(InterceptedService::new(inner, interceptor))
+            SourcesClient::new(InterceptedService::new(inner, interceptor))
         }
         /// Compress requests with the given encoding.
         ///
@@ -142,13 +142,11 @@ pub mod workspace_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/rs.devtools.workspace.Workspace/ListEntries",
+                "/rs.devtools.sources.Sources/ListEntries",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(
-                    GrpcMethod::new("rs.devtools.workspace.Workspace", "ListEntries"),
-                );
+                .insert(GrpcMethod::new("rs.devtools.sources.Sources", "ListEntries"));
             self.inner.server_streaming(req, path, codec).await
         }
         /// Returns the bytes of a file in a streaming way. The idea is that this helps time-to-first-paint especially when the file is large.
@@ -171,24 +169,22 @@ pub mod workspace_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/rs.devtools.workspace.Workspace/GetEntryBytes",
+                "/rs.devtools.sources.Sources/GetEntryBytes",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(
-                    GrpcMethod::new("rs.devtools.workspace.Workspace", "GetEntryBytes"),
-                );
+                .insert(GrpcMethod::new("rs.devtools.sources.Sources", "GetEntryBytes"));
             self.inner.server_streaming(req, path, codec).await
         }
     }
 }
 /// Generated server implementations.
-pub mod workspace_server {
+pub mod sources_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    /// Generated trait containing gRPC methods that should be implemented for use with WorkspaceServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with SourcesServer.
     #[async_trait]
-    pub trait Workspace: Send + Sync + 'static {
+    pub trait Sources: Send + Sync + 'static {
         /// Server streaming response type for the ListEntries method.
         type ListEntriesStream: tonic::codegen::tokio_stream::Stream<
                 Item = std::result::Result<super::Entry, tonic::Status>,
@@ -226,7 +222,7 @@ pub mod workspace_server {
         >;
     }
     #[derive(Debug)]
-    pub struct WorkspaceServer<T: Workspace> {
+    pub struct SourcesServer<T: Sources> {
         inner: _Inner<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
@@ -234,7 +230,7 @@ pub mod workspace_server {
         max_encoding_message_size: Option<usize>,
     }
     struct _Inner<T>(Arc<T>);
-    impl<T: Workspace> WorkspaceServer<T> {
+    impl<T: Sources> SourcesServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -286,9 +282,9 @@ pub mod workspace_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for WorkspaceServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for SourcesServer<T>
     where
-        T: Workspace,
+        T: Sources,
         B: Body + Send + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -304,11 +300,11 @@ pub mod workspace_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/rs.devtools.workspace.Workspace/ListEntries" => {
+                "/rs.devtools.sources.Sources/ListEntries" => {
                     #[allow(non_camel_case_types)]
-                    struct ListEntriesSvc<T: Workspace>(pub Arc<T>);
+                    struct ListEntriesSvc<T: Sources>(pub Arc<T>);
                     impl<
-                        T: Workspace,
+                        T: Sources,
                     > tonic::server::ServerStreamingService<super::EntryRequest>
                     for ListEntriesSvc<T> {
                         type Response = super::Entry;
@@ -323,7 +319,7 @@ pub mod workspace_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Workspace>::list_entries(&inner, request).await
+                                <T as Sources>::list_entries(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -351,11 +347,11 @@ pub mod workspace_server {
                     };
                     Box::pin(fut)
                 }
-                "/rs.devtools.workspace.Workspace/GetEntryBytes" => {
+                "/rs.devtools.sources.Sources/GetEntryBytes" => {
                     #[allow(non_camel_case_types)]
-                    struct GetEntryBytesSvc<T: Workspace>(pub Arc<T>);
+                    struct GetEntryBytesSvc<T: Sources>(pub Arc<T>);
                     impl<
-                        T: Workspace,
+                        T: Sources,
                     > tonic::server::ServerStreamingService<super::EntryRequest>
                     for GetEntryBytesSvc<T> {
                         type Response = super::Chunk;
@@ -370,7 +366,7 @@ pub mod workspace_server {
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Workspace>::get_entry_bytes(&inner, request).await
+                                <T as Sources>::get_entry_bytes(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -413,7 +409,7 @@ pub mod workspace_server {
             }
         }
     }
-    impl<T: Workspace> Clone for WorkspaceServer<T> {
+    impl<T: Sources> Clone for SourcesServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -425,7 +421,7 @@ pub mod workspace_server {
             }
         }
     }
-    impl<T: Workspace> Clone for _Inner<T> {
+    impl<T: Sources> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(Arc::clone(&self.0))
         }
@@ -435,7 +431,7 @@ pub mod workspace_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: Workspace> tonic::server::NamedService for WorkspaceServer<T> {
-        const NAME: &'static str = "rs.devtools.workspace.Workspace";
+    impl<T: Sources> tonic::server::NamedService for SourcesServer<T> {
+        const NAME: &'static str = "rs.devtools.sources.Sources";
     }
 }
