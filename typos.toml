@@ -1,2 +1,9 @@
 [files]
-extend-exclude = ["web-client/public/shiki/**"]
+extend-exclude = ["web-client/public/shiki/**", "web-client/public/icons/**"]
+
+[default.extend-identifiers]
+wee_alloc = "wee_alloc"
+WeeAlloc = "WeeAlloc"
+Paket = "Paket"
+paket = "paket"
+wll = "wll"
