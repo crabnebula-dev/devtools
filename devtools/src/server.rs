@@ -11,12 +11,12 @@ use tauri_devtools_wire_format as wire;
 use tauri_devtools_wire_format::instrument;
 use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
 use tauri_devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
+use tauri_devtools_wire_format::sources::sources_server::SourcesServer;
+use tauri_devtools_wire_format::sources::{Chunk, Entry, EntryRequest, FileType};
 use tauri_devtools_wire_format::tauri::tauri_server::TauriServer;
 use tauri_devtools_wire_format::tauri::{
     tauri_server, Config, ConfigRequest, Metrics, MetricsRequest,
 };
-use tauri_devtools_wire_format::workspace::workspace_server::WorkspaceServer;
-use tauri_devtools_wire_format::workspace::{Chunk, Entry, EntryRequest, FileType};
 use tokio::sync::{mpsc, RwLock};
 use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
@@ -44,7 +44,7 @@ pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOC
 pub(crate) struct Server<R: Runtime> {
     instrument: InstrumentService,
     tauri: TauriService<R>,
-    workspace: WorkspaceService<R>,
+    sources: SourcesService<R>,
     health: HealthServer<tonic_health::server::HealthService>,
 }
 
@@ -58,7 +58,7 @@ struct TauriService<R: Runtime> {
     metrics: Arc<RwLock<Metrics>>,
 }
 
-struct WorkspaceService<R: Runtime> {
+struct SourcesService<R: Runtime> {
     app_handle: AppHandle<R>,
 }
 impl<R: Runtime> Server<R> {
@@ -89,7 +89,7 @@ impl<R: Runtime> Server<R> {
             },
             // Transmute the health_server type here bc the return type of `health_reporter` is
             // weird. But we know it is the same type.
-            workspace: WorkspaceService { app_handle },
+            sources: SourcesService { app_handle },
             health: unsafe { std::mem::transmute(health_server) },
         }
     }
@@ -109,7 +109,7 @@ impl<R: Runtime> Server<R> {
             .layer(cors)
             .add_service(tonic_web::enable(InstrumentServer::new(self.instrument)))
             .add_service(tonic_web::enable(TauriServer::new(self.tauri)))
-            .add_service(tonic_web::enable(WorkspaceServer::new(self.workspace)))
+            .add_service(tonic_web::enable(SourcesServer::new(self.sources)))
             .add_service(tonic_web::enable(self.health))
             .serve(addr)
             .await?;
@@ -184,7 +184,7 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
 }
 
 #[tonic::async_trait]
-impl<R: Runtime> wire::workspace::workspace_server::Workspace for WorkspaceService<R> {
+impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
     type ListEntriesStream = BoxStream<Entry>;
     async fn list_entries(
         &self,
@@ -232,7 +232,7 @@ impl<R: Runtime> wire::workspace::workspace_server::Workspace for WorkspaceServi
     }
 }
 
-impl<R: Runtime> WorkspaceService<R> {
+impl<R: Runtime> SourcesService<R> {
     fn list_entries_inner(&self, root: PathBuf) -> impl Stream<Item = crate::Result<Entry>> {
         let app_handle = self.app_handle.clone();
 
