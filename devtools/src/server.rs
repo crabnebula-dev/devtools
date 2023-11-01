@@ -3,20 +3,19 @@ use async_stream::try_stream;
 use bytes::BytesMut;
 use futures::{FutureExt, Stream, TryStreamExt};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
-use tauri::utils::config::AppUrl;
-use tauri::{AppHandle, Runtime, WindowUrl};
+use tauri::{AppHandle, Runtime};
 use tauri_devtools_wire_format as wire;
 use tauri_devtools_wire_format::instrument;
 use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
 use tauri_devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
+use tauri_devtools_wire_format::sources::sources_server::SourcesServer;
+use tauri_devtools_wire_format::sources::{Chunk, Entry, EntryRequest, FileType};
 use tauri_devtools_wire_format::tauri::tauri_server::TauriServer;
 use tauri_devtools_wire_format::tauri::{
     tauri_server, Config, ConfigRequest, Metrics, MetricsRequest, SchemaRequest, Schema,
 };
-use tauri_devtools_wire_format::workspace::workspace_server::WorkspaceServer;
-use tauri_devtools_wire_format::workspace::{Chunk, Entry, EntryRequest, FileType};
 use tokio::sync::{mpsc, RwLock};
 use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
@@ -44,7 +43,7 @@ pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOC
 pub(crate) struct Server<R: Runtime> {
     instrument: InstrumentService,
     tauri: TauriService<R>,
-    workspace: WorkspaceService<R>,
+    sources: SourcesService<R>,
     health: HealthServer<tonic_health::server::HealthService>,
 }
 
@@ -58,7 +57,7 @@ struct TauriService<R: Runtime> {
     metrics: Arc<RwLock<Metrics>>,
 }
 
-struct WorkspaceService<R: Runtime> {
+struct SourcesService<R: Runtime> {
     app_handle: AppHandle<R>,
 }
 impl<R: Runtime> Server<R> {
@@ -87,7 +86,7 @@ impl<R: Runtime> Server<R> {
                 app_handle: app_handle.clone(),
                 metrics,
             }, // the TauriServer doesn't need a health_reporter. It can never fail.
-            workspace: WorkspaceService { app_handle },
+            sources: SourcesService { app_handle },
             health: unsafe { std::mem::transmute(health_service) },
         }
     }
@@ -107,7 +106,7 @@ impl<R: Runtime> Server<R> {
             .layer(cors)
             .add_service(tonic_web::enable(InstrumentServer::new(self.instrument)))
             .add_service(tonic_web::enable(TauriServer::new(self.tauri)))
-            .add_service(tonic_web::enable(WorkspaceServer::new(self.workspace)))
+            .add_service(tonic_web::enable(SourcesServer::new(self.sources)))
             .add_service(tonic_web::enable(self.health))
             .serve(addr)
             .await?;
@@ -188,7 +187,7 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
 }
 
 #[tonic::async_trait]
-impl<R: Runtime> wire::workspace::workspace_server::Workspace for WorkspaceService<R> {
+impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
     type ListEntriesStream = BoxStream<Entry>;
 
     async fn list_entries(
@@ -236,7 +235,7 @@ impl<R: Runtime> wire::workspace::workspace_server::Workspace for WorkspaceServi
     }
 }
 
-impl<R: Runtime> WorkspaceService<R> {
+impl<R: Runtime> SourcesService<R> {
     fn list_entries_inner(&self, root: PathBuf) -> impl Stream<Item = crate::Result<Entry>> {
         let app_handle = self.app_handle.clone();
 
@@ -259,26 +258,20 @@ impl<R: Runtime> WorkspaceService<R> {
                 let path = entry.path();
                 let path = path.strip_prefix(&root)?;
 
-                if is_asset(path, &app_handle.config().build.dist_dir) {
+                let path = path.to_string_lossy().to_string();
+
+                let is_asset = app_handle.asset_resolver().iter().any(|(p, _)| p.ends_with(&path));
+                if is_asset {
                     file_type |= FileType::ASSET;
                 }
 
                 yield Entry {
-                    path: path.to_string_lossy().to_string(),
+                    path,
                     size: entry.metadata().await?.len(),
                     file_type: file_type.bits(),
                 };
             }
         }
-    }
-}
-
-fn is_asset(path: &Path, app_url: &AppUrl) -> bool {
-    match app_url {
-        AppUrl::Url(WindowUrl::External(_)) => false,
-        AppUrl::Url(WindowUrl::App(p)) => p == path,
-        AppUrl::Files(files) => files.iter().any(|p| p == path),
-        _ => unreachable!(),
     }
 }
 

@@ -16,7 +16,7 @@ export default function Connect() {
           <Logo size={32} /> <h1>CrabNebula</h1>
         </div>
         <h2 class="text-6xl font-sans font-bold mx-auto">Developer Tools</h2>
-        <p class="text-xl">
+          <p class="text-xl">
           To get started, instrument your application and run it with the{" "}
           <code>--inspect</code> flag. Then, paste the appropriate connection
           values below.

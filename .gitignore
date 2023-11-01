@@ -7,3 +7,5 @@ target
 .idea
 
 node_modules
+dist
+
