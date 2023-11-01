@@ -3,10 +3,9 @@ use async_stream::try_stream;
 use bytes::BytesMut;
 use futures::{FutureExt, Stream, TryStreamExt};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
-use tauri::utils::config::AppUrl;
-use tauri::{AppHandle, Runtime, WindowUrl};
+use tauri::{AppHandle, Runtime};
 use tauri_devtools_wire_format as wire;
 use tauri_devtools_wire_format::instrument;
 use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
@@ -254,26 +253,20 @@ impl<R: Runtime> SourcesService<R> {
                 let path = entry.path();
                 let path = path.strip_prefix(&root)?;
 
-                if is_asset(path, &app_handle.config().build.dist_dir) {
+                let path = path.to_string_lossy().to_string();
+
+                let is_asset = app_handle.asset_resolver().iter().any(|(p, _)| p.ends_with(&path));
+                if is_asset {
                     file_type |= FileType::ASSET;
                 }
 
                 yield Entry {
-                    path: path.to_string_lossy().to_string(),
+                    path,
                     size: entry.metadata().await?.len(),
                     file_type: file_type.bits(),
                 };
             }
         }
-    }
-}
-
-fn is_asset(path: &Path, app_url: &AppUrl) -> bool {
-    match app_url {
-        AppUrl::Url(WindowUrl::External(_)) => false,
-        AppUrl::Url(WindowUrl::App(p)) => p == path,
-        AppUrl::Files(files) => files.iter().any(|p| p == path),
-        _ => unreachable!(),
     }
 }
 
