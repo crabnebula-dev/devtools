@@ -54,7 +54,7 @@ export default function SpanWaterfall() {
                       }}
                     </For>
                   </div>}
-                  {span.children.length && <div>
+                  {span.children.length > 0 ? <div>
                     CHILDREN
                     <For each={span.children}>
                       {(s) => {
@@ -66,7 +66,7 @@ export default function SpanWaterfall() {
                         )
                       }}
                     </For>
-                  </div>}
+                  </div> : null}
 
                 </pre>
               </li>
