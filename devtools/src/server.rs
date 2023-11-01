@@ -44,7 +44,7 @@ pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOC
 pub(crate) struct Server<R: Runtime> {
     instrument: InstrumentService,
     tauri: TauriService<R>,
-    workspace: WorkspaceService<R>,
+    sources: SourcesService<R>,
     health: HealthServer<tonic_health::server::HealthService>,
 }
 
@@ -58,7 +58,7 @@ struct TauriService<R: Runtime> {
     metrics: Arc<RwLock<Metrics>>,
 }
 
-struct WorkspaceService<R: Runtime> {
+struct SourcesService<R: Runtime> {
     app_handle: AppHandle<R>,
 }
 impl<R: Runtime> Server<R> {
@@ -87,7 +87,7 @@ impl<R: Runtime> Server<R> {
                 app_handle: app_handle.clone(),
                 metrics,
             }, // the TauriServer doesn't need a health_reporter. It can never fail.
-            workspace: WorkspaceService { app_handle },
+            sources: SourcesService { app_handle },
             health: unsafe { std::mem::transmute(health_service) },
         }
     }
@@ -107,7 +107,7 @@ impl<R: Runtime> Server<R> {
             .layer(cors)
             .add_service(tonic_web::enable(InstrumentServer::new(self.instrument)))
             .add_service(tonic_web::enable(TauriServer::new(self.tauri)))
-            .add_service(tonic_web::enable(SourcesServer::new(self.workspace)))
+            .add_service(tonic_web::enable(SourcesServer::new(self.sources)))
             .add_service(tonic_web::enable(self.health))
             .serve(addr)
             .await?;
@@ -183,7 +183,7 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
 }
 
 #[tonic::async_trait]
-impl<R: Runtime> wire::sources::sources_server::Sources for WorkspaceService<R> {
+impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
     type ListEntriesStream = BoxStream<Entry>;
 
     async fn list_entries(
@@ -231,7 +231,7 @@ impl<R: Runtime> wire::sources::sources_server::Sources for WorkspaceService<R> 
     }
 }
 
-impl<R: Runtime> WorkspaceService<R> {
+impl<R: Runtime> SourcesService<R> {
     fn list_entries_inner(&self, root: PathBuf) -> impl Stream<Item = crate::Result<Entry>> {
         let app_handle = self.app_handle.clone();
 
