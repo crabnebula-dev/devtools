@@ -1,10 +1,10 @@
-import {get_icon} from "file-icons";
+import {getIconForFile} from "file-icons";
 
 export default function File(props: { path: string}) {
-    const icon = get_icon(props.path);
+    const icon = getIconForFile(props.path);
 
     if (icon) {
-        return <img src={`/icons/${icon}.svg`} />
+        return <img src={icon} />
     } else {
         return <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path

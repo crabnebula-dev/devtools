@@ -45,6 +45,7 @@
     "@protobuf-ts/runtime-rpc": "^2.9.1",
     "@solidjs/router": "^0.8.3",
     "csp_evaluator": "^1.1.1",
+    "file-icons": "github:crabnebula-dev/file-icons#jonas/no-wasm-bindgen",
     "shiki": "^0.14.5",
     "solid-js": "^1.7.6",
     "tailwind-scrollbar": "^3.0.5"
