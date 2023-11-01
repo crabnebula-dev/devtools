@@ -48,7 +48,52 @@ impl Visit for FieldVisitor {
         self.fields.push(Field {
             metadata_id: self.meta_id,
             name: field.name().into(),
-            value: format!("{value:?}"),
+            value: Some(value.into()),
+        })
+    }
+
+    /// Visit a double-precision floating point value.
+    fn record_f64(&mut self, field: &tracing_core::Field, value: f64) {
+        self.fields.push(Field {
+            metadata_id: self.meta_id,
+            name: field.name().into(),
+            value: Some(value.into()),
+        })
+    }
+
+    /// Visit a signed 64-bit integer value.
+    fn record_i64(&mut self, field: &tracing_core::Field, value: i64) {
+        self.fields.push(Field {
+            metadata_id: self.meta_id,
+            name: field.name().into(),
+            value: Some(value.into()),
+        })
+    }
+
+    /// Visit an unsigned 64-bit integer value.
+    fn record_u64(&mut self, field: &tracing_core::Field, value: u64) {
+        self.fields.push(Field {
+            metadata_id: self.meta_id,
+            name: field.name().into(),
+            value: Some(value.into()),
+        })
+    }
+
+    /// Visit a boolean value.
+    fn record_bool(&mut self, field: &tracing_core::Field, value: bool) {
+        self.fields.push(Field {
+            metadata_id: self.meta_id,
+            name: field.name().into(),
+            value: Some(value.into()),
+        })
+    }
+
+    /// Visit a string value.
+    fn record_str(&mut self, field: &tracing_core::Field, value: &str) {
+        self.fields.push(Field {
+            metadata_id: self.meta_id,
+            name: field.name().into(),
+            value: Some(value.into()),
         })
     }
 }

@@ -82,7 +82,20 @@ message Field {
   // array of field name strings.
   string name = 1;
   // The value of the key-value pair.
-  string value = 2;
+  oneof value {
+    // A value serialized to a string using `fmt::Debug`.
+    string debug_val = 2;
+    // A string value.
+    string str_val = 3;
+    // An unsigned integer value.
+    uint64 u64_val = 4;
+    // A signed integer value.
+    sint64 i64_val = 5;
+    // A boolean value.
+    bool bool_val = 6;
+    // A double (f64) value.
+    double double_val = 7;
+  }
   // Metadata for the task span that the field came from.
-  uint64 metadata_id = 3;
+  uint64 metadata_id = 8;
 }

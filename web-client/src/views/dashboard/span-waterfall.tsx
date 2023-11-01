@@ -2,6 +2,7 @@ import { For, createSignal, createEffect } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { Span, useMonitor } from "~/lib/connection/monitor";
+import { Field } from "~/lib/proto/common";
 
 export default function SpanWaterfall() {
   const { monitorData } = useMonitor();
@@ -17,6 +18,25 @@ export default function SpanWaterfall() {
     });
     setFilteredSpans(spans);
   });
+
+  function fieldValue(field: Field): string {
+    switch (field.value.oneofKind) {
+      case "debugVal":
+        return field.value.debugVal
+      case "strVal":
+        return field.value.strVal
+      case "u64Val":
+        return field.value.u64Val.toString()
+      case "i64Val":
+        return field.value.i64Val.toString()
+      case "boolVal":
+        return field.value.boolVal.toString()
+      case "doubleVal":
+        return field.value.doubleVal.toString()
+      default:
+        return ""
+    }
+  }
 
   return (
     <>
@@ -44,16 +64,16 @@ export default function SpanWaterfall() {
                   <p>Created: {JSON.stringify(span.createdAt, serializer)}</p>
                   <p>Entered: {JSON.stringify(span.enteredAt, serializer)}</p>
                   <p>Exited: {JSON.stringify(span.exitedAt, serializer)}</p>
-                  {span.fields.length && <div>
+                  {span.fields.length > 0 ? <div>
                     FIELDS
                     <For each={span.fields}>
                       {(field) => {
                         return (
-                          <p>{field.name} = {field.value}</p>
+                          <p>{field.name} = {fieldValue(field)}</p>
                         )
                       }}
                     </For>
-                  </div>}
+                  </div> : null}
                   {span.children.length > 0 ? <div>
                     CHILDREN
                     <For each={span.children}>

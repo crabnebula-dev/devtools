@@ -165,10 +165,36 @@ pub struct Field {
     /// array of field name strings.
     #[prost(string, tag = "1")]
     pub name: ::prost::alloc::string::String,
-    /// The value of the key-value pair.
-    #[prost(string, tag = "2")]
-    pub value: ::prost::alloc::string::String,
     /// Metadata for the task span that the field came from.
-    #[prost(uint64, tag = "3")]
+    #[prost(uint64, tag = "8")]
     pub metadata_id: u64,
+    /// The value of the key-value pair.
+    #[prost(oneof = "field::Value", tags = "2, 3, 4, 5, 6, 7")]
+    pub value: ::core::option::Option<field::Value>,
+}
+/// Nested message and enum types in `Field`.
+pub mod field {
+    /// The value of the key-value pair.
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Value {
+        /// A value serialized to a string using `fmt::Debug`.
+        #[prost(string, tag = "2")]
+        DebugVal(::prost::alloc::string::String),
+        /// A string value.
+        #[prost(string, tag = "3")]
+        StrVal(::prost::alloc::string::String),
+        /// An unsigned integer value.
+        #[prost(uint64, tag = "4")]
+        U64Val(u64),
+        /// A signed integer value.
+        #[prost(sint64, tag = "5")]
+        I64Val(i64),
+        /// A boolean value.
+        #[prost(bool, tag = "6")]
+        BoolVal(bool),
+        /// A double (f64) value.
+        #[prost(double, tag = "7")]
+        DoubleVal(f64),
+    }
 }
