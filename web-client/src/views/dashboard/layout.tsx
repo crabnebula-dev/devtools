@@ -134,7 +134,6 @@ export default function Layout() {
               createdAt: event.event.newSpan.at,
             };
 
-            console.log('new', monitorData.metadata.get(span.metadataId)?.name)
 
             const parent = event.event.newSpan.parent;
             if (parent) {
