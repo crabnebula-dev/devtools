@@ -28,7 +28,7 @@ export default function Directory(props: DirectoryProps) {
                     if (isDirectory(child)) {
                         return <Collapsible.Root as={'li'} onOpenChange={(isOpen) => setIsOpen(isOpen)}>
                             <Collapsible.Trigger class={'w-full'}>
-                                <TreeEntry caret={() => isOpen() ? <CaretDown /> : <CaretRight/>} icon={<FolderIcon />} isAssetOrResource={isAssetOrResource(child)}>
+                                <TreeEntry caret={() => isOpen() ? <CaretDown /> : <CaretRight/>} icon={<FolderIcon path={child.path}/>} isAssetOrResource={isAssetOrResource(child)}>
                                     {child.path}
                                 </TreeEntry>
                             </Collapsible.Trigger>
