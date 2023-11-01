@@ -1,7 +1,7 @@
 import { type RouteDefinition, useNavigate, useRoutes } from "@solidjs/router";
 import { lazy } from "solid-js";
 import { connect } from "./lib/connection/transport.ts";
-import {init} from "file-icons";
+import { setCDN } from "file-icons";
 
 const ROUTES: RouteDefinition[] = [
   {
@@ -49,11 +49,7 @@ const ROUTES: RouteDefinition[] = [
 export default function Entry() {
   const Routes = useRoutes(ROUTES);
 
-  init({
-    icons: '/icons',
-    wasm: fetch('/file_icons.wasm')
-  }).then(() => console.log('initialized file icons'))
-
+  setCDN('/icons');
 
   return <Routes />;
 }

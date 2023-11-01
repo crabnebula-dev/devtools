@@ -28,7 +28,7 @@ dependencies:
     version: 1.1.1
   file-icons:
     specifier: github:crabnebula-dev/file-icons#jonas/no-wasm-bindgen
-    version: github.com/crabnebula-dev/file-icons/530637a4737d60b5c8234e10fccc7e3cd54ef8f8
+    version: github.com/crabnebula-dev/file-icons/d4a8fad6c693ac79b0cf4bc36629ccfcbc87eff7
   shiki:
     specifier: ^0.14.5
     version: 0.14.5
@@ -4204,8 +4204,8 @@ packages:
     engines: {node: '>=12.20'}
     dev: true
 
-  github.com/crabnebula-dev/file-icons/530637a4737d60b5c8234e10fccc7e3cd54ef8f8:
-    resolution: {tarball: https://codeload.github.com/crabnebula-dev/file-icons/tar.gz/530637a4737d60b5c8234e10fccc7e3cd54ef8f8}
+  github.com/crabnebula-dev/file-icons/d4a8fad6c693ac79b0cf4bc36629ccfcbc87eff7:
+    resolution: {tarball: https://codeload.github.com/crabnebula-dev/file-icons/tar.gz/d4a8fad6c693ac79b0cf4bc36629ccfcbc87eff7}
     name: file-icons
     version: 0.1.0
     dev: false
