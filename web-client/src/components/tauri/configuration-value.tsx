@@ -13,7 +13,7 @@ function ConfigurationText(props: ConfigurationValueProps) {
       <div class="basis-2/5 p-1">
         <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
       </div>
-      <div class="basis-3/5 border-l-2 border-[#4B4B4B] p-1">
+      <div class="basis-3/5 border-l-2 border-[#4B4B4B] p-1 text-right">
         <p>{props.value}</p>
       </div>
     </div>

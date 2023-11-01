@@ -1,7 +1,7 @@
 import { Tooltip } from "@kobalte/core";
 import { useDescriptions } from "~/views/dashboard/tauri";
 import SolidMarkdown from "solid-markdown";
-import { Show, For, Switch, Match } from "solid-js";
+import { Show, For, Switch, Match, createEffect } from "solid-js";
 import { useHighlightKey } from "~/components/tauri/highlight-key";
 
 export function ConfigurationTooltip(props: {
@@ -9,22 +9,24 @@ export function ConfigurationTooltip(props: {
   parentKey: string;
 }) {
   const descriptions = useDescriptions();
-  const key =
+
+  const key = () =>
     props.parentKey !== "" ? props.parentKey + "." + props.key : props.key;
-  const localSchema = descriptions.has(key) ? descriptions.get(key) : undefined;
+  const localSchema = () =>
+    descriptions.has(key()) ? descriptions.get(key()) : undefined;
 
   const [highlightKey, { setHighlightKey }] = useHighlightKey();
 
   function updateHighlightKey() {
-    setHighlightKey(key);
+    setHighlightKey(key());
   }
 
   return (
     <Show
-      when={localSchema}
+      when={localSchema()}
       fallback={<span class="hover:bg-gray-900 rounded">{props.key}</span>}
     >
-      <Tooltip.Root openDelay={500}>
+      <Tooltip.Root openDelay={500} closeDelay={500}>
         <Tooltip.Trigger>
           <span
             class="hover:bg-gray-900 rounded"
@@ -41,11 +43,11 @@ export function ConfigurationTooltip(props: {
             }
           >
             <Tooltip.Arrow />
-            <div class="relative overflow-x-auto">
+            <div class="relative overflow-auto max-w-[1028px] max-h-96">
               <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
-                    <For each={Object.entries(localSchema ?? {})}>
+                    <For each={Object.entries(localSchema() ?? {})}>
                       {([key, value]) => (
                         <th scope="col" class="px-6 py-3">
                           {key}
@@ -56,9 +58,9 @@ export function ConfigurationTooltip(props: {
                 </thead>
                 <tbody>
                   <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <For each={Object.entries(localSchema ?? {})}>
+                    <For each={Object.entries(localSchema() ?? {})}>
                       {([key, value]) => (
-                        <td class="px-6 py-4 max-w-md">
+                        <td class="px-6 py-4 max-w-md align-top">
                           <ToolTipValue value={value} />
                         </td>
                       )}

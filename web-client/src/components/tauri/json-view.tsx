@@ -33,7 +33,7 @@ export default function JsonView(props: {
 }) {
   const { client } = useRouteData<Connection>();
   const [bytes] = createResource(
-    () => [client.workspace, props.path, props.size] as const,
+    () => [client.sources, props.path, props.size] as const,
     ([client, path, size]) => getEntryBytes(client, path, size)
   );
 
@@ -42,6 +42,7 @@ export default function JsonView(props: {
   const [highlighter] = createHighlighter();
 
   const [highlightKey] = useHighlightKey();
+
   createEffect(() => {
     highlightKey();
     let highlightedLine = document.querySelector(".line.highlighted");

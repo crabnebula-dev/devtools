@@ -92,7 +92,7 @@ function setChild(
         ];
     }
 
-    // The library also does not step into allof schemas so we need to do that manually
+    // The library also does not step into AllOf schemas so we need to do that manually
     if (localSchema.hasOwnProperty("allOf")) {
       for (const schema of localSchema.allOf) {
         if (schema.hasOwnProperty("$ref")) {
