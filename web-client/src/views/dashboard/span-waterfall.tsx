@@ -65,7 +65,7 @@ export default function SpanWaterfall() {
                   <p>Entered: {JSON.stringify(span.enteredAt, serializer)}</p>
                   <p>Exited: {JSON.stringify(span.exitedAt, serializer)}</p>
                   {span.fields.length > 0 ? <div>
-                    FIELDS
+                    <p>Fields</p>
                     <For each={span.fields}>
                       {(field) => {
                         return (
@@ -75,7 +75,7 @@ export default function SpanWaterfall() {
                     </For>
                   </div> : null}
                   {span.children.length > 0 ? <div>
-                    CHILDREN
+                    <p>Children</p>
                     <For each={span.children}>
                       {(s) => {
                         return (
