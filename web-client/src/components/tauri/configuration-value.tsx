@@ -9,10 +9,14 @@ type ConfigurationValueProps = {
 
 function ConfigurationText(props: ConfigurationValueProps) {
   return (
-    <p class="text-2xl py-2">
-      <ConfigurationTooltip parentKey={props.parentKey} key={props.key} /> :{" "}
-      {props.value}
-    </p>
+    <div class="flex text-xl border-1 border-[#4B4B4B] border-2 ">
+      <div class="basis-2/5 p-1">
+        <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
+      </div>
+      <div class="basis-3/5 border-l-2 border-[#4B4B4B] p-1">
+        <p>{props.value}</p>
+      </div>
+    </div>
   );
 }
 
@@ -42,59 +46,48 @@ export function ConfigurationValue(props: ConfigurationValueProps) {
         />
       </Match>
       <Match when={Array.isArray(props.value)}>
-        <div class="p-4">
-          <div class="p-2 border-l array">
-            <h2 class="text-3xl">
-              <ConfigurationTooltip
-                parentKey={props.parentKey}
-                key={props.key}
-              />
-              :{" "}
-            </h2>
-            <ul class="pl-2 flex flex-col gap-3">
-              <Show
-                when={props.value.length > 0}
-                fallback={<p class="text-2xl py-2">- Empty</p>}
-              >
-                <For each={props.value}>
-                  {(value, childKey) => (
-                    <li class="p-1">
-                      <ConfigurationValue
-                        parentKey={props.parentKey + "." + props.key}
-                        key={childKey().toString()}
-                        value={value}
-                      />
-                    </li>
-                  )}
-                </For>
-              </Show>
-            </ul>
-          </div>
-        </div>
-      </Match>
-      <Match when={typeof props.value === "object" && props.value !== null}>
-        <div class="p-4">
-          <div class="p-2 border-l group">
-            <h2 class="text-3xl">
-              <ConfigurationTooltip
-                parentKey={props.parentKey}
-                key={props.key}
-              />
-            </h2>
-            <ul class="pl-2 flex flex-col gap-3">
-              <For each={Object.entries(props.value)}>
-                {([childKey, value]) => (
+        <div class="array">
+          <h2 class="text-xl pb-2">
+            <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
+          </h2>
+          <ul class="flex flex-col">
+            <Show
+              when={props.value.length > 0}
+              fallback={<p class="text-2xl pl-4">- Empty</p>}
+            >
+              <For each={props.value}>
+                {(value, childKey) => (
                   <li>
                     <ConfigurationValue
                       parentKey={props.parentKey + "." + props.key}
-                      key={childKey}
+                      key={childKey().toString()}
                       value={value}
                     />
                   </li>
                 )}
               </For>
-            </ul>
-          </div>
+            </Show>
+          </ul>
+        </div>
+      </Match>
+      <Match when={typeof props.value === "object" && props.value !== null}>
+        <div class="p-4 pr-0 group">
+          <h2 class="text-3xl pb-2">
+            <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
+          </h2>
+          <ul class="flex flex-col">
+            <For each={Object.entries(props.value)}>
+              {([childKey, value]) => (
+                <li>
+                  <ConfigurationValue
+                    parentKey={props.parentKey + "." + props.key}
+                    key={childKey}
+                    value={value}
+                  />
+                </li>
+              )}
+            </For>
+          </ul>
         </div>
       </Match>
     </Switch>

@@ -2,6 +2,7 @@ import { Tooltip } from "@kobalte/core";
 import { useDescriptions } from "~/views/dashboard/tauri";
 import SolidMarkdown from "solid-markdown";
 import { Show, For, Switch, Match } from "solid-js";
+import { useHighlightKey } from "~/components/tauri/highlight-key";
 
 export function ConfigurationTooltip(props: {
   key: string;
@@ -11,14 +12,24 @@ export function ConfigurationTooltip(props: {
   const key =
     props.parentKey !== "" ? props.parentKey + "." + props.key : props.key;
   const localSchema = descriptions.has(key) ? descriptions.get(key) : undefined;
+
+  const [highlightKey, { setHighlightKey }] = useHighlightKey();
+
+  function updateHighlightKey() {
+    setHighlightKey(key);
+  }
+
   return (
     <Show
       when={localSchema}
-      fallback={<span class="hover:bg-gray-900 rounded p-2">{props.key}</span>}
+      fallback={<span class="hover:bg-gray-900 rounded">{props.key}</span>}
     >
       <Tooltip.Root openDelay={500}>
         <Tooltip.Trigger>
-          <span class="hover:bg-gray-900 rounded p-2">
+          <span
+            class="hover:bg-gray-900 rounded"
+            onMouseOver={updateHighlightKey}
+          >
             {props.key}
             <sup class="text-sm">❔</sup>
           </span>
@@ -26,7 +37,7 @@ export function ConfigurationTooltip(props: {
         <Tooltip.Portal>
           <Tooltip.Content
             class={
-              "bg-gray-900 text-xl font-medium text-white p-2 border-solid border border-gray-700"
+              "bg-gray-900 text-xl font-medium text-white border-solid border border-gray-700"
             }
           >
             <Tooltip.Arrow />

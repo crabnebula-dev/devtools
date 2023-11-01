@@ -1,4 +1,6 @@
 import { For } from "solid-js";
+import FileIcon from "~/components/icons/file.tsx";
+import { createEffect, createSignal } from "solid-js";
 
 export interface SidebarProps {
   nav: [string, object][];
@@ -7,26 +9,40 @@ export interface SidebarProps {
 
 export function Sidebar(props: SidebarProps) {
   const { nav, setCurrentNavElement } = props;
+  const [currentNavKey, setCurrentNavKey] = createSignal(nav[0][0]);
+
   return (
-    <aside class="w-50 border-neutral-800 border-r-2 p-2">
-      <h2 class="text-neutral-300 pt-4 text-2xl">Tauri Config</h2>
-      <nav class="flex flex-col gap-2 pl-4">
+    <>
+      <h2 class="text-neutral-300 p-4 pb-2 text-2xl">Config</h2>
+      <nav class="flex flex-col pl-8">
         <For each={nav}>
           {([key, navItem]) => (
             <a
-              class="text-neutral-400 hover:text-white"
               href={`#${key}`}
               onClick={(e) => {
                 e.preventDefault();
                 setCurrentNavElement([key, navItem]);
+                setCurrentNavKey(key);
               }}
             >
-              {key}
+              <div
+                class={
+                  currentNavKey() === key
+                    ? "border-b-2 hover:bg-[#00555A] hover:border-[#2DCC9F] p-1 bg-[#00555A] border-[#2DCC9F] text-white"
+                    : "border-b-2 hover:bg-[#00555A] hover:border-[#2DCC9F] p-1 border-neutral-800 text-neutral-400 hover:text-white"
+                }
+              >
+                <p class="text-lg">
+                  <span class="inline-block w-6 align-middle mx-2">
+                    <FileIcon path={".json"} />
+                  </span>
+                  {key}
+                </p>
+              </div>
             </a>
           )}
         </For>
       </nav>
-      <h2 class="text-neutral-300 p-2 pt-4 text-2xl">JSON Source</h2>
-    </aside>
+    </>
   );
 }
