@@ -1,4 +1,4 @@
-import { JSX, Show } from "solid-js";
+import { JSX } from "solid-js";
 import { ToggleButton } from "@kobalte/core";
 
 type FilterToggleProps = {
