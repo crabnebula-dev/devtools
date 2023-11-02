@@ -14,6 +14,9 @@ export default defineConfig({
     strictPort: true,
   },
   plugins: [
+    wasm(),
+    topLevelAwait(),
+    solidPlugin(),
     viteStaticCopy({
       targets: [
         {
@@ -22,11 +25,29 @@ export default defineConfig({
           ),
           dest: "./icons/",
         },
+        {
+          src: normalizePath(
+            path.resolve(__dirname, "node_modules/shiki/dist/onig.wasm")
+          ),
+          dest: "./shiki/",
+        },
+        {
+          src: normalizePath(
+            path.resolve(__dirname, "node_modules/shiki/languages/") + "/*"
+          ),
+          dest: "./shiki/languages/",
+        },
+        {
+          src: normalizePath(
+            path.resolve(
+              __dirname,
+              "node_modules/shiki/themes/material-theme-ocean.json"
+            )
+          ),
+          dest: "./shiki/themes/",
+        },
       ],
     }),
-    wasm(),
-    topLevelAwait(),
-    solidPlugin(),
   ],
   resolve: {
     alias: {
