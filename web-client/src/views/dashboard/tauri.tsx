@@ -3,7 +3,6 @@ import {
   createSignal,
   createContext,
   useContext,
-  createEffect,
   onMount,
 } from "solid-js";
 import { useMonitor } from "~/lib/connection/monitor";

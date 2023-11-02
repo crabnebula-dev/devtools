@@ -1,7 +1,7 @@
 import { Tooltip } from "@kobalte/core";
 import { useDescriptions } from "~/views/dashboard/tauri";
 import SolidMarkdown from "solid-markdown";
-import { Show, For, Switch, Match, createEffect } from "solid-js";
+import { Show, For, Switch, Match } from "solid-js";
 import { useHighlightKey } from "~/components/tauri/highlight-key";
 
 export function ConfigurationTooltip(props: {
