@@ -14,12 +14,12 @@ const TEXT_DECODER = new TextDecoder();
 
 function createHighlighter() {
   return createResource(async () => {
-    const responseWasm = await fetch("/shiki/dist/onig.wasm");
+    const responseWasm = await fetch("/shiki/onig.wasm");
     setWasm(responseWasm);
     setCDN("/shiki/");
 
     return getHighlighter({
-      theme: "material-ocean",
+      theme: "material-theme-ocean",
       langs: ["js", "rust", "toml", "html", "json", "md", "yaml"],
       paths: { wasm: "dist/" },
     });
