@@ -21,6 +21,7 @@ import { Logo } from "~/components/crabnebula-logo";
 import { useNavigate } from "@solidjs/router";
 import { DisconnectButton } from "~/components/disconnect-button";
 import { updatedSpans } from "~/lib/span/update-spans";
+import { updateSpanMetadata } from "~/lib/span/update-span-metadata";
 
 export default function Layout() {
   const { abortController, client } = useRouteData<Connection>();
@@ -82,24 +83,7 @@ export default function Layout() {
 
   updateStream.responses.onMessage((update) => {
     if (update.newMetadata.length > 0) {
-      setMonitorData(
-        "metadata",
-        (prev) =>
-          new Map([
-            ...(prev || []),
-            ...update.newMetadata.map((new_metadata) => {
-              /**
-               * protobuf generated types have these as optional.
-               */
-              //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              const id = new_metadata.id!;
-              //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              const metadata = new_metadata.metadata!;
-
-              return [id, metadata] as const;
-            }),
-          ])
-      );
+      setMonitorData("metadata", (prev) => updateSpanMetadata(prev, update));
     }
 
     const logsUpdate = update.logsUpdate;
