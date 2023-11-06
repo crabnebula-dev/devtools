@@ -3,6 +3,7 @@ import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { Span, useMonitor } from "~/lib/connection/monitor";
 import { Field } from "~/lib/proto/common";
+import { Toolbar } from "~/components/toolbar";
 
 export default function SpanWaterfall() {
   const { monitorData } = useMonitor();
@@ -40,14 +41,15 @@ export default function SpanWaterfall() {
 
   return (
     <>
-      <FilterToggle
-        aria-label="auto scroll"
-        defaultPressed
-        changeHandler={() => toggleAutoScroll((prev) => !prev)}
-      >
-        Autoscroll
-      </FilterToggle>
-
+      <Toolbar>
+        <FilterToggle
+          aria-label="auto scroll"
+          defaultPressed
+          changeHandler={() => toggleAutoScroll((prev) => !prev)}
+        >
+          Autoscroll
+        </FilterToggle>
+      </Toolbar>
       <AutoscrollPane
         dataStream={monitorData.spans[0]}
         shouldAutoScroll={shouldAutoScroll}
