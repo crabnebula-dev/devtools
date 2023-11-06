@@ -45,6 +45,7 @@
     "@protobuf-ts/runtime": "^2.9.1",
     "@protobuf-ts/runtime-rpc": "^2.9.1",
     "@solidjs/router": "^0.8.3",
+    "clsx": "^2.0.0",
     "csp_evaluator": "^1.1.1",
     "file-icons": "github:crabnebula-dev/file-icons#jonas/no-wasm-bindgen",
     "json-schema-library": "^9.1.2",
