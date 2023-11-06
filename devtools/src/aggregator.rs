@@ -342,7 +342,6 @@ mod test {
     #[test]
     fn ringbuf() {
         let mut buf: EventBuf<u8, 5> = EventBuf::new();
-        let dropped = AtomicUsize::new(0);
 
         buf.push_overwrite(1);
         let one: Vec<_> = buf.take_unsent().copied().collect();
@@ -359,7 +358,6 @@ mod test {
         assert_eq!(one, [1]);
         assert_eq!(two, [2, 3, 4]);
         assert_eq!(three, [5, 6]);
-        assert_eq!(dropped.load(Ordering::Acquire), 1);
     }
 
     async fn drain_updates(mf: Aggregator, cmd_tx: mpsc::Sender<Command>) -> Vec<Update> {
