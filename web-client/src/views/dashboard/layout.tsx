@@ -4,7 +4,7 @@ import { Outlet, useRouteData } from "@solidjs/router";
 import { Navigation } from "~/components/navigation";
 import { BootTime } from "~/components/boot-time";
 import { HealthStatus } from "~/components/health-status.tsx";
-import { initialMonitorData, MonitorContext, Span } from "~/lib/connection/monitor";
+import { initialMonitorData, MonitorContext } from "~/lib/connection/monitor";
 import { InstrumentRequest } from "~/lib/proto/instrument";
 import {
   getHealthStatus,
@@ -20,6 +20,7 @@ import { Connection, disconnect } from "~/lib/connection/transport";
 import { Logo } from "~/components/crabnebula-logo";
 import { useNavigate } from "@solidjs/router";
 import { DisconnectButton } from "~/components/disconnect-button";
+import { updatedSpans } from "~/lib/span/update-spans";
 
 export default function Layout() {
   const { abortController, client } = useRouteData<Connection>();
@@ -106,59 +107,11 @@ export default function Layout() {
       setMonitorData("logs", (prev) => [...prev, ...logsUpdate.logEvents]);
     }
 
-    function findSpanById(spans: Span[], id: bigint): Span | null {
-      for (const s of spans) {
-        if (s.id === id) {
-          return s;
-        }
-        const p = findSpanById(s.children, id);
-        if (p) {
-          return p;
-        }
-      }
-      return null;
-    }
-
     const spansUpdate = update.spansUpdate;
     if (spansUpdate && spansUpdate.spanEvents.length > 0) {
-      setMonitorData("spans", (prev) => {
-        const spans = [...prev];
-
-        for (const event of spansUpdate.spanEvents) {
-          if (event.event.oneofKind === "newSpan") {
-            const span = {
-              id: event.event.newSpan.id,
-              metadataId: event.event.newSpan.metadataId,
-              fields: event.event.newSpan.fields,
-              children: [],
-              createdAt: event.event.newSpan.at,
-            };
-
-
-            const parent = event.event.newSpan.parent;
-            if (parent) {
-              const parentSpan = findSpanById(spans, parent);
-              if (parentSpan) {
-                parentSpan.children.push(span);
-              }
-            } else {
-              spans.push(span);
-            }
-          } else if (event.event.oneofKind === "enterSpan") {
-            const span = findSpanById(spans, event.event.enterSpan.spanId);
-            if (span) {
-              span.enteredAt = event.event.enterSpan.at;
-            }
-          } else if (event.event.oneofKind === "exitSpan") {
-            const span = findSpanById(spans, event.event.exitSpan.spanId);
-            if (span) {
-              span.enteredAt = event.event.exitSpan.at;
-            }
-          }
-        }
-
-        return spans;
-      });
+      setMonitorData("spans", (prev) =>
+        updatedSpans(prev, spansUpdate.spanEvents)
+      );
     }
   });
 
