@@ -4,7 +4,12 @@ use std::time::Duration;
 
 #[tauri::command]
 async fn test1() -> String {
-    tracing::info!("command test1");
+    tracing::trace!("test trace event");
+    tracing::debug!("test debug event");
+    tracing::info!("test info event");
+    tracing::warn!("test warn event");
+    tracing::error!("test error event");
+
     tokio::time::sleep(Duration::from_secs(5)).await;
 
     reqwest::get("https://www.rust-lang.org")
