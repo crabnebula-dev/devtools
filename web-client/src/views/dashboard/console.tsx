@@ -3,7 +3,7 @@ import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { formatTimestamp, timestampToDate } from "~/lib/formatters";
 import { useMonitor } from "~/lib/connection/monitor";
-
+import { Toolbar } from "~/components/toolbar";
 export default function Console() {
   const { monitorData } = useMonitor();
   const [showTimestamp, toggleTimeStamp] = createSignal(true);
@@ -11,7 +11,7 @@ export default function Console() {
 
   return (
     <>
-      <div class="sticky h-toolbar top-0 bg-black bg-opacity-30 backdrop-blur flex justify-end border-b border-gray-800">
+      <Toolbar>
         <FilterToggle
           defaultPressed
           aria-label="time stamps"
@@ -26,7 +26,7 @@ export default function Console() {
         >
           <span>Autoscroll</span>
         </FilterToggle>
-      </div>
+      </Toolbar>
       <AutoscrollPane
         dataStream={monitorData.logs[0]}
         shouldAutoScroll={shouldAutoScroll}

@@ -1,6 +1,7 @@
 import { For, createSignal } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
+import { Toolbar } from "~/components/toolbar";
 import { useMonitor } from "~/lib/connection/monitor";
 
 export default function SpanWaterfall() {
@@ -9,14 +10,15 @@ export default function SpanWaterfall() {
 
   return (
     <>
-      <FilterToggle
-        aria-label="auto scroll"
-        defaultPressed
-        changeHandler={() => toggleAutoScroll((prev) => !prev)}
-      >
-        Autoscroll
-      </FilterToggle>
-
+      <Toolbar>
+        <FilterToggle
+          aria-label="auto scroll"
+          defaultPressed
+          changeHandler={() => toggleAutoScroll((prev) => !prev)}
+        >
+          Autoscroll
+        </FilterToggle>
+      </Toolbar>
       <AutoscrollPane
         dataStream={monitorData.spans[0]}
         shouldAutoScroll={shouldAutoScroll}
