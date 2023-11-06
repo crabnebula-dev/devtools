@@ -91,11 +91,7 @@ export default function Layout() {
                * protobuf generated types have these as optional.
                */
               //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                  // Metadata IDs are derived from the metadatas pointer, and must therefore be 64-bit.
-                  // The objectively correct way to model these in JS is as BigInts, but for whatever reason
-                  // BigInts can't be used as Map keys *sigh*. There won't be that many metadatas in any given
-                  // session anyway though, so we just cast to a number and hope for the best.
-              const id = Number(new_metadata.id?.id!);
+              const id = new_metadata.id?.id!;
               //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const metadata = new_metadata.metadata!;
 

@@ -49,7 +49,7 @@ export default function Console() {
             if (!at) return null;
 
             const timeDate = timestampToDate(at);
-            const level = (metaId: MetaId) => monitorData.metadata.get(Number(metaId.id))?.level;
+            const level = (metaId: MetaId) => monitorData.metadata.get(metaId.id)?.level;
 
             return (
                 <li class={`p-1 m-1 items-center rounded flex ${levelStyles(level(metadataId!))}`}>
