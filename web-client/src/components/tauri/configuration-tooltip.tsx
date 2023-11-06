@@ -15,7 +15,7 @@ export function ConfigurationTooltip(props: {
   const localSchema = () =>
     descriptions.has(key()) ? descriptions.get(key()) : undefined;
 
-  const [highlightKey, { setHighlightKey }] = useHighlightKey();
+  const [, { setHighlightKey }] = useHighlightKey();
 
   function updateHighlightKey() {
     setHighlightKey(key());

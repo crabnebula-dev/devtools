@@ -1,18 +1,7 @@
 import { createSignal, createContext, useContext } from "solid-js";
 
-const HighlightKeyContext = createContext();
-
-export function HighlightKeyProvider(props) {
-  const [highlightKey, setHighlightKey] = createSignal(props.key || ""),
-    highlightKeyer = [
-      highlightKey,
-      {
-        setHighlightKey(value: string) {
-          setHighlightKey(value);
-        },
-      },
-    ];
-
+export function HighlightKeyProvider(props: { key?: string; children: any }) {
+  const highlightKeyer = makeHighlightKeyContext(props.key);
   return (
     <HighlightKeyContext.Provider value={highlightKeyer}>
       {props.children}
@@ -20,6 +9,22 @@ export function HighlightKeyProvider(props) {
   );
 }
 
+export const makeHighlightKeyContext = (initialKey = "") => {
+  const [highlightKey, setHighlightKey] = createSignal<string>(initialKey);
+  return [
+    highlightKey,
+    {
+      setHighlightKey(value: string) {
+        setHighlightKey(value);
+      },
+    },
+  ] as const;
+};
+type HighlightKeyContextType = ReturnType<typeof makeHighlightKeyContext>;
+const HighlightKeyContext = createContext<HighlightKeyContextType>();
+
 export function useHighlightKey() {
-  return useContext(HighlightKeyContext);
+  const ctx = useContext(HighlightKeyContext);
+  if (!ctx) throw new Error("Can not build highlight key context");
+  return ctx;
 }
