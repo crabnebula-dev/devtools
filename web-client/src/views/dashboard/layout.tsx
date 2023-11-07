@@ -1,10 +1,10 @@
 import { createEffect, onCleanup } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, produce } from "solid-js/store";
 import { Outlet, useRouteData } from "@solidjs/router";
 import { Navigation } from "~/components/navigation";
 import { BootTime } from "~/components/boot-time";
 import { HealthStatus } from "~/components/health-status.tsx";
-import { initialMonitorData, MonitorContext, Span } from "~/lib/connection/monitor";
+import { initialMonitorData, MonitorContext } from "~/lib/connection/monitor";
 import { InstrumentRequest } from "~/lib/proto/instrument";
 import {
   getHealthStatus,
@@ -20,6 +20,8 @@ import { Connection, disconnect } from "~/lib/connection/transport";
 import { Logo } from "~/components/crabnebula-logo";
 import { useNavigate } from "@solidjs/router";
 import { DisconnectButton } from "~/components/disconnect-button";
+import { updatedSpans } from "~/lib/span/update-spans";
+import { updateSpanMetadata } from "~/lib/span/update-span-metadata";
 
 export default function Layout() {
   const { abortController, client } = useRouteData<Connection>();
@@ -81,24 +83,7 @@ export default function Layout() {
 
   updateStream.responses.onMessage((update) => {
     if (update.newMetadata.length > 0) {
-      setMonitorData(
-        "metadata",
-        (prev) =>
-          new Map([
-            ...(prev || []),
-            ...update.newMetadata.map((new_metadata) => {
-              /**
-               * protobuf generated types have these as optional.
-               */
-              //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              const id = new_metadata.id!;
-              //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              const metadata = new_metadata.metadata!;
-
-              return [id, metadata] as const;
-            }),
-          ])
-      );
+      setMonitorData("metadata", (prev) => updateSpanMetadata(prev, update));
     }
 
     const logsUpdate = update.logsUpdate;
@@ -106,59 +91,14 @@ export default function Layout() {
       setMonitorData("logs", (prev) => [...prev, ...logsUpdate.logEvents]);
     }
 
-    function findSpanById(spans: Span[], id: bigint): Span | null {
-      for (const s of spans) {
-        if (s.id === id) {
-          return s;
-        }
-        const p = findSpanById(s.children, id);
-        if (p) {
-          return p;
-        }
-      }
-      return null;
-    }
-
     const spansUpdate = update.spansUpdate;
     if (spansUpdate && spansUpdate.spanEvents.length > 0) {
-      setMonitorData("spans", (prev) => {
-        const spans = [...prev];
-
-        for (const event of spansUpdate.spanEvents) {
-          if (event.event.oneofKind === "newSpan") {
-            const span = {
-              id: event.event.newSpan.id,
-              metadataId: event.event.newSpan.metadataId,
-              fields: event.event.newSpan.fields,
-              children: [],
-              createdAt: event.event.newSpan.at,
-            };
-
-
-            const parent = event.event.newSpan.parent;
-            if (parent) {
-              const parentSpan = findSpanById(spans, parent);
-              if (parentSpan) {
-                parentSpan.children.push(span);
-              }
-            } else {
-              spans.push(span);
-            }
-          } else if (event.event.oneofKind === "enterSpan") {
-            const span = findSpanById(spans, event.event.enterSpan.spanId);
-            if (span) {
-              span.enteredAt = event.event.enterSpan.at;
-            }
-          } else if (event.event.oneofKind === "exitSpan") {
-            const span = findSpanById(spans, event.event.exitSpan.spanId);
-            if (span) {
-              span.enteredAt = event.event.exitSpan.at;
-            }
-          }
-        }
-
-        return spans;
-      });
+      setMonitorData(
+        "spans",
+        produce((clonedSpans) =>
+          updatedSpans(clonedSpans, spansUpdate.spanEvents)
+        )
+      );
     }
   });
 
