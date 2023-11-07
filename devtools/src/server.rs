@@ -1,17 +1,18 @@
 use crate::{Command, Watcher};
 use futures::{FutureExt, TryStreamExt};
-use tauri_devtools_wire_format::meta::metadata_server::MetadataServer;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::Arc;
 use tauri::{AppHandle, Runtime};
 use tauri_devtools_wire_format::instrument;
 use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
 use tauri_devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
+use tauri_devtools_wire_format::meta::metadata_server::MetadataServer;
+use tauri_devtools_wire_format::meta::{metadata_server, AppMetadata, AppMetadataRequest};
 use tauri_devtools_wire_format::tauri::tauri_server::TauriServer;
 use tauri_devtools_wire_format::tauri::{
-    tauri_server, Asset, AssetRequest, Config, ConfigRequest, Metrics, MetricsRequest, VersionsRequest, Versions,
+    tauri_server, Asset, AssetRequest, Config, ConfigRequest, Metrics, MetricsRequest, Versions,
+    VersionsRequest,
 };
-use tauri_devtools_wire_format::meta::{metadata_server, AppMetadataRequest, AppMetadata};
 use tokio::sync::{mpsc, RwLock};
 use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
@@ -164,8 +165,11 @@ impl instrument_server::Instrument for InstrumentService {
 
 #[tonic::async_trait]
 impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
-    async fn get_versions(&self, _req: Request<VersionsRequest>) -> Result<Response<Versions>, Status> {
-        let versions = Versions { 
+    async fn get_versions(
+        &self,
+        _req: Request<VersionsRequest>,
+    ) -> Result<Response<Versions>, Status> {
+        let versions = Versions {
             tauri: tauri::VERSION.to_string(),
             webview: tauri::webview_version().ok(),
         };
@@ -204,7 +208,10 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
 
 #[tonic::async_trait]
 impl<R: Runtime> metadata_server::Metadata for MetaService<R> {
-    async fn get_app_metadata(&self, _req: Request<AppMetadataRequest>) -> Result<Response<AppMetadata>, Status> {
+    async fn get_app_metadata(
+        &self,
+        _req: Request<AppMetadataRequest>,
+    ) -> Result<Response<AppMetadata>, Status> {
         let info = self.app_handle.package_info();
 
         let meta = AppMetadata {
@@ -214,13 +221,12 @@ impl<R: Runtime> metadata_server::Metadata for MetaService<R> {
             description: info.description.to_string(),
             os: std::env::consts::OS.to_string(),
             arch: std::env::consts::ARCH.to_string(),
-            debug_assertions: cfg!(debug_assertions)
+            debug_assertions: cfg!(debug_assertions),
         };
 
         Ok(Response::new(meta))
     }
 }
-
 
 #[cfg(test)]
 mod test {
