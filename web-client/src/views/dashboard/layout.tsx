@@ -91,7 +91,7 @@ export default function Layout() {
                * protobuf generated types have these as optional.
                */
               //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              const id = new_metadata.id!;
+              const id = new_metadata.id?.id!;
               //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               const metadata = new_metadata.metadata!;
 

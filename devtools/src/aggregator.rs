@@ -2,10 +2,9 @@ use crate::{Command, Event, Shared, Watcher};
 use futures::FutureExt;
 use ringbuf::consumer::Consumer;
 use ringbuf::traits::{Observer, RingBuffer};
-use ringbuf::LocalRb;
+use ringbuf::HeapRb;
 use std::mem;
-use std::mem::MaybeUninit;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
 use tauri_devtools_wire_format::logs::LogEvent;
@@ -14,7 +13,7 @@ use tauri_devtools_wire_format::{instrument, logs, spans, NewMetadata};
 use tokio::sync::mpsc;
 
 /// How often to send updates to all connected clients
-const BROADCAST_INTERVAL: Duration = Duration::from_millis(400); // TODO find good value for this
+const BROADCAST_INTERVAL: Duration = Duration::from_millis(200); // TODO find good value for this
 
 /// The event aggregator
 ///
@@ -38,7 +37,7 @@ pub(crate) struct Aggregator {
 
     /// Buffered log events.
     /// Up to 256 events are retained before the oldest will be dropped.
-    logs: EventBuf<LogEvent, 256>,
+    logs: EventBuf<LogEvent, 512>,
     /// Buffered span events.
     /// Up to 256 events are retained before the oldest will be dropped.
     spans: EventBuf<SpanEvent, 512>,
@@ -155,14 +154,13 @@ impl Aggregator {
                 fields,
                 maybe_parent,
             } => {
-                self.logs
-                    .push_overwrite(&self.shared.dropped_log_events, || LogEvent {
-                        at: Some(self.base_time.to_timestamp(at)),
-                        metadata_id: Some(metadata.into()),
-                        message,
-                        fields,
-                        parent: maybe_parent.map(|id| id.into()),
-                    });
+                self.logs.push_overwrite(LogEvent {
+                    at: Some(self.base_time.to_timestamp(at)),
+                    metadata_id: Some(metadata.into()),
+                    message,
+                    fields,
+                    parent: maybe_parent.map(|id| id.into()),
+                });
             }
             Event::NewSpan {
                 at,
@@ -171,42 +169,41 @@ impl Aggregator {
                 fields,
                 maybe_parent,
             } => {
-                self.spans
-                    .push_overwrite(&self.shared.dropped_span_events, || {
-                        SpanEvent::new_span(
-                            self.base_time.to_timestamp(at),
-                            id,
-                            metadata,
-                            fields,
-                            maybe_parent,
-                        )
-                    });
+                self.spans.push_overwrite(SpanEvent::new_span(
+                    self.base_time.to_timestamp(at),
+                    id,
+                    metadata,
+                    fields,
+                    maybe_parent,
+                ));
             }
             Event::EnterSpan {
                 at,
                 span_id,
                 thread_id,
             } => {
-                self.spans
-                    .push_overwrite(&self.shared.dropped_span_events, || {
-                        SpanEvent::enter_span(self.base_time.to_timestamp(at), span_id, thread_id)
-                    });
+                self.spans.push_overwrite(SpanEvent::enter_span(
+                    self.base_time.to_timestamp(at),
+                    span_id,
+                    thread_id,
+                ));
             }
             Event::ExitSpan {
                 at,
                 span_id,
                 thread_id,
             } => {
-                self.spans
-                    .push_overwrite(&self.shared.dropped_span_events, || {
-                        SpanEvent::exit_span(self.base_time.to_timestamp(at), span_id, thread_id)
-                    });
+                self.spans.push_overwrite(SpanEvent::exit_span(
+                    self.base_time.to_timestamp(at),
+                    span_id,
+                    thread_id,
+                ));
             }
             Event::CloseSpan { at, span_id } => {
-                self.spans
-                    .push_overwrite(&self.shared.dropped_span_events, || {
-                        SpanEvent::close_span(self.base_time.to_timestamp(at), span_id)
-                    });
+                self.spans.push_overwrite(SpanEvent::close_span(
+                    self.base_time.to_timestamp(at),
+                    span_id,
+                ));
             }
         }
     }
@@ -301,23 +298,22 @@ impl TimeAnchor {
 /// It also keeps a counter of how many events in the buffer were sent to clients.
 /// [`EventBuf::take_unsent`] will return all events that were not sent yet and reset the counter.
 struct EventBuf<T, const CAP: usize> {
-    inner: LocalRb<[MaybeUninit<T>; CAP]>,
+    inner: HeapRb<T>,
     sent: usize,
 }
 
 impl<T, const CAP: usize> EventBuf<T, CAP> {
     pub fn new() -> Self {
         Self {
-            inner: LocalRb::default(),
+            inner: HeapRb::new(CAP),
             sent: 0,
         }
     }
 
     /// Push an event into the buffer, overwriting the oldest event if the buffer is full.
     // TODO does it really make sense to track the dropped events here?
-    pub fn push_overwrite(&mut self, dropped: &AtomicUsize, mk_item: impl FnOnce() -> T) {
-        if self.inner.push_overwrite(mk_item()).is_some() {
-            dropped.fetch_add(1, Ordering::Release);
+    pub fn push_overwrite(&mut self, item: T) {
+        if self.inner.push_overwrite(item).is_some() {
             self.sent -= 1;
         }
     }
@@ -346,24 +342,22 @@ mod test {
     #[test]
     fn ringbuf() {
         let mut buf: EventBuf<u8, 5> = EventBuf::new();
-        let dropped = AtomicUsize::new(0);
 
-        buf.push_overwrite(&dropped, || 1);
+        buf.push_overwrite(1);
         let one: Vec<_> = buf.take_unsent().copied().collect();
 
-        buf.push_overwrite(&dropped, || 2);
-        buf.push_overwrite(&dropped, || 3);
-        buf.push_overwrite(&dropped, || 4);
+        buf.push_overwrite(2);
+        buf.push_overwrite(3);
+        buf.push_overwrite(4);
         let two: Vec<_> = buf.take_unsent().copied().collect();
 
-        buf.push_overwrite(&dropped, || 5);
-        buf.push_overwrite(&dropped, || 6);
+        buf.push_overwrite(5);
+        buf.push_overwrite(6);
         let three: Vec<_> = buf.take_unsent().copied().collect();
 
         assert_eq!(one, [1]);
         assert_eq!(two, [2, 3, 4]);
         assert_eq!(three, [5, 6]);
-        assert_eq!(dropped.load(Ordering::Acquire), 1);
     }
 
     async fn drain_updates(mf: Aggregator, cmd_tx: mpsc::Sender<Command>) -> Vec<Update> {

@@ -9,7 +9,7 @@ import { timestampToDate } from "~/lib/formatters";
 
 export type MonitorData = {
   health: HealthCheckResponse_ServingStatus;
-  metadata: Map<MetaId, Metadata>;
+  metadata: Map<bigint, Metadata>;
   logs: LogEvent[];
   spans: SpanEvent[];
 
