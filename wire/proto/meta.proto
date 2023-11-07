@@ -34,6 +34,6 @@ message AppMetadata {
     /// - "x86"
     /// - "arm" 
     string arch = 6;
-    /// Wether the app was compiled with debug assertions enabled.
+    /// Whether the app was compiled with debug assertions enabled.
     bool debug_assertions = 7;
 }
