@@ -53,8 +53,18 @@ export function updatedSpans(spans: Span[], spanEvents: SpanEvent[]) {
         break;
       }
 
+      /**
+       * @todo
+       * closeSpan must be handled and used still.
+       */
       case "closeSpan":
         break;
+
+      /**
+       * @todo
+       * we need to handle this more.
+       * if Rust client breaks, we may get `undefined`
+       */
       default:
         throw new Error("span type not supported");
     }
