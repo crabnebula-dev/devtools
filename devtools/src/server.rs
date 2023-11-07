@@ -6,9 +6,12 @@ use tauri::{AppHandle, Runtime};
 use tauri_devtools_wire_format::instrument;
 use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
 use tauri_devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
+use tauri_devtools_wire_format::meta::metadata_server::MetadataServer;
+use tauri_devtools_wire_format::meta::{metadata_server, AppMetadata, AppMetadataRequest};
 use tauri_devtools_wire_format::tauri::tauri_server::TauriServer;
 use tauri_devtools_wire_format::tauri::{
-    tauri_server, Asset, AssetRequest, Config, ConfigRequest, Metrics, MetricsRequest,
+    tauri_server, Asset, AssetRequest, Config, ConfigRequest, Metrics, MetricsRequest, Versions,
+    VersionsRequest,
 };
 use tokio::sync::{mpsc, RwLock};
 use tonic::codegen::http::Method;
@@ -37,6 +40,7 @@ pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOC
 pub(crate) struct Server<R: Runtime> {
     instrument: InstrumentService,
     tauri: TauriService<R>,
+    meta: MetaService<R>,
     health: HealthServer<tonic_health::server::HealthService>,
 }
 
@@ -48,6 +52,10 @@ struct InstrumentService {
 struct TauriService<R: Runtime> {
     app_handle: AppHandle<R>,
     metrics: Arc<RwLock<Metrics>>,
+}
+
+struct MetaService<R: Runtime> {
+    app_handle: AppHandle<R>,
 }
 
 impl<R: Runtime> Server<R> {
@@ -73,9 +81,10 @@ impl<R: Runtime> Server<R> {
                 health_reporter,
             },
             tauri: TauriService {
-                app_handle,
+                app_handle: app_handle.clone(),
                 metrics,
             },
+            meta: MetaService { app_handle },
             // Transmute the health_server type here bc the return type of `health_reporter` is
             // weird. But we know it is the same type.
             health: unsafe { std::mem::transmute(health_server) },
@@ -97,6 +106,7 @@ impl<R: Runtime> Server<R> {
             .layer(cors)
             .add_service(tonic_web::enable(InstrumentServer::new(self.instrument)))
             .add_service(tonic_web::enable(TauriServer::new(self.tauri)))
+            .add_service(tonic_web::enable(MetadataServer::new(self.meta)))
             .add_service(tonic_web::enable(self.health))
             .serve(addr)
             .await?;
@@ -155,6 +165,18 @@ impl instrument_server::Instrument for InstrumentService {
 
 #[tonic::async_trait]
 impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
+    async fn get_versions(
+        &self,
+        _req: Request<VersionsRequest>,
+    ) -> Result<Response<Versions>, Status> {
+        let versions = Versions {
+            tauri: tauri::VERSION.to_string(),
+            webview: tauri::webview_version().ok(),
+        };
+
+        Ok(Response::new(versions))
+    }
+
     async fn get_config(&self, _req: Request<ConfigRequest>) -> Result<Response<Config>, Status> {
         let config: Config = (&*self.app_handle.config()).into();
 
@@ -181,6 +203,28 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
         let metrics = self.metrics.read().await;
 
         Ok(Response::new(metrics.clone()))
+    }
+}
+
+#[tonic::async_trait]
+impl<R: Runtime> metadata_server::Metadata for MetaService<R> {
+    async fn get_app_metadata(
+        &self,
+        _req: Request<AppMetadataRequest>,
+    ) -> Result<Response<AppMetadata>, Status> {
+        let info = self.app_handle.package_info();
+
+        let meta = AppMetadata {
+            name: info.name.clone(),
+            version: info.version.to_string(),
+            authors: info.authors.to_string(),
+            description: info.description.to_string(),
+            os: std::env::consts::OS.to_string(),
+            arch: std::env::consts::ARCH.to_string(),
+            debug_assertions: cfg!(debug_assertions),
+        };
+
+        Ok(Response::new(meta))
     }
 }
 

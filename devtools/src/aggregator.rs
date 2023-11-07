@@ -155,12 +155,12 @@ impl Aggregator {
                 maybe_parent,
             } => {
                 self.logs.push_overwrite(LogEvent {
-                        at: Some(self.base_time.to_timestamp(at)),
-                        metadata_id: metadata as *const _ as u64,
-                        message,
-                        fields,
-                        parent: maybe_parent.map(|id| id.into_u64()),
-                    });
+                    at: Some(self.base_time.to_timestamp(at)),
+                    metadata_id: metadata as *const _ as u64,
+                    message,
+                    fields,
+                    parent: maybe_parent.map(|id| id.into_u64()),
+                });
             }
             Event::NewSpan {
                 at,
