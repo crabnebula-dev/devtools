@@ -46,7 +46,7 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
       case "exitSpan": {
         const span = findSpanById(currentSpans, event.event.exitSpan.spanId);
         if (span) {
-          span.enteredAt = event.event.exitSpan.at;
+          span.exitedAt = event.event.exitSpan.at;
         }
         break;
       }
