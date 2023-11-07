@@ -1,5 +1,5 @@
 import { Metadata } from "~/lib/proto/common";
-import { Update as InstrumentUpdate } from "../proto/instrument";
+import { Update as InstrumentUpdate } from "~/lib/proto/instrument";
 
 export function updateSpanMetadata(
   currentMeta: Map<bigint, Metadata>,
