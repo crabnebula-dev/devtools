@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package rs.devtools.meta;
+
+service Metadata {
+    rpc GetAppMetadata(AppMetadataRequest) returns (AppMetadata) {} 
+}
+
+message AppMetadataRequest {}
+
+message AppMetadata {
+    /// The apps name.
+    string name = 1;
+    /// The apps version.
+    string version = 2;
+    /// The apps authors.
+    string authors = 3;
+    /// The apps description.
+    string description = 4;
+    /// The Operating System the app is running on.
+    /// 
+    /// Possible values are:
+    /// - "windows"
+    /// - "macos"
+    /// - "ios"
+    /// - "linux"
+    /// - "android"
+    string os = 5;
+    /// The CPU architecture the app is running on.
+    /// 
+    /// Possible values include:
+    /// - "x86_64"
+    /// - "aarch64"
+    /// - "x86"
+    /// - "arm" 
+    string arch = 6;
+    /// Wether the app was compiled with debug assertions enabled.
+    bool debug_assertions = 7;
+}
