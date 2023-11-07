@@ -21,11 +21,11 @@ message LogEvent {
   // The main message body of the log.
   string message = 1;
   // Log events can happen inside of spans and if they do, this field will indicate which span it was.
-  optional common.SpanId parent = 2;
+  optional uint64 parent = 2;
   // Identifier for metadata describing static characteristics of all spans originating
   // from that call site, such as its name, source code location, verbosity level, and
   // the names of its fields.
-  common.MetaId metadata_id = 3;
+  uint64 metadata_id = 3;
   // User-defined key-value pairs of arbitrary data associated with the event.
   repeated common.Field fields = 4;
   // Timestamp for the log event.
