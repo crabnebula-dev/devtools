@@ -76,7 +76,7 @@ where
             let metadata = span.metadata();
             let maybe_parent = span.parent().map(|s| s.id());
 
-            let mut visitor = FieldVisitor::new(metadata.into());
+            let mut visitor = FieldVisitor::new(metadata as *const _ as u64);
             attrs.record(&mut visitor);
             let fields = visitor.result();
 
@@ -96,7 +96,7 @@ where
         self.send_event(&self.shared.dropped_log_events, || {
             let metadata = event.metadata();
 
-            let mut visitor = EventVisitor::new(metadata.into());
+            let mut visitor = EventVisitor::new(metadata as *const _ as u64);
             event.record(&mut visitor);
             let (message, fields) = visitor.result();
 
