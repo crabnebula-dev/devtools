@@ -2,18 +2,6 @@ syntax = "proto3";
 
 package rs.devtools.common;
 
-// Unique identifier for metadata.
-message MetaId {
-  // The unique identifier's concrete value.
-  uint64 id = 1;
-}
-
-// Unique identifier for spans.
-message SpanId {
-  // The unique identifier's concrete value.
-  uint64 id = 1;
-}
-
 // A Rust source code location.
 message Location {
   // The file path
@@ -81,7 +69,7 @@ message Metadata {
 // One metadata element registered since the last update.
 message NewMetadata {
   // Unique identifier for `metadata`.
-  MetaId id = 1;
+  optional uint64 id = 1;
   // The metadata payload.
   Metadata metadata = 2;
 }
@@ -92,26 +80,22 @@ message Field {
   //
   // This is either represented as a string, or as an index into a `Metadata`'s
   // array of field name strings.
-  oneof name {
-    // The string representation of the name.
-    string str_name = 1;
-    // An index position into the `Metadata.field_names` of the metadata
-    // for the task span that the field came from.
-    uint64 name_idx = 2;
-  }
+  string name = 1;
   // The value of the key-value pair.
   oneof value {
     // A value serialized to a string using `fmt::Debug`.
-    string debug_val = 3;
+    string debug_val = 2;
     // A string value.
-    string str_val = 4;
+    string str_val = 3;
     // An unsigned integer value.
-    uint64 u64_val = 5;
+    uint64 u64_val = 4;
     // A signed integer value.
-    sint64 i64_val = 6;
+    sint64 i64_val = 5;
     // A boolean value.
-    bool bool_val = 7;
+    bool bool_val = 6;
+    // A double (f64) value.
+    double double_val = 7;
   }
   // Metadata for the task span that the field came from.
-  MetaId metadata_id = 8;
+  uint64 metadata_id = 8;
 }

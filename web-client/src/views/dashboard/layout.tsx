@@ -1,5 +1,5 @@
 import { createEffect, onCleanup } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, produce } from "solid-js/store";
 import { Outlet, useRouteData } from "@solidjs/router";
 import { Navigation } from "~/components/navigation";
 import { BootTime } from "~/components/boot-time";
@@ -20,6 +20,8 @@ import { Connection, disconnect } from "~/lib/connection/transport";
 import { Logo } from "~/components/crabnebula-logo";
 import { useNavigate } from "@solidjs/router";
 import { DisconnectButton } from "~/components/disconnect-button";
+import { updatedSpans } from "~/lib/span/update-spans";
+import { updateSpanMetadata } from "~/lib/span/update-span-metadata";
 
 export default function Layout() {
   const { abortController, client } = useRouteData<Connection>();
@@ -81,24 +83,7 @@ export default function Layout() {
 
   updateStream.responses.onMessage((update) => {
     if (update.newMetadata.length > 0) {
-      setMonitorData(
-        "metadata",
-        (prev) =>
-          new Map([
-            ...(prev || []),
-            ...update.newMetadata.map((new_metadata) => {
-              /**
-               * protobuf generated types have these as optional.
-               */
-              //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              const id = new_metadata.id?.id!;
-              //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              const metadata = new_metadata.metadata!;
-
-              return [id, metadata] as const;
-            }),
-          ])
-      );
+      setMonitorData("metadata", (prev) => updateSpanMetadata(prev, update));
     }
 
     const logsUpdate = update.logsUpdate;
@@ -108,7 +93,12 @@ export default function Layout() {
 
     const spansUpdate = update.spansUpdate;
     if (spansUpdate && spansUpdate.spanEvents.length > 0) {
-      setMonitorData("spans", (prev) => [...prev, ...spansUpdate.spanEvents]);
+      setMonitorData(
+        "spans",
+        produce((clonedSpans) =>
+          updatedSpans(clonedSpans, spansUpdate.spanEvents)
+        )
+      );
     }
   });
 

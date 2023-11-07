@@ -1,19 +1,3 @@
-/// Unique identifier for metadata.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MetaId {
-    /// The unique identifier's concrete value.
-    #[prost(uint64, tag = "1")]
-    pub id: u64,
-}
-/// Unique identifier for spans.
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SpanId {
-    /// The unique identifier's concrete value.
-    #[prost(uint64, tag = "1")]
-    pub id: u64,
-}
 /// A Rust source code location.
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -165,8 +149,8 @@ pub mod metadata {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NewMetadata {
     /// Unique identifier for `metadata`.
-    #[prost(message, optional, tag = "1")]
-    pub id: ::core::option::Option<MetaId>,
+    #[prost(uint64, optional, tag = "1")]
+    pub id: ::core::option::Option<u64>,
     /// The metadata payload.
     #[prost(message, optional, tag = "2")]
     pub metadata: ::core::option::Option<Metadata>,
@@ -175,54 +159,42 @@ pub struct NewMetadata {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Field {
-    /// Metadata for the task span that the field came from.
-    #[prost(message, optional, tag = "8")]
-    pub metadata_id: ::core::option::Option<MetaId>,
     /// The key of the key-value pair.
     ///
     /// This is either represented as a string, or as an index into a `Metadata`'s
     /// array of field name strings.
-    #[prost(oneof = "field::Name", tags = "1, 2")]
-    pub name: ::core::option::Option<field::Name>,
+    #[prost(string, tag = "1")]
+    pub name: ::prost::alloc::string::String,
+    /// Metadata for the task span that the field came from.
+    #[prost(uint64, tag = "8")]
+    pub metadata_id: u64,
     /// The value of the key-value pair.
-    #[prost(oneof = "field::Value", tags = "3, 4, 5, 6, 7")]
+    #[prost(oneof = "field::Value", tags = "2, 3, 4, 5, 6, 7")]
     pub value: ::core::option::Option<field::Value>,
 }
 /// Nested message and enum types in `Field`.
 pub mod field {
-    /// The key of the key-value pair.
-    ///
-    /// This is either represented as a string, or as an index into a `Metadata`'s
-    /// array of field name strings.
-    #[allow(clippy::derive_partial_eq_without_eq)]
-    #[derive(Clone, PartialEq, ::prost::Oneof)]
-    pub enum Name {
-        /// The string representation of the name.
-        #[prost(string, tag = "1")]
-        StrName(::prost::alloc::string::String),
-        /// An index position into the `Metadata.field_names` of the metadata
-        /// for the task span that the field came from.
-        #[prost(uint64, tag = "2")]
-        NameIdx(u64),
-    }
     /// The value of the key-value pair.
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Value {
         /// A value serialized to a string using `fmt::Debug`.
-        #[prost(string, tag = "3")]
+        #[prost(string, tag = "2")]
         DebugVal(::prost::alloc::string::String),
         /// A string value.
-        #[prost(string, tag = "4")]
+        #[prost(string, tag = "3")]
         StrVal(::prost::alloc::string::String),
         /// An unsigned integer value.
-        #[prost(uint64, tag = "5")]
+        #[prost(uint64, tag = "4")]
         U64Val(u64),
         /// A signed integer value.
-        #[prost(sint64, tag = "6")]
+        #[prost(sint64, tag = "5")]
         I64Val(i64),
         /// A boolean value.
-        #[prost(bool, tag = "7")]
+        #[prost(bool, tag = "6")]
         BoolVal(bool),
+        /// A double (f64) value.
+        #[prost(double, tag = "7")]
+        DoubleVal(f64),
     }
 }
