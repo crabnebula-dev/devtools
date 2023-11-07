@@ -2,9 +2,7 @@ import { type Span } from "~/lib/connection/monitor";
 import { type SpanEvent } from "~/lib/proto/spans";
 import { findSpanById } from "~/lib/span/find-span-by-id";
 
-export function updatedSpans(spans: Span[], spanEvents: SpanEvent[]) {
-  const currentSpans = [...spans];
-
+export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
   for (const event of spanEvents) {
     switch (event.event.oneofKind) {
       case "newSpan": {

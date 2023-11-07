@@ -1,5 +1,5 @@
 import { createEffect, onCleanup } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, produce } from "solid-js/store";
 import { Outlet, useRouteData } from "@solidjs/router";
 import { Navigation } from "~/components/navigation";
 import { BootTime } from "~/components/boot-time";
@@ -93,8 +93,11 @@ export default function Layout() {
 
     const spansUpdate = update.spansUpdate;
     if (spansUpdate && spansUpdate.spanEvents.length > 0) {
-      setMonitorData("spans", (prev) =>
-        updatedSpans(prev, spansUpdate.spanEvents)
+      setMonitorData(
+        "spans",
+        produce((clonedSpans) =>
+          updatedSpans(clonedSpans, spansUpdate.spanEvents)
+        )
       );
     }
   });
