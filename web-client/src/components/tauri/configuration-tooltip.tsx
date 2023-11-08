@@ -24,7 +24,14 @@ export function ConfigurationTooltip(props: {
   return (
     <Show
       when={localSchema()}
-      fallback={<span class="hover:bg-gray-900 rounded">{props.key}</span>}
+      fallback={
+        <span
+          class="hover:bg-gray-900 rounded"
+          onMouseOver={updateHighlightKey}
+        >
+          {props.key}
+        </span>
+      }
     >
       <Tooltip.Root openDelay={500} closeDelay={500}>
         <Tooltip.Trigger>

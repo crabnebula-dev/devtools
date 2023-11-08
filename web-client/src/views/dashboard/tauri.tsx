@@ -26,7 +26,7 @@ export default function TauriConfig() {
   const { monitorData } = useMonitor();
 
   const descriptions = buildSchemaMap(
-    monitorData.schema!,
+    monitorData.schema ?? {},
     monitorData.tauriConfig!
   );
 
@@ -59,7 +59,7 @@ export default function TauriConfig() {
 
   return (
     <DescriptionsContext.Provider value={descriptions}>
-      <HighlightKeyProvider value={""}>
+      <HighlightKeyProvider>
         <div class="flex h-full tauri-config ">
           <aside id="side" class="border-neutral-800 border-r-2">
             <Sidebar nav={nav} setCurrentNavElement={setCurrentView} />

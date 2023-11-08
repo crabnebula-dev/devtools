@@ -9,8 +9,9 @@ import { InstrumentRequest } from "~/lib/proto/instrument";
 import {
   getHealthStatus,
   getTauriConfig,
-  getSchema,
   getTauriMetrics,
+  getVersions,
+  getMetadata,
 } from "~/lib/connection/getters";
 import {
   HealthCheckRequest,
@@ -23,6 +24,7 @@ import { useNavigate } from "@solidjs/router";
 import { DisconnectButton } from "~/components/disconnect-button";
 import { updatedSpans } from "~/lib/span/update-spans";
 import { updateSpanMetadata } from "~/lib/span/update-span-metadata";
+import { returnLatestSchemaForVersion } from "~/lib/tauri/tauri-conf-schema";
 
 export default function Layout() {
   const { abortController, client } = useRouteData<Connection>();
@@ -30,7 +32,8 @@ export default function Layout() {
   const [monitorData, setMonitorData] = createStore(initialMonitorData);
   const [tauriMetrics] = getTauriMetrics(client.tauri);
   const [tauriConfig] = getTauriConfig(client.tauri);
-  const [schema] = getSchema(client.tauri);
+  const [tauriVersions] = getVersions(client.tauri);
+  const [appMetaData] = getMetadata(client.meta);
 
   const healthStream = client.health.watch(
     HealthCheckRequest.create({ service: "" })
@@ -58,7 +61,17 @@ export default function Layout() {
   });
 
   createEffect(() => {
-    setMonitorData("schema", schema());
+    const versions = tauriVersions();
+    if (versions) {
+      const schema = returnLatestSchemaForVersion(versions.tauri);
+      setMonitorData("schema", schema);
+    }
+    setMonitorData("tauriVersions", versions);
+  });
+
+  createEffect(() => {
+    console.log("appMetaData", appMetaData());
+    setMonitorData("appMetaData", appMetaData());
   });
 
   createEffect(() => {

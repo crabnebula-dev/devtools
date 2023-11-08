@@ -9,8 +9,6 @@ service Tauri {
 
   rpc GetConfig(ConfigRequest) returns (Config) {}
 
-  rpc GetSchema(SchemaRequest) returns (Schema) {}
-
   rpc GetMetrics(MetricsRequest) returns (Metrics) {}
 }
 
@@ -26,17 +24,10 @@ message Versions {
 
 message ConfigRequest {}
 
-message SchemaRequest {}
-
 message MetricsRequest {}
 
 message Config {
   /// The raw JSON string of the configuration
-  string raw = 1;
-}
-
-message Schema {
-  /// The raw JSON string of the configuration schema
   string raw = 1;
 }
 

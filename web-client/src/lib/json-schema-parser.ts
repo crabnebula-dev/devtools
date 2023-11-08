@@ -1,4 +1,4 @@
-import { Draft07, JsonSchema } from "json-schema-library";
+import { Draft07, JsonSchema, JsonPointer } from "json-schema-library";
 
 export function findLineNumberByNestedKey(
   jsonString: string,
@@ -62,57 +62,21 @@ export function findLineNumberByNestedKey(
 }
 
 export function buildSchemaMap(baseSchema: JsonSchema, data: object) {
-  let map = new Map();
-
   const jsonSchema = new Draft07(baseSchema);
+  const map = new Map();
 
-  setChild(data, map, baseSchema, "", jsonSchema);
+  const buildMap = (
+    schema: JsonSchema,
+    value: unknown,
+    pointer: JsonPointer
+  ) => {
+    //schema = jsonSchema.compileSchema(schema);
+    pointer = pointer.replace("#/", "").replace("#", "").replaceAll("/", ".");
+    console.log(pointer);
+    map.set(pointer, schema);
+  };
+
+  jsonSchema.each(data, buildMap);
 
   return map;
-}
-
-function setChild(
-  data: object,
-  map: Map<string, any>,
-  schema: JsonSchema,
-  parentKey = "",
-  baseSchema: JsonSchema
-) {
-  for (const [key, value] of Object.entries(data)) {
-    let localSchema = baseSchema.step(key, schema, { [key]: value });
-
-    // The json-schema-library returns a schema with a single $ref property for arrays so we need to get the actual schema
-    if (
-      Object.entries(localSchema).length === 1 &&
-      localSchema.hasOwnProperty("$ref")
-    ) {
-      localSchema =
-        baseSchema.getSchema().definitions[
-          localSchema["$ref"].replace("#/definitions/", "")
-        ];
-    }
-
-    // The library also does not step into AllOf schemas so we need to do that manually
-    if (localSchema.hasOwnProperty("allOf")) {
-      for (const schema of localSchema.allOf) {
-        if (schema.hasOwnProperty("$ref")) {
-          const refSchema =
-            baseSchema.getSchema().definitions[
-              schema["$ref"].replace("#/definitions/", "")
-            ];
-          localSchema = refSchema;
-        } else {
-          localSchema = schema;
-        }
-      }
-    }
-
-    const fullKey = parentKey !== "" ? parentKey + "." + key : key;
-    map.set(fullKey, localSchema);
-
-    if (typeof value !== "object" || value === null) continue;
-
-    setChild(value, map, localSchema, fullKey, baseSchema);
-  }
-  return;
 }
