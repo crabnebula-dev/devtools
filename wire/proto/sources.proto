@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package rs.devtools.sources;
+
+service Sources {
+  // Returns the entries of a directory in a streaming way. The idea is that this helps time-to-first-paint especially when the
+  // folder is large. The client can start rendering the entries as they come in.
+  //
+  // Notes:
+  // - All paths are relative to the workspace root. The idea is that clients do not need to know the absolute position of a workspace and with workspace-relative paths we can reduce the amount of PII sent.
+  // - This API DOES NOT recursively list workspace entries. The idea is that the client renders a tree-view with all sub-folder collapsed by default and issue a new list_entries call for a sub-folder when a tree node is expanded.
+  // - File type is a set of bitflags that represent the various properties of the entry. See the `Entry` message for more details.
+  rpc ListEntries(EntryRequest) returns (stream Entry) {}
+  // Returns the bytes of a file in a streaming way. The idea is that this helps time-to-first-paint especially when the file is large.
+  // This is done, again, to optimize the time to first paint for assets that are streaming compatible such as images.
+  rpc GetEntryBytes(EntryRequest) returns (stream Chunk) {}
+}
+
+message EntryRequest {
+  // The path of the directory to list
+  // This is relative to the workspace root
+  string path = 1;
+}
+
+message Entry {
+  // The path of the entry relative to the workspace root
+  string path = 1;
+  // The size of the entry in bytes
+  uint64 size = 2;
+  // A set of bitflags representing the type of the entry.
+  // The following entries are defined:
+  // 1 - Directory
+  // 2 - File
+  // 4 - Symbolic Link
+  // 8 - Asset
+  // 16 - Resource
+  uint32 file_type = 3;
+}
+
+// A chunk of bytes that make up a file
+message Chunk {
+  bytes bytes = 1;
+}

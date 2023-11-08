@@ -1,50 +1,47 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VersionsRequest {}
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct Versions {
-    /// / Tauri version, follows SemVer.
+pub struct EntryRequest {
+    /// The path of the directory to list
+    /// This is relative to the workspace root
     #[prost(string, tag = "1")]
-    pub tauri: ::prost::alloc::string::String,
-    /// / Version of the OS'es webview.
-    /// / The format of this is freeform and changes depending on the OS.
-    #[prost(string, optional, tag = "2")]
-    pub webview: ::core::option::Option<::prost::alloc::string::String>,
+    pub path: ::prost::alloc::string::String,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct ConfigRequest {}
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MetricsRequest {}
-#[allow(clippy::derive_partial_eq_without_eq)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct Config {
-    /// / The raw JSON string of the configuration
+pub struct Entry {
+    /// The path of the entry relative to the workspace root
     #[prost(string, tag = "1")]
-    pub raw: ::prost::alloc::string::String,
+    pub path: ::prost::alloc::string::String,
+    /// The size of the entry in bytes
+    #[prost(uint64, tag = "2")]
+    pub size: u64,
+    /// A set of bitflags representing the type of the entry.
+    /// The following entries are defined:
+    /// 1 - Directory
+    /// 2 - File
+    /// 4 - Symbolic Link
+    /// 8 - Asset
+    /// 16 - Resource
+    #[prost(uint32, tag = "3")]
+    pub file_type: u32,
 }
+/// A chunk of bytes that make up a file
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct Metrics {
-    /// / Tauri application initialization time
-    #[prost(message, optional, tag = "1")]
-    pub initialized_at: ::core::option::Option<::prost_types::Timestamp>,
-    /// / Tauri application reported `AppReady` time
-    #[prost(message, optional, tag = "2")]
-    pub ready_at: ::core::option::Option<::prost_types::Timestamp>,
+pub struct Chunk {
+    #[prost(bytes = "bytes", tag = "1")]
+    pub bytes: ::prost::bytes::Bytes,
 }
 /// Generated client implementations.
-pub mod tauri_client {
+pub mod sources_client {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
     #[derive(Debug, Clone)]
-    pub struct TauriClient<T> {
+    pub struct SourcesClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-    impl TauriClient<tonic::transport::Channel> {
+    impl SourcesClient<tonic::transport::Channel> {
         /// Attempt to create a new client by connecting to a given endpoint.
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
@@ -55,7 +52,7 @@ pub mod tauri_client {
             Ok(Self::new(conn))
         }
     }
-    impl<T> TauriClient<T>
+    impl<T> SourcesClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
         T::Error: Into<StdError>,
@@ -73,7 +70,7 @@ pub mod tauri_client {
         pub fn with_interceptor<F>(
             inner: T,
             interceptor: F,
-        ) -> TauriClient<InterceptedService<T, F>>
+        ) -> SourcesClient<InterceptedService<T, F>>
         where
             F: tonic::service::Interceptor,
             T::ResponseBody: Default,
@@ -87,7 +84,7 @@ pub mod tauri_client {
                 http::Request<tonic::body::BoxBody>,
             >>::Error: Into<StdError> + Send + Sync,
         {
-            TauriClient::new(InterceptedService::new(inner, interceptor))
+            SourcesClient::new(InterceptedService::new(inner, interceptor))
         }
         /// Compress requests with the given encoding.
         ///
@@ -120,10 +117,20 @@ pub mod tauri_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
-        pub async fn get_versions(
+        /// Returns the entries of a directory in a streaming way. The idea is that this helps time-to-first-paint especially when the
+        /// folder is large. The client can start rendering the entries as they come in.
+        ///
+        /// Notes:
+        /// - All paths are relative to the workspace root. The idea is that clients do not need to know the absolute position of a workspace and with workspace-relative paths we can reduce the amount of PII sent.
+        /// - This API DOES NOT recursively list workspace entries. The idea is that the client renders a tree-view with all sub-folder collapsed by default and issue a new list_entries call for a sub-folder when a tree node is expanded.
+        /// - File type is a set of bitflags that represent the various properties of the entry. See the `Entry` message for more details.
+        pub async fn list_entries(
             &mut self,
-            request: impl tonic::IntoRequest<super::VersionsRequest>,
-        ) -> std::result::Result<tonic::Response<super::Versions>, tonic::Status> {
+            request: impl tonic::IntoRequest<super::EntryRequest>,
+        ) -> std::result::Result<
+            tonic::Response<tonic::codec::Streaming<super::Entry>>,
+            tonic::Status,
+        > {
             self.inner
                 .ready()
                 .await
@@ -135,17 +142,22 @@ pub mod tauri_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/rs.devtools.tauri.Tauri/GetVersions",
+                "/rs.devtools.sources.Sources/ListEntries",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("rs.devtools.tauri.Tauri", "GetVersions"));
-            self.inner.unary(req, path, codec).await
+                .insert(GrpcMethod::new("rs.devtools.sources.Sources", "ListEntries"));
+            self.inner.server_streaming(req, path, codec).await
         }
-        pub async fn get_config(
+        /// Returns the bytes of a file in a streaming way. The idea is that this helps time-to-first-paint especially when the file is large.
+        /// This is done, again, to optimize the time to first paint for assets that are streaming compatible such as images.
+        pub async fn get_entry_bytes(
             &mut self,
-            request: impl tonic::IntoRequest<super::ConfigRequest>,
-        ) -> std::result::Result<tonic::Response<super::Config>, tonic::Status> {
+            request: impl tonic::IntoRequest<super::EntryRequest>,
+        ) -> std::result::Result<
+            tonic::Response<tonic::codec::Streaming<super::Chunk>>,
+            tonic::Status,
+        > {
             self.inner
                 .ready()
                 .await
@@ -157,59 +169,60 @@ pub mod tauri_client {
                 })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/rs.devtools.tauri.Tauri/GetConfig",
+                "/rs.devtools.sources.Sources/GetEntryBytes",
             );
             let mut req = request.into_request();
             req.extensions_mut()
-                .insert(GrpcMethod::new("rs.devtools.tauri.Tauri", "GetConfig"));
-            self.inner.unary(req, path, codec).await
-        }
-        pub async fn get_metrics(
-            &mut self,
-            request: impl tonic::IntoRequest<super::MetricsRequest>,
-        ) -> std::result::Result<tonic::Response<super::Metrics>, tonic::Status> {
-            self.inner
-                .ready()
-                .await
-                .map_err(|e| {
-                    tonic::Status::new(
-                        tonic::Code::Unknown,
-                        format!("Service was not ready: {}", e.into()),
-                    )
-                })?;
-            let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static(
-                "/rs.devtools.tauri.Tauri/GetMetrics",
-            );
-            let mut req = request.into_request();
-            req.extensions_mut()
-                .insert(GrpcMethod::new("rs.devtools.tauri.Tauri", "GetMetrics"));
-            self.inner.unary(req, path, codec).await
+                .insert(GrpcMethod::new("rs.devtools.sources.Sources", "GetEntryBytes"));
+            self.inner.server_streaming(req, path, codec).await
         }
     }
 }
 /// Generated server implementations.
-pub mod tauri_server {
+pub mod sources_server {
     #![allow(unused_variables, dead_code, missing_docs, clippy::let_unit_value)]
     use tonic::codegen::*;
-    /// Generated trait containing gRPC methods that should be implemented for use with TauriServer.
+    /// Generated trait containing gRPC methods that should be implemented for use with SourcesServer.
     #[async_trait]
-    pub trait Tauri: Send + Sync + 'static {
-        async fn get_versions(
+    pub trait Sources: Send + Sync + 'static {
+        /// Server streaming response type for the ListEntries method.
+        type ListEntriesStream: tonic::codegen::tokio_stream::Stream<
+                Item = std::result::Result<super::Entry, tonic::Status>,
+            >
+            + Send
+            + 'static;
+        /// Returns the entries of a directory in a streaming way. The idea is that this helps time-to-first-paint especially when the
+        /// folder is large. The client can start rendering the entries as they come in.
+        ///
+        /// Notes:
+        /// - All paths are relative to the workspace root. The idea is that clients do not need to know the absolute position of a workspace and with workspace-relative paths we can reduce the amount of PII sent.
+        /// - This API DOES NOT recursively list workspace entries. The idea is that the client renders a tree-view with all sub-folder collapsed by default and issue a new list_entries call for a sub-folder when a tree node is expanded.
+        /// - File type is a set of bitflags that represent the various properties of the entry. See the `Entry` message for more details.
+        async fn list_entries(
             &self,
-            request: tonic::Request<super::VersionsRequest>,
-        ) -> std::result::Result<tonic::Response<super::Versions>, tonic::Status>;
-        async fn get_config(
+            request: tonic::Request<super::EntryRequest>,
+        ) -> std::result::Result<
+            tonic::Response<Self::ListEntriesStream>,
+            tonic::Status,
+        >;
+        /// Server streaming response type for the GetEntryBytes method.
+        type GetEntryBytesStream: tonic::codegen::tokio_stream::Stream<
+                Item = std::result::Result<super::Chunk, tonic::Status>,
+            >
+            + Send
+            + 'static;
+        /// Returns the bytes of a file in a streaming way. The idea is that this helps time-to-first-paint especially when the file is large.
+        /// This is done, again, to optimize the time to first paint for assets that are streaming compatible such as images.
+        async fn get_entry_bytes(
             &self,
-            request: tonic::Request<super::ConfigRequest>,
-        ) -> std::result::Result<tonic::Response<super::Config>, tonic::Status>;
-        async fn get_metrics(
-            &self,
-            request: tonic::Request<super::MetricsRequest>,
-        ) -> std::result::Result<tonic::Response<super::Metrics>, tonic::Status>;
+            request: tonic::Request<super::EntryRequest>,
+        ) -> std::result::Result<
+            tonic::Response<Self::GetEntryBytesStream>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
-    pub struct TauriServer<T: Tauri> {
+    pub struct SourcesServer<T: Sources> {
         inner: _Inner<T>,
         accept_compression_encodings: EnabledCompressionEncodings,
         send_compression_encodings: EnabledCompressionEncodings,
@@ -217,7 +230,7 @@ pub mod tauri_server {
         max_encoding_message_size: Option<usize>,
     }
     struct _Inner<T>(Arc<T>);
-    impl<T: Tauri> TauriServer<T> {
+    impl<T: Sources> SourcesServer<T> {
         pub fn new(inner: T) -> Self {
             Self::from_arc(Arc::new(inner))
         }
@@ -269,9 +282,9 @@ pub mod tauri_server {
             self
         }
     }
-    impl<T, B> tonic::codegen::Service<http::Request<B>> for TauriServer<T>
+    impl<T, B> tonic::codegen::Service<http::Request<B>> for SourcesServer<T>
     where
-        T: Tauri,
+        T: Sources,
         B: Body + Send + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -287,23 +300,26 @@ pub mod tauri_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/rs.devtools.tauri.Tauri/GetVersions" => {
+                "/rs.devtools.sources.Sources/ListEntries" => {
                     #[allow(non_camel_case_types)]
-                    struct GetVersionsSvc<T: Tauri>(pub Arc<T>);
-                    impl<T: Tauri> tonic::server::UnaryService<super::VersionsRequest>
-                    for GetVersionsSvc<T> {
-                        type Response = super::Versions;
+                    struct ListEntriesSvc<T: Sources>(pub Arc<T>);
+                    impl<
+                        T: Sources,
+                    > tonic::server::ServerStreamingService<super::EntryRequest>
+                    for ListEntriesSvc<T> {
+                        type Response = super::Entry;
+                        type ResponseStream = T::ListEntriesStream;
                         type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
+                            tonic::Response<Self::ResponseStream>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::VersionsRequest>,
+                            request: tonic::Request<super::EntryRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Tauri>::get_versions(&inner, request).await
+                                <T as Sources>::list_entries(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -315,7 +331,7 @@ pub mod tauri_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = GetVersionsSvc(inner);
+                        let method = ListEntriesSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -326,28 +342,31 @@ pub mod tauri_server {
                                 max_decoding_message_size,
                                 max_encoding_message_size,
                             );
-                        let res = grpc.unary(method, req).await;
+                        let res = grpc.server_streaming(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
                 }
-                "/rs.devtools.tauri.Tauri/GetConfig" => {
+                "/rs.devtools.sources.Sources/GetEntryBytes" => {
                     #[allow(non_camel_case_types)]
-                    struct GetConfigSvc<T: Tauri>(pub Arc<T>);
-                    impl<T: Tauri> tonic::server::UnaryService<super::ConfigRequest>
-                    for GetConfigSvc<T> {
-                        type Response = super::Config;
+                    struct GetEntryBytesSvc<T: Sources>(pub Arc<T>);
+                    impl<
+                        T: Sources,
+                    > tonic::server::ServerStreamingService<super::EntryRequest>
+                    for GetEntryBytesSvc<T> {
+                        type Response = super::Chunk;
+                        type ResponseStream = T::GetEntryBytesStream;
                         type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
+                            tonic::Response<Self::ResponseStream>,
                             tonic::Status,
                         >;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::ConfigRequest>,
+                            request: tonic::Request<super::EntryRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
                             let fut = async move {
-                                <T as Tauri>::get_config(&inner, request).await
+                                <T as Sources>::get_entry_bytes(&inner, request).await
                             };
                             Box::pin(fut)
                         }
@@ -359,7 +378,7 @@ pub mod tauri_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let inner = inner.0;
-                        let method = GetConfigSvc(inner);
+                        let method = GetEntryBytesSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
@@ -370,51 +389,7 @@ pub mod tauri_server {
                                 max_decoding_message_size,
                                 max_encoding_message_size,
                             );
-                        let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
-                "/rs.devtools.tauri.Tauri/GetMetrics" => {
-                    #[allow(non_camel_case_types)]
-                    struct GetMetricsSvc<T: Tauri>(pub Arc<T>);
-                    impl<T: Tauri> tonic::server::UnaryService<super::MetricsRequest>
-                    for GetMetricsSvc<T> {
-                        type Response = super::Metrics;
-                        type Future = BoxFuture<
-                            tonic::Response<Self::Response>,
-                            tonic::Status,
-                        >;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<super::MetricsRequest>,
-                        ) -> Self::Future {
-                            let inner = Arc::clone(&self.0);
-                            let fut = async move {
-                                <T as Tauri>::get_metrics(&inner, request).await
-                            };
-                            Box::pin(fut)
-                        }
-                    }
-                    let accept_compression_encodings = self.accept_compression_encodings;
-                    let send_compression_encodings = self.send_compression_encodings;
-                    let max_decoding_message_size = self.max_decoding_message_size;
-                    let max_encoding_message_size = self.max_encoding_message_size;
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let inner = inner.0;
-                        let method = GetMetricsSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = tonic::server::Grpc::new(codec)
-                            .apply_compression_config(
-                                accept_compression_encodings,
-                                send_compression_encodings,
-                            )
-                            .apply_max_message_size_config(
-                                max_decoding_message_size,
-                                max_encoding_message_size,
-                            );
-                        let res = grpc.unary(method, req).await;
+                        let res = grpc.server_streaming(method, req).await;
                         Ok(res)
                     };
                     Box::pin(fut)
@@ -434,7 +409,7 @@ pub mod tauri_server {
             }
         }
     }
-    impl<T: Tauri> Clone for TauriServer<T> {
+    impl<T: Sources> Clone for SourcesServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self {
@@ -446,7 +421,7 @@ pub mod tauri_server {
             }
         }
     }
-    impl<T: Tauri> Clone for _Inner<T> {
+    impl<T: Sources> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(Arc::clone(&self.0))
         }
@@ -456,7 +431,7 @@ pub mod tauri_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: Tauri> tonic::server::NamedService for TauriServer<T> {
-        const NAME: &'static str = "rs.devtools.tauri.Tauri";
+    impl<T: Sources> tonic::server::NamedService for SourcesServer<T> {
+        const NAME: &'static str = "rs.devtools.sources.Sources";
     }
 }

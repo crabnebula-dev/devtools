@@ -3378,6 +3378,7 @@ dependencies = [
 name = "tauri_devtools"
 version = "0.1.0"
 dependencies = [
+ "async-stream",
  "colored",
  "futures",
  "prost",
@@ -3574,7 +3575,6 @@ dependencies = [
  "futures-core",
  "pin-project-lite",
  "tokio",
- "tokio-util",
 ]
 
 [[package]]
