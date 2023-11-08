@@ -1,6 +1,6 @@
 use crate::visitors::{EventVisitor, FieldVisitor};
 use crate::{Event, Shared};
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::mpsc;
@@ -8,6 +8,22 @@ use tokio::sync::mpsc::error::TrySendError;
 use tracing_core::span::{Attributes, Id};
 use tracing_core::{Interest, Metadata};
 use tracing_subscriber::layer::Context;
+
+// TODO replace this with `std::thread::ThreadId::as_u64` once it's stable
+static THREAD_COUNTER: AtomicU64 = AtomicU64::new(0);
+
+thread_local! {
+    static THREAD_ID: u64 = {
+        let mut last = THREAD_COUNTER.load(Ordering::Relaxed);
+        loop {
+            let id = last.checked_add(1).expect("Thread id overflowed");
+            match THREAD_COUNTER.compare_exchange_weak(last, id, Ordering::Relaxed, Ordering::Relaxed) {
+                Ok(_) => return id,
+                Err(id) => last = id,
+            }
+        }
+    };
+}
 
 /// A tracing layer that forwards all events to the aggregator
 /// This is intentionally kept as simple as possible to avoid any performance overhead on
@@ -60,7 +76,7 @@ where
             let metadata = span.metadata();
             let maybe_parent = span.parent().map(|s| s.id());
 
-            let mut visitor = FieldVisitor::new(metadata.into());
+            let mut visitor = FieldVisitor::new(metadata as *const _ as u64);
             attrs.record(&mut visitor);
             let fields = visitor.result();
 
@@ -80,7 +96,7 @@ where
         self.send_event(&self.shared.dropped_log_events, || {
             let metadata = event.metadata();
 
-            let mut visitor = EventVisitor::new(metadata.into());
+            let mut visitor = EventVisitor::new(metadata as *const _ as u64);
             event.record(&mut visitor);
             let (message, fields) = visitor.result();
 
@@ -99,24 +115,20 @@ where
     fn on_enter(&self, id: &Id, _ctx: Context<'_, S>) {
         let at = Instant::now();
 
-        self.send_event(&self.shared.dropped_span_events, || {
-            Event::EnterSpan {
-                at,
-                thread_id: 0, // TODO actually track thread id
-                span_id: id.clone(),
-            }
+        self.send_event(&self.shared.dropped_span_events, || Event::EnterSpan {
+            at,
+            thread_id: THREAD_ID.with(|id| *id),
+            span_id: id.clone(),
         });
     }
 
     fn on_exit(&self, id: &Id, _ctx: Context<'_, S>) {
         let at = Instant::now();
 
-        self.send_event(&self.shared.dropped_span_events, || {
-            Event::ExitSpan {
-                at,
-                thread_id: 0, // TODO actually track thread id
-                span_id: id.clone(),
-            }
+        self.send_event(&self.shared.dropped_span_events, || Event::ExitSpan {
+            at,
+            thread_id: THREAD_ID.with(|id| *id),
+            span_id: id.clone(),
         });
     }
 

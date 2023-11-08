@@ -1,9 +1,8 @@
-import { JSX, Show } from "solid-js";
+import { JSX } from "solid-js";
 import { ToggleButton } from "@kobalte/core";
 
 type FilterToggleProps = {
   children: JSX.Element;
-  fallbackElement: JSX.Element;
   defaultPressed?: boolean;
   changeHandler?: () => void;
   stylesOverride?: string;
@@ -15,13 +14,13 @@ export function FilterToggle(props: FilterToggleProps) {
     <ToggleButton.Root
       defaultPressed={props.defaultPressed}
       aria-label={props["aria-label"]}
-      class={`py-px px-2 border rounded-lg ${props.stylesOverride}`}
+      class={`px-2 py-1 ${props.stylesOverride}`}
       onChange={props.changeHandler}
     >
       {(state) => (
-        <Show when={state.pressed()} fallback={props.fallbackElement}>
+        <span class={`${state.pressed() ? "text-teal-500" : ""}`}>
           {props.children}
-        </Show>
+        </span>
       )}
     </ToggleButton.Root>
   );

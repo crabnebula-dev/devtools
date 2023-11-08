@@ -3,6 +3,7 @@ use crate::server::{Server, DEFAULT_ADDRESS};
 use crate::Command;
 use std::sync::Arc;
 use std::thread;
+use std::time::Instant;
 use std::time::SystemTime;
 use tauri::{RunEvent, Runtime};
 use tauri_devtools_wire_format::tauri::Metrics;
@@ -12,7 +13,11 @@ pub(crate) fn init<R: Runtime>(
     aggregator: Aggregator,
     cmd_tx: mpsc::Sender<Command>,
 ) -> tauri::plugin::TauriPlugin<R> {
-    let metrics = Arc::new(RwLock::new(Metrics::default()));
+    let now = Instant::now();
+    let metrics = Arc::new(RwLock::new(Metrics {
+        initialized_at: Some(aggregator.base_time.to_timestamp(now)), // TODO this is horrific
+        ready_at: None,
+    }));
 
     let m = metrics.clone();
     tauri::plugin::Builder::new("probe")

@@ -33,8 +33,8 @@ export function AutoscrollPane(props: AutoScrollPaneProps) {
 
   return (
     <ul
+      class="h-[calc(100%-var(--toolbar-height))] overflow-auto"
       ref={(e) => (logPanel = e)}
-      class="px-5 border border-neutral-800 rounded-md max-h-80 max-w-prose overflow-y-auto"
     >
       {props.children}
     </ul>

@@ -33,33 +33,33 @@ message SpanEvent {
   // Corresponds to `Span` in the `tracing` crate.
   message Span {
     // An Id that uniquely identifies it in relation to other spans.
-    common.SpanId id = 1;
+    uint64 id = 1;
     // Identifier for metadata describing static characteristics of all spans originating
     // from that call site, such as its name, source code location, verbosity level, and
     // the names of its fields.
-    common.MetaId metadata_id = 2;
+    uint64 metadata_id = 2;
     // User-defined key-value pairs of arbitrary data that describe the context the span represents,
     repeated common.Field fields = 3;
-    optional common.SpanId parent = 4;
+    optional uint64 parent = 4;
     // Timestamp for the span.
     google.protobuf.Timestamp at = 5;
   }
 
 
   message Enter {
-    common.SpanId span_id = 1;
+    uint64 span_id = 1;
     uint64 thread_id = 2;
     google.protobuf.Timestamp at = 3;
   }
 
   message Exit {
-    common.SpanId span_id = 1;
+    uint64 span_id = 1;
     uint64 thread_id = 2;
     google.protobuf.Timestamp at = 3;
   }
 
   message Close {
-    common.SpanId span_id = 1;
+    uint64 span_id = 1;
     google.protobuf.Timestamp at = 3;
   }
 }

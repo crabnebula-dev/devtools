@@ -31,18 +31,18 @@ pub mod span_event {
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Span {
         /// An Id that uniquely identifies it in relation to other spans.
-        #[prost(message, optional, tag = "1")]
-        pub id: ::core::option::Option<super::super::common::SpanId>,
+        #[prost(uint64, tag = "1")]
+        pub id: u64,
         /// Identifier for metadata describing static characteristics of all spans originating
         /// from that call site, such as its name, source code location, verbosity level, and
         /// the names of its fields.
-        #[prost(message, optional, tag = "2")]
-        pub metadata_id: ::core::option::Option<super::super::common::MetaId>,
+        #[prost(uint64, tag = "2")]
+        pub metadata_id: u64,
         /// User-defined key-value pairs of arbitrary data that describe the context the span represents,
         #[prost(message, repeated, tag = "3")]
         pub fields: ::prost::alloc::vec::Vec<super::super::common::Field>,
-        #[prost(message, optional, tag = "4")]
-        pub parent: ::core::option::Option<super::super::common::SpanId>,
+        #[prost(uint64, optional, tag = "4")]
+        pub parent: ::core::option::Option<u64>,
         /// Timestamp for the span.
         #[prost(message, optional, tag = "5")]
         pub at: ::core::option::Option<::prost_types::Timestamp>,
@@ -50,8 +50,8 @@ pub mod span_event {
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Enter {
-        #[prost(message, optional, tag = "1")]
-        pub span_id: ::core::option::Option<super::super::common::SpanId>,
+        #[prost(uint64, tag = "1")]
+        pub span_id: u64,
         #[prost(uint64, tag = "2")]
         pub thread_id: u64,
         #[prost(message, optional, tag = "3")]
@@ -60,8 +60,8 @@ pub mod span_event {
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Exit {
-        #[prost(message, optional, tag = "1")]
-        pub span_id: ::core::option::Option<super::super::common::SpanId>,
+        #[prost(uint64, tag = "1")]
+        pub span_id: u64,
         #[prost(uint64, tag = "2")]
         pub thread_id: u64,
         #[prost(message, optional, tag = "3")]
@@ -70,8 +70,8 @@ pub mod span_event {
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Message)]
     pub struct Close {
-        #[prost(message, optional, tag = "1")]
-        pub span_id: ::core::option::Option<super::super::common::SpanId>,
+        #[prost(uint64, tag = "1")]
+        pub span_id: u64,
         #[prost(message, optional, tag = "3")]
         pub at: ::core::option::Option<::prost_types::Timestamp>,
     }

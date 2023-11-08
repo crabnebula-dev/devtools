@@ -1,9 +1,9 @@
 import { createContext, useContext } from "solid-js";
-import { useNavigate } from "@solidjs/router";
 import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
 import { HealthClient } from "~/lib/proto/health.client";
 import { InstrumentClient } from "~/lib/proto/instrument.client";
 import { TauriClient } from "~/lib/proto/tauri.client";
+import { MetadataClient } from "../proto/meta.client";
 
 export function connect(url: string) {
   const abortController = new AbortController();
@@ -16,6 +16,7 @@ export function connect(url: string) {
   const instrumentClient = new InstrumentClient(transport);
   const tauriClient = new TauriClient(transport);
   const healthClient = new HealthClient(transport);
+  const metaClient = new MetadataClient(transport);
 
   return {
     abortController,
@@ -23,18 +24,15 @@ export function connect(url: string) {
       tauri: tauriClient,
       health: healthClient,
       instrument: instrumentClient,
+      meta: metaClient
     },
   };
 }
 
 export type Connection = ReturnType<typeof connect>;
 
-export function disconnect(controller: AbortController, goto = "/") {
-  const navigate = useNavigate();
-
+export function disconnect(controller: AbortController) {
   controller.abort();
-
-  navigate(goto);
 }
 
 export const TransportContext = createContext<{

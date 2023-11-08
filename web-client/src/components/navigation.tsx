@@ -1,5 +1,6 @@
 import { For } from "solid-js";
-import { A, useParams } from "@solidjs/router";
+import { A, useParams, useLocation } from "@solidjs/router";
+import clsx from "clsx";
 
 const TABS = [
   {
@@ -22,16 +23,35 @@ const TABS = [
 
 export function Navigation() {
   const { host, port } = useParams();
+  const location = useLocation();
   return (
-    <nav class="pt-10">
-      <ul class="flex flex-start text-lg border-b-[1px] border-b-neutral-800">
+    <nav>
+      <ul class="flex border-b flex-start border-b-neutral-800">
         <For each={TABS}>
           {(tab) => (
             <li>
               <A
+                // Maximum a11y: respond to both Enter _and_ Space
+                // Buttons natively do this, anchor links not but we
+                // want these to behave like buttons also.
+                // Ref: https://www.w3.org/WAI/ARIA/apg/patterns/button
+                onkeydown={(e) => {
+                  if (e.key !== " ") {
+                    return;
+                  }
+
+                  e.preventDefault();
+                  e.currentTarget.click();
+                }}
                 href={tab.url(host, port)}
-                class="border-[1px] border-gray-700  border-b-0 py-2 px-8"
-                activeClass=" border-[1px] border-b-0 border-gray-700 py-2 bg-gray-900"
+                class={clsx(
+                  location.pathname === tab.url(host, port)
+                    ? "border-b-gray-500 hover:border-b-gray-400"
+                    : "border-b-gray-800 hover:border-b-gray-600",
+
+                  // The rest
+                  "flex -mb-[1px] items-center justify-center leading-none border-b py-2 px-4 hover:bg-gray-800 hover:border-gray-800"
+                )}
               >
                 {tab.title}
               </A>
