@@ -1,7 +1,7 @@
 // Initializing a TextDecoder is expensive plus they can be reused,
 // so we create a global instance
 import { useRouteData } from "@solidjs/router";
-import { createResource, Suspense } from "solid-js";
+import { createEffect, createResource, Suspense } from "solid-js";
 import { getEntryBytes } from "~/lib/sources/util.ts";
 import { getHighlighter, setCDN, setWasm } from "shiki";
 import { Connection } from "~/lib/connection/transport.ts";
@@ -40,11 +40,9 @@ export default function CodeView(props: {
   const html = () => highlighter()?.codeToHtml(text(), { lang: props.lang });
 
   return (
-    <div
-      class={"min-h-full h-[max-content] min-w-full w-[max-content]"}
-      style={{ "background-color": "rgb(7 7 7)" }}
-    >
+    <div class="min-h-full h-max min-w-full w-max bg-black bg-opacity-50">
       <Suspense fallback={<span>Loading...</span>}>
+        {/* eslint-disable-next-line solid/no-innerhtml */}
         <div innerHTML={html()} />
       </Suspense>
     </div>
