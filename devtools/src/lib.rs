@@ -110,7 +110,7 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
 pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
     // set up data channels & shared data
     let shared = Arc::new(Shared::default());
-    let (event_tx, event_rx) = mpsc::channel(256);
+    let (event_tx, event_rx) = mpsc::channel(512);
     let (cmd_tx, cmd_rx) = mpsc::channel(256);
 
     // set up components

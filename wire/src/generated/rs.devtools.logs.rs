@@ -20,13 +20,13 @@ pub struct LogEvent {
     #[prost(string, tag = "1")]
     pub message: ::prost::alloc::string::String,
     /// Log events can happen inside of spans and if they do, this field will indicate which span it was.
-    #[prost(message, optional, tag = "2")]
-    pub parent: ::core::option::Option<super::common::SpanId>,
+    #[prost(uint64, optional, tag = "2")]
+    pub parent: ::core::option::Option<u64>,
     /// Identifier for metadata describing static characteristics of all spans originating
     /// from that call site, such as its name, source code location, verbosity level, and
     /// the names of its fields.
-    #[prost(message, optional, tag = "3")]
-    pub metadata_id: ::core::option::Option<super::common::MetaId>,
+    #[prost(uint64, tag = "3")]
+    pub metadata_id: u64,
     /// User-defined key-value pairs of arbitrary data associated with the event.
     #[prost(message, repeated, tag = "4")]
     pub fields: ::prost::alloc::vec::Vec<super::common::Field>,

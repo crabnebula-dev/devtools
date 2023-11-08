@@ -1,5 +1,19 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VersionsRequest {}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Versions {
+    /// / Tauri version, follows SemVer.
+    #[prost(string, tag = "1")]
+    pub tauri: ::prost::alloc::string::String,
+    /// / Version of the OS'es webview.
+    /// / The format of this is freeform and changes depending on the OS.
+    #[prost(string, optional, tag = "2")]
+    pub webview: ::core::option::Option<::prost::alloc::string::String>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ConfigRequest {}
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -106,6 +120,28 @@ pub mod tauri_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
+        pub async fn get_versions(
+            &mut self,
+            request: impl tonic::IntoRequest<super::VersionsRequest>,
+        ) -> std::result::Result<tonic::Response<super::Versions>, tonic::Status> {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::new(
+                        tonic::Code::Unknown,
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/rs.devtools.tauri.Tauri/GetVersions",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("rs.devtools.tauri.Tauri", "GetVersions"));
+            self.inner.unary(req, path, codec).await
+        }
         pub async fn get_config(
             &mut self,
             request: impl tonic::IntoRequest<super::ConfigRequest>,
@@ -159,6 +195,10 @@ pub mod tauri_server {
     /// Generated trait containing gRPC methods that should be implemented for use with TauriServer.
     #[async_trait]
     pub trait Tauri: Send + Sync + 'static {
+        async fn get_versions(
+            &self,
+            request: tonic::Request<super::VersionsRequest>,
+        ) -> std::result::Result<tonic::Response<super::Versions>, tonic::Status>;
         async fn get_config(
             &self,
             request: tonic::Request<super::ConfigRequest>,
@@ -247,6 +287,50 @@ pub mod tauri_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
+                "/rs.devtools.tauri.Tauri/GetVersions" => {
+                    #[allow(non_camel_case_types)]
+                    struct GetVersionsSvc<T: Tauri>(pub Arc<T>);
+                    impl<T: Tauri> tonic::server::UnaryService<super::VersionsRequest>
+                    for GetVersionsSvc<T> {
+                        type Response = super::Versions;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::VersionsRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Tauri>::get_versions(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = GetVersionsSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
                 "/rs.devtools.tauri.Tauri/GetConfig" => {
                     #[allow(non_camel_case_types)]
                     struct GetConfigSvc<T: Tauri>(pub Arc<T>);
