@@ -731,18 +731,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "example-tauri"
-version = "0.1.0"
-dependencies = [
- "reqwest",
- "tauri",
- "tauri-build",
- "tauri-devtools",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "fastrand"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1422,16 +1410,16 @@ dependencies = [
 
 [[package]]
 name = "iana-time-zone"
-version = "0.1.58"
+version = "0.1.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8326b86b6cff230b97d0d312a6c40a60726df3332e721f72a1b035f451663b20"
+checksum = "2fad5b825842d2b38bd206f3e81d6957625fd7f0a361e345c30e01a0ae2dd613"
 dependencies = [
  "android_system_properties",
  "core-foundation-sys",
  "iana-time-zone-haiku",
  "js-sys",
  "wasm-bindgen",
- "windows-core",
+ "windows 0.48.0",
 ]
 
 [[package]]
@@ -1695,9 +1683,9 @@ checksum = "da2479e8c062e40bf0066ffa0bc823de0a9368974af99c9f6df941d2c231e03f"
 
 [[package]]
 name = "lock_api"
-version = "0.4.11"
+version = "0.4.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c168f8615b12bc01f9c17e2eb0cc07dcae1940121185446edc3744920e8ef45"
+checksum = "c1cc9717a20b1bb222f333e6a92fd32f7d8a18ddc5a3191a11af45dcbf4dcd16"
 dependencies = [
  "autocfg",
  "scopeguard",
@@ -2095,13 +2083,13 @@ dependencies = [
 
 [[package]]
 name = "parking_lot_core"
-version = "0.9.9"
+version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c42a9226546d68acdd9c0a280d17ce19bfe27a46bf68784e4066115788d008e"
+checksum = "93f00c865fe7cabf650081affecd3871070f26767e7b2070a3ffae14c654b447"
 dependencies = [
  "cfg-if",
  "libc",
- "redox_syscall 0.4.1",
+ "redox_syscall 0.3.5",
  "smallvec",
  "windows-targets",
 ]
@@ -2550,15 +2538,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "redox_syscall"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4722d768eff46b75989dd134e5c353f0d6296e5aaa3132e776cbdb56be7731aa"
-dependencies = [
- "bitflags 1.3.2",
-]
-
-[[package]]
 name = "redox_users"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2853,9 +2832,9 @@ dependencies = [
 
 [[package]]
 name = "serde_with"
-version = "3.4.0"
+version = "3.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64cd236ccc1b7a29e7e2739f27c0b2dd199804abc4290e32f59f3b68d6405c23"
+checksum = "1ca3b16a3d82c4088f343b7480a93550b3eabe1a358569c2dfe38bbcead07237"
 dependencies = [
  "base64 0.21.4",
  "chrono",
@@ -2870,9 +2849,9 @@ dependencies = [
 
 [[package]]
 name = "serde_with_macros"
-version = "3.4.0"
+version = "3.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93634eb5f75a2323b16de4748022ac4297f9e76b6dced2be287a099f41b5e788"
+checksum = "2e6be15c453eb305019bfa438b1593c731f36a289a7853f7707ee29e870b3b3c"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -3207,7 +3186,7 @@ checksum = "9d0e916b1148c8e263850e1ebcbd046f333e0683c724876bb0da63ea4373dc8a"
 [[package]]
 name = "tauri"
 version = "1.5.0"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#1283039f6317fc762e11cae720e17e8531ac3b86"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "anyhow",
  "cocoa",
@@ -3252,7 +3231,7 @@ dependencies = [
 [[package]]
 name = "tauri-build"
 version = "1.5.0"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#1283039f6317fc762e11cae720e17e8531ac3b86"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "anyhow",
  "cargo_toml",
@@ -3270,7 +3249,7 @@ dependencies = [
 [[package]]
 name = "tauri-codegen"
 version = "1.4.1"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#1283039f6317fc762e11cae720e17e8531ac3b86"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "base64 0.21.4",
  "brotli",
@@ -3292,48 +3271,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "tauri-devtools"
+name = "tauri-example"
 version = "0.1.0"
 dependencies = [
- "async-stream",
- "bytes",
- "colored",
- "futures",
- "prost-types",
- "ringbuf",
+ "reqwest",
  "tauri",
- "tauri-devtools-wire-format",
- "thiserror",
+ "tauri-build",
+ "tauri_devtools",
  "tokio",
- "tokio-stream",
- "tonic",
- "tonic-health",
- "tonic-web",
- "tower-http",
  "tracing",
- "tracing-core",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "tauri-devtools-wire-format"
-version = "0.1.0"
-dependencies = [
- "bitflags 2.4.1",
- "prost",
- "prost-build",
- "prost-types",
- "serde_json",
- "tauri",
- "tonic",
- "tonic-build",
- "tracing-core",
 ]
 
 [[package]]
 name = "tauri-macros"
 version = "1.4.1"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#1283039f6317fc762e11cae720e17e8531ac3b86"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "heck 0.4.1",
  "proc-macro2",
@@ -3346,7 +3298,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime"
 version = "0.14.1"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#1283039f6317fc762e11cae720e17e8531ac3b86"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "gtk",
  "http",
@@ -3366,7 +3318,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime-wry"
 version = "0.14.1"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#1283039f6317fc762e11cae720e17e8531ac3b86"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "cocoa",
  "gtk",
@@ -3386,7 +3338,7 @@ dependencies = [
 [[package]]
 name = "tauri-utils"
 version = "1.5.0"
-source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#1283039f6317fc762e11cae720e17e8531ac3b86"
+source = "git+https://github.com/crabnebula-dev/tauri.git?branch=feat/core-tracing-v1#d6499a4bc73fd3972f567d09241180b23e0936fc"
 dependencies = [
  "brotli",
  "ctor",
@@ -3420,6 +3372,46 @@ checksum = "5993dc129e544393574288923d1ec447c857f3f644187f4fbf7d9a875fbfc4fb"
 dependencies = [
  "embed-resource",
  "toml 0.7.8",
+]
+
+[[package]]
+name = "tauri_devtools"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "colored",
+ "futures",
+ "prost",
+ "prost-types",
+ "ringbuf",
+ "serde_json",
+ "tauri",
+ "tauri_devtools_wire_format",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tonic-health",
+ "tonic-web",
+ "tower-http",
+ "tracing",
+ "tracing-core",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "tauri_devtools_wire_format"
+version = "0.1.0"
+dependencies = [
+ "bitflags 2.4.1",
+ "prost",
+ "prost-build",
+ "prost-types",
+ "serde_json",
+ "tauri",
+ "tonic",
+ "tonic-build",
+ "tracing-core",
 ]
 
 [[package]]
@@ -3792,9 +3784,9 @@ checksum = "b6bc1c9ce2b5135ac7f93c72918fc37feb872bdc6a5533a8b85eb4b86bfdae52"
 
 [[package]]
 name = "tracing"
-version = "0.1.40"
+version = "0.1.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3523ab5a71916ccf420eebdf5521fcef02141234bbc0b8a49f2fdc4544364ef"
+checksum = "ee2ef2af84856a50c1d430afce2fdded0a4ec7eda868db86409b4543df0797f9"
 dependencies = [
  "pin-project-lite",
  "tracing-attributes",
@@ -3919,9 +3911,9 @@ checksum = "09cc8ee72d2a9becf2f2febe0205bbed8fc6615b7cb429ad062dc7b7ddd036a9"
 
 [[package]]
 name = "uuid"
-version = "1.5.0"
+version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88ad59a7560b41a70d191093a945f0b87bc1deeda46fb237479708a1d6b6cdfc"
+checksum = "79daa5ed5740825c40b389c5e50312b9c86df53fccd33f281df655642b43869d"
 dependencies = [
  "getrandom 0.2.10",
 ]
@@ -4242,15 +4234,6 @@ checksum = "68003dbd0e38abc0fb85b939240f4bce37c43a5981d3df37ccbaaa981b47cb41"
 dependencies = [
  "windows-metadata",
  "windows-tokens",
-]
-
-[[package]]
-name = "windows-core"
-version = "0.51.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1f8cf84f35d2db49a46868f947758c7a1138116f7fac3bc844f43ade1292e64"
-dependencies = [
- "windows-targets",
 ]
 
 [[package]]

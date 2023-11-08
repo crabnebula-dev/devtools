@@ -1,4 +1,4 @@
-import {getIconForFolder} from "file-icons";
+import {getIconForFolder} from "@crabnebula/file-icons";
 
 export default function Folder(props: { path: string}) {
     const icon = getIconForFolder(props.path);

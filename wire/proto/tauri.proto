@@ -5,11 +5,23 @@ package rs.devtools.tauri;
 import "google/protobuf/timestamp.proto";
 
 service Tauri {
+  rpc GetVersions(VersionsRequest) returns (Versions) {}
+
   rpc GetConfig(ConfigRequest) returns (Config) {}
 
   rpc GetSchema(SchemaRequest) returns (Schema) {}
 
   rpc GetMetrics(MetricsRequest) returns (Metrics) {}
+}
+
+message VersionsRequest {}
+
+message Versions {
+  /// Tauri version, follows SemVer.
+  string tauri = 1;
+  /// Version of the OS'es webview.
+  /// The format of this is freeform and changes depending on the OS. 
+  optional string webview = 2;
 }
 
 message ConfigRequest {}

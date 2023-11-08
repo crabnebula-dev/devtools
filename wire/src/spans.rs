@@ -17,11 +17,11 @@ impl SpanEvent {
     ) -> Self {
         Self {
             event: Some(span_event::Event::NewSpan(span_event::Span {
-                id: Some(id.into()),
-                metadata_id: Some(metadata.into()),
+                id: id.into_u64(),
+                metadata_id: metadata as *const _ as u64,
                 fields,
                 at: Some(at),
-                parent: parent.map(|id| id.into()),
+                parent: parent.map(|id| id.into_u64()),
             })),
         }
     }
@@ -33,7 +33,7 @@ impl SpanEvent {
     ) -> Self {
         Self {
             event: Some(span_event::Event::EnterSpan(span_event::Enter {
-                span_id: Some(id.into()),
+                span_id: id.into_u64(),
                 thread_id,
                 at: Some(at),
             })),
@@ -47,7 +47,7 @@ impl SpanEvent {
     ) -> Self {
         Self {
             event: Some(span_event::Event::ExitSpan(span_event::Exit {
-                span_id: Some(id.into()),
+                span_id: id.into_u64(),
                 thread_id,
                 at: Some(at),
             })),
@@ -57,7 +57,7 @@ impl SpanEvent {
     pub fn close_span(at: prost_types::Timestamp, id: tracing_core::span::Id) -> Self {
         Self {
             event: Some(span_event::Event::CloseSpan(span_event::Close {
-                span_id: Some(id.into()),
+                span_id: id.into_u64(),
                 at: Some(at),
             })),
         }
