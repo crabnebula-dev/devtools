@@ -278,12 +278,15 @@ impl<R: Runtime> SourcesService<R> {
                 let path = entry.path();
                 let path = path.strip_prefix(&root)?;
 
-                if is_asset(path, &app_handle.config().build.dist_dir) {
+                let path = path.to_string_lossy().to_string();
+
+                let is_asset = app_handle.asset_resolver().iter().any(|(p, _)| p.ends_with(&path));
+                if is_asset {
                     file_type |= FileType::ASSET;
                 }
 
                 yield Entry {
-                    path: path.to_string_lossy().to_string(),
+                    path,
                     size: entry.metadata().await?.len(),
                     file_type: file_type.bits(),
                 };
