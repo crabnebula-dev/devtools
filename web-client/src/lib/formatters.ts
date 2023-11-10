@@ -4,6 +4,10 @@ export function timestampToDate(ts: Timestamp): Date {
   return new Date(Number(ts.seconds * 1000n) + ts.nanos / 1e6);
 }
 
+export function convertTimestampToNanoseconds(timestamp: Timestamp): number {
+  return (Number(timestamp.seconds) * 1e9) + (timestamp.nanos);
+}
+
 function formatMs(ms: string) {
   switch (ms.length) {
     case 1:
