@@ -18,7 +18,7 @@ export function FilterToggle(props: FilterToggleProps) {
       onChange={props.changeHandler}
     >
       {(state) => (
-        <span class={`${state.pressed() ? "text-teal-500" : ""}`}>
+        <span class={`${state.pressed() ? "text-consulting-500" : ""}`}>
           {props.children}
         </span>
       )}

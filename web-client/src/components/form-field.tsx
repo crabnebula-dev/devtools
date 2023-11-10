@@ -26,7 +26,7 @@ export const FormField = (props: Props) => {
         value={props.value}
         placeholder={props.placeholder}
         onInput={props.onInput}
-        class="text-2xl bg-transparent border-b border-white focus:border-teal-500 p-2"
+        class="text-2xl bg-transparent border-b border-white focus:border-consulting-500 p-2"
       />
     </label>
   );

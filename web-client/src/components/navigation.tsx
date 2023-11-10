@@ -26,7 +26,7 @@ export function Navigation() {
   const location = useLocation();
   return (
     <nav>
-      <ul class="flex border-b flex-start border-b-neutral-800">
+      <ul class="flex border-b flex-start border-b-gray-700">
         <For each={TABS}>
           {(tab) => (
             <li>
@@ -46,7 +46,7 @@ export function Navigation() {
                 href={tab.url(host, port)}
                 class={clsx(
                   location.pathname === tab.url(host, port)
-                    ? "border-b-gray-500 hover:border-b-gray-400"
+                    ? "border-b-primary-800 hover:border-b-primary-800"
                     : "border-b-gray-800 hover:border-b-gray-600",
 
                   // The rest
