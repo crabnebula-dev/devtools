@@ -56,13 +56,13 @@ export function findLineNumberByNestedKey(
   const Indent = 2;
 
   let currentLine = 1;
-  let keyStack: string[] = [];
-  let searchIndents: number[] = [0];
+  const keyStack: string[] = [];
+  const searchIndents: number[] = [0];
   let searchLevel = 0;
 
   let arrayCounter = 0;
 
-  for (let line of lines) {
+  for (const line of lines) {
     const currentIndent = line.length - line.trimStart().length;
     // If a property is closed we move up a level
     if (keyStack.length > 0 && searchIndents[searchLevel] === currentIndent) {

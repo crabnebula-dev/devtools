@@ -47,7 +47,7 @@ export default function JsonView(props: {
 
   createEffect(() => {
     highlightKey();
-    let highlightedLine = document.querySelector(".line.highlighted");
+    const highlightedLine = document.querySelector(".line.highlighted");
     if (highlightedLine) {
       highlightedLine.scrollIntoView({ behavior: "smooth", block: "center" });
     }
@@ -71,6 +71,7 @@ export default function JsonView(props: {
     >
       <h1 class="text-2xl p-4">{props.path}</h1>
       <Suspense fallback={<span>Loading...</span>}>
+        {/* eslint-disable-next-line solid/no-innerhtml */}
         <div innerHTML={html()} />
       </Suspense>
     </div>
