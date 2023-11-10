@@ -6,8 +6,8 @@ import { getEntryBytes } from "~/lib/sources/util.ts";
 import { getHighlighter, setCDN, setWasm } from "shiki";
 import { Connection } from "~/lib/connection/transport.ts";
 import "./highlight.css";
-import { findLineNumberByNestedKey } from "~/lib/json-schema-parser";
-import { useHighlightKey } from "./highlight-key";
+import { findLineNumberByNestedKey } from "~/lib/tauri/tauri-conf-schema";
+import { useConfiguration } from "./configuration-context";
 import { createEffect } from "solid-js";
 
 const TEXT_DECODER = new TextDecoder();
@@ -41,7 +41,9 @@ export default function JsonView(props: {
 
   const [highlighter] = createHighlighter();
 
-  const [highlightKey] = useHighlightKey();
+  const {
+    highlightKey: { highlightKey },
+  } = useConfiguration();
 
   createEffect(() => {
     highlightKey();
@@ -67,6 +69,7 @@ export default function JsonView(props: {
       class={"min-h-full h-[max-content] min-w-full w-[max-content]"}
       style={{ "background-color": "rgb(7 7 7)" }}
     >
+      <h1 class="text-2xl p-4">{props.path}</h1>
       <Suspense fallback={<span>Loading...</span>}>
         <div innerHTML={html()} />
       </Suspense>

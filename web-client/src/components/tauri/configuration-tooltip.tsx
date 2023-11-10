@@ -1,21 +1,21 @@
 import { Tooltip } from "@kobalte/core";
-import { useDescriptions } from "~/views/dashboard/tauri";
+import { useConfiguration } from "~/components/tauri/configuration-context";
 import SolidMarkdown from "solid-markdown";
 import { Show, For, Switch, Match } from "solid-js";
-import { useHighlightKey } from "~/components/tauri/highlight-key";
 
 export function ConfigurationTooltip(props: {
   key: string;
   parentKey: string;
 }) {
-  const descriptions = useDescriptions();
+  const {
+    descriptions: { descriptions },
+    highlightKey: { setHighlightKey },
+  } = useConfiguration();
 
   const key = () =>
     props.parentKey !== "" ? props.parentKey + "." + props.key : props.key;
   const localSchema = () =>
-    descriptions.has(key()) ? descriptions.get(key()) : undefined;
-
-  const [, { setHighlightKey }] = useHighlightKey();
+    descriptions().has(key()) ? descriptions().get(key()) : undefined;
 
   function updateHighlightKey() {
     setHighlightKey(key());

@@ -1,43 +1,21 @@
-import {
-  Show,
-  createSignal,
-  createContext,
-  useContext,
-  onMount,
-} from "solid-js";
-import { useMonitor } from "~/lib/connection/monitor";
+import { Show, createSignal, onMount } from "solid-js";
 import { ConfigurationView } from "~/components/tauri/configuration-view";
-import { buildSchemaMap } from "~/lib/json-schema-parser";
 import { Sidebar } from "~/components/tauri/sidebar";
 import JsonView from "~/components/tauri/json-view.tsx";
-import { HighlightKeyProvider } from "~/components/tauri/highlight-key";
+import { ConfigurationContextProvider } from "~/components/tauri/configuration-context";
 import Split from "split.js";
 import "~/components/tauri/gutter-style.css";
-
-const DescriptionsContext = createContext<Map<string, any>>();
-
-export function useDescriptions() {
-  const ctx = useContext(DescriptionsContext);
-  if (!ctx) throw new Error("Could not load descriptions for config");
-  return ctx;
-}
+import { useSearchParams } from "@solidjs/router";
 
 export default function TauriConfig() {
-  const { monitorData } = useMonitor();
+  const [searchParams] = useSearchParams();
+  const jsonPath = () => searchParams.path;
+  const size = () => Number(searchParams.size);
 
-  const descriptions = buildSchemaMap(
-    monitorData.schema ?? {},
-    monitorData.tauriConfig!
-  );
-
-  // build config array we can iterate over and remove empty entries
-  const nav = Object.entries(monitorData.tauriConfig!).filter(
-    ([_, entries]) => typeof entries === "object"
-  );
-
-  const [currentView, setCurrentView] = createSignal(
-    nav.length > 0 ? nav[0] : undefined
-  );
+  const [currentView, setCurrentView] = createSignal<{
+    name: string;
+    data: Record<string, any>;
+  }>();
 
   const splitGutterSizesKey = "tauri-config-split-sizes";
   const storedSizes = localStorage.getItem(splitGutterSizesKey);
@@ -58,28 +36,25 @@ export default function TauriConfig() {
   });
 
   return (
-    <DescriptionsContext.Provider value={descriptions}>
-      <HighlightKeyProvider>
-        <div class="flex h-full tauri-config ">
-          <aside id="side" class="border-neutral-800 border-r-2">
-            <Sidebar nav={nav} setCurrentNavElement={setCurrentView} />
-          </aside>
-          <section
-            id="config"
-            class="border-neutral-800 border-x-2 p-4 overflow-auto"
-          >
-            <Show when={currentView()}>
-              <ConfigurationView tab={currentView()} />
-            </Show>
-          </section>
-          <section
-            id="json"
-            class="border-neutral-800 border-x-2 overflow-auto"
-          >
-            <JsonView path="tauri.conf.json" size={1216} lang="json" />
-          </section>
-        </div>
-      </HighlightKeyProvider>
-    </DescriptionsContext.Provider>
+    <ConfigurationContextProvider>
+      <div class="flex h-full tauri-config ">
+        <aside id="side" class="border-neutral-800 border-r-2">
+          <Sidebar setCurrentNavElement={setCurrentView} />
+        </aside>
+        <section
+          id="config"
+          class="border-neutral-800 border-x-2 p-4 overflow-auto"
+        >
+          <Show when={currentView()}>
+            <ConfigurationView tab={currentView()} />
+          </Show>
+        </section>
+        <section id="json" class="border-neutral-800 border-x-2 overflow-auto">
+          <Show when={jsonPath()}>
+            <JsonView path={jsonPath()} size={size()} lang="json" />
+          </Show>
+        </section>
+      </div>
+    </ConfigurationContextProvider>
   );
 }
