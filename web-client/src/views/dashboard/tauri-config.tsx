@@ -30,7 +30,7 @@ export default function TauriConfig() {
           <section class="mt-4">
             <Collapsible.Root>
               <Collapsible.Trigger>
-                <h3 class="text-2xl text-consulting-300">Security</h3>
+                <h3 class="text-2xl text-primary-300">Security</h3>
               </Collapsible.Trigger>
               <Collapsible.Content>
                 <ul class="pl-8 flex flex-col gap-3">
@@ -60,7 +60,7 @@ export default function TauriConfig() {
       <Show when={monitorData.tauriConfig?.tauri.bundle}>
         {(bundle) => (
           <section class="mt-4">
-            <h3 class="text-2xl text-consulting-300">Icons</h3>
+            <h3 class="text-2xl text-primary-300">Icons</h3>
             <ul class="pl-8 flex flex-col gap-3">
               <For each={bundle().icon}>{(icon) => <li>{icon()}</li>}</For>
             </ul>
