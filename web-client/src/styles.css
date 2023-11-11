@@ -44,6 +44,7 @@
     font-weight: 600;
     font-display: swap;
   }
+
   :root {
     font-size: 13px;
     --toolbar-height: 2.15rem;
@@ -54,9 +55,13 @@
 }
 
 @layer components {
+  .gutter,
+  .gutter:hover {
+    @apply cursor-col-resize;
+  }
+
   .surf-container {
-    @apply overflow-hidden absolute inset-0 w-full h-full;
-    z-index: -1;
+    @apply overflow-hidden absolute inset-0 w-full h-full -z-10;
     animation: 3s cubic-bezier(0.165, 0.84, 0.44, 1) 0s 1 fadein;
   }
 

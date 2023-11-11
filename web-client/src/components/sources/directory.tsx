@@ -17,7 +17,7 @@ interface DirectoryProps extends JSX.HTMLAttributes<HTMLDivElement> {
   entry: Entry;
 }
 
-export default function Directory(props: DirectoryProps) {
+export function Directory(props: DirectoryProps) {
   const { client } = useRouteData<Connection>();
   const [entries] = awaitEntries(client.sources, props.entry.path);
   const sortedEntries = () => entries()?.sort(sortByPath);
