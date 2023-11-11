@@ -8,7 +8,8 @@ export function ImageView(props: { path: string; size: number; type: string }) {
   const { client } = useRouteData<Connection>();
   const [bytes] = createResource(
     () => [client.sources, props.path, props.size] as const,
-    ([client, path, size]) => getEntryBytes(client, path, size)
+    ([client, path, size]) =>
+      getEntryBytes(client, path.replaceAll("-", "."), size)
   );
 
   const url = () =>
@@ -17,9 +18,9 @@ export function ImageView(props: { path: string; size: number; type: string }) {
   return (
     <Suspense fallback={<Loader />}>
       <img
-        class={"max-w-full max-h-full"}
-        style={"margin: auto;"}
+        class="max-w-full max-h-full"
         src={url()}
+        alt={`image for ${props.path}`}
       />
     </Suspense>
   );

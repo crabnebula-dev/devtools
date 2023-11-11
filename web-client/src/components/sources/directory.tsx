@@ -1,4 +1,4 @@
-import { createSignal, For, JSX, Suspense } from "solid-js";
+import { createSignal, For, JSX, JSXElement, Show, Suspense } from "solid-js";
 import { Entry } from "~/lib/proto/sources.ts";
 import { A, useRouteData } from "@solidjs/router";
 import { Connection } from "~/lib/connection/transport.ts";
@@ -12,6 +12,7 @@ import {
   sortByPath,
   isAssetOrResource,
 } from "~/lib/sources/util.ts";
+import { Loader } from "~/components/loader";
 
 interface DirectoryProps extends JSX.HTMLAttributes<HTMLDivElement> {
   entry: Entry;
@@ -23,8 +24,8 @@ export function Directory(props: DirectoryProps) {
   const sortedEntries = () => entries()?.sort(sortByPath);
 
   return (
-    <Suspense fallback={<span class={"pl-2"}>Loading...</span>}>
-      <ol class={props.class}>
+    <Suspense fallback={<Loader />}>
+      <ul class={props.class}>
         <For each={sortedEntries()} fallback={<li>Empty</li>}>
           {(child) => {
             const absolutePath = [props.entry.path, child.path]
@@ -38,17 +39,17 @@ export function Directory(props: DirectoryProps) {
                   as={"li"}
                   onOpenChange={(isOpen) => setIsOpen(isOpen)}
                 >
-                  <Collapsible.Trigger class={"w-full"}>
+                  <Collapsible.Trigger class="w-full">
                     <TreeEntry
-                      caret={() => (isOpen() ? <CaretDown /> : <CaretRight />)}
+                      caret={isOpen() ? <CaretDown /> : <CaretRight />}
                       icon={<IDEicon path={child.path} />}
                       isAssetOrResource={isAssetOrResource(child)}
                     >
                       {child.path}
                     </TreeEntry>
                   </Collapsible.Trigger>
-                  <Collapsible.Content class={"tree_view__content"}>
-                    <div class={"pl-4"}>
+                  <Collapsible.Content>
+                    <div class="pl-4">
                       <Directory entry={{ ...child, path: absolutePath }} />
                     </div>
                   </Collapsible.Content>
@@ -60,7 +61,13 @@ export function Directory(props: DirectoryProps) {
                   icon={<IDEicon path={child.path} />}
                   isAssetOrResource={isAssetOrResource(child)}
                 >
-                  <A href={`${absolutePath}?sizeHint=${child.size}`}>
+                  <A
+                    class="block w-full"
+                    activeClass="bg-neutral-400 text-pink-900"
+                    href={`${absolutePath.replaceAll(".", "-")}?sizeHint=${
+                      child.size
+                    }`}
+                  >
                     {child.path}
                   </A>
                 </TreeEntry>
@@ -68,36 +75,28 @@ export function Directory(props: DirectoryProps) {
             }
           }}
         </For>
-      </ol>
+      </ul>
     </Suspense>
   );
 }
 
-interface TreeEntryProps
-  extends Omit<JSX.HTMLAttributes<HTMLLIElement>, "class"> {
-  caret?: () => JSX.Element;
+type TreeEntryProps = {
+  caret?: JSXElement;
   icon: JSX.Element;
   isAssetOrResource: boolean;
-}
+  children: JSXElement;
+};
 
 function TreeEntry(props: TreeEntryProps) {
-  const { caret, icon, children, ...rest } = props;
-
   return (
     <li
-      {...rest}
-      class={`grid gap-1.5 hover:bg-gray-800 items-center text-left`}
-      style={{
-        "grid-template-columns": "1em 1em 1fr",
-        "background-color": props.isAssetOrResource
-          ? "rgba(255,165,0, 0.35)"
-          : "",
-      }}
+      class={`grid gap-1.5 text-lg hover:bg-gray-800 focus:bg-gray-800 text-left ${
+        props.caret ? "grid-cols-[1em_1em_1fr]" : "grid-cols-[1em_1fr]"
+      }`}
     >
-      {caret ? caret() : <span />}
-      {icon}
-      {children}
-      {props.isAssetOrResource}
+      <Show when={Boolean(props.caret)}>{props.caret}</Show>
+      {props.icon}
+      {props.children}
     </li>
   );
 }
