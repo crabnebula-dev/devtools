@@ -51,16 +51,16 @@ export default function Layout() {
     setMonitorData("health", status);
   });
 
-  createEffect(() => {
-    setMonitorData("tauriConfig", tauriConfig());
-  });
-
-  createEffect(() => {
-    if (tauriMetrics()) {
-      //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      setMonitorData("perf", tauriMetrics()!);
-    }
-  });
+  // createEffect(() => {
+  //   setMonitorData("tauriConfig", tauriConfig());
+  // });
+  //
+  // createEffect(() => {
+  //   if (tauriMetrics()) {
+  //     //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  //     setMonitorData("perf", tauriMetrics()!);
+  //   }
+  // });
 
   const updateStream = client.instrument.watchUpdates(
     InstrumentRequest.create({})
@@ -74,14 +74,17 @@ export default function Layout() {
       closeSession();
     }),
     updateStream.responses.onError(() => {
+      console.log("update stream onError");
       closeSession();
     }),
     updateStream.responses.onComplete(() => {
+      console.log("update stream onComplete");
       closeSession();
     }),
   ];
 
   updateStream.responses.onMessage((update) => {
+    console.log("update stream onMessage");
     if (update.newMetadata.length > 0) {
       setMonitorData("metadata", (prev) => updateSpanMetadata(prev, update));
     }

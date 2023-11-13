@@ -1,5 +1,6 @@
 [package]
-name = "cli"
+name = "replay"
+description = "Tauri Devtools Replay allows you to replay recorded devtools sessions."
 authors.workspace = true
 edition.workspace = true
 version.workspace = true
@@ -17,4 +18,7 @@ memmap2 = "0.9.0"
 clap = { version = "4.4.8", features = ["derive"] }
 tonic.workspace = true
 tonic-web = "0.10"
-async-stream = "0.3.5"
+tower-http = "0.4"
+tonic-health = "0.10"
+colored = "2.0"
+futures = "0.3.28"
