@@ -45,14 +45,14 @@ export async function getHighlightedCode([
   const responseWasm = await fetch("/shiki/onig.wasm");
   setWasm(responseWasm);
 
-  const highlither = await getHighlighter({
+  const highlighter = await getHighlighter({
     theme: "material-theme-ocean",
     langs: SUPPORTED_LANGS,
     paths: { wasm: "dist/" },
   });
 
   const bytes = await getEntryBytes(sourcesClient, path, size);
-  const code = bytesToHtml(bytes, lang, highlither);
+  const code = bytesToHtml(bytes, lang, highlighter);
 
   return code;
 }
