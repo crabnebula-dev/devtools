@@ -2,7 +2,7 @@ import { Entry } from "~/lib/proto/sources.ts";
 import { FileType } from "~/lib/sources/file-entries.ts";
 import { SplitPane } from "~/components/split-pane";
 import { Directory } from "~/components/sources/directory.tsx";
-import { SourcePane } from "../../components/sources/source-pane";
+import { SourcePane } from "~/components/sources/source-pane";
 
 export default function Sources() {
   const root: Entry = { path: "", size: 0n, fileType: FileType.DIR };

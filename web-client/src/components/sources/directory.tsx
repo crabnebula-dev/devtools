@@ -14,16 +14,19 @@ import {
 } from "~/lib/sources/file-entries";
 import { Loader } from "~/components/loader";
 
-interface DirectoryProps extends JSX.HTMLAttributes<HTMLDivElement> {
+type DirectoryProps = {
   entry: Entry;
-}
+  class?: string;
+};
 
 type TreeEntryProps = {
   caret?: JSXElement;
-  icon: JSX.Element;
+  icon: JSXElement;
   isAssetOrResource: boolean;
   children: JSXElement;
 };
+
+const liStyles = "hover:bg-gray-800 hover:text-white focus:bg-gray-800";
 
 export function Directory(props: DirectoryProps) {
   const { client } = useRouteData<Connection>();
@@ -46,7 +49,7 @@ export function Directory(props: DirectoryProps) {
                   as={"li"}
                   onOpenChange={(isOpen) => setIsOpen(isOpen)}
                 >
-                  <Collapsible.Trigger class="w-full">
+                  <Collapsible.Trigger class={`w-full ${liStyles}`}>
                     <TreeEntry
                       caret={isOpen() ? <CaretDown /> : <CaretRight />}
                       icon={<IDEicon path={child.path} />}
@@ -64,20 +67,20 @@ export function Directory(props: DirectoryProps) {
               );
             } else {
               return (
-                <TreeEntry
-                  icon={<IDEicon path={child.path} />}
-                  isAssetOrResource={isAssetOrResource(child)}
+                <A
+                  class={`block w-full rounded-sm pl-1$ {liStyles}`}
+                  activeClass="bg-navy-400 "
+                  href={`${absolutePath.replaceAll(".", "-")}?sizeHint=${
+                    child.size
+                  }`}
                 >
-                  <A
-                    class="block w-full rounded-sm pl-1"
-                    activeClass="bg-white text-black"
-                    href={`${absolutePath.replaceAll(".", "-")}?sizeHint=${
-                      child.size
-                    }`}
+                  <TreeEntry
+                    icon={<IDEicon path={child.path} />}
+                    isAssetOrResource={isAssetOrResource(child)}
                   >
                     {child.path}
-                  </A>
-                </TreeEntry>
+                  </TreeEntry>
+                </A>
               );
             }
           }}
@@ -90,7 +93,7 @@ export function Directory(props: DirectoryProps) {
 function TreeEntry(props: TreeEntryProps) {
   return (
     <li
-      class={`grid gap-1.5 text-lg hover:bg-gray-800 focus:bg-gray-800 text-left ${
+      class={`grid gap-1.5 text-lg items-center text-left ${
         props.caret ? "grid-cols-[1em_1em_1fr]" : "grid-cols-[1em_1fr]"
       }`}
     >
