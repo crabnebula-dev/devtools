@@ -1,4 +1,4 @@
-import { createSignal, For, JSX, JSXElement, Show, Suspense } from "solid-js";
+import { createSignal, For, JSXElement, Show, Suspense } from "solid-js";
 import { Entry } from "~/lib/proto/sources.ts";
 import { A, useRouteData } from "@solidjs/router";
 import { Connection } from "~/lib/connection/transport.ts";
@@ -69,7 +69,7 @@ export function Directory(props: DirectoryProps) {
             } else {
               return (
                 <A
-                  class={`block w-full rounded-sm pl-1$ {liStyles}`}
+                  class={`block w-full rounded-sm pl-1 ${liStyles}`}
                   activeClass="bg-navy-400 "
                   href={`${encodeFileName(absolutePath)}?sizeHint=${
                     child.size
