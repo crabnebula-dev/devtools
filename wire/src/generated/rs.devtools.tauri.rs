@@ -79,7 +79,10 @@ pub mod tauri_server {
                 max_encoding_message_size: None,
             }
         }
-        pub fn with_interceptor<F>(inner: T, interceptor: F) -> InterceptedService<Self, F>
+        pub fn with_interceptor<F>(
+            inner: T,
+            interceptor: F,
+        ) -> InterceptedService<Self, F>
         where
             F: tonic::service::Interceptor,
         {
@@ -135,16 +138,21 @@ pub mod tauri_server {
                 "/rs.devtools.tauri.Tauri/GetVersions" => {
                     #[allow(non_camel_case_types)]
                     struct GetVersionsSvc<T: Tauri>(pub Arc<T>);
-                    impl<T: Tauri> tonic::server::UnaryService<super::VersionsRequest> for GetVersionsSvc<T> {
+                    impl<T: Tauri> tonic::server::UnaryService<super::VersionsRequest>
+                    for GetVersionsSvc<T> {
                         type Response = super::Versions;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::VersionsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Tauri>::get_versions(&inner, request).await };
+                            let fut = async move {
+                                <T as Tauri>::get_versions(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -174,16 +182,21 @@ pub mod tauri_server {
                 "/rs.devtools.tauri.Tauri/GetConfig" => {
                     #[allow(non_camel_case_types)]
                     struct GetConfigSvc<T: Tauri>(pub Arc<T>);
-                    impl<T: Tauri> tonic::server::UnaryService<super::ConfigRequest> for GetConfigSvc<T> {
+                    impl<T: Tauri> tonic::server::UnaryService<super::ConfigRequest>
+                    for GetConfigSvc<T> {
                         type Response = super::Config;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::ConfigRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Tauri>::get_config(&inner, request).await };
+                            let fut = async move {
+                                <T as Tauri>::get_config(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -213,16 +226,21 @@ pub mod tauri_server {
                 "/rs.devtools.tauri.Tauri/GetMetrics" => {
                     #[allow(non_camel_case_types)]
                     struct GetMetricsSvc<T: Tauri>(pub Arc<T>);
-                    impl<T: Tauri> tonic::server::UnaryService<super::MetricsRequest> for GetMetricsSvc<T> {
+                    impl<T: Tauri> tonic::server::UnaryService<super::MetricsRequest>
+                    for GetMetricsSvc<T> {
                         type Response = super::Metrics;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
                         fn call(
                             &mut self,
                             request: tonic::Request<super::MetricsRequest>,
                         ) -> Self::Future {
                             let inner = Arc::clone(&self.0);
-                            let fut =
-                                async move { <T as Tauri>::get_metrics(&inner, request).await };
+                            let fut = async move {
+                                <T as Tauri>::get_metrics(&inner, request).await
+                            };
                             Box::pin(fut)
                         }
                     }
@@ -249,14 +267,18 @@ pub mod tauri_server {
                     };
                     Box::pin(fut)
                 }
-                _ => Box::pin(async move {
-                    Ok(http::Response::builder()
-                        .status(200)
-                        .header("grpc-status", "12")
-                        .header("content-type", "application/grpc")
-                        .body(empty_body())
-                        .unwrap())
-                }),
+                _ => {
+                    Box::pin(async move {
+                        Ok(
+                            http::Response::builder()
+                                .status(200)
+                                .header("grpc-status", "12")
+                                .header("content-type", "application/grpc")
+                                .body(empty_body())
+                                .unwrap(),
+                        )
+                    })
+                }
             }
         }
     }
