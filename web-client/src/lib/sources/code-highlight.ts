@@ -1,6 +1,6 @@
 import { Highlighter, Lang, getHighlighter, setCDN, setWasm } from "shiki";
 import { SourcesClient } from "~/lib/proto/sources.client";
-import { getEntryBytes } from "./util";
+import { getEntryBytes } from "./file-entries.ts";
 
 type HighliterCodeParams = Readonly<
   [SourcesClient, string, number, HighlighterLang]
