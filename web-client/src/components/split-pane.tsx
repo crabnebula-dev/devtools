@@ -1,5 +1,9 @@
 import { type JSXElement, onMount } from "solid-js";
 import Split from "split.js";
+import {
+  getArrayFromLocalStorage,
+  setToLocalStorage,
+} from "~/lib/localstorage";
 
 type WrapperProps = {
   class?: string;
@@ -10,12 +14,8 @@ type WrapperProps = {
 
 export function SplitPane(props: WrapperProps) {
   const splitGutterSizeKey = `${props.defaultPrefix}-sources-split-size`;
-  const storedSizes = localStorage.getItem(splitGutterSizeKey);
-  let sizes = [200, 800];
+  const sizes = getArrayFromLocalStorage(splitGutterSizeKey);
 
-  if (storedSizes) {
-    sizes = JSON.parse(storedSizes);
-  }
   onMount(() => {
     Split(
       [
@@ -27,7 +27,7 @@ export function SplitPane(props: WrapperProps) {
         minSize: [70, 200],
         gutterSize: 100,
         onDragEnd: function (sizes) {
-          localStorage.setItem(splitGutterSizeKey, JSON.stringify(sizes));
+          setToLocalStorage(splitGutterSizeKey, sizes);
         },
       }
     );
