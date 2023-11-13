@@ -49,7 +49,7 @@ impl Visit for FieldVisitor {
             metadata_id: self.meta_id,
             name: field.name().into(),
             value: Some(value.into()),
-        })
+        });
     }
 
     /// Visit a double-precision floating point value.
@@ -58,7 +58,7 @@ impl Visit for FieldVisitor {
             metadata_id: self.meta_id,
             name: field.name().into(),
             value: Some(value.into()),
-        })
+        });
     }
 
     /// Visit a signed 64-bit integer value.
@@ -67,7 +67,7 @@ impl Visit for FieldVisitor {
             metadata_id: self.meta_id,
             name: field.name().into(),
             value: Some(value.into()),
-        })
+        });
     }
 
     /// Visit an unsigned 64-bit integer value.
@@ -76,7 +76,7 @@ impl Visit for FieldVisitor {
             metadata_id: self.meta_id,
             name: field.name().into(),
             value: Some(value.into()),
-        })
+        });
     }
 
     /// Visit a boolean value.
@@ -85,7 +85,7 @@ impl Visit for FieldVisitor {
             metadata_id: self.meta_id,
             name: field.name().into(),
             value: Some(value.into()),
-        })
+        });
     }
 
     /// Visit a string value.
@@ -94,7 +94,7 @@ impl Visit for FieldVisitor {
             metadata_id: self.meta_id,
             name: field.name().into(),
             value: Some(value.into()),
-        })
+        });
     }
 }
 

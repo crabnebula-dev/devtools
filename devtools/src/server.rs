@@ -37,11 +37,11 @@ const DEFAULT_CLIENT_BUFFER_CAPACITY: usize = 1024 * 4;
 
 pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 3000);
 
-/// The gRPC server that exposes the instrumenting API
+/// The `gRPC` server that exposes the instrumenting API
 /// This is made up of 3 services:
 /// - [`InstrumentService`]: Instrumentation related functionality, such as logs, spans etc.
 /// - [`TauriService`]: Tauri-specific functionality, such as config, assets, metrics etc.
-/// - [`HealthServer`]: gRPC health service for monitoring the health of the instrumenting API itself.
+/// - [`HealthServer`]: `gRPC` health service for monitoring the health of the instrumenting API itself.
 pub(crate) struct Server<R: Runtime> {
     instrument: InstrumentService,
     tauri: TauriService<R>,
@@ -145,9 +145,10 @@ impl instrument_server::Instrument for InstrumentService {
         &self,
         req: Request<InstrumentRequest>,
     ) -> Result<Response<Self::WatchUpdatesStream>, Status> {
-        match req.remote_addr() {
-            Some(addr) => tracing::debug!(client.addr = %addr, "starting a new watch"),
-            None => tracing::debug!(client.addr = %"<unknown>", "starting a new watch"),
+        if let Some(addr) = req.remote_addr() {
+            tracing::debug!(client.addr = %addr, "starting a new watch");
+        } else {
+            tracing::debug!(client.addr = %"<unknown>", "starting a new watch");
         }
 
         // reserve capacity to message the aggregator
