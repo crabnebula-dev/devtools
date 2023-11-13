@@ -1,4 +1,11 @@
-import { createSignal, For, JSXElement, Show, Suspense } from "solid-js";
+import {
+  createSignal,
+  For,
+  JSXElement,
+  mergeProps,
+  Show,
+  Suspense,
+} from "solid-js";
 import { Entry } from "~/lib/proto/sources.ts";
 import { A, useRouteData } from "@solidjs/router";
 import { Connection } from "~/lib/connection/transport.ts";
@@ -16,7 +23,9 @@ import {
 import { Loader } from "~/components/loader";
 
 type DirectoryProps = {
-  entry: Entry;
+  defaultPath: Entry["path"];
+  defaultSize: Entry["size"];
+  defaultFileType: Entry["fileType"];
   class?: string;
 };
 
@@ -31,7 +40,7 @@ const liStyles = "hover:bg-gray-800 hover:text-white focus:bg-gray-800";
 
 export function Directory(props: DirectoryProps) {
   const { client } = useRouteData<Connection>();
-  const [entries] = awaitEntries(client.sources, props.entry.path);
+  const [entries] = awaitEntries(client.sources, props.defaultPath);
   const sortedEntries = () => entries()?.sort(sortByPath);
 
   return (
@@ -39,15 +48,22 @@ export function Directory(props: DirectoryProps) {
       <ul class={props.class}>
         <For each={sortedEntries()} fallback={<li>Empty</li>}>
           {(child) => {
-            const absolutePath = [props.entry.path, child.path]
+            const absolutePath = [props.defaultPath, child.path]
               .filter((e) => !!e)
               .join("/");
             const [isOpen, setIsOpen] = createSignal(false);
 
             if (isDirectory(child)) {
+              const defaultProps = {
+                path: props.defaultPath,
+                size: props.defaultSize,
+                fileType: props.defaultFileType,
+              };
+              const childProps = mergeProps(defaultProps, child);
+
               return (
                 <Collapsible.Root
-                  as={"li"}
+                  as="li"
                   onOpenChange={(isOpen) => setIsOpen(isOpen)}
                 >
                   <Collapsible.Trigger class={`w-full ${liStyles}`}>
@@ -61,7 +77,11 @@ export function Directory(props: DirectoryProps) {
                   </Collapsible.Trigger>
                   <Collapsible.Content>
                     <div class="pl-4">
-                      <Directory entry={{ ...child, path: absolutePath }} />
+                      <Directory
+                        defaultPath={childProps.path}
+                        defaultSize={childProps.size}
+                        defaultFileType={childProps.fileType}
+                      />
                     </div>
                   </Collapsible.Content>
                 </Collapsible.Root>
@@ -70,7 +90,7 @@ export function Directory(props: DirectoryProps) {
               return (
                 <A
                   class={`block w-full rounded-sm pl-1 ${liStyles}`}
-                  activeClass="bg-navy-400 "
+                  activeClass="bg-navy-400"
                   href={`${encodeFileName(absolutePath)}?sizeHint=${
                     child.size
                   }`}
