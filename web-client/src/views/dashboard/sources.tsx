@@ -9,7 +9,7 @@ export default function Sources() {
 
   return (
     <SplitPane
-      prefix=/*@once*/ "sources"
+      defaultPrefix="sources"
       leftPaneComponent={
         <div class="border-neutral-800 border-r-2 h-full overflow-y-auto">
           <Directory entry={root} />
