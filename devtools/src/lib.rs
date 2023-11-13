@@ -40,7 +40,7 @@ use crate::recorder::Recorder;
 use colored::Colorize;
 pub use error::Error;
 use server::DEFAULT_ADDRESS;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 use std::time::Instant;
@@ -118,11 +118,16 @@ pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
     let (event_tx, event_rx) = mpsc::channel(512);
     let (cmd_tx, cmd_rx) = mpsc::channel(256);
 
-    let recorder = Recorder::new(Path::new("./trace.bin"))?;
+    let recorder = if std::env::args().nth(1) == Some("--record".to_string()) {
+        let path = PathBuf::from(std::env::args().nth(2).unwrap());
+        Some(Recorder::new(&path)?)
+    } else {
+        None
+    };
 
     // set up components
     let layer = Layer::new(shared.clone(), event_tx);
-    let aggregator = Aggregator::new(shared, event_rx, cmd_rx, Some(recorder));
+    let aggregator = Aggregator::new(shared, event_rx, cmd_rx, recorder);
 
     // initialize early so we don't miss any spans
     tracing_subscriber::registry()
