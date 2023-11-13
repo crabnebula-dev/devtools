@@ -68,8 +68,7 @@
   **/
 
   /**
-   * @todo
-   * document this
+   * Background classes
   **/
   .surf-container {
     @apply overflow-hidden absolute inset-0 w-full h-full -z-10;
@@ -86,8 +85,7 @@
     top: -250px;
   }
   /**
-   * @todo
-   * document this
+   * /Background classes
   **/
 
   /**
