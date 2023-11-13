@@ -2,9 +2,10 @@ import { UnknownView } from "~/components/sources/unknown-view.tsx";
 import { ImageView } from "~/components/sources/image-view.tsx";
 import { Match, Show, Suspense, Switch } from "solid-js";
 import { useParams, useSearchParams } from "@solidjs/router";
-import { guessContentType } from "~/lib/sources/util";
+import { guessContentType } from "~/lib/sources/file-entries";
 import CodeView from "~/components/sources/code-view";
 import { Loader } from "~/components/loader";
+import { HighlighterLang } from "~/lib/sources/code-highlight";
 
 export function SourcePane() {
   const params = useParams<Record<"source", string>>();
@@ -22,7 +23,7 @@ export function SourcePane() {
             <CodeView
               path={filename()}
               size={sizeHint()}
-              lang={contentType()!.replace("code/", "")}
+              lang={contentType()!.replace("code/", "") as HighlighterLang}
             />
           </Match>
           <Match when={contentType()?.startsWith("image/")} keyed>

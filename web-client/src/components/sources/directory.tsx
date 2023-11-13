@@ -11,12 +11,19 @@ import {
   isDirectory,
   sortByPath,
   isAssetOrResource,
-} from "~/lib/sources/util.ts";
+} from "~/lib/sources/file-entries";
 import { Loader } from "~/components/loader";
 
 interface DirectoryProps extends JSX.HTMLAttributes<HTMLDivElement> {
   entry: Entry;
 }
+
+type TreeEntryProps = {
+  caret?: JSXElement;
+  icon: JSX.Element;
+  isAssetOrResource: boolean;
+  children: JSXElement;
+};
 
 export function Directory(props: DirectoryProps) {
   const { client } = useRouteData<Connection>();
@@ -62,8 +69,8 @@ export function Directory(props: DirectoryProps) {
                   isAssetOrResource={isAssetOrResource(child)}
                 >
                   <A
-                    class="block w-full"
-                    activeClass="bg-neutral-400 text-pink-900"
+                    class="block w-full rounded-sm pl-1"
+                    activeClass="bg-white text-black"
                     href={`${absolutePath.replaceAll(".", "-")}?sizeHint=${
                       child.size
                     }`}
@@ -79,13 +86,6 @@ export function Directory(props: DirectoryProps) {
     </Suspense>
   );
 }
-
-type TreeEntryProps = {
-  caret?: JSXElement;
-  icon: JSX.Element;
-  isAssetOrResource: boolean;
-  children: JSXElement;
-};
 
 function TreeEntry(props: TreeEntryProps) {
   return (
