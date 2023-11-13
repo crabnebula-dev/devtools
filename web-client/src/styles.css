@@ -12,8 +12,16 @@ html {
 
 @layer base {
   * {
-    @apply scrollbar-thin scrollbar-track-neutral-900 scrollbar-thumb-rounded scrollbar-thumb-neutral-600;
+    @apply scrollbar-thin scrollbar-thumb-rounded;
   }
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-700;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-900;
 }
 
 .surf-container {

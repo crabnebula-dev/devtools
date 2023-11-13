@@ -15,6 +15,7 @@
     "test": "pnpm proto && vitest"
   },
   "devDependencies": {
+    "@crabnebula/solar": "0.0.1-alpha.0",
     "@protobuf-ts/protoc": "^2.9.1",
     "@solidjs/testing-library": "^0.7.1",
     "@testing-library/jest-dom": "^5.17.0",
@@ -42,6 +43,7 @@
     "@protobuf-ts/runtime-rpc": "^2.9.1",
     "@solidjs/router": "^0.8.3",
     "clsx": "^2.0.0",
+    "copy-text-to-clipboard": "^3.2.0",
     "csp_evaluator": "^1.1.1",
     "solid-js": "^1.8.5",
     "tailwind-scrollbar": "^3.0.5"
