@@ -1,15 +1,14 @@
 import { createResource, Suspense } from "solid-js";
 import { useRouteData } from "@solidjs/router";
 import { Connection } from "~/lib/connection/transport.ts";
-import { getEntryBytes } from "~/lib/sources/file-entries.ts";
+import { decodeFileName, getEntryBytes } from "~/lib/sources/file-entries.ts";
 import { Loader } from "~/components/loader";
 
 export function ImageView(props: { path: string; size: number; type: string }) {
   const { client } = useRouteData<Connection>();
   const [bytes] = createResource(
     () => [client.sources, props.path, props.size] as const,
-    ([client, path, size]) =>
-      getEntryBytes(client, path.replaceAll("-", "."), size)
+    ([client, path, size]) => getEntryBytes(client, decodeFileName(path), size)
   );
 
   const url = () =>

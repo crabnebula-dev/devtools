@@ -11,6 +11,7 @@ import {
   isDirectory,
   sortByPath,
   isAssetOrResource,
+  encodeFileName,
 } from "~/lib/sources/file-entries";
 import { Loader } from "~/components/loader";
 
@@ -70,7 +71,7 @@ export function Directory(props: DirectoryProps) {
                 <A
                   class={`block w-full rounded-sm pl-1$ {liStyles}`}
                   activeClass="bg-navy-400 "
-                  href={`${absolutePath.replaceAll(".", "-")}?sizeHint=${
+                  href={`${encodeFileName(absolutePath)}?sizeHint=${
                     child.size
                   }`}
                 >

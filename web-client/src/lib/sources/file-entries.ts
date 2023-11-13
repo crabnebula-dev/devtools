@@ -2,6 +2,14 @@ import { SourcesClient } from "~/lib/proto/sources.client.ts";
 import { createResource } from "solid-js";
 import { Entry } from "~/lib/proto/sources.ts";
 
+export function encodeFileName(path: string) {
+  return path.replaceAll(".", "-");
+}
+
+export function decodeFileName(path: string) {
+  return path.replaceAll("-", ".");
+}
+
 export function awaitEntries(client: SourcesClient, path: string) {
   return createResource(client, async (client) => {
     const entries = [];
