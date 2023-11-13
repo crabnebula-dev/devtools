@@ -13,7 +13,7 @@ const levelStyles = (level: Metadata_Level | undefined) => {
     case 1:
       return "text-warning-800 bg-warning-400";
     default:
-      return "";
+      return "hover:bg-white hover:bg-opacity-5 cursor-pointer";
   }
 };
 
@@ -54,14 +54,14 @@ export default function Console() {
 
             return (
               <li
-                class={`p-1 m-1 items-center rounded flex ${levelStyles(
+                class={`p-1 font-mono border-b border-gray-800 items-center gap-4 flex ${levelStyles(
                   level(metadataId!)
                 )}`}
               >
                 <Show when={showTimestamp()}>
                   <time
+                    class="text-sm text-primary-700"
                     dateTime={timeDate.toISOString()}
-                    class="font-mono pr-4"
                   >
                     {formatTimestamp(timeDate)}
                   </time>
