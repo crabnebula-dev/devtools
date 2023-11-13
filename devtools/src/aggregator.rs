@@ -1,3 +1,4 @@
+use crate::recorder::Recorder;
 use crate::{Command, Event, Shared, Watcher};
 use futures::FutureExt;
 use ringbuf::consumer::Consumer;
@@ -45,6 +46,8 @@ pub(crate) struct Aggregator {
     /// All connected clients
     watchers: Vec<Watcher>,
 
+    recorder: Option<Recorder>,
+
     /// Used to convert `Instant`s to `SystemTime`s and `Timestamp`s
     pub(crate) base_time: TimeAnchor,
 }
@@ -63,6 +66,7 @@ impl Aggregator {
         shared: Arc<Shared>,
         events: mpsc::Receiver<Event>,
         cmds: mpsc::Receiver<Command>,
+        recorder: Option<Recorder>,
     ) -> Self {
         Self {
             shared,
@@ -74,10 +78,11 @@ impl Aggregator {
             all_metadata: vec![],
             new_metadata: vec![],
             base_time: TimeAnchor::new(),
+            recorder,
         }
     }
 
-    pub async fn run(mut self) {
+    pub async fn run(mut self) -> crate::Result<()> {
         let mut interval = tokio::time::interval(BROADCAST_INTERVAL);
 
         loop {
@@ -106,12 +111,14 @@ impl Aggregator {
             }
 
             if should_publish {
-                self.publish();
+                self.publish()?;
             }
         }
 
         // attempt to flush updates to all watchers before closing
-        self.publish();
+        let _ = self.publish();
+
+        Ok(())
     }
 
     async fn attach_watcher(&mut self, watcher: Watcher) {
@@ -242,7 +249,7 @@ impl Aggregator {
         }
     }
 
-    fn publish(&mut self) {
+    fn publish(&mut self) -> crate::Result<()> {
         let now = Instant::now();
 
         let new_metadata = mem::take(&mut self.new_metadata);
@@ -256,8 +263,14 @@ impl Aggregator {
             spans_update: Some(span_update),
         };
 
+        if let Some(recorder) = &mut self.recorder {
+            recorder.record_update(&update)?;
+        }
+
         self.watchers
             .retain(|w| w.tx.try_send(Ok(update.clone())).is_ok());
+
+        Ok(())
     }
 }
 
@@ -278,7 +291,7 @@ impl TimeAnchor {
     pub fn to_system_time(&self, t: Instant) -> SystemTime {
         let dur = t
             .checked_duration_since(self.mono)
-            .unwrap_or_else(|| Duration::from_secs(0));
+            .unwrap_or_else(|| Duration::ZERO);
         self.sys + dur
     }
 
@@ -364,7 +377,7 @@ mod test {
             .unwrap();
         drop(cmd_tx);
 
-        mf.run().await; // run the aggregators event loop to completion
+        mf.run().await.unwrap(); // run the aggregators event loop to completion
 
         let mut out = Vec::new();
         while let Some(Ok(update)) = client_rx.recv().await {
@@ -378,7 +391,7 @@ mod test {
         let (_, evt_rx) = mpsc::channel(1);
         let (cmd_tx, cmd_rx) = mpsc::channel(1);
 
-        let mf = Aggregator::new(Default::default(), evt_rx, cmd_rx);
+        let mf = Aggregator::new(Default::default(), evt_rx, cmd_rx, None);
 
         let (client_tx, mut client_rx) = mpsc::channel(1);
         cmd_tx
@@ -401,7 +414,7 @@ mod test {
         let (cmd_tx, cmd_rx) = mpsc::channel(1);
 
         let layer = Layer::new(shared.clone(), evt_tx);
-        let mf = Aggregator::new(shared, evt_rx, cmd_rx);
+        let mf = Aggregator::new(shared, evt_rx, cmd_rx, None);
 
         tracing_subscriber::registry().with(layer).set_default();
 

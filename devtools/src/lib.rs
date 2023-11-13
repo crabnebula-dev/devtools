@@ -29,15 +29,18 @@
 mod aggregator;
 mod error;
 mod layer;
+mod recorder;
 mod server;
 mod tauri_plugin;
 mod visitors;
 
 use crate::aggregator::Aggregator;
 use crate::layer::Layer;
+use crate::recorder::Recorder;
 use colored::Colorize;
 pub use error::Error;
 use server::DEFAULT_ADDRESS;
+use std::path::Path;
 use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 use std::time::Instant;
@@ -115,9 +118,11 @@ pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
     let (event_tx, event_rx) = mpsc::channel(512);
     let (cmd_tx, cmd_rx) = mpsc::channel(256);
 
+    let recorder = Recorder::new(Path::new("./trace.bin"))?;
+
     // set up components
     let layer = Layer::new(shared.clone(), event_tx);
-    let aggregator = Aggregator::new(shared, event_rx, cmd_rx);
+    let aggregator = Aggregator::new(shared, event_rx, cmd_rx, Some(recorder));
 
     // initialize early so we don't miss any spans
     tracing_subscriber::registry()

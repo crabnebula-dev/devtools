@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["wire", "devtools", "examples/*"]
+members = ["wire", "devtools", "examples/*", "cli"]
 
 [workspace.package]
 authors = ["CrabNebula <hello@crabnebula.dev>"]

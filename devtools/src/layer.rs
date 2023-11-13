@@ -71,7 +71,6 @@ where
 
     fn on_new_span(&self, attrs: &Attributes<'_>, id: &Id, ctx: Context<'_, S>) {
         let at = Instant::now();
-
         self.send_event(&self.shared.dropped_span_events, move || {
             let span = ctx.span(id).expect("Span not in context, probably a bug");
             let metadata = span.metadata();
@@ -138,7 +137,7 @@ where
 
         self.send_event(&self.shared.dropped_span_events, || Event::CloseSpan {
             at,
-            span_id: id.clone(),
+            span_id: id,
         });
     }
 }
