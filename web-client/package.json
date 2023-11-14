@@ -11,6 +11,10 @@
     "dev": "pnpm proto && vite",
     "build": "pnpm proto && vite build",
     "preview": "pnpm proto && vite preview",
+<<<<<<< HEAD
+=======
+    "format": "prettier --write .",
+>>>>>>> 5527b97 (format all files)
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --fix --ext .ts,.tsx",
     "test": "pnpm proto && vitest"
