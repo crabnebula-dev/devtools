@@ -12,7 +12,7 @@ import { Connection } from "~/lib/connection/transport.ts";
 import { Collapsible } from "@kobalte/core";
 import CaretDown from "~/components/icons/caret-down.tsx";
 import CaretRight from "~/components/icons/caret-right.tsx";
-import IDEicon from "~/components/icons/ide-icons";
+import { FileIcon, FolderIcon } from "~/components/icons/ide-icons";
 import {
   awaitEntries,
   isDirectory,
@@ -69,7 +69,7 @@ export function Directory(props: DirectoryProps) {
                   <Collapsible.Trigger class={`w-full ${liStyles}`}>
                     <TreeEntry
                       caret={isOpen() ? <CaretDown /> : <CaretRight />}
-                      icon={<IDEicon path={child.path} />}
+                      icon={<FolderIcon path={child.path} />}
                       isAssetOrResource={isAssetOrResource(child)}
                     >
                       {child.path}
@@ -96,7 +96,7 @@ export function Directory(props: DirectoryProps) {
                   }`}
                 >
                   <TreeEntry
-                    icon={<IDEicon path={child.path} />}
+                    icon={<FileIcon path={child.path} />}
                     isAssetOrResource={isAssetOrResource(child)}
                   >
                     {child.path}
