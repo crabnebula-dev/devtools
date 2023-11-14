@@ -1,78 +1,80 @@
-import { For, createEffect, createSignal } from "solid-js";
 import { useMonitor } from "~/lib/connection/monitor";
 import { Toolbar } from "~/components/toolbar";
+import { For, createEffect, createSignal } from "solid-js";
+import { convertTimestampToNanoseconds, formatDate } from "~/lib/formatters";
 import { normalizeSpans } from "~/lib/span/normalizeSpans";
-import { convertTimestampToNanoseconds } from "~/lib/formatters";
+import { FilterToggle } from "~/components/filter-toggle";
 
 export default function SpanWaterfall() {
   const { monitorData } = useMonitor();
-  const [granularity, setGranularity] = createSignal(1);
-  const [uiSpans, setUiSpans] = createSignal<ReturnType<typeof normalizeSpans>>(
-    []
-  );
-
-  const filteredSpans = () =>
-    monitorData.spans.filter((s) => {
-      const metadata = monitorData.metadata.get(s.metadataId);
-      return metadata && metadata.name.includes("ipc");
-    });
+  const [shouldAutoScroll, setAutoScroll] = createSignal(true);
+  const [spans, setSpans] = createSignal<ReturnType<typeof normalizeSpans>>([]);
 
   createEffect(() => {
-    setUiSpans(
-      normalizeSpans(
-        filteredSpans()
-          .map((span) => {
-            if (!span.enteredAt || !span.exitedAt) {
-              return { end: -1, start: -1 };
-            }
-            return {
-              start: convertTimestampToNanoseconds(span.enteredAt),
-              end: convertTimestampToNanoseconds(span.exitedAt),
-            };
-          })
-          .filter((span) => span.start !== -1 && span.end !== -1),
-        granularity() * 1000
-      )
-    );
+    const filteredSpans = () =>
+      monitorData.spans.filter((s) => {
+        const metadata = monitorData.metadata.get(s.metadataId);
+        return metadata && metadata.name.includes("ipc");
+      });
+
+    setSpans(normalizeSpans(filteredSpans()));
   });
 
   return (
     <div>
       <Toolbar>
-        <input
-          oninput={(e) => setGranularity(parseFloat(e.target.value))}
-          type="range"
-          min="1"
-          max={5}
-          value={granularity()}
-        />
+        <FilterToggle
+          defaultPressed
+          aria-label="Autoscroll"
+          changeHandler={() => setAutoScroll(!shouldAutoScroll())}
+        >
+          Autoscroll
+        </FilterToggle>
       </Toolbar>
-      <ul class="w-full overflow-auto h-[calc(100vh-114px)]">
-        <For each={filteredSpans()}>
-          {(span, i) => {
-            const metadata = monitorData.metadata.get(span.metadataId);
-
-            return (
-              <li class="py-1 flex">
-                <div
-                  data-tooltip={`Took ${
-                    (convertTimestampToNanoseconds(span.exitedAt!) -
-                      convertTimestampToNanoseconds(span.enteredAt!)) /
-                    1e6
-                  }ms`}
-                  class="span relative transition-all text-xs p-1 overflow-ellipsis text-white bg-primary-800 rounded"
-                  style={{
-                    width: `${uiSpans()[i()]?.normalizedWidth}%`,
-                    "margin-left": `${uiSpans()[i()]?.normalizedStart}%`,
-                  }}
-                >
-                  {metadata?.name}
-                </div>
-              </li>
-            );
-          }}
-        </For>
-      </ul>
+      <table class="w-full">
+        <thead>
+          <tr class="text-left">
+            <th class="p-1">Name</th>
+            <th class="p-1">Target</th>
+            <th class="p-1">Initiated</th>
+            <th class="p-1">Time</th>
+            <th class="p-1">Waterfall</th>
+          </tr>
+        </thead>
+        <tbody>
+          <For each={spans()}>
+            {(span, i) => {
+              const metadata = () =>
+                monitorData.metadata.get(spans()[i()].metadataId);
+              const createdAt = convertTimestampToNanoseconds(span.createdAt!);
+              const exitedAt = convertTimestampToNanoseconds(span.exitedAt!);
+              const enteredAt = convertTimestampToNanoseconds(span.enteredAt!);
+              return (
+                <tr class="even:bg-[#ffffff09] cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]">
+                  <td class="p-1">{metadata()!.name}</td>
+                  <td class="p-1">{metadata()?.target}</td>
+                  <td class="p-1">
+                    {formatDate(new Date(createdAt / 1000000))}
+                  </td>
+                  <td class="p-1">{(exitedAt - enteredAt) / 1e6}ms</td>
+                  <td class="p-1 relative">
+                    <div class="relative w-[90%]">
+                      <div class="bg-gray-800 w-full absolute rounded-sm h-2"></div>
+                      <div
+                        class="bg-teal-500 rounded-sm relative h-2"
+                        style={{
+                          "margin-left": `${span.marginLeft}%`,
+                          width: `${span.width}%`,
+                        }}
+                      ></div>
+                    </div>
+                  </td>
+                </tr>
+              );
+            }}
+          </For>
+        </tbody>
+      </table>
     </div>
   );
 }
