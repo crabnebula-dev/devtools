@@ -1,8 +1,8 @@
 // Initializing a TextDecoder is expensive plus they can be reused,
 // so we create a global instance
 import { useRouteData } from "@solidjs/router";
+import { getEntryBytes } from "~/lib/sources/file-entries";
 import { createResource, Suspense } from "solid-js";
-import { getEntryBytes } from "~/lib/sources/util.ts";
 import { getHighlighter, setCDN, setWasm } from "shiki";
 import { Connection } from "~/lib/connection/transport.ts";
 import "./highlight.css";

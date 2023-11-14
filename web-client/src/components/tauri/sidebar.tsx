@@ -1,5 +1,5 @@
 import { For, Suspense } from "solid-js";
-import FileIcon from "~/components/icons/file.tsx";
+import { FileIcon } from "~/components/icons/ide-icons";
 import { createSignal } from "solid-js";
 import { A } from "@solidjs/router";
 import { retrieveConfigurations } from "~/lib/tauri/tauri-conf-schema";

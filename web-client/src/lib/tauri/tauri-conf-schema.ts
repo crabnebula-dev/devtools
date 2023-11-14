@@ -4,8 +4,10 @@ import { Draft07, JsonSchema, JsonPointer } from "json-schema-library";
 import { createResource } from "solid-js";
 import { useRouteData } from "@solidjs/router";
 import { Connection } from "~/lib/connection/transport.ts";
-import { awaitEntries } from "~/lib/sources/util.ts";
-import { getEntryBytes } from "~/lib/sources/util.ts";
+import {
+  awaitEntries,
+  getEntryBytes
+} from "~/lib/sources/file-entries";
 
 const TEXT_DECODER = new TextDecoder();
 
