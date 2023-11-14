@@ -74,7 +74,7 @@ impl<R: Runtime> Server<R> {
         app_handle: AppHandle<R>,
         metrics: Arc<RwLock<Metrics>>,
     ) -> Self {
-        let (mut health_reporter, health_server) = tonic_health::server::health_reporter();
+        let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
 
         health_reporter
             .set_serving::<InstrumentServer<InstrumentService>>()
@@ -93,14 +93,12 @@ impl<R: Runtime> Server<R> {
             tauri: TauriService {
                 app_handle: app_handle.clone(),
                 metrics,
-            },
+            }, // the TauriServer doesn't need a health_reporter. It can never fail.
             meta: MetaService {
                 app_handle: app_handle.clone(),
             },
-            // Transmute the health_server type here bc the return type of `health_reporter` is
-            // weird. But we know it is the same type.
             sources: SourcesService { app_handle },
-            health: unsafe { std::mem::transmute(health_server) },
+            health: unsafe { std::mem::transmute(health_service) },
         }
     }
 
@@ -197,6 +195,7 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
 
         Ok(Response::new(config))
     }
+
     async fn get_metrics(
         &self,
         _req: Request<MetricsRequest>,
@@ -210,6 +209,7 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
 #[tonic::async_trait]
 impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
     type ListEntriesStream = BoxStream<Entry>;
+
     async fn list_entries(
         &self,
         req: Request<EntryRequest>,
@@ -219,7 +219,7 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         cwd.push(req.into_inner().path);
 
         let stream = self.list_entries_inner(cwd).or_else(|err| async move {
-            tracing::error!("Aggregator failed with error {err:?}");
+            tracing::error!("List Entries failed with error {err:?}");
 
             // TODO set the health service status to NotServing here
 
@@ -236,7 +236,6 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         req: Request<EntryRequest>,
     ) -> Result<Response<Self::GetEntryBytesStream>, Status> {
         let mut path = std::env::current_dir()?;
-
         path.push(req.into_inner().path);
 
         let stream = try_stream! {

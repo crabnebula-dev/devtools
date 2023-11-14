@@ -1,7 +1,7 @@
-import { For, createSignal, createEffect, Show } from "solid-js";
+import { For, createSignal, Show } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
-import { Span, useMonitor } from "~/lib/connection/monitor";
+import { useMonitor } from "~/lib/connection/monitor";
 import { Field } from "~/lib/proto/common";
 import { Toolbar } from "~/components/toolbar";
 

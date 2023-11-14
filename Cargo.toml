@@ -22,3 +22,10 @@ tonic = "0.10"
 prost = "0.12"
 prost-types = "0.12"
 tokio = "1.33.0"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

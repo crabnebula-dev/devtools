@@ -4,12 +4,51 @@
 import { defineConfig } from "vitest/config";
 import solidPlugin from "vite-plugin-solid";
 import path from "path";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
+import { viteStaticCopy } from "vite-plugin-static-copy";
+import { normalizePath } from "vite";
 
 export default defineConfig({
   server: {
-    strictPort: true
+    strictPort: true,
   },
-  plugins: [solidPlugin()],
+  plugins: [
+    wasm(),
+    topLevelAwait(),
+    solidPlugin(),
+    viteStaticCopy({
+      targets: [
+        {
+          src: normalizePath(
+            path.resolve(__dirname, "node_modules/@crabnebula/file-icons/icons") + "/[!.]*"
+          ),
+          dest: "./icons/",
+        },
+        {
+          src: normalizePath(
+            path.resolve(__dirname, "node_modules/shiki/dist/onig.wasm")
+          ),
+          dest: "./shiki/",
+        },
+        {
+          src: normalizePath(
+            path.resolve(__dirname, "node_modules/shiki/languages/") + "/*"
+          ),
+          dest: "./shiki/languages/",
+        },
+        {
+          src: normalizePath(
+            path.resolve(
+              __dirname,
+              "node_modules/shiki/themes/material-theme-ocean.json"
+            )
+          ),
+          dest: "./shiki/themes/",
+        },
+      ],
+    }),
+  ],
   resolve: {
     alias: {
       "~": path.resolve(__dirname, "./src"),

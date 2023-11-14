@@ -16,6 +16,7 @@ tracing-core.workspace = true
 tracing-subscriber.workspace = true
 thiserror.workspace = true
 tokio = { workspace = true, features = ["macros", "time"] }
+tokio-stream = { workspace = true, features = ["fs"] }
 tauri.workspace = true
 prost-types.workspace = true
 tonic.workspace = true

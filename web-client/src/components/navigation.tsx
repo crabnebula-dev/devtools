@@ -12,8 +12,8 @@ const TABS = [
     title: "Call Stack",
   },
   {
-    url: (host: string, port: string) => `/dash/${host}/${port}/assets`,
-    title: "Assets",
+    url: (host: string, port: string) => `/dash/${host}/${port}/sources`,
+    title: "Sources",
   },
   {
     url: (host: string, port: string) => `/dash/${host}/${port}/tauri`,

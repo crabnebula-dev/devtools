@@ -1,6 +1,7 @@
 import { type RouteDefinition, useNavigate, useRoutes } from "@solidjs/router";
 import { lazy } from "solid-js";
 import { connect } from "./lib/connection/transport.ts";
+import { setCDN } from "@crabnebula/file-icons";
 
 const ROUTES: RouteDefinition[] = [
   {
@@ -38,8 +39,8 @@ const ROUTES: RouteDefinition[] = [
         component: lazy(() => import("./views/dashboard/tauri-config.tsx")),
       },
       {
-        path: "/assets",
-        component: lazy(() => import("./views/dashboard/coming-soon.tsx")),
+        path: "/sources/*source",
+        component: lazy(() => import("./views/dashboard/sources.tsx")),
       },
     ],
   },
@@ -47,6 +48,8 @@ const ROUTES: RouteDefinition[] = [
 
 export default function Entry() {
   const Routes = useRoutes(ROUTES);
+
+  setCDN("/icons");
 
   return <Routes />;
 }
