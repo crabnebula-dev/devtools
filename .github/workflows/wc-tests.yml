@@ -31,6 +31,10 @@ jobs:
         working-directory: web-client
         run: pnpm install install
 
+      - name: Format
+        working-directory: web-client
+        run: pnpm prettier --check '**/*.{ts,tsx,js,jsx,json}'
+
       - name: Linting
         working-directory: web-client
         run: pnpm lint
