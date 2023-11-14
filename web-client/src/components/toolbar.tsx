@@ -5,7 +5,7 @@ type Props = {
 };
 
 export const Toolbar = (props: Props) => (
-  <div class="sticky h-toolbar top-1 bg-black bg-opacity-30 backdrop-blur flex justify-end border-b border-gray-800">
+  <div class="sticky h-toolbar top-0 bg-black bg-opacity-30 backdrop-blur flex justify-end border-b border-gray-800">
     {props.children}
   </div>
 );

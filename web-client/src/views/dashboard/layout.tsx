@@ -116,7 +116,7 @@ export default function Layout() {
         </div>
         <Navigation />
       </header>
-      <main class="max-h-full overflow-auto">
+      <main class="max-h-full w-full overflow-auto">
         <Outlet />
       </main>
       <footer class="p-2 flex justify-center border-t border-gray-800 gap-2 items-center">
