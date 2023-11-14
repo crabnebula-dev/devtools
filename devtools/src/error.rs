@@ -14,4 +14,7 @@ pub enum Error {
 
     #[error(transparent)]
     ProtobufEncodeError(#[from] prost::EncodeError),
+
+    #[error("Missing path to recording")]
+    MissingRecordingPath,
 }

@@ -291,7 +291,7 @@ impl TimeAnchor {
     pub fn to_system_time(&self, t: Instant) -> SystemTime {
         let dur = t
             .checked_duration_since(self.mono)
-            .unwrap_or_else(|| Duration::ZERO);
+            .unwrap_or(Duration::ZERO);
         self.sys + dur
     }
 

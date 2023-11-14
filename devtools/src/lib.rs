@@ -40,7 +40,7 @@ use crate::recorder::Recorder;
 use colored::Colorize;
 pub use error::Error;
 use server::DEFAULT_ADDRESS;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::atomic::AtomicUsize;
 use std::sync::Arc;
 use std::time::Instant;
@@ -119,7 +119,7 @@ pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
     let (cmd_tx, cmd_rx) = mpsc::channel(256);
 
     let recorder = if std::env::args().nth(1) == Some("--record".to_string()) {
-        let path = PathBuf::from(std::env::args().nth(2).unwrap());
+        let path = PathBuf::from(std::env::args().nth(2).ok_or(Error::MissingRecordingPath)?);
         Some(Recorder::new(&path)?)
     } else {
         None

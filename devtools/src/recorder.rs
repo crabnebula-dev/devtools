@@ -1,4 +1,3 @@
-use crate::aggregator::TimeAnchor;
 use prost::Message;
 use std::fs::File;
 use std::io::Write;
@@ -7,7 +6,6 @@ use tauri_devtools_wire_format::instrument;
 
 pub(crate) struct Recorder {
     fd: File,
-    base_time: TimeAnchor,
     scratch: Vec<u8>,
 }
 
@@ -19,7 +17,6 @@ impl Recorder {
 
         Ok(Self {
             fd,
-            base_time: TimeAnchor::new(),
             scratch: Vec::new(),
         })
     }

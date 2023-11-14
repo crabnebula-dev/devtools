@@ -106,7 +106,6 @@ impl instrument::instrument_server::Instrument for Service {
             cursor.set_position(pos);
             if let Ok(update) = Update::decode_length_delimited(&mut cursor) {
                 let pos = cursor.position();
-                drop(cursor); // TODO yuck
                 Ok(Some((update, (mmap, pos))))
             } else {
                 Ok(None)
