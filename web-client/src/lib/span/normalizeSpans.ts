@@ -1,26 +1,29 @@
-type TimeRange = {
-    start: number;
-    end: number;
-}
+import { Span } from "../connection/monitor";
+import { convertTimestampToNanoseconds } from "../formatters";
 
-export function normalizeSpans(data: TimeRange[], granularity = 1) {
-    const minTime = Math.min(...data.map(e => e.start));
-    const maxTime = Math.max(...data.map(e => e.end));
+export function normalizeSpans(spans: Span[]) {
+    const data = spans.map(span => ({
+        start: convertTimestampToNanoseconds(span.enteredAt!),
+        end: convertTimestampToNanoseconds(span.exitedAt!),
+    }))
 
-    const totalDuration = maxTime - minTime;
+    const earliestStart = Math.min(...data.map(e => e.start));
+    const timeDomain = data[data.length - 1].start - data[0].start;
+    const totalDuration = data.reduce((acc, e) => {
+        return acc + (e.end - e.start);
+    }, 0)
 
     const result = data.map(event => {
-        const scaledStart = minTime + ((event.start - minTime) * granularity);
-        const scaledEnd = minTime + ((event.end - minTime) * granularity);
-        const normalizedStart = ((scaledStart - minTime) / totalDuration) * 100;
-        const normalizedWidth = ((scaledEnd - scaledStart) / totalDuration) * 100;
+        const width = ((event.end - event.start) / totalDuration) * 100;
+        const offset = (((event.start - earliestStart) / timeDomain) * 100);
+        const marginLeft = offset - (((offset - width) / 100) * width);
 
         return {
-            normalizedStart: normalizedStart / 1e3,
-            normalizedWidth: normalizedWidth,
-            duration: event.end - event.start
+            marginLeft,
+            width,
         };
     });
 
-    return result;
+    const newSpans = spans.map((s, i) => ({ ...s, ...result[i] }))
+    return newSpans;
 }
