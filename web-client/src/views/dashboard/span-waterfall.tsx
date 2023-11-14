@@ -17,6 +17,14 @@ export default function SpanWaterfall() {
         const metadata = monitorData.metadata.get(s.metadataId);
         return metadata && metadata.name.includes("ipc");
       });
+    console.log({
+      spans: JSON.stringify(filteredSpans(), (_, v) => {
+        if (typeof v === "bigint") {
+          return Number(v);
+        }
+        return v;
+      }),
+    });
 
     setSpans(normalizeSpans(filteredSpans()));
   });
