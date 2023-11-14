@@ -8,7 +8,8 @@ export function normalizeSpans(spans: Span[]) {
     }))
 
     const earliestStart = Math.min(...data.map(e => e.start));
-    const timeDomain = data[data.length - 1].start - data[0].start;
+    const latestStart = Math.max(...data.map(e => e.start));
+    const timeDomain = latestStart - earliestStart;
     const totalDuration = data.reduce((acc, e) => {
         return acc + (e.end - e.start);
     }, 0)
