@@ -7,6 +7,7 @@ import { createStore } from "solid-js/store";
 import { getColumnDirection } from "~/lib/span/getColumnDirection";
 import { SortCaret } from "~/components/span/SortCaret";
 import { sanitizeString } from "~/lib/span/sanitizeString";
+import { resolveColumnAlias } from "~/lib/span/resolveColumnAlias";
 
 export type SortableColumn = keyof ReturnType<typeof formatSpansForUi>[-1];
 export type SortDirection = "asc" | "desc";
@@ -21,6 +22,8 @@ export default function SpanWaterfall() {
   const [spans, setSpans] = createSignal<ReturnType<typeof formatSpansForUi>>(
     []
   );
+  const columns = () =>
+    [...Object.keys(spans()?.[0] ?? {})].filter((k) => k !== "start");
   const [columnSort, setColumnSort] = createStore<ColumnSort>({
     name: "start",
     direction: "asc",
@@ -53,6 +56,13 @@ export default function SpanWaterfall() {
     );
   });
 
+  const sortColumn = (name: SortableColumn) => {
+    setColumnSort({
+      name,
+      direction: getColumnDirection(columnSort, name),
+    });
+  };
+
   return (
     <div>
       <Toolbar>
@@ -64,73 +74,35 @@ export default function SpanWaterfall() {
           Autoscroll
         </FilterToggle>
       </Toolbar>
-      <table class="w-full">
+      <table class="w-full table-fixed">
         <thead>
           <tr class="text-left">
-            <th
-              onClick={() => {
-                setColumnSort({
-                  name: "name",
-                  direction: getColumnDirection(columnSort, "name"),
-                });
+            <For each={columns()}>
+              {(column) => {
+                const resolvedColumn = resolveColumnAlias(
+                  column as SortableColumn
+                );
+                return (
+                  <th
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if ([" ", "Enter"].includes(e.key)) {
+                        sortColumn(resolvedColumn);
+                      }
+                    }}
+                    onClick={() => sortColumn(resolvedColumn)}
+                    class="p-1 cursor-pointer hover:bg-[#ffffff09]"
+                  >
+                    <div class="flex uppercase select-none items-center gap-2">
+                      {column}
+                      {columnSort.name === resolvedColumn && (
+                        <SortCaret direction={columnSort.direction} />
+                      )}
+                    </div>
+                  </th>
+                );
               }}
-              class="p-1 cursor-pointer hover:bg-[#ffffff09]"
-            >
-              <div class="flex items-center gap-2">
-                Name
-                {columnSort.name === "name" && (
-                  <SortCaret direction={columnSort.direction} />
-                )}
-              </div>
-            </th>
-            <th
-              onClick={() => {
-                setColumnSort({
-                  name: "initiated",
-                  direction: getColumnDirection(columnSort, "initiated"),
-                });
-              }}
-              class="p-1 cursor-pointer hover:bg-[#ffffff09]"
-            >
-              <div class="flex items-center gap-2">
-                Initiated
-                {columnSort.name === "initiated" && (
-                  <SortCaret direction={columnSort.direction} />
-                )}
-              </div>
-            </th>
-            <th
-              onClick={() => {
-                setColumnSort({
-                  name: "time",
-                  direction: getColumnDirection(columnSort, "time"),
-                });
-              }}
-              class="p-1 cursor-pointer hover:bg-[#ffffff09]"
-            >
-              <div class="flex items-center gap-2">
-                Time
-                {columnSort.name === "time" && (
-                  <SortCaret direction={columnSort.direction} />
-                )}
-              </div>
-            </th>
-            <th
-              onClick={() => {
-                setColumnSort({
-                  name: "start",
-                  direction: getColumnDirection(columnSort, "start"),
-                });
-              }}
-              class="p-1 cursor-pointer hover:bg-[#ffffff09]"
-            >
-              <div class="flex items-center gap-2">
-                Waterfall
-                {columnSort.name === "start" && (
-                  <SortCaret direction={columnSort.direction} />
-                )}
-              </div>
-            </th>
+            </For>
           </tr>
         </thead>
         <tbody>
