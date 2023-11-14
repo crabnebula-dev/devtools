@@ -27,7 +27,7 @@ export function FolderIcon(props: Props) {
   return (
     <Show when={typeof icon() === "string"} fallback={<GenericFolderIcon />}>
       {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
-      <img src={icon()!} aria-hidden={true} alt={""} />
+      <img src={icon()!} aria-hidden={true} alt="" />
     </Show>
   );
 }
@@ -56,7 +56,7 @@ export function FileIcon(props: Props) {
   return (
     <Show when={typeof icon() === "string"} fallback={<GenericFileIcon />}>
       {/* eslint-disable-next-line @typescript-eslint/no-non-null-assertion */}
-      <img src={icon()!} aria-hidden={true} alt={""} />
+      <img src={icon()!} aria-hidden={true} alt="" />
     </Show>
   );
 }
