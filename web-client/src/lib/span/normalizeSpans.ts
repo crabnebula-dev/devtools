@@ -2,7 +2,7 @@ import { Span } from "../connection/monitor";
 import { convertTimestampToNanoseconds } from "../formatters";
 
 export function normalizeSpans(spans: Span[]) {
-    const data = spans.map(span => ({
+    const data = spans.filter(s => s.enteredAt && s.exitedAt).map(span => ({
         start: convertTimestampToNanoseconds(span.enteredAt!),
         end: convertTimestampToNanoseconds(span.exitedAt!),
     }))
