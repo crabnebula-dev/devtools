@@ -6,13 +6,13 @@ export default {
   theme: {
     extend: {
       spacing: {
-        toolbar: 'var(--toolbar-height)',
+        toolbar: "var(--toolbar-height)",
       },
       fontFamily: {
-        'sans': ['Euclid Circular B', 'Inter', ...defaultTheme.fontFamily.sans]
+        sans: ["Euclid Circular B", "Inter", ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        "navy": {
+        navy: {
           50: "#DCE2F4",
           100: "#B9C6E9",
           200: "#738DD3",
@@ -23,9 +23,9 @@ export default {
           700: "#070C17",
           800: "#050810",
           900: "#020408",
-          950: "#010204"
-        }
-      }
+          950: "#010204",
+        },
+      },
     },
   },
   plugins: [scrollbar({ nocompatible: true })],

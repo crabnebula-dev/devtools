@@ -3,7 +3,7 @@ import { GrpcWebFetchTransport } from "@protobuf-ts/grpcweb-transport";
 import { HealthClient } from "~/lib/proto/health.client";
 import { InstrumentClient } from "~/lib/proto/instrument.client";
 import { TauriClient } from "~/lib/proto/tauri.client";
-import {SourcesClient} from "~/lib/proto/sources.client.ts";
+import { SourcesClient } from "~/lib/proto/sources.client.ts";
 import { MetadataClient } from "../proto/meta.client";
 
 export function connect(url: string) {
@@ -27,7 +27,7 @@ export function connect(url: string) {
       health: healthClient,
       instrument: instrumentClient,
       sources: sourcesClient,
-      meta: metaClient
+      meta: metaClient,
     },
   };
 }

@@ -4,18 +4,18 @@ import { FilterToggle } from "~/components/filter-toggle";
 import { formatTimestamp, timestampToDate } from "~/lib/formatters";
 import { useMonitor } from "~/lib/connection/monitor";
 import { Toolbar } from "~/components/toolbar";
-import {Metadata_Level, MetaId} from "~/lib/proto/common"
+import { Metadata_Level, MetaId } from "~/lib/proto/common";
 
 const levelStyles = (level: Metadata_Level | undefined) => {
-    switch (level) {
-        case 0:
-            return 'text-red-600 bg-red-300';
-        case 1:
-            return 'text-yellow-800 bg-yellow-400';
-        default:
-            return ''
-    }
-}
+  switch (level) {
+    case 0:
+      return "text-red-600 bg-red-300";
+    case 1:
+      return "text-yellow-800 bg-yellow-400";
+    default:
+      return "";
+  }
+};
 
 export default function Console() {
   const { monitorData } = useMonitor();
@@ -49,10 +49,15 @@ export default function Console() {
             if (!at) return null;
 
             const timeDate = timestampToDate(at);
-            const level = (metaId: MetaId) => monitorData.metadata.get(metaId.id)?.level;
+            const level = (metaId: MetaId) =>
+              monitorData.metadata.get(metaId.id)?.level;
 
             return (
-                <li class={`p-1 m-1 items-center rounded flex ${levelStyles(level(metadataId!))}`}>
+              <li
+                class={`p-1 m-1 items-center rounded flex ${levelStyles(
+                  level(metadataId!)
+                )}`}
+              >
                 <Show when={showTimestamp()}>
                   <time
                     dateTime={timeDate.toISOString()}
