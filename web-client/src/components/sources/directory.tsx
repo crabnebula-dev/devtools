@@ -1,69 +1,126 @@
-import {createSignal, For, JSX, Suspense} from "solid-js";
-import {Entry} from "~/lib/proto/sources.ts";
-import {A, useRouteData} from "@solidjs/router";
-import {Connection} from "~/lib/connection/transport.ts";
-import {Collapsible} from "@kobalte/core";
+import {
+  createSignal,
+  For,
+  JSXElement,
+  mergeProps,
+  Show,
+  Suspense,
+} from "solid-js";
+import { Entry } from "~/lib/proto/sources.ts";
+import { A, useRouteData } from "@solidjs/router";
+import { Connection } from "~/lib/connection/transport.ts";
+import { Collapsible } from "@kobalte/core";
 import CaretDown from "~/components/icons/caret-down.tsx";
 import CaretRight from "~/components/icons/caret-right.tsx";
-import FolderIcon from "~/components/icons/folder.tsx";
-import FileIcon from "~/components/icons/file.tsx";
-import {awaitEntries, isDirectory, sortByPath, isAssetOrResource} from "~/lib/sources/util.ts";
+import { FileIcon, FolderIcon } from "~/components/icons/ide-icons";
+import {
+  awaitEntries,
+  isDirectory,
+  sortByPath,
+  isAssetOrResource,
+  encodeFileName,
+} from "~/lib/sources/file-entries";
+import { Loader } from "~/components/loader";
 
-interface DirectoryProps extends JSX.HTMLAttributes<HTMLDivElement> {
-    entry: Entry
-}
+type DirectoryProps = {
+  defaultPath: Entry["path"];
+  defaultSize: Entry["size"];
+  defaultFileType: Entry["fileType"];
+  class?: string;
+};
 
-export default function Directory(props: DirectoryProps) {
-    const { client } = useRouteData<Connection>();
-    const [entries] = awaitEntries(client.sources, props.entry.path);
-    const sortedEntries = () => entries()?.sort(sortByPath);
+type TreeEntryProps = {
+  caret?: JSXElement;
+  icon: JSXElement;
+  isAssetOrResource: boolean;
+  children: JSXElement;
+};
 
-    return <Suspense fallback={<span class={"pl-2"}>Loading...</span>}>
-        <ol class={props.class}>
-            <For each={sortedEntries()} fallback={<li>Empty</li>}>
-                {(child) => {
-                    const absolutePath = [props.entry.path, child.path].filter(e => !!e).join("/")
-                    const [isOpen, setIsOpen] = createSignal(false);
+const liStyles = "hover:bg-gray-800 hover:text-white focus:bg-gray-800";
 
-                    if (isDirectory(child)) {
-                        return <Collapsible.Root as={'li'} onOpenChange={(isOpen) => setIsOpen(isOpen)}>
-                            <Collapsible.Trigger class={'w-full'}>
-                                <TreeEntry caret={() => isOpen() ? <CaretDown /> : <CaretRight/>} icon={<FolderIcon path={child.path}/>} isAssetOrResource={isAssetOrResource(child)}>
-                                    {child.path}
-                                </TreeEntry>
-                            </Collapsible.Trigger>
-                            <Collapsible.Content class={'tree_view__content'}>
-                                <div class={"pl-4"}>
-                                    <Directory entry={{...child, path: absolutePath}} />
-                                </div>
-                            </Collapsible.Content>
-                        </Collapsible.Root>
-                    } else {
-                        return <TreeEntry icon={<FileIcon path={child.path}/>} isAssetOrResource={isAssetOrResource(child)}>
-                            <A href={`${absolutePath}?sizeHint=${child.size}`}>
-                                {child.path}
-                            </A>
-                        </TreeEntry>
-                    }
-                }}
-            </For>
-        </ol>
+export function Directory(props: DirectoryProps) {
+  const { client } = useRouteData<Connection>();
+  const [entries] = awaitEntries(client.sources, props.defaultPath);
+  const sortedEntries = () => entries()?.sort(sortByPath);
+
+  return (
+    <Suspense fallback={<Loader />}>
+      <ul class={props.class}>
+        <For each={sortedEntries()} fallback={<li>Empty</li>}>
+          {(child) => {
+            const absolutePath = [props.defaultPath, child.path]
+              .filter((e) => !!e)
+              .join("/");
+            const [isOpen, setIsOpen] = createSignal(false);
+
+            if (isDirectory(child)) {
+              const defaultProps = {
+                path: props.defaultPath,
+                size: props.defaultSize,
+                fileType: props.defaultFileType,
+              };
+              const childProps = mergeProps(defaultProps, child);
+
+              return (
+                <Collapsible.Root
+                  as="li"
+                  onOpenChange={(isOpen) => setIsOpen(isOpen)}
+                >
+                  <Collapsible.Trigger class={`w-full ${liStyles}`}>
+                    <TreeEntry
+                      caret={isOpen() ? <CaretDown /> : <CaretRight />}
+                      icon={<FolderIcon path={child.path} />}
+                      isAssetOrResource={isAssetOrResource(child)}
+                    >
+                      {child.path}
+                    </TreeEntry>
+                  </Collapsible.Trigger>
+                  <Collapsible.Content>
+                    <div class="pl-4">
+                      <Directory
+                        defaultPath={childProps.path}
+                        defaultSize={childProps.size}
+                        defaultFileType={childProps.fileType}
+                      />
+                    </div>
+                  </Collapsible.Content>
+                </Collapsible.Root>
+              );
+            } else {
+              return (
+                <A
+                  class={`block w-full rounded-sm pl-1 ${liStyles}`}
+                  activeClass="bg-navy-400"
+                  href={`${encodeFileName(absolutePath)}?sizeHint=${
+                    child.size
+                  }`}
+                >
+                  <TreeEntry
+                    icon={<FileIcon path={child.path} />}
+                    isAssetOrResource={isAssetOrResource(child)}
+                  >
+                    {child.path}
+                  </TreeEntry>
+                </A>
+              );
+            }
+          }}
+        </For>
+      </ul>
     </Suspense>
-}
-
-interface TreeEntryProps extends Omit<JSX.HTMLAttributes<HTMLLIElement>, 'class'> {
-    caret?: () => JSX.Element,
-    icon: JSX.Element,
-    isAssetOrResource: boolean
+  );
 }
 
 function TreeEntry(props: TreeEntryProps) {
-    const { caret, icon, children, ...rest } = props;
-
-    return <li {...rest} class={`grid gap-1.5 hover:bg-gray-800 items-center text-left`} style={{'grid-template-columns': '1em 1em 1fr', 'background-color': props.isAssetOrResource ? 'rgba(255,165,0, 0.35)' : ''}}>
-        {caret ? caret() : <span />}
-        {icon}
-        {children}
-        {props.isAssetOrResource}
+  return (
+    <li
+      class={`grid gap-1.5 text-lg items-center text-left ${
+        props.caret ? "grid-cols-[1em_1em_1fr]" : "grid-cols-[1em_1fr]"
+      }`}
+    >
+      <Show when={Boolean(props.caret)}>{props.caret}</Show>
+      {props.icon}
+      {props.children}
     </li>
+  );
 }

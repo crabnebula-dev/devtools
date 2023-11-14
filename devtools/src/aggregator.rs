@@ -50,6 +50,7 @@ pub(crate) struct Aggregator {
 }
 
 /// Whether to include all buffered events or only those that were buffered since the last update
+#[derive(Debug, Copy, Clone)]
 enum Include {
     /// Include all buffered events
     All,
@@ -83,29 +84,24 @@ impl Aggregator {
             let should_publish = tokio::select! {
                 _ = interval.tick() => true,
                 cmd = self.cmds.recv() => {
-                    match cmd {
-                        Some(Command::Instrument(watcher)) => {
-                            self.attach_watcher(watcher).await;
-                        }
-                        None => {
-                            tracing::debug!("gRPC server closed, terminating...");
-                            // TODO set health status to NOT_SERVING?
-                            break;
-                        }
-                    };
+                    if let Some(Command::Instrument(watcher)) = cmd {
+                        self.attach_watcher(watcher).await;
+                    } else {
+                        tracing::debug!("gRPC server closed, terminating...");
+                        // TODO set health status to NOT_SERVING?
+                        break;
+                    }
+
                     false
                 }
             };
 
             while let Some(event) = self.events.recv().now_or_never() {
-                match event {
-                    Some(event) => {
-                        self.update_state(event);
-                    }
-                    None => {
-                        tracing::debug!("event channel closed; terminating");
-                        break;
-                    }
+                if let Some(event) = event {
+                    self.update_state(event);
+                } else {
+                    tracing::debug!("event channel closed; terminating");
+                    break;
                 }
             }
 
@@ -132,11 +128,11 @@ impl Aggregator {
         };
 
         match watcher.tx.send(Ok(update)).await {
-            Ok(_) => {
+            Ok(()) => {
                 self.watchers.push(watcher);
             }
             Err(err) => {
-                tracing::warn!("Failed to send initial update to client because of error {err:?}")
+                tracing::warn!("Failed to send initial update to client because of error {err:?}");
             }
         }
     }
@@ -171,7 +167,7 @@ impl Aggregator {
             } => {
                 self.spans.push_overwrite(SpanEvent::new_span(
                     self.base_time.to_timestamp(at),
-                    id,
+                    &id,
                     metadata,
                     fields,
                     maybe_parent,
@@ -184,7 +180,7 @@ impl Aggregator {
             } => {
                 self.spans.push_overwrite(SpanEvent::enter_span(
                     self.base_time.to_timestamp(at),
-                    span_id,
+                    &span_id,
                     thread_id,
                 ));
             }
@@ -195,14 +191,14 @@ impl Aggregator {
             } => {
                 self.spans.push_overwrite(SpanEvent::exit_span(
                     self.base_time.to_timestamp(at),
-                    span_id,
+                    &span_id,
                     thread_id,
                 ));
             }
             Event::CloseSpan { at, span_id } => {
                 self.spans.push_overwrite(SpanEvent::close_span(
                     self.base_time.to_timestamp(at),
-                    span_id,
+                    &span_id,
                 ));
             }
         }

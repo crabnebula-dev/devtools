@@ -141,8 +141,12 @@ export default function Layout() {
       <footer class="p-2 flex justify-center border-t border-gray-800 gap-2 items-center">
         Built by <Logo size={16} /> CrabNebula
       </footer>
-      <div class="surf-container">
-        <img class="bg-surface static" src="/bg.jpeg" alt="" />
+      <div class="overflow-hidden absolute inset-0 w-full h-full -z-10">
+        <img
+          class="relative opacity-30 scale-110 bg-surface bg-surface"
+          src="/bg.jpeg"
+          alt=""
+        />
       </div>
     </MonitorContext.Provider>
   );

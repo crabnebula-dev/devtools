@@ -8,6 +8,7 @@ use tokio::sync::mpsc::error::TrySendError;
 use tracing_core::span::{Attributes, Id};
 use tracing_core::{Interest, Metadata};
 use tracing_subscriber::layer::Context;
+use tracing_subscriber::registry::SpanRef;
 
 // TODO replace this with `std::thread::ThreadId::as_u64` once it's stable
 static THREAD_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -43,10 +44,10 @@ impl Layer {
             Ok(permit) => {
                 permit.send(mk_event());
             }
-            Err(TrySendError::Closed(_)) => {
+            Err(TrySendError::Closed(())) => {
                 tracing::error!("Event channel closed!");
             }
-            Err(TrySendError::Full(_)) => {
+            Err(TrySendError::Full(())) => {
                 dropped.fetch_add(1, Ordering::Release);
             }
         }
@@ -100,7 +101,7 @@ where
             event.record(&mut visitor);
             let (message, fields) = visitor.result();
 
-            let maybe_parent = ctx.event_span(event).as_ref().map(|s| s.id());
+            let maybe_parent = ctx.event_span(event).as_ref().map(SpanRef::id);
 
             Event::Event {
                 at,

@@ -5,6 +5,7 @@ use crate::spans;
 
 mod generated {
     #![allow(warnings)]
+    #![allow(clippy::all, clippy::pedantic)]
     include!("./generated/rs.devtools.instrument.rs");
 }
 
@@ -21,6 +22,7 @@ impl Filter {
     /// This method will return `true` under two conditions:
     /// - The `file` filter is set (`Some`), and the given file name contains the substring defined in the filter.
     /// - The `file` filter is not set (`None`).
+    #[must_use]
     pub fn matches_file(&self, file: &str) -> bool {
         self.file.as_ref().map_or(true, |v| file.contains(v))
     }
@@ -30,6 +32,7 @@ impl Filter {
     /// This method will return `true` under two conditions:
     /// - The `text` filter is set (`Some`), and the given text contains the substring defined in the filter.
     /// - The `text` filter is not set (`None`).
+    #[must_use]
     pub fn matches_text(&self, text: &str) -> bool {
         self.text.as_ref().map_or(true, |v| text.contains(v))
     }
@@ -40,8 +43,10 @@ impl Filter {
     /// - The `level` filter is set (`Some`), and the given log level matches
     ///   the one defined in the filter.
     /// - The `level` filter is not set (`None`).
+    #[must_use]
     pub fn matches_level(&self, level: &Level) -> bool {
         self.level
-            .map_or(true, |v| Level::try_from(v).unwrap() == *level)
+            .and_then(|v| Level::try_from(v).ok())
+            .map_or(true, |v| v == *level)
     }
 }

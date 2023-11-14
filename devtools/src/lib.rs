@@ -1,3 +1,5 @@
+#![allow(clippy::doc_markdown)]
+
 //! Instrumentation code that will make your Tauri app compatible with CrabNebula Devtools.
 //!
 //! CrabNebula Devtools offers seamless and intuitive debugging, and monitoring of Tauri applications.

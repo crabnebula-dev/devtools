@@ -5,6 +5,7 @@ use crate::Metadata;
 
 mod generated {
     #![allow(warnings)]
+    #![allow(clippy::all, clippy::pedantic)]
     include!("./generated/rs.devtools.logs.rs");
 }
 

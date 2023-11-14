@@ -39,7 +39,7 @@ const ROUTES: RouteDefinition[] = [
         component: lazy(() => import("./views/dashboard/tauri.tsx")),
       },
       {
-        path: "/sources/*path",
+        path: "/sources/*source",
         component: lazy(() => import("./views/dashboard/sources.tsx")),
       },
     ],
@@ -49,7 +49,7 @@ const ROUTES: RouteDefinition[] = [
 export default function Entry() {
   const Routes = useRoutes(ROUTES);
 
-  setCDN('/icons');
+  setCDN("/icons");
 
   return <Routes />;
 }

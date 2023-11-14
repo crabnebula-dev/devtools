@@ -38,8 +38,10 @@ fn build_protos() {
 
     tonic_build::configure()
         .build_server(true)
+        .build_client(false)
         .protoc_arg("--experimental_allow_proto3_optional")
         .enum_attribute("rs.tauri.devtools.common.Field.name", "#[derive(Hash, Eq)]")
+        .server_mod_attribute(".", "#[allow(clippy::all)]")
         .out_dir(&out_dir)
         .compile_with_config(cfg, &proto_files, &[proto_dir])
         .unwrap();
@@ -52,6 +54,7 @@ fn build_protos() {
         .arg("--")
         .arg(out_dir)
         .status();
+
     match status {
         Ok(status) if !status.success() => panic!("You should commit the protobuf files"),
         Err(error) => panic!("failed to run `git diff`: {}", error),

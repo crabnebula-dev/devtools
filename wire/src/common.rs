@@ -1,5 +1,6 @@
 mod generated {
     #![allow(warnings)]
+    #![allow(clippy::all, clippy::pedantic)]
     include!("./generated/rs.devtools.common.rs");
 }
 
@@ -110,6 +111,6 @@ impl From<&str> for field::Value {
 
 impl From<&dyn std::fmt::Debug> for field::Value {
     fn from(val: &dyn std::fmt::Debug) -> Self {
-        field::Value::DebugVal(format!("{:?}", val))
+        field::Value::DebugVal(format!("{val:?}"))
     }
 }

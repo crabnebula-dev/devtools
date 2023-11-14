@@ -43,7 +43,7 @@ pub(crate) fn init<R: Runtime>(
                     let aggregator = tokio::spawn(aggregator.run());
                     server.run(DEFAULT_ADDRESS).await.unwrap();
                     aggregator.abort();
-                })
+                });
             });
 
             Ok(())
