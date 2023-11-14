@@ -5,11 +5,13 @@
   "description": "Solid CSR Template",
   "type": "module",
   "license": "PolyForm-Noncommercial-1.0.0",
+  "author": "CrabNebula <hello@crabnebula.dev>",
   "scripts": {
     "proto": "protoc --ts_out src/lib/proto --proto_path ../wire/proto ../wire/proto/common.proto ../wire/proto/instrument.proto ../wire/proto/logs.proto ../wire/proto/spans.proto ../wire/proto/tauri.proto ../wire/proto/sources.proto ../wire/proto/meta.proto ../wire/proto/health.proto",
     "dev": "pnpm proto && vite",
-    "build": "pnpm proto && tsc && vite build",
+    "build": "pnpm proto && vite build",
     "preview": "pnpm proto && vite preview",
+    "format": "pnpm prettier .",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --fix --ext .ts,.tsx",
     "test": "pnpm proto && vitest"
@@ -28,6 +30,9 @@
     "jsdom": "^22.1.0",
     "postcss": "^8.4.31",
     "prettier": "^2.8.8",
+    "vite-plugin-static-copy": "^0.17.0",
+    "vite-plugin-top-level-await": "^1.3.1",
+    "vite-plugin-wasm": "^3.2.2",
     "tailwindcss": "^3.3.5",
     "typescript": "^5.2.2",
     "vite": "^4.5.0",
@@ -43,6 +48,10 @@
     "@solidjs/router": "^0.8.3",
     "clsx": "^2.0.0",
     "csp_evaluator": "^1.1.1",
+    "@crabnebula/file-icons": "^0.1.0",
+    "json-schema-library": "^9.1.2",
+    "shiki": "^0.14.5",
+    "split.js": "^1.6.5",
     "solid-js": "^1.8.5",
     "tailwind-scrollbar": "^3.0.5"
   }

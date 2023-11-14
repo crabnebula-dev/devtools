@@ -2,74 +2,122 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  font-size: 13px;
-}
-
-:root {
-  --toolbar-height: 2.15rem;
-}
-
 @layer base {
+  /** fonts */
+
+  @font-face {
+    font-family: "Euclid Circular B";
+    font-style: normal;
+    src: url("/fonts/EuclidCircularB-Regular.woff") format("woff");
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Euclid Circular B";
+    font-style: normal;
+    src: url("/fonts/EuclidCircularB-Bold.woff") format("woff");
+    font-weight: 700;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Euclid Circular B";
+    font-style: normal;
+    src: url("/fonts/EuclidCircularB-Light.woff") format("woff");
+    font-weight: 300;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Euclid Circular B";
+    font-style: normal;
+    src: url("/fonts/EuclidCircularB-Medium.woff") format("woff");
+    font-weight: 500;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: "Euclid Circular B";
+    font-style: normal;
+    src: url("/fonts/EuclidCircularB-Semibold.woff") format("woff");
+    font-weight: 600;
+    font-display: swap;
+  }
+
+  :root {
+    font-size: 13px;
+    --toolbar-height: 2.15rem;
+  }
+
   * {
     @apply scrollbar-thin scrollbar-track-neutral-900 scrollbar-thumb-rounded scrollbar-thumb-neutral-600;
   }
 }
 
-.surf-container {
-  @apply overflow-hidden absolute inset-0 w-full h-full;
-  z-index: -1;
-  animation: 3s cubic-bezier(0.165, 0.84, 0.44, 1) 0s 1 fadein;
-}
+@layer components {
+  /**
+   * SplitPane specific CSS (split.js)
+  **/
+  .gutter,
+  .gutter:hover {
+    @apply cursor-col-resize;
+  }
+  /**
+   * /SplitPane specific CSS (split.js)
+  **/
 
-.bg-surface {
-  @apply relative opacity-30 scale-110;
+  /**
+   * Background classes
+  **/
+  .surf-container {
+    @apply overflow-hidden absolute inset-0 w-full h-full -z-10;
+    animation: 3s cubic-bezier(0.165, 0.84, 0.44, 1) 0s 1 fadein;
+  }
 
-  filter: blur(32px);
-  height: 170%;
-  width: 160%;
-  max-height: 90vh;
-  top: -250px;
-}
+  .bg-surface {
+    @apply relative opacity-30 scale-110;
 
-/** fonts */
+    filter: blur(32px);
+    height: 170%;
+    width: 160%;
+    max-height: 90vh;
+    top: -250px;
+  }
+  /**
+   * /Background classes
+  **/
 
-@font-face {
-  font-family: "Euclid Circular B";
-  font-style: normal;
-  src: url("/fonts/EuclidCircularB-Regular.woff") format("woff");
-  font-weight: 400;
-  font-display: swap;
-}
+  /**
+   * shiki
+   * 
+  **/
+  .shiki {
+    padding: 1.5em;
+    max-width: 85vw;
+    text-wrap: normal;
+    min-height: 100%;
+    height: max-content;
+    width: max-content;
+    background: transparent !important; /* override shiki's background */
+  }
 
-@font-face {
-  font-family: "Euclid Circular B";
-  font-style: normal;
-  src: url("/fonts/EuclidCircularB-Bold.woff") format("woff");
-  font-weight: 700;
-  font-display: swap;
-}
+  code {
+    counter-reset: step;
+    counter-increment: step 0;
+  }
 
-@font-face {
-  font-family: "Euclid Circular B";
-  font-style: normal;
-  src: url("/fonts/EuclidCircularB-Light.woff") format("woff");
-  font-weight: 300;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Euclid Circular B";
-  font-style: normal;
-  src: url("/fonts/EuclidCircularB-Medium.woff") format("woff");
-  font-weight: 500;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Euclid Circular B";
-  font-style: normal;
-  src: url("/fonts/EuclidCircularB-Semibold.woff") format("woff");
-  font-weight: 600;
-  font-display: swap;
+  code .line::before {
+    content: counter(step);
+    counter-increment: step;
+    width: 1rem;
+    margin-right: 1.5rem;
+    display: inline-block;
+    text-align: right;
+    color: rgba(115, 138, 148, 0.4);
+    user-select: none;
+  }
+  /**
+   * /shiki
+  **/
 }
