@@ -6,7 +6,6 @@ import { formatSpansForUi } from "~/lib/span/formatSpansForUi";
 import { createStore } from "solid-js/store";
 import { getColumnDirection } from "~/lib/span/getColumnDirection";
 import { SortCaret } from "~/components/span/SortCaret";
-import { sanitizeString } from "~/lib/span/sanitizeString";
 import { resolveColumnAlias } from "~/lib/span/resolveColumnAlias";
 import { getTime } from "~/lib/formatters";
 
@@ -51,10 +50,14 @@ export default function SpanWaterfall() {
         const lhs = a[columnName];
         const rhs = b[columnName];
 
-        if (columnSort.direction === "asc") {
-          return sanitizeString(lhs) - sanitizeString(rhs);
+        if (typeof lhs !== "number" || typeof rhs !== "number") {
+          throw new Error("Cannot sort non-numeric values");
         }
-        return sanitizeString(rhs) - sanitizeString(lhs);
+
+        if (columnSort.direction === "asc") {
+          return lhs - rhs;
+        }
+        return rhs - lhs;
       })
     );
   });
@@ -120,9 +123,18 @@ export default function SpanWaterfall() {
                     <div class="relative w-[90%]">
                       <div class="bg-gray-800 w-full absolute rounded-sm h-2" />
                       <div
-                        class="bg-teal-500 rounded-sm relative h-2"
+                        class="bg-teal-500 relative rounded-sm h-2"
                         style={span.waterfall}
-                      />
+                      >
+                        <For each={span.slices}>
+                          {(slice) => (
+                            <div
+                              class="absolute top-0 left-0 bg-black bg-opacity-10 h-full"
+                              style={slice}
+                            ></div>
+                          )}
+                        </For>
+                      </div>
                     </div>
                   </td>
                 </tr>
