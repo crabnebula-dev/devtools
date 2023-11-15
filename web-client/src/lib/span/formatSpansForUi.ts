@@ -10,10 +10,15 @@ type Options = {
 }
 export function formatSpansForUi({ spans, metadata }: Options) {
     return normalizeSpans(spans).map(span => {
+        const time = span.activity.reduce(
+            (sum, activity) => sum +
+                (convertTimestampToNanoseconds(activity.exitedAt) - convertTimestampToNanoseconds(activity.enteredAt) / 1e6),
+            0
+        );
         return ({
             name: getIpcRequestName({ metadata, span }) || '-',
             initiated: convertTimestampToNanoseconds(span.createdAt!) / 1000000,
-            time: convertTimestampToNanoseconds(span.exitedAt!) - convertTimestampToNanoseconds(span.enteredAt!) / 1e6,
+            time,
             waterfall: `width:${span.width}%;margin-left:${span.marginLeft}%;`,
             start: span.marginLeft
         })

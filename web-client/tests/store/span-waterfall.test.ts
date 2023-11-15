@@ -50,7 +50,7 @@ describe("The store setter for the Span Waterfall", () => {
     expect(result).toEqual([MOCK_SPAN]);
   });
 
-  it("should add `enterSpan` updates `entry.at`", () => {
+  it("should add `pendingActivity` on `enterSpan`", () => {
     const enterSpan = {
       spanId: BigInt(7), // used to locate parent
       threadId: BigInt(11), // ?
@@ -72,10 +72,10 @@ describe("The store setter for the Span Waterfall", () => {
       ]
     );
 
-    expect(result[0].enteredAt).toEqual(enterSpan.at);
+    expect(result[0].pendingActivity?.timestamp).toEqual(enterSpan.at);
   });
 
-  it("should add `exitSpan` updates `entry.at`", () => {
+  it("should add `exitSpan` on `exitSpan`", () => {
     const exitSpan = {
       spanId: BigInt(7), // used to locate parent
       threadId: BigInt(11), // ?
@@ -97,7 +97,7 @@ describe("The store setter for the Span Waterfall", () => {
       ]
     );
 
-    expect(result[0].enteredAt).toEqual(exitSpan.at);
+    expect(result[0].pendingActivity?.timestamp).toEqual(exitSpan.at);
   });
 
   it("should add `newSpan` without parent to root level", () => {

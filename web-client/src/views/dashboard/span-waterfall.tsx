@@ -33,7 +33,7 @@ export default function SpanWaterfall() {
     const filteredSpans = () => [
       ...monitorData.spans.filter((s) => {
         const metadata = monitorData.metadata.get(s.metadataId);
-        return metadata && metadata.name.includes("ipc") && s.enteredAt;
+        return metadata && metadata.name.includes("ipc");
       }),
     ];
 
@@ -115,11 +115,11 @@ export default function SpanWaterfall() {
                   <td class="p-1">{span.time}ms</td>
                   <td class="p-1 relative">
                     <div class="relative w-[90%]">
-                      <div class="bg-gray-800 w-full absolute rounded-sm h-2"></div>
+                      <div class="bg-gray-800 w-full absolute rounded-sm h-2" />
                       <div
                         class="bg-teal-500 rounded-sm relative h-2"
                         style={span.waterfall}
-                      ></div>
+                       />
                     </div>
                   </td>
                 </tr>
