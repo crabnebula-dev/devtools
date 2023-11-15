@@ -36,7 +36,6 @@ mod visitors;
 
 use crate::aggregator::Aggregator;
 use crate::layer::Layer;
-use crate::recorder::Recorder;
 use colored::Colorize;
 pub use error::Error;
 use server::DEFAULT_ADDRESS;
@@ -118,9 +117,18 @@ pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
     let (event_tx, event_rx) = mpsc::channel(512);
     let (cmd_tx, cmd_rx) = mpsc::channel(256);
 
+    let (recorder_tx, recorder_data) = if std::env::args().nth(1) == Some("--record".to_string()) {
+        let path = PathBuf::from(std::env::args().nth(2).ok_or(Error::MissingRecordingPath)?);
+        let (tx, rx) = mpsc::channel(256);
+
+        (Some(tx), Some((rx, path)))
+    } else {
+        (None, None)
+    };
+
     // set up components
     let layer = Layer::new(shared.clone(), event_tx);
-    let aggregator = Aggregator::new(shared, event_rx, cmd_rx, None);
+    let aggregator = Aggregator::new(shared, event_rx, cmd_rx, recorder_tx);
 
     // initialize early so we don't miss any spans
     tracing_subscriber::registry()
@@ -145,7 +153,7 @@ pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
         url.underline().blue()
     );
 
-    let plugin = tauri_plugin::init(aggregator, cmd_tx);
+    let plugin = tauri_plugin::init(aggregator, cmd_tx, recorder_data);
     Ok(plugin)
 }
 

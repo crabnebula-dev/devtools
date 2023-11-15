@@ -1,17 +1,21 @@
 use crate::aggregator::Aggregator;
+use crate::recorder::Recorder;
 use crate::server::{Server, DEFAULT_ADDRESS};
 use crate::Command;
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::thread;
 use std::time::Instant;
 use std::time::SystemTime;
 use tauri::{RunEvent, Runtime};
+use tauri_devtools_wire_format::instrument;
 use tauri_devtools_wire_format::tauri::Metrics;
 use tokio::sync::{mpsc, RwLock};
 
 pub(crate) fn init<R: Runtime>(
     aggregator: Aggregator,
     cmd_tx: mpsc::Sender<Command>,
+    recorder: Option<(mpsc::Receiver<instrument::Update>, PathBuf)>,
 ) -> tauri::plugin::TauriPlugin<R> {
     let now = Instant::now();
     let metrics = Arc::new(RwLock::new(Metrics {
@@ -23,6 +27,9 @@ pub(crate) fn init<R: Runtime>(
     tauri::plugin::Builder::new("probe")
         .setup(move |app_handle| {
             let server = Server::new(cmd_tx, app_handle.clone(), m);
+            let recorder = recorder
+                .map(|(rx, path)| Recorder::new(rx, &path, app_handle))
+                .transpose()?;
 
             // spawn the server and aggregator in a separate thread
             // so we don't interfere with the application we're trying to instrument
@@ -41,8 +48,10 @@ pub(crate) fn init<R: Runtime>(
 
                 rt.block_on(async move {
                     let aggregator = tokio::spawn(aggregator.run());
+                    let recorder = recorder.map(|r| tokio::spawn(r.run()));
                     server.run(DEFAULT_ADDRESS).await.unwrap();
                     aggregator.abort();
+                    recorder.map(|r| r.abort());
                 });
             });
 

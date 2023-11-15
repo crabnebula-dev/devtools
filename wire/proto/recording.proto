@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package rs.devtools.recording;
+
+import "meta.proto";
+import "tauri.proto";
+
+message RecordingHeader {
+  uint32 version = 1;
+  meta.AppMetadata app_metadata = 2;
+  tauri.Versions tauri_versions = 3;
+  tauri.Config tauri_config = 4;
+}

@@ -11,6 +11,7 @@ use std::sync::Arc;
 use tauri_devtools_wire_format::instrument;
 use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
 use tauri_devtools_wire_format::instrument::{InstrumentRequest, Update};
+use tauri_devtools_wire_format::recording::RecordingHeader;
 use tonic::codegen::http::Method;
 use tonic::codegen::BoxStream;
 use tonic::{Request, Response, Status};
@@ -77,9 +78,19 @@ struct Service(Arc<Mmap>);
 impl Service {
     pub fn new(path: &Path) -> Self {
         let mut file = File::open(path).unwrap();
-        let mut version = vec![0u8];
-        file.read_exact(&mut version).unwrap();
-        assert_eq!(version[0], 1);
+        let mut header_len = [0u8; 4];
+
+        // file.read_exact(&mut header_len).unwrap();
+        // let header_len = u32::from_le_bytes(header_len);
+        // let mut header = Vec::with_capacity(header_len as usize);
+        // unsafe { header.set_len(header_len as usize) };
+        // header.fill(0);
+        //
+        // println!("header len {}", header_len);
+        // file.read_exact(&mut header).unwrap();
+        // let header = RecordingHeader::decode_length_delimited(header.as_slice()).unwrap();
+        //
+        // assert_eq!(header.version, 1);
 
         let mmap = unsafe { MmapOptions::new().offset(1).map(&file).unwrap() };
 

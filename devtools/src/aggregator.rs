@@ -1,4 +1,3 @@
-use crate::recorder::Recorder;
 use crate::{Command, Event, Shared, Watcher};
 use futures::FutureExt;
 use ringbuf::consumer::Consumer;
@@ -46,7 +45,7 @@ pub(crate) struct Aggregator {
     /// All connected clients
     watchers: Vec<Watcher>,
 
-    recorder: Option<Recorder>,
+    recorder: Option<mpsc::Sender<instrument::Update>>,
 
     /// Used to convert `Instant`s to `SystemTime`s and `Timestamp`s
     pub(crate) base_time: TimeAnchor,
@@ -66,7 +65,7 @@ impl Aggregator {
         shared: Arc<Shared>,
         events: mpsc::Receiver<Event>,
         cmds: mpsc::Receiver<Command>,
-        recorder: Option<Recorder>,
+        recorder: Option<mpsc::Sender<instrument::Update>>,
     ) -> Self {
         Self {
             shared,
@@ -264,7 +263,11 @@ impl Aggregator {
         };
 
         if let Some(recorder) = &mut self.recorder {
-            recorder.record_update(&update)?;
+            recorder
+                .send(update.clone())
+                .now_or_never()
+                .unwrap()
+                .unwrap();
         }
 
         self.watchers
