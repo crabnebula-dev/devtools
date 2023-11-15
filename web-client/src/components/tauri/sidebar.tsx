@@ -42,16 +42,15 @@ export function Sidebar(props: SidebarProps) {
                       <div
                         class={
                           currentNavKey() === tabName + child.path
-                            ? "border-b-2 hover:bg-[#00555A] hover:border-[#2DCC9F] p-1 bg-[#00555A] border-[#2DCC9F] text-white"
-                            : "border-b-2 hover:bg-[#00555A] hover:border-[#2DCC9F] p-1 border-neutral-800 text-neutral-400 hover:text-white"
+                            ? "text-lg border-b-2 hover:bg-[#eaebeb] hover:border-[#2DCC9F] p-1 bg-[#00555A] border-[#2DCC9F] text-white"
+                            : "text-lg border-b-2 hover:bg-[#00555A] hover:border-[#2DCC9F] p-1 border-neutral-800 text-neutral-400 hover:text-white"
                         }
                       >
-                        <p class="text-lg">
-                          <span class="inline-block w-6 align-middle mx-2">
+
+                          <div class="inline-block w-6 align-middle mx-2">
                             <FileIcon path={tabName} />
-                          </span>
+                          </div>
                           {tabName}
-                        </p>
                       </div>
                     </A>
                   )}
