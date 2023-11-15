@@ -17,7 +17,7 @@ export function normalizeSpans(spans: Span[]) {
     const result = data.map(event => {
         const width = ((event.end - event.start) / totalDuration) * 100;
         const offset = (((event.start - earliestStart) / timeDomain) * 100);
-        const marginLeft = offset - (((offset - width) / 100) * width);
+        const marginLeft = offset - ((offset / 100) * width);
 
         return {
             marginLeft,
