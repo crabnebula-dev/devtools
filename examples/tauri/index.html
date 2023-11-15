@@ -16,7 +16,7 @@
 
         test1.onclick = function (e) {
           e.preventDefault();
-          window.__TAURI_INVOKE__("test1").then(() => {
+          window.__TAURI_INVOKE__("test1", { url: "https://www.rust-lang.org", timeoutSeconds: 2 }).then(() => {
             console.log("done");
           });
         };
