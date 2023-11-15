@@ -10,11 +10,15 @@ type WrapperProps = {
   defaultPrefix: string;
   leftPaneComponent: JSXElement;
   rightPaneComponent: JSXElement;
+  initialSizes?: [number, number];
 };
 
 export function SplitPane(props: WrapperProps) {
-  const splitGutterSizeKey = `${props.defaultPrefix}-sources-split-size`;
-  const sizes = getArrayFromLocalStorage(splitGutterSizeKey);
+  const splitGutterSizeKey = `${props.defaultPrefix}-split-size`;
+  const sizes = getArrayFromLocalStorage(
+    splitGutterSizeKey,
+    props.initialSizes
+  );
 
   onMount(() => {
     Split(
