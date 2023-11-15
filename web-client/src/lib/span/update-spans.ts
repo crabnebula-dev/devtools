@@ -12,6 +12,8 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
           fields: event.event.newSpan.fields,
           children: [],
           createdAt: event.event.newSpan.at,
+          activity: [],
+          pendingActivity: null,
         };
 
         /**
@@ -37,16 +39,34 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
       }
       case "enterSpan": {
         const span = findSpanById(currentSpans, event.event.enterSpan.spanId);
-        if (span) {
-          span.enteredAt = event.event.enterSpan.at;
+        const enteredAt = event.event.enterSpan.at;
+        if (span && enteredAt) {
+          if (span.pendingActivity) {
+            span.activity.push({
+              enteredAt,
+              exitedAt: span.pendingActivity.timestamp
+            });
+            span.pendingActivity = null;
+          } else {
+            span.pendingActivity = { timestamp: enteredAt };
+          }
         }
 
         break;
       }
       case "exitSpan": {
         const span = findSpanById(currentSpans, event.event.exitSpan.spanId);
-        if (span) {
-          span.exitedAt = event.event.exitSpan.at;
+        const exitedAt = event.event.exitSpan.at;
+        if (span && exitedAt) {
+          if (span.pendingActivity) {
+            span.activity.push({
+              enteredAt: span.pendingActivity.timestamp,
+              exitedAt
+            });
+            span.pendingActivity = null;
+          } else {
+            span.pendingActivity = { timestamp: exitedAt };
+          }
         }
         break;
       }
