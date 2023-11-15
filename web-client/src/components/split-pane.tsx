@@ -31,8 +31,6 @@ export function SplitPane(props: WrapperProps) {
   let splitInstance: Split.Instance;
 
   onMount(() => {
-    console.log(paneIds);
-    console.log(sizes);
     splitInstance = Split(paneIds, {
       sizes,
       minSize: defaultMinSizes,
