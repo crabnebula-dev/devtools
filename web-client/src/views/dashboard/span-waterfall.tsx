@@ -8,6 +8,7 @@ import { getColumnDirection } from "~/lib/span/getColumnDirection";
 import { SortCaret } from "~/components/span/SortCaret";
 import { sanitizeString } from "~/lib/span/sanitizeString";
 import { resolveColumnAlias } from "~/lib/span/resolveColumnAlias";
+import { getTime } from "~/lib/formatters";
 
 export type SortableColumn = keyof ReturnType<typeof formatSpansForUi>[-1];
 export type SortDirection = "asc" | "desc";
@@ -23,7 +24,9 @@ export default function SpanWaterfall() {
     []
   );
   const columns = () =>
-    [...Object.keys(spans()?.[0] ?? {})].filter((k) => k !== "start" && k !== "processingTime");
+    [...Object.keys(spans()?.[0] ?? {})].filter((k) =>
+      ["name", "initiated", "time", "waterfall"].includes(k)
+    );
   const [columnSort, setColumnSort] = createStore<ColumnSort>({
     name: "start",
     direction: "asc",
@@ -111,7 +114,7 @@ export default function SpanWaterfall() {
               return (
                 <tr class="even:bg-[#ffffff09] cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]">
                   <td class="p-1">{span.name}</td>
-                  <td class="p-1">{span.initiated}</td>
+                  <td class="p-1">{getTime(new Date(span.initiated))}</td>
                   <td class="p-1">{span.time}ms</td>
                   <td class="p-1 relative">
                     <div class="relative w-[90%]">
@@ -119,7 +122,7 @@ export default function SpanWaterfall() {
                       <div
                         class="bg-teal-500 rounded-sm relative h-2"
                         style={span.waterfall}
-                       />
+                      />
                     </div>
                   </td>
                 </tr>

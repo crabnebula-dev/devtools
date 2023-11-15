@@ -27,7 +27,7 @@ export function formatTimestamp(stamp: Date) {
   })}:${formatMs(String(stamp.getMilliseconds()))}`;
 }
 
-export function formatDate(date: Date) {
+export function getTime(date: Date) {
   return Intl.DateTimeFormat('en-US', {
     hour: '2-digit',
     minute: '2-digit',

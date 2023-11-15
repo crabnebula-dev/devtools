@@ -8,25 +8,16 @@ import { timestampToDate } from "~/lib/formatters";
 import { AppMetadata } from "../proto/meta";
 import { Versions } from "../proto/tauri";
 
-export type SpanActivity = {
-  enteredAt: Timestamp;
-  exitedAt: Timestamp;
-}
-
-export type PendingSpanActivity = {
-  // either enteredAt or exitedAt depending on which event we received first
-  timestamp: Timestamp;
-}
-
 export type Span = {
   id: bigint;
   metadataId: bigint;
   fields: Field[];
   children: Span[];
-  createdAt: Timestamp;
-  closedAt?: Timestamp;
-  activity: SpanActivity[];
-  pendingActivity: PendingSpanActivity | null;
+  createdAt: number;
+  enters: number[];
+  exits: number[];
+  closedAt: number;
+  duration: number;
 };
 
 export type MonitorData = {

@@ -1,29 +1,25 @@
 import { Span } from "../connection/monitor";
-import { convertTimestampToNanoseconds } from "../formatters";
+
+function scaleNumbers(numbers: number[], min: number, max: number): number[] {
+    const range = max - min;
+    return numbers.map(num => ((num - min) / range) * 100).map(num => Math.max(0, Math.min(num, 100)));
+}
+
+function scaleToMax(numbers: number[], max: number): number[] {
+    return numbers.map(num => (num / max) * 100);
+}
 
 export function normalizeSpans(spans: Span[]) {
-    const data = spans.filter(s => s.closedAt).map(span => ({
-        start: convertTimestampToNanoseconds(span.createdAt),
-        end: convertTimestampToNanoseconds(span.closedAt!),
-    }));
+    const start = Math.min(...spans.map(span => span.createdAt));
+    const end = Math.max(...spans.filter(s => s.closedAt > 0).map(span => span.closedAt));
+    const totalDuration = end - start;
 
-    const earliestStart = Math.min(...data.map(e => e.start));
-    const latestStart = Math.max(...data.map(e => e.start));
-    const timeDomain = latestStart - earliestStart;
-    const totalDuration = data.reduce((acc, e) => {
-        return acc + (e.end - e.start);
-    }, 0)
-
-    const result = data.map(event => {
-        const width = ((event.end - event.start) / totalDuration) * 100;
-        const offset = (((event.start - earliestStart) / timeDomain) * 100);
-        const marginLeft = offset - ((offset / 100) * width);
-
+    const result = spans.map(span => {
         return {
-            marginLeft,
-            width,
-        };
-    });
+            width: scaleToMax([span.duration], totalDuration)[0],
+            marginLeft: scaleNumbers([span.createdAt], start, end)[0],
+        }
+    })
 
     const newSpans = spans.map((s, i) => ({ ...s, ...result[i] }))
     return newSpans;
