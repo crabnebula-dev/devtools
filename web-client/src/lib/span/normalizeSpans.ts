@@ -2,9 +2,9 @@ import { Span } from "../connection/monitor";
 import { convertTimestampToNanoseconds } from "../formatters";
 
 export function normalizeSpans(spans: Span[]) {
-    const data = spans.filter(s => s.enteredAt && s.exitedAt).map(span => ({
-        start: convertTimestampToNanoseconds(span.enteredAt!),
-        end: convertTimestampToNanoseconds(span.exitedAt!),
+    const data = spans.map(s => s.activity).flat().map(activity => ({
+        start: convertTimestampToNanoseconds(activity.enteredAt),
+        end: convertTimestampToNanoseconds(activity.exitedAt),
     }))
 
     const earliestStart = Math.min(...data.map(e => e.start));
