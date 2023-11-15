@@ -6,25 +6,16 @@ import { Metrics } from "~/lib/proto/tauri";
 import { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
 import { timestampToDate } from "~/lib/formatters";
 
-export type SpanActivity = {
-  enteredAt: Timestamp;
-  exitedAt: Timestamp;
-}
-
-export type PendingSpanActivity = {
-  // either enteredAt or exitedAt depending on which event we received first
-  timestamp: Timestamp;
-}
-
 export type Span = {
   id: bigint;
   metadataId: bigint;
   fields: Field[];
   children: Span[];
-  createdAt: Timestamp;
-  closedAt?: Timestamp;
-  activity: SpanActivity[];
-  pendingActivity: PendingSpanActivity | null;
+  createdAt: number;
+  enters: number[];
+  exits: number[];
+  closedAt: number;
+  duration: number;
 };
 
 export type MonitorData = {

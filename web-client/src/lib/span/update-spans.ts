@@ -1,19 +1,22 @@
 import { type Span } from "~/lib/connection/monitor";
 import { type SpanEvent } from "~/lib/proto/spans";
 import { findSpanById } from "~/lib/span/find-span-by-id";
+import { convertTimestampToNanoseconds } from "../formatters";
 
 export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
   for (const event of spanEvents) {
     switch (event.event.oneofKind) {
       case "newSpan": {
-        const span = {
+        const span: Span = {
           id: event.event.newSpan.id,
           metadataId: event.event.newSpan.metadataId,
           fields: event.event.newSpan.fields,
           children: [],
-          createdAt: event.event.newSpan.at,
-          activity: [],
-          pendingActivity: null,
+          createdAt: convertTimestampToNanoseconds(event.event.newSpan.at!),
+          enters: [],
+          exits: [],
+          closedAt: -1,
+          duration: -1
         };
 
         /**
@@ -39,34 +42,18 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
       }
       case "enterSpan": {
         const span = findSpanById(currentSpans, event.event.enterSpan.spanId);
-        const enteredAt = event.event.enterSpan.at;
-        if (span && enteredAt) {
-          if (span.pendingActivity) {
-            span.activity.push({
-              enteredAt,
-              exitedAt: span.pendingActivity.timestamp
-            });
-            span.pendingActivity = null;
-          } else {
-            span.pendingActivity = { timestamp: enteredAt };
-          }
+        const enteredAt = convertTimestampToNanoseconds(event.event.enterSpan.at!);
+        if (span) {
+          span.enters.push(enteredAt);
         }
 
         break;
       }
       case "exitSpan": {
         const span = findSpanById(currentSpans, event.event.exitSpan.spanId);
-        const exitedAt = event.event.exitSpan.at;
-        if (span && exitedAt) {
-          if (span.pendingActivity) {
-            span.activity.push({
-              enteredAt: span.pendingActivity.timestamp,
-              exitedAt
-            });
-            span.pendingActivity = null;
-          } else {
-            span.pendingActivity = { timestamp: exitedAt };
-          }
+        const exitedAt = convertTimestampToNanoseconds(event.event.exitSpan.at!);
+        if (span) {
+          span.exits.push(exitedAt);
         }
         break;
       }
@@ -74,7 +61,8 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
       case "closeSpan": {
         const span = findSpanById(currentSpans, event.event.closeSpan.spanId);
         if (span) {
-          span.closedAt = event.event.closeSpan.at;
+          span.closedAt = convertTimestampToNanoseconds(event.event.closeSpan.at!);
+          span.duration = span.closedAt - span.createdAt;
         }
         break;
       }
