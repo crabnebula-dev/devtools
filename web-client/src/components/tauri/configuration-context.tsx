@@ -1,9 +1,9 @@
-import { createSignal, createContext, useContext } from "solid-js";
+import { createSignal, createContext, useContext, type JSXElement } from "solid-js";
 
 type ConfigurationContextType = ReturnType<typeof makeConfigurationContext>;
 const ConfigurationContext = createContext<ConfigurationContextType>();
 
-export function ConfigurationContextProvider(props: { children: any }) {
+export function ConfigurationContextProvider(props: { children: JSXElement }) {
   const configurationContext = makeConfigurationContext();
   return (
     <ConfigurationContext.Provider value={configurationContext}>
@@ -23,7 +23,7 @@ export const makeConfigurationContext = () => {
       setHighlightKey: setHighlightKey,
     },
     descriptions: {
-      descriptions: descriptions,
+      descriptions: descriptions, 
       setDescriptions: setDescriptions,
     },
   } as const;

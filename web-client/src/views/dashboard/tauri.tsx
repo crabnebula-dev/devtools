@@ -14,7 +14,7 @@ export default function TauriConfig() {
 
   const [currentView, setCurrentView] = createSignal<{
     name: string;
-    data: Record<string, any>;
+    data: Record<string, object>;
   }>();
 
   const splitGutterSizesKey = "tauri-config-split-sizes";
@@ -46,7 +46,7 @@ export default function TauriConfig() {
           class="border-neutral-800 border-x-2 p-4 overflow-auto"
         >
           <Show when={currentView()}>
-            <ConfigurationView tab={currentView()} />
+            <ConfigurationView tab={currentView()!} />
           </Show>
         </section>
         <section id="json" class="border-neutral-800 border-x-2 overflow-auto">

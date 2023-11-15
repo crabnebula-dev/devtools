@@ -50,7 +50,7 @@ export function ConfigurationTooltip(props: {
             }
           >
             <Tooltip.Arrow />
-            <div class="relative overflow-auto max-w-[1028px] max-h-96">
+            <div class="relative overflow-auto max-w-5xl max-h-96">
               <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>

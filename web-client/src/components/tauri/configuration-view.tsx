@@ -8,7 +8,7 @@ import { useMonitor } from "~/lib/connection/monitor";
 export function ConfigurationView(props: {
   tab: {
     name: string;
-    config: object;
+    data: Record<string, object>;
   };
 }) {
   const { monitorData } = useMonitor();
@@ -20,7 +20,7 @@ export function ConfigurationView(props: {
   createEffect(() => {
     setDescriptions(
       buildSchemaMap(monitorData.schema ?? {}, {
-        [props.tab.name]: props.tab.config,
+        [props.tab.name]: props.tab.data,
       })
     );
   });
@@ -32,7 +32,7 @@ export function ConfigurationView(props: {
           <ConfigurationTooltip parentKey="" key={props.tab.name} />
         </h1>
       </header>
-      <For each={Object.entries(props.tab.config)}>
+      <For each={Object.entries(props.tab.data)}>
         {([key, value]) => (
           <ConfigurationValue
             parentKey={props.tab.name}

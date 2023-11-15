@@ -5,7 +5,7 @@ import { A } from "@solidjs/router";
 import { retrieveConfigurations } from "~/lib/tauri/tauri-conf-schema";
 
 export interface SidebarProps {
-  setCurrentNavElement: (navElement: { name: string; config: object }) => void;
+  setCurrentNavElement: (navElement: { name: string; data: object }) => void;
 }
 
 export function Sidebar(props: SidebarProps) {
@@ -19,12 +19,12 @@ export function Sidebar(props: SidebarProps) {
       <Suspense fallback={<span>Loading...</span>}>
         <For each={configEntries()}>
           {(child) => (
-            <div class="p-2">
+            <section class="p-2">
               <div class="flex text-xl items-center">
-                <div class="w-10">
+                <div class="w-10 px-2">
                   <FileIcon path={child.path} />
                 </div>
-                <span class="px-2">{child.path}</span>
+                {child.path}
               </div>
               <nav class="flex flex-col pl-8">
                 <For each={Object.entries(child.data ?? {})}>
@@ -34,7 +34,7 @@ export function Sidebar(props: SidebarProps) {
                       onClick={(e) => {
                         props.setCurrentNavElement({
                           name: tabName,
-                          config: tabValue,
+                          data: tabValue,
                         });
                         setCurrentNavKey(tabName + child.path);
                       }}
@@ -57,7 +57,7 @@ export function Sidebar(props: SidebarProps) {
                   )}
                 </For>
               </nav>
-            </div>
+            </section>
           )}
         </For>
       </Suspense>
