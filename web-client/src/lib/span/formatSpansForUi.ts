@@ -15,7 +15,8 @@ export function formatSpansForUi({ spans, metadata }: Options) {
             initiated: span.createdAt / 1000000,
             time: span.closedAt ? (span.closedAt - span.createdAt) / 1e6 : 0,
             waterfall: `width:${span.width}%;margin-left:${span.marginLeft}%;`,
-            start: span.marginLeft
+            start: span.marginLeft,
+            slices: span.slices.map(slice => `width:${slice.width}%;margin-left:${slice.marginLeft}%;`)
         })
     })
 }

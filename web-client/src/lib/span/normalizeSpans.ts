@@ -15,9 +15,19 @@ export function normalizeSpans(spans: Span[]) {
     const totalDuration = end - start;
 
     const result = spans.map(span => {
+        const allExits = span.exits.reduce((acc, e) => acc + e, 0);
+        const allEnters = span.enters.reduce((acc, e) => acc + e, 0);
         return {
             width: scaleToMax([span.duration], totalDuration)[0],
             marginLeft: scaleNumbers([span.createdAt], start, end)[0],
+            slices: span.enters.map((enter, i) => {
+                const width = scaleToMax([span.exits[i] - enter], allExits - allEnters)[0];
+                const marginLeft = scaleNumbers([enter], span.createdAt, span.closedAt)[0]
+                return {
+                    width,
+                    marginLeft
+                }
+            })
         }
     })
 
