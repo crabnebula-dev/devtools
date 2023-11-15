@@ -27,20 +27,22 @@ export function ConfigurationView(props: {
 
   return (
     <Show when={props.tab} fallback={"Waiting for tab..."}>
-      <header>
-        <h1 class="text-5xl pb-8 text-white">
-          <ConfigurationTooltip parentKey="" key={props.tab.name} />
-        </h1>
-      </header>
-      <For each={Object.entries(props.tab.data)}>
-        {([key, value]) => (
-          <ConfigurationValue
-            parentKey={props.tab.name}
-            key={key}
-            value={value}
-          />
-        )}
-      </For>
+      <div class="p-4">
+        <header>
+          <h1 class="text-5xl pb-8 text-white">
+            <ConfigurationTooltip parentKey="" key={props.tab.name} />
+          </h1>
+        </header>
+        <For each={Object.entries(props.tab.data)}>
+          {([key, value]) => (
+            <ConfigurationValue
+              parentKey={props.tab.name}
+              key={key}
+              value={value}
+            />
+          )}
+        </For>
+      </div>
     </Show>
   );
 }

@@ -11,12 +11,12 @@ type WrapperProps = {
   panes: JSXElement[];
   initialSizes: number[];
   defaultMinSizes: number[];
+  gutterSize?: number;
 };
 
 export function SplitPane(props: WrapperProps) {
   const splitGutterSizeKey = `${props.defaultPrefix}-sources-split-size`;
-  const sizes = getArrayFromLocalStorage(splitGutterSizeKey);
-
+  const sizes = getArrayFromLocalStorage(splitGutterSizeKey, props.initialSizes);
   const paneNames = () => {
     const prefixes = [];
     for (let i = 0; i < props.panes.length; i++) {
@@ -32,7 +32,7 @@ export function SplitPane(props: WrapperProps) {
       {
         sizes,
         minSize: props.defaultMinSizes,
-        gutterSize: 70,
+        gutterSize: props.gutterSize ?? 10,
         onDragEnd: function (sizes) {
           setToLocalStorage(splitGutterSizeKey, sizes);
         },
@@ -40,12 +40,12 @@ export function SplitPane(props: WrapperProps) {
     );
   });
   return (
-    <div class={`flex h-full overflow-y-hidden ${props.class || ""}`}>
+    <div class={`flex h-full overflow-auto ${props.class || ""}`}>
       <For each={props.panes}>
         {(pane, idx) => (
           <section
             id={paneNames()[idx()]}
-            class="border-neutral-800 border-x-2 overflow-y-auto"
+            class="border-neutral-800 border-x-2 overflow-auto"
           >
             {pane}
           </section>

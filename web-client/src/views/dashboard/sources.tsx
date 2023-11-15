@@ -7,7 +7,7 @@ export default function Sources() {
   return (
     <SplitPane
       defaultPrefix="sources"
-      initialSizes={[22, 33]}
+      initialSizes={[22, 78]}
       defaultMinSizes={[70, 200]}
       panes={[
         // pane 1

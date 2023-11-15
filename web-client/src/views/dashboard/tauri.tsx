@@ -20,15 +20,17 @@ export default function TauriConfig() {
     <ConfigurationContextProvider>
       <SplitPane
         defaultPrefix="tauri-config"
-        defaultMinSizes={[100, 300, 300]}
+        defaultMinSizes={[150, 300, 300]}
         initialSizes={[10, 45, 45]}
         panes={[
           // pane 1
           <Sidebar setCurrentNavElement={setCurrentView} />,
           // pane 2
-          <Show when={currentView()}>
-            <ConfigurationView tab={currentView()!} />
-          </Show>,
+          <div>
+            <Show when={currentView()}>
+              <ConfigurationView tab={currentView()!} />
+            </Show>
+          </div>,
           // pane 3
           <Show when={jsonPath()}>
             <JsonView path={jsonPath()} size={size()} lang="json" />

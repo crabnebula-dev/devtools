@@ -2,8 +2,8 @@ import { DEV } from "solid-js";
 
 export function getArrayFromLocalStorage(
   key: string,
-  defaultValue = [200, 800] satisfies [number, number]
-): [number, number] {
+  defaultValue = [20, 80] satisfies number[]
+): number[] {
   if (window.localStorage) {
     const stringArray =
       window.localStorage.getItem(key) || JSON.stringify(defaultValue);
