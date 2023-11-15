@@ -23,7 +23,7 @@ export default function SpanWaterfall() {
     []
   );
   const columns = () =>
-    [...Object.keys(spans()?.[0] ?? {})].filter((k) => k !== "start");
+    [...Object.keys(spans()?.[0] ?? {})].filter((k) => k !== "start" && k !== "processingTime");
   const [columnSort, setColumnSort] = createStore<ColumnSort>({
     name: "start",
     direction: "asc",
@@ -33,7 +33,7 @@ export default function SpanWaterfall() {
     const filteredSpans = () => [
       ...monitorData.spans.filter((s) => {
         const metadata = monitorData.metadata.get(s.metadataId);
-        return metadata && metadata.name.includes("ipc");
+        return metadata && metadata.name.includes("ipc") && s.closedAt;
       }),
     ];
 
