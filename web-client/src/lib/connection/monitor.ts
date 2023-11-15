@@ -24,6 +24,7 @@ export type Span = {
   fields: Field[];
   children: Span[];
   createdAt: Timestamp;
+  closedAt?: Timestamp;
   activity: SpanActivity[];
   pendingActivity: PendingSpanActivity | null;
 };
