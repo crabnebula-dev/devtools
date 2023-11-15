@@ -71,12 +71,13 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
         break;
       }
 
-      /**
-       * @todo
-       * closeSpan must be handled and used still.
-       */
-      case "closeSpan":
+      case "closeSpan": {
+        const span = findSpanById(currentSpans, event.event.closeSpan.spanId);
+        if (span) {
+          span.closedAt = event.event.closeSpan.at;
+        }
         break;
+      }
 
       /**
        * @todo
