@@ -4,16 +4,16 @@
 use std::time::Duration;
 
 #[tauri::command]
-async fn test1() -> String {
+async fn test1(url: String, timeout_seconds: u64) -> String {
     tracing::trace!("test trace event");
     tracing::debug!("test debug event");
     tracing::info!("test info event");
     tracing::warn!("test warn event");
     tracing::error!("test error event");
 
-    tokio::time::sleep(Duration::from_secs(5)).await;
+    tokio::time::sleep(Duration::from_secs(timeout_seconds)).await;
 
-    reqwest::get("https://www.rust-lang.org")
+    reqwest::get(url)
         .await
         .expect("valid response")
         .text()
