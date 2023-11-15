@@ -22,21 +22,17 @@ export default function TauriConfig() {
         defaultPrefix="tauri-config"
         defaultMinSizes={[150, 300, 300]}
         initialSizes={[10, 45, 45]}
-        panes={[
-          // pane 1
-          <Sidebar setCurrentNavElement={setCurrentView} />,
-          // pane 2
-          <div>
-            <Show when={currentView()}>
-              <ConfigurationView tab={currentView()!} />
-            </Show>
-          </div>,
-          // pane 3
-          <Show when={jsonPath()}>
-            <JsonView path={jsonPath()} size={size()} lang="json" />
-          </Show>,
-        ]}
-      />
+      >
+        <Sidebar setCurrentNavElement={setCurrentView} />
+        <div>
+          <Show when={currentView()}>
+            <ConfigurationView tab={currentView()!} />
+          </Show>
+        </div>
+        <Show when={jsonPath()}>
+          <JsonView path={jsonPath()} size={size()} lang="json" />
+        </Show>
+      </SplitPane>
     </ConfigurationContextProvider>
   );
 }

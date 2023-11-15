@@ -9,18 +9,15 @@ export default function Sources() {
       defaultPrefix="sources"
       initialSizes={[22, 78]}
       defaultMinSizes={[70, 200]}
-      panes={[
-        // pane 1
-        <div class="overflow-hidden">
-          <Directory
-            defaultPath=""
-            defaultSize={0n}
-            defaultFileType={FileType.DIR}
-          />
-        </div>,
-        // pane 2
-        <SourcePane />,
-      ]}
-    />
+    >
+      <div class="overflow-hidden">
+        <Directory
+          defaultPath=""
+          defaultSize={0n}
+          defaultFileType={FileType.DIR}
+        />
+      </div>
+      <SourcePane />
+    </SplitPane>
   );
 }

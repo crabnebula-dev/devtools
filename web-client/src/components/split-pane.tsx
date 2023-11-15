@@ -1,4 +1,4 @@
-import { type JSXElement, onMount, For } from "solid-js";
+import { type JSXElement, onMount, onCleanup, For } from "solid-js";
 import Split from "split.js";
 import {
   getArrayFromLocalStorage,
@@ -8,43 +8,49 @@ import {
 type WrapperProps = {
   class?: string;
   defaultPrefix: string;
-  panes: JSXElement[];
+  children: JSXElement[];
   initialSizes: number[];
   defaultMinSizes: number[];
   gutterSize?: number;
 };
 
 export function SplitPane(props: WrapperProps) {
-  const splitGutterSizeKey = `${props.defaultPrefix}-sources-split-size`;
-  const sizes = getArrayFromLocalStorage(splitGutterSizeKey, props.initialSizes);
-  const paneNames = () => {
-    const prefixes = [];
-    for (let i = 0; i < props.panes.length; i++) {
-      prefixes.push(`${props.defaultPrefix}-${i}-pane`);
-    }
+  const { defaultPrefix, initialSizes, defaultMinSizes, gutterSize, children } =
+    props;
 
-    return prefixes;
-  };
+  const splitGutterSizeKey = `${defaultPrefix}-sources-split-size`;
+  const sizes = getArrayFromLocalStorage(splitGutterSizeKey, initialSizes);
+
+  const paneNames: string[] = [];
+  for (let i = 0; i < children.length; i++) {
+    paneNames.push(`${defaultPrefix}-${i}-pane`);
+  }
+
+  const paneIds = paneNames.map((i) => "#" + i);
+
+  let splitInstance: Split.Instance;
 
   onMount(() => {
-    Split(
-      paneNames().map((i) => "#" + i),
-      {
-        sizes,
-        minSize: props.defaultMinSizes,
-        gutterSize: props.gutterSize ?? 10,
-        onDragEnd: function (sizes) {
-          setToLocalStorage(splitGutterSizeKey, sizes);
-        },
-      }
-    );
+    console.log(paneIds);
+    console.log(sizes);
+    splitInstance = Split(paneIds, {
+      sizes,
+      minSize: defaultMinSizes,
+      gutterSize: gutterSize ?? 10,
+      onDragEnd: function (sizes) {
+        setToLocalStorage(splitGutterSizeKey, sizes);
+      },
+    });
   });
+
+  onCleanup(() => splitInstance?.destroy());
+
   return (
     <div class={`flex h-full overflow-auto ${props.class || ""}`}>
-      <For each={props.panes}>
+      <For each={children}>
         {(pane, idx) => (
           <section
-            id={paneNames()[idx()]}
+            id={paneNames[idx()]}
             class="border-neutral-800 border-x-2 overflow-auto"
           >
             {pane}
