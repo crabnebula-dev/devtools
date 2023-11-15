@@ -22,7 +22,8 @@ export function normalizeSpans(spans: Span[]) {
             marginLeft: scaleNumbers([span.createdAt], start, end)[0],
             slices: span.enters.map((enter, i) => {
                 const width = scaleToMax([span.exits[i] - enter], allExits - allEnters)[0];
-                const marginLeft = scaleNumbers([enter], span.createdAt, span.closedAt)[0]
+                const offset = scaleNumbers([enter], span.createdAt, span.closedAt)[0];
+                const marginLeft = offset - (offset * width / 100);
                 return {
                     width,
                     marginLeft
