@@ -2,9 +2,13 @@ import { Highlighter, Lang, getHighlighter, setCDN, setWasm } from "shiki";
 import { SourcesClient } from "~/lib/proto/sources.client";
 import { getEntryBytes } from "~/lib/sources/file-entries";
 
-type HighliterCodeParams = Readonly<
+type HighlighterCodeParamsForSources = Readonly<
   [SourcesClient, string, number, HighlighterLang]
 >;
+
+type HighlighterCodeParamsForSpans = Readonly<{
+  lang: HighlighterLang;
+}>
 
 export const SUPPORTED_LANGS = [
   "js",
@@ -35,12 +39,9 @@ export function bytesToHtml(
   return highlighter.codeToHtml(text, { lang });
 }
 
-export async function getHighlightedCode([
-  sourcesClient,
-  path,
-  size,
-  lang,
-]: HighliterCodeParams) {
+export async function getHighlightedCode(sourcesArg: HighlighterCodeParamsForSources): Promise<string | undefined>;
+export async function getHighlightedCode(spansArg: HighlighterCodeParamsForSpans): Promise<(code: string) => string>
+export async function getHighlightedCode(arg: HighlighterCodeParamsForSources | HighlighterCodeParamsForSpans) {
   setCDN("/shiki/");
   const responseWasm = await fetch("/shiki/onig.wasm");
   setWasm(responseWasm);
@@ -51,8 +52,13 @@ export async function getHighlightedCode([
     paths: { wasm: "dist/" },
   });
 
+  if ("lang" in arg) {
+    const { lang } = arg;
+    return (code: string) => highlighter.codeToHtml(code, { lang })
+  }
+
+  const [sourcesClient, path, size, lang] = arg;
   const bytes = await getEntryBytes(sourcesClient, path, size);
   const code = bytesToHtml(bytes, lang, highlighter);
-
   return code;
 }
