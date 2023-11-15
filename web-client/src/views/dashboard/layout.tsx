@@ -70,7 +70,6 @@ export default function Layout() {
   });
 
   createEffect(() => {
-    console.log("appMetaData", appMetaData());
     setMonitorData("appMetaData", appMetaData());
   });
 

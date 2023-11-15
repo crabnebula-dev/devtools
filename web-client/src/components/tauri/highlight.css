@@ -1,7 +1,0 @@
-code .line.highlighted {
-  background-color: grey;
-}
-
-code .line.highlighted::before {
-  color: black;
-}

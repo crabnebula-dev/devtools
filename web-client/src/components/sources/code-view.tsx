@@ -1,30 +1,61 @@
-import { Suspense, createResource } from "solid-js";
+import { Suspense, createResource, createEffect } from "solid-js";
 import { Connection } from "~/lib/connection/transport.ts";
 import { useRouteData } from "@solidjs/router";
 import { Loader } from "~/components/loader";
 import {
   HighlighterLang,
+  createHighlighter,
   getHighlightedCode,
+  getText,
 } from "~/lib/sources/code-highlight";
+
+import { Highlighter } from "shiki";
 
 type CodeViewProps = {
   path: string;
   size: number;
   lang: HighlighterLang;
+  highlightedLine?: number;
 };
 
 export default function CodeView(props: CodeViewProps) {
   const { client } = useRouteData<Connection>();
-  const [html] = createResource(
-    () => [client.sources, props.path, props.size, props.lang] as const,
-    (sourceSignals) => getHighlightedCode(sourceSignals)
+
+  // We split the computations into 3 steps. This decouples from the reactive props they don't need to react to
+
+  // The text only needs to be computed when the the source changes
+  const [text] = createResource(
+    () => [client.sources, props.path, props.size] as const,
+    async (textProps) => getText(...textProps)
   );
+
+  // The used highlighter does not change at all atm
+  const [highlighter] = createResource(() => createHighlighter());
+
+  // We only
+  const html = (
+    text: string | undefined,
+    highlighter: Highlighter | undefined,
+    lang: HighlighterLang,
+    highlightedLine?: number
+  ) => {
+    if (!text || !highlighter) return undefined;
+    return getHighlightedCode([text, highlighter, lang, highlightedLine]);
+  };
 
   return (
     <div class="min-h-full h-max min-w-full w-max bg-black bg-opacity-50">
+      <h1 class="text-2xl p-3">{props.path}</h1>
       <Suspense fallback={<Loader />}>
-        {/* eslint-disable-next-line solid/no-innerhtml */}
-        <div innerHTML={html()} />
+        <div
+          //eslint-disable-next-line solid/no-innerhtml
+          innerHTML={html(
+            text(),
+            highlighter(),
+            props.lang,
+            props.highlightedLine
+          )}
+        />
       </Suspense>
     </div>
   );
