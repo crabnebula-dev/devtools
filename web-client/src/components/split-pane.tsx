@@ -1,4 +1,4 @@
-import { type JSXElement, onMount } from "solid-js";
+import { type JSXElement, onMount, For } from "solid-js";
 import Split from "split.js";
 import {
   getArrayFromLocalStorage,
@@ -8,24 +8,31 @@ import {
 type WrapperProps = {
   class?: string;
   defaultPrefix: string;
-  leftPaneComponent: JSXElement;
-  rightPaneComponent: JSXElement;
+  panes: JSXElement[];
+  initialSizes: number[];
+  defaultMinSizes: number[];
 };
 
 export function SplitPane(props: WrapperProps) {
   const splitGutterSizeKey = `${props.defaultPrefix}-sources-split-size`;
   const sizes = getArrayFromLocalStorage(splitGutterSizeKey);
 
+  const paneNames = () => {
+    const prefixes = [];
+    for (let i = 0; i < props.panes.length; i++) {
+      prefixes.push(`${props.defaultPrefix}-${i}-pane`);
+    }
+
+    return prefixes;
+  };
+
   onMount(() => {
     Split(
-      [
-        `#${props.defaultPrefix}-left-pane`,
-        `#${props.defaultPrefix}-right-pane`,
-      ],
+      paneNames().map((i) => "#" + i),
       {
-        sizes: sizes,
-        minSize: [70, 200],
-        gutterSize: 100,
+        sizes,
+        minSize: props.defaultMinSizes,
+        gutterSize: 70,
         onDragEnd: function (sizes) {
           setToLocalStorage(splitGutterSizeKey, sizes);
         },
@@ -33,13 +40,17 @@ export function SplitPane(props: WrapperProps) {
     );
   });
   return (
-    <div class={`split flex h-full overflow-y-hidden ${props.class}`}>
-      <section id={`${props.defaultPrefix}-left-pane`}>
-        {props.leftPaneComponent}
-      </section>
-      <section id={`${props.defaultPrefix}-right-pane`}>
-        {props.rightPaneComponent}
-      </section>
+    <div class={`flex h-full overflow-y-hidden ${props.class || ""}`}>
+      <For each={props.panes}>
+        {(pane, idx) => (
+          <section
+            id={paneNames()[idx()]}
+            class="border-neutral-800 border-x-2 overflow-y-auto"
+          >
+            {pane}
+          </section>
+        )}
+      </For>
     </div>
   );
 }
