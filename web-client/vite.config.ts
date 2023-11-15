@@ -21,7 +21,10 @@ export default defineConfig({
       targets: [
         {
           src: normalizePath(
-            path.resolve(__dirname, "node_modules/@crabnebula/file-icons/icons") + "/[!.]*"
+            path.resolve(
+              __dirname,
+              "node_modules/@crabnebula/file-icons/icons"
+            ) + "/[!.]*"
           ),
           dest: "./icons/",
         },
