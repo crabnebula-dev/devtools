@@ -2,9 +2,14 @@ import { Highlighter, Lang, getHighlighter, setCDN, setWasm } from "shiki";
 import { SourcesClient } from "~/lib/proto/sources.client";
 import { getEntryBytes } from "~/lib/sources/file-entries";
 
-type HighlighterCodeParams = Readonly<
+type HighlighterCodeParamsForSources = Readonly<
   [string, Highlighter, HighlighterLang, number?]
 >;
+
+type HighlighterCodeParamsForSpans = Readonly<{
+  lang: HighlighterLang;
+  highlighter: Highlighter;
+}>
 
 export const SUPPORTED_LANGS = [
   "js",
@@ -83,13 +88,20 @@ export async function getText(
   return text;
 }
 
-export function getHighlightedCode([
-  text,
-  highlighter,
-  lang,
-  highlightedLine,
-]: HighlighterCodeParams) {
-  const code = textToHtml(text, highlighter, lang, highlightedLine);
+export function getHighlightedCode(sourcesArg: HighlighterCodeParamsForSources): string;
+export function getHighlightedCode(spansArg: HighlighterCodeParamsForSpans): (code: string) => string
+export function getHighlightedCode(arg: HighlighterCodeParamsForSources | HighlighterCodeParamsForSpans) {
+  if ("lang" in arg) {
+    const { lang, highlighter } = arg;
+    return (code: string) => highlighter.codeToHtml(code, { lang })
+  }
 
+  const [
+    text,
+    highlighter,
+    lang,
+    highlightedLine,
+  ] = arg;
+  const code = textToHtml(text, highlighter, lang, highlightedLine);
   return code;
 }
