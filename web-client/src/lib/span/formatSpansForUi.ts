@@ -13,20 +13,22 @@ type Options = {
 
 export function formatSpansForUi({ spans, metadata, granularity }: Options): any {
   const result = normalizeSpans(spans, granularity).map((span) => {
+    const isProcessing = span.closedAt < 0;
     return {
       id: String(span.id),
+      isProcessing,
       name: getIpcRequestName({ metadata, span }) || "-",
       initiated: span.createdAt / 1000000,
+      time:
+        !isProcessing
+          ? (span.closedAt - span.createdAt) / 1e6
+          : Date.now() - span.createdAt / 1e6,
       waterfall: `width:${span.width}%;margin-left:${span.marginLeft}%;`,
       start: span.marginLeft,
       slices: span.slices.map(
         (slice) => `width:${slice.width}%;margin-left:${slice.marginLeft}%;`
       ),
       colorClassName: calculateSpanColorFromRelativeDuration(span.relativeDuration),
-      time:
-        span.closedAt > 0
-          ? (span.closedAt - span.createdAt) / 1e6
-          : Date.now() - span.createdAt / 1e6,
       children: formatSpansForUi({
         spans: flattenChildren(span.children),
         metadata,
