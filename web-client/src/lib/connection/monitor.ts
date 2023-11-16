@@ -5,6 +5,8 @@ import { Field, Metadata } from "~/lib/proto/common";
 import { Metrics } from "~/lib/proto/tauri";
 import { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
 import { timestampToDate } from "~/lib/formatters";
+import { AppMetadata } from "../proto/meta";
+import { Versions } from "../proto/tauri";
 
 export type Span = {
   id: bigint;
@@ -23,6 +25,9 @@ export type MonitorData = {
   spans: Span[];
 
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;
+  tauriVersions?: Versions;
+  appMetadata?: AppMetadata;
+  schema?: object;
   perf: Metrics;
   perfStartDate: Date | null;
   perfReadyDate: Date | null;
@@ -36,6 +41,9 @@ export const initialMonitorData: MonitorData = {
   spans: [],
 
   tauriConfig: undefined,
+  tauriVersions: undefined,
+  appMetadata: undefined,
+  schema: undefined,
   perf: {
     initializedAt: undefined,
     readyAt: undefined,

@@ -1,8 +1,14 @@
+import type { Config } from "tailwindcss";
 import scrollbar from "tailwind-scrollbar";
 import defaultTheme from "tailwindcss/defaultTheme";
 
 export default {
   content: ["./index.html", "./src/**/*.{js,jsx,ts,tsx}"],
+  safelist: [
+    // split.js classes
+    "gutter",
+    "gutter-horizontal",
+  ],
   theme: {
     extend: {
       spacing: {
@@ -29,4 +35,4 @@ export default {
     },
   },
   plugins: [scrollbar({ nocompatible: true })],
-};
+} satisfies Config;

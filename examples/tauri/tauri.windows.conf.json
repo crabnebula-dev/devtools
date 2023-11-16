@@ -1,0 +1,23 @@
+{
+  "build": {
+    "distDir": ["index.html", "test.html"],
+    "devPath": ["index.html", "test.html"],
+    "beforeDevCommand": "",
+    "beforeBuildCommand": ""
+  },
+  "package": {
+    "productName": "Windows Build",
+    "version": "0.1.0"
+  },
+  "tauri": {
+    "windows": [
+      {
+        "fullscreen": false,
+        "height": 700,
+        "resizable": true,
+        "title": "Tauri Windows App",
+        "width": 900
+      }
+    ]
+  }
+}

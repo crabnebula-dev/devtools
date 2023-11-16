@@ -7,20 +7,17 @@ export default function Sources() {
   return (
     <SplitPane
       defaultPrefix="sources"
-      leftPaneComponent={
-        <div class="border-neutral-800 border-r-2 h-full overflow-y-auto">
-          <Directory
-            defaultPath=""
-            defaultSize={0n}
-            defaultFileType={FileType.DIR}
-          />
-        </div>
-      }
-      rightPaneComponent={
-        <div class="overflow-y-auto h-full">
-          <SourcePane />
-        </div>
-      }
-    />
+      initialSizes={[22, 78]}
+      defaultMinSizes={[70, 200]}
+    >
+      <div class="overflow-hidden">
+        <Directory
+          defaultPath=""
+          defaultSize={0n}
+          defaultFileType={FileType.DIR}
+        />
+      </div>
+      <SourcePane />
+    </SplitPane>
   );
 }
