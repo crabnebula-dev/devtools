@@ -8,10 +8,11 @@ import { normalizeSpans } from "./normalizeSpans";
 type Options = {
   spans: Span[];
   metadata: Map<bigint, Metadata>;
+  granularity?: number;
 };
 
-export function formatSpansForUi({ spans, metadata }: Options): any {
-  const result = normalizeSpans(spans).map((span) => {
+export function formatSpansForUi({ spans, metadata, granularity }: Options): any {
+  const result = normalizeSpans(spans, granularity).map((span) => {
     return {
       id: String(span.id),
       name: getIpcRequestName({ metadata, span }) || "-",
