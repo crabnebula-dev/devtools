@@ -15,7 +15,7 @@ export function formatSpansForUi({ spans, metadata }: Options): any {
       id: String(span.id),
       name: getIpcRequestName({ metadata, span }) || "-",
       initiated: span.createdAt / 1000000,
-      time: span.closedAt > 0 ? (span.closedAt - span.createdAt) / 1e6 : 0,
+      time: span.closedAt > 0 ? (span.closedAt - span.createdAt) / 1e6 : Date.now() * 1e6 - span.createdAt,
       waterfall: `width:${span.width}%;margin-left:${span.marginLeft}%;`,
       start: span.marginLeft,
       slices: span.slices.map(

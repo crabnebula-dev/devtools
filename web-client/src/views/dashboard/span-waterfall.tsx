@@ -43,7 +43,8 @@ export default function SpanWaterfall() {
       }),
     ];
 
-    setSpans(
+    const hasPendingWork = () => filteredSpans().find((s) => s.closedAt < 0);
+    const spans = () =>
       [
         ...formatSpansForUi({
           spans: filteredSpans(),
@@ -62,8 +63,21 @@ export default function SpanWaterfall() {
           return lhs - rhs;
         }
         return rhs - lhs;
-      })
-    );
+      });
+
+    function animate() {
+      if (!hasPendingWork()) {
+        return;
+      }
+      setSpans(spans());
+      requestAnimationFrame(animate);
+    }
+
+    if (hasPendingWork()) {
+      animate();
+    }
+
+    setSpans(spans());
   });
 
   const sortColumn = (name: SortableColumn) => {
