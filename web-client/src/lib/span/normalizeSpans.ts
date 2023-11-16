@@ -11,7 +11,7 @@ function scaleToMax(numbers: number[], max: number): number[] {
   return numbers.map((num) => (num / max) * 100);
 }
 
-export function normalizeSpans(spans: Span[]) {
+export function normalizeSpans(spans: Span[], granularity = 0) {
   const start = Math.min(...spans.map((span) => span.createdAt));
   const end = spans.find((s) => s.closedAt < 0)
     ? Date.now() * 1e6
