@@ -82,7 +82,7 @@ export function SpanDetail() {
                     {([k, v]) => ["cmd", "callback", "error", "__tauriModule"].includes(k) ? null : (
                       <tr class="even:bg-[#ffffff09]">
                         <td class="py-1 px-4 font-bold">{k}</td>
-                        <td class="py-1 px-4">{String(v)}</td>
+                        <td class="py-1 px-4">{typeof v === 'object' ? JSON.stringify(v) : String(v)}</td>
                       </tr>
                     )}
                   </For>
