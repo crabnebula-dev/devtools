@@ -11,6 +11,7 @@ import { SplitPane } from "~/components/split-pane";
 import { useSearchParams } from "@solidjs/router";
 import { SpanDetailPanel } from "~/components/span/SpanDetailPanel";
 import clsx from "clsx";
+import { Tooltip } from "@kobalte/core";
 
 export type SortableColumn = keyof ReturnType<typeof formatSpansForUi>[-1];
 export type SortDirection = "asc" | "desc";
@@ -31,7 +32,7 @@ export default function SpanWaterfall() {
       ["name", "initiated", "time", "waterfall"].includes(k)
     );
   const [columnSort, setColumnSort] = createStore<ColumnSort>({
-    name: "start",
+    name: "initiated",
     direction: "asc",
   });
 
@@ -88,16 +89,30 @@ export default function SpanWaterfall() {
     });
   };
 
+  const totalDuration = () =>
+    Math.max(...spans().map((s) => s.time)) /
+    Math.min(...spans().map((s) => s.time));
+
   return (
     <div class="h-[calc(100%-28px)]">
       <Toolbar>
-        <input
-          type="range"
-          min={1}
-          max={10}
-          value={granularity()}
-          onInput={(e) => setGranularity(Number(e.currentTarget.value))}
-        />
+        <div class="flex items-center gap-2">
+          <Tooltip.Root>
+            <Tooltip.Trigger>Scale Spans</Tooltip.Trigger>
+            <Tooltip.Content>
+              <div class="rounded p-2 bg-black shadow">
+                Concurrency may be skewed when spans are scaled.
+              </div>
+            </Tooltip.Content>
+          </Tooltip.Root>
+          <input
+            type="range"
+            min={1}
+            max={totalDuration()}
+            value={granularity()}
+            onInput={(e) => setGranularity(Number(e.currentTarget.value))}
+          />
+        </div>
       </Toolbar>
       <SplitPane
         defaultPrefix="span-waterfall"
