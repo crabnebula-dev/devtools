@@ -1,6 +1,6 @@
 import { useMonitor } from "~/lib/connection/monitor";
 import { Toolbar } from "~/components/toolbar";
-import { For, createEffect, createSignal } from "solid-js";
+import { For, Show, createEffect, createSignal } from "solid-js";
 import { formatSpansForUi } from "~/lib/span/formatSpansForUi";
 import { createStore } from "solid-js/store";
 import { getColumnDirection } from "~/lib/span/getColumnDirection";
@@ -98,7 +98,14 @@ export default function SpanWaterfall() {
       <Toolbar>
         <div class="flex items-center gap-2">
           <Tooltip.Root>
-            <Tooltip.Trigger>Scale Spans</Tooltip.Trigger>
+            <Tooltip.Trigger>
+              <span class="flex items-center gap-1">
+                Scale Spans
+                <Show when={granularity() > 1}>
+                  <span>ⓘ</span>
+                </Show>
+              </span>
+            </Tooltip.Trigger>
             <Tooltip.Content>
               <div class="rounded p-2 bg-black shadow">
                 Concurrency may appear skewed when spans are scaled.
