@@ -142,7 +142,7 @@ export default function SpanWaterfall() {
                     >
                       <td class="p-1">{span.name}</td>
                       <td class="p-1">{getTime(new Date(span.initiated))}</td>
-                      <td class="p-1">{span.time}ms</td>
+                      <td class="p-1">{span.time.toFixed(2)}ms</td>
                       <td class="p-1 relative">
                         <div class="relative w-[90%]">
                           <div class="bg-gray-800 w-full absolute rounded-sm h-2" />
