@@ -9,7 +9,7 @@ type HighlighterCodeParamsForSources = Readonly<
 type HighlighterCodeParamsForSpans = Readonly<{
   lang: HighlighterLang;
   highlighter: Highlighter;
-}>
+}>;
 
 export const SUPPORTED_LANGS = [
   "js",
@@ -88,20 +88,21 @@ export async function getText(
   return text;
 }
 
-export function getHighlightedCode(sourcesArg: HighlighterCodeParamsForSources): string;
-export function getHighlightedCode(spansArg: HighlighterCodeParamsForSpans): (code: string) => string
-export function getHighlightedCode(arg: HighlighterCodeParamsForSources | HighlighterCodeParamsForSpans) {
+export function getHighlightedCode(
+  sourcesArg: HighlighterCodeParamsForSources
+): string;
+export function getHighlightedCode(
+  spansArg: HighlighterCodeParamsForSpans
+): (code: string) => string;
+export function getHighlightedCode(
+  arg: HighlighterCodeParamsForSources | HighlighterCodeParamsForSpans
+) {
   if ("lang" in arg) {
     const { lang, highlighter } = arg;
-    return (code: string) => highlighter.codeToHtml(code, { lang })
+    return (code: string) => highlighter.codeToHtml(code, { lang });
   }
 
-  const [
-    text,
-    highlighter,
-    lang,
-    highlightedLine,
-  ] = arg;
+  const [text, highlighter, lang, highlightedLine] = arg;
   const code = textToHtml(text, highlighter, lang, highlightedLine);
   return code;
 }
