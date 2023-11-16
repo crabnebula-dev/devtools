@@ -28,7 +28,6 @@ export type MonitorData = {
   tauriVersions?: Versions;
   appMetadata?: AppMetadata;
   schema?: object;
-  schemaMap?: Map<string, { description: string }>;
   perf: Metrics;
   perfStartDate: Date | null;
   perfReadyDate: Date | null;
@@ -45,7 +44,6 @@ export const initialMonitorData: MonitorData = {
   tauriVersions: undefined,
   appMetadata: undefined,
   schema: undefined,
-  schemaMap: undefined,
   perf: {
     initializedAt: undefined,
     readyAt: undefined,
