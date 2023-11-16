@@ -101,7 +101,7 @@ export default function SpanWaterfall() {
             <Tooltip.Trigger>Scale Spans</Tooltip.Trigger>
             <Tooltip.Content>
               <div class="rounded p-2 bg-black shadow">
-                Concurrency may be skewed when spans are scaled.
+                Concurrency may appear skewed when spans are scaled.
               </div>
             </Tooltip.Content>
           </Tooltip.Root>
