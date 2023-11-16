@@ -55,7 +55,7 @@ export function ConfigurationTooltip(props: {
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
                     <For each={Object.entries(localSchema() ?? {})}>
-                      {([key, value]) => (
+                      {([key]) => (
                         <th scope="col" class="px-6 py-3">
                           {key}
                         </th>
@@ -66,7 +66,7 @@ export function ConfigurationTooltip(props: {
                 <tbody>
                   <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                     <For each={Object.entries(localSchema() ?? {})}>
-                      {([key, value]) => (
+                      {([, value]) => (
                         <td class="px-6 py-4 max-w-md align-top">
                           <ToolTipValue value={value} />
                         </td>
@@ -83,42 +83,64 @@ export function ConfigurationTooltip(props: {
   );
 }
 
-function ToolTipValue(props: { value: any }) {
+interface ToolTipValueProps {
+  value: object | string | [] | boolean;
+}
+
+function ToolTipValue(props: ToolTipValueProps) {
   return (
-    <Switch fallback={props.value}>
+    <Switch fallback={props.value as string}>
       <Match when={typeof props.value === "string"}>
-        <SolidMarkdown
-          class="inline-block prose lg:prose-xl"
-          children={props.value}
-        />
+        <StringValue value={props.value as string} />
       </Match>
       <Match when={typeof props.value === "boolean"}>
-        {props.value ? "✅" : "❌"}
+        {(props.value as boolean) ? "✅" : "❌"}
       </Match>
       <Match when={Array.isArray(props.value)}>
-        <ul class="list-disc">
-          <For each={props.value}>
-            {(item, key) => (
-              <li>
-                <ToolTipValue value={item} />
-              </li>
-            )}
-          </For>
-        </ul>
+        <ArrayValue value={props.value as []} />
       </Match>
       <Match when={typeof props.value === "object" && props.value !== null}>
-        <ul class="list-disc">
-          <For each={Object.entries(props.value)}>
-            {([childKey, objectValue]) => (
-              <li>
-                <ToolTipValue value={childKey} />:{" "}
-                <ToolTipValue value={objectValue} />
-              </li>
-            )}
-          </For>
-        </ul>
+        <ObjectValue value={props.value as object} />
       </Match>
       <Match when={props.value === null}>Null</Match>
     </Switch>
+  );
+}
+
+function StringValue(props: { value: string }) {
+  return (
+    <SolidMarkdown
+      class="inline-block prose lg:prose-xl"
+      children={props.value as string}
+    />
+  );
+}
+
+function ArrayValue(props: { value: [] }) {
+  return (
+    <ul class="list-disc">
+      <For each={props.value}>
+        {(item) => (
+          <li>
+            <ToolTipValue value={item} />
+          </li>
+        )}
+      </For>
+    </ul>
+  );
+}
+
+function ObjectValue(props: { value: object }) {
+  return (
+    <ul class="list-disc">
+      <For each={Object.entries(props.value)}>
+        {([childKey, objectValue]) => (
+          <li>
+            <ToolTipValue value={childKey} />:{" "}
+            <ToolTipValue value={objectValue} />
+          </li>
+        )}
+      </For>
+    </ul>
   );
 }

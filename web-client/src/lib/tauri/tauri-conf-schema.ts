@@ -48,7 +48,7 @@ function createDeepConfigurationStoreSignal<T>(): Signal<T> {
     (v: T) => {
       const unwrapped = unwrap(configurations.configs);
       typeof v === "function" && (v = v(unwrapped));
-      setConfigurations("configs", reconcile(v));
+      setConfigurations("configs", reconcile(v as configurationObject[]));
       return configurations.configs;
     },
   ] as Signal<T>;
@@ -92,11 +92,11 @@ export function retrieveConfigurations() {
           );
 
           const text = TEXT_DECODER.decode(bytes);
-          const data: tauriConfiguration = JSON.parse(text);
+          const data = JSON.parse(text);
           delete data["$schema"];
           return {
             path: e.path,
-            data: data ?? {},
+            data: (data as tauriConfiguration) ?? {},
             size: Number(e.size),
             raw: text,
           };

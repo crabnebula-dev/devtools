@@ -15,7 +15,9 @@ type WrapperProps = {
 };
 
 export function SplitPane(props: WrapperProps) {
+  /* Since we don't plan to use the SplitPane with dynamic properties we destructure them here */
   const { defaultPrefix, initialSizes, defaultMinSizes, gutterSize, children } =
+    /* eslint-disable-next-line solid/reactivity */
     props;
 
   const splitGutterSizeKey = `${defaultPrefix}-sources-split-size`;

@@ -1,4 +1,4 @@
-import { Suspense, createResource, createEffect } from "solid-js";
+import { Suspense, createResource } from "solid-js";
 import { Connection } from "~/lib/connection/transport.ts";
 import { useRouteData } from "@solidjs/router";
 import { Loader } from "~/components/loader";
@@ -21,7 +21,7 @@ type CodeViewProps = {
 export default function CodeView(props: CodeViewProps) {
   const { client } = useRouteData<Connection>();
 
-  // We split the computations into 3 steps. This decouples from the reactive props they don't need to react to
+  // We split the computations into 3 steps. This decouples them from the reactive props they don't need to react to
 
   // The text only needs to be computed when the the source changes
   const [text] = createResource(
@@ -29,10 +29,9 @@ export default function CodeView(props: CodeViewProps) {
     async (textProps) => getText(...textProps)
   );
 
-  // The used highlighter does not change at all atm
+  // The used highlighter does not change at all atm so it does not need to be coupled
   const [highlighter] = createResource(() => createHighlighter());
 
-  // We only
   const html = (
     text: string | undefined,
     highlighter: Highlighter | undefined,

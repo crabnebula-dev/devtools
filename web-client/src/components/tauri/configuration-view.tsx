@@ -14,7 +14,7 @@ export function ConfigurationView() {
   }>();
 
   const tab = () =>
-    retrieveConfigurationByPathAndKey(params.config, params.selected);
+    retrieveConfigurationByPathAndKey(params.config, params.selected) ?? {};
 
   createEffect(() => {
     const data = tab();
@@ -30,7 +30,7 @@ export function ConfigurationView() {
             <ConfigurationTooltip parentKey="" key={params.selected} />
           </h1>
         </header>
-        <For each={Object.entries(tab()!)}>
+        <For each={Object.entries(tab())}>
           {([key, value]) => (
             <ConfigurationValue
               parentKey={params.selected}
