@@ -41,7 +41,9 @@ const liStyles = "hover:bg-gray-800 hover:text-white focus:bg-gray-800";
 
 export function Directory(props: DirectoryProps) {
   const { client } = useRouteData<Connection>();
-  const path = props.parent ? `${props.parent}/${props.defaultPath}` : props.defaultPath;
+  const path = props.parent
+    ? `${props.parent}/${props.defaultPath}`
+    : props.defaultPath;
   const [entries] = awaitEntries(client.sources, path);
   const sortedEntries = () => entries()?.sort(sortByPath);
 
