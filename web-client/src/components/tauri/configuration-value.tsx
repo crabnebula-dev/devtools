@@ -1,10 +1,15 @@
 import { Show, For, Switch, Match } from "solid-js";
 import { ConfigurationTooltip } from "./configuration-tooltip";
 
+type ConfigurationValue = ConfigurationRecord | string | [] | boolean;
+
+/* eslint-disable-next-line @typescript-eslint/no-empty-interface */
+interface ConfigurationRecord extends Record<string, ConfigurationValue> {}
+
 interface ConfigurationValueProps {
   parentKey: string;
   key: string;
-  value: object | string | [] | boolean;
+  value: ConfigurationValue;
 }
 
 interface ArrayConfigurationValueProps extends ConfigurationValueProps {
@@ -12,7 +17,7 @@ interface ArrayConfigurationValueProps extends ConfigurationValueProps {
 }
 
 interface ObjectConfigurationValueProps extends ConfigurationValueProps {
-  value: object;
+  value: ConfigurationRecord;
 }
 
 export function ConfigurationValue(props: ConfigurationValueProps) {
@@ -22,7 +27,7 @@ export function ConfigurationValue(props: ConfigurationValueProps) {
         <TextValue {...props} />
       </Match>
       <Match when={typeof props.value === "boolean"}>
-        <TextValue {...{ ...props, value: props.value ? "✅" : "❌" }} />
+        <TextValue {...props} value={props.value ? "✅" : "❌"} />
       </Match>
       <Match when={Array.isArray(props.value)}>
         <ArrayValue {...(props as ArrayConfigurationValueProps)} />

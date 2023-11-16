@@ -44,11 +44,7 @@ export function ConfigurationTooltip(props: {
           </span>
         </Tooltip.Trigger>
         <Tooltip.Portal>
-          <Tooltip.Content
-            class={
-              "bg-gray-900 text-xl font-medium text-white border-solid border border-gray-700"
-            }
-          >
+          <Tooltip.Content class="bg-gray-900 text-xl font-medium text-white border-solid border border-gray-700">
             <Tooltip.Arrow />
             <div class="relative overflow-auto max-w-5xl max-h-96">
               <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -83,8 +79,13 @@ export function ConfigurationTooltip(props: {
   );
 }
 
+type ToolTipValue = TooltipRecord | string | [] | boolean;
+
+/* eslint-disable-next-line @typescript-eslint/no-empty-interface */
+interface TooltipRecord extends Record<string, ToolTipValue> {}
+
 interface ToolTipValueProps {
-  value: object | string | [] | boolean;
+  value: ToolTipValue;
 }
 
 function ToolTipValue(props: ToolTipValueProps) {
@@ -100,7 +101,7 @@ function ToolTipValue(props: ToolTipValueProps) {
         <ArrayValue value={props.value as []} />
       </Match>
       <Match when={typeof props.value === "object" && props.value !== null}>
-        <ObjectValue value={props.value as object} />
+        <ObjectValue value={props.value as Record<string, ToolTipValue>} />
       </Match>
       <Match when={props.value === null}>Null</Match>
     </Switch>
@@ -130,7 +131,7 @@ function ArrayValue(props: { value: [] }) {
   );
 }
 
-function ObjectValue(props: { value: object }) {
+function ObjectValue(props: { value: Record<string, ToolTipValue> }) {
   return (
     <ul class="list-disc">
       <For each={Object.entries(props.value)}>
