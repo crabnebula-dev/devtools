@@ -16,9 +16,14 @@
 
         test1.onclick = function (e) {
           e.preventDefault();
-          window.__TAURI_INVOKE__("test1", { url: "https://www.rust-lang.org", timeoutSeconds: 2 }).then(() => {
-            console.log("done");
-          });
+          window
+            .__TAURI_INVOKE__("test1", {
+              url: "https://www.rust-lang.org",
+              timeoutSeconds: Math.floor(Math.random() * 10),
+            })
+            .then(() => {
+              console.log("done");
+            });
         };
       };
     </script>
