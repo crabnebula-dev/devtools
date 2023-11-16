@@ -9,27 +9,27 @@ import { processFieldValue } from "~/lib/span/processFieldValue";
 export function SpanDetail() {
   const [searchParams] = useSearchParams();
   const { monitorData } = useMonitor();
-  const spanId = () => searchParams.span;
+  const spanId = () => BigInt(searchParams.span);
   const span = () =>
     formatSpansForUi({
-      spans: monitorData.spans.filter((s) => s.id === BigInt(spanId())),
+      spans: monitorData.spans.filter((s) => s.id === spanId()),
       metadata: monitorData.metadata,
     })[0];
 
-  const code = processFieldValue(
+  const code = () => processFieldValue(
     getIpcRequestValues({
       metadata: monitorData.metadata,
-      rootSpan: monitorData.spans.find((s) => s.id === BigInt(spanId()))!,
+      rootSpan: monitorData.spans.find((s) => s.id === spanId())!,
     })("ipc::request::response")!.fields[0].response
   );
 
-  const args = getIpcRequestValues({
+  const args = () => getIpcRequestValues({
     metadata: monitorData.metadata,
-    rootSpan: monitorData.spans.find((s) => s.id === BigInt(spanId()))!,
+    rootSpan: monitorData.spans.find((s) => s.id === spanId())!,
   })("ipc::request")!.fields.map((f) => processFieldValue(f.request));
 
   const [html] = createResource(
-    () => [code] as const,
+    () => [code()] as const,
     async ([code]) => {
       return (await getHighlightedCode({ lang: "rust" }))(code).replace(
         /\\n/gim,
@@ -52,14 +52,14 @@ export function SpanDetail() {
                   <td class="py-1 px-4">{span.name}</td>
                   <td class="py-1 px-4 relative w-[60%]">
                     <div class="relative w-[90%]">
-                      <div class="bg-gray-800 w-full absolute rounded-sm h-2"></div>
+                      <div class="bg-gray-800 w-full absolute rounded-sm h-2" />
                       <div class="relative h-2" style={span.waterfall}>
                         <For each={span.slices}>
                           {(slice) => (
                             <div
                               class={"absolute bg-teal-500 top-0 left-0 h-full"}
                               style={slice}
-                            ></div>
+                             />
                           )}
                         </For>
                       </div>
@@ -75,7 +75,7 @@ export function SpanDetail() {
         <h2 class="text-xl p-4">Inputs</h2>
         <table>
           <tbody>
-            <For each={args}>
+            <For each={args()}>
               {(arg) => {
                 return (
                   <For each={Object.entries(JSON.parse(arg))}>
