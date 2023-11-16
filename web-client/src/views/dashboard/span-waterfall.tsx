@@ -1,7 +1,6 @@
 import { useMonitor } from "~/lib/connection/monitor";
 import { Toolbar } from "~/components/toolbar";
 import { For, createEffect, createSignal } from "solid-js";
-import { FilterToggle } from "~/components/filter-toggle";
 import { formatSpansForUi } from "~/lib/span/formatSpansForUi";
 import { createStore } from "solid-js/store";
 import { getColumnDirection } from "~/lib/span/getColumnDirection";
@@ -23,7 +22,7 @@ export type ColumnSort = {
 export default function SpanWaterfall() {
   const [, setSearchParams] = useSearchParams();
   const { monitorData } = useMonitor();
-  const [shouldAutoScroll, setAutoScroll] = createSignal(true);
+  const [granularity, setGranularity] = createSignal(1);
   const [spans, setSpans] = createSignal<ReturnType<typeof formatSpansForUi>>(
     []
   );
@@ -50,6 +49,7 @@ export default function SpanWaterfall() {
         ...formatSpansForUi({
           spans: filteredSpans(),
           metadata: monitorData.metadata,
+          granularity: granularity(),
         }),
       ].sort((a, b) => {
         const columnName = columnSort.name;
@@ -91,13 +91,13 @@ export default function SpanWaterfall() {
   return (
     <div class="h-[calc(100%-28px)]">
       <Toolbar>
-        <FilterToggle
-          defaultPressed
-          aria-label="Autoscroll"
-          changeHandler={() => setAutoScroll(!shouldAutoScroll())}
-        >
-          Autoscroll
-        </FilterToggle>
+        <input
+          type="range"
+          min={1}
+          max={10}
+          value={granularity()}
+          onInput={(e) => setGranularity(Number(e.currentTarget.value))}
+        />
       </Toolbar>
       <SplitPane
         defaultPrefix="span-waterfall"
