@@ -22,20 +22,23 @@ export function SpanDetail() {
       rootSpan: monitorData.spans.find((s) => s.id === spanId())!,
     })("ipc::request::response")?.fields[0]?.response;
     return field ? processFieldValue(field) : null;
-  }
+  };
 
-  const args = () => getIpcRequestValues({
-    metadata: monitorData.metadata,
-    rootSpan: monitorData.spans.find((s) => s.id === spanId())!,
-  })("ipc::request")!.fields.map((f) => processFieldValue(f.request));
+  const args = () =>
+    getIpcRequestValues({
+      metadata: monitorData.metadata,
+      rootSpan: monitorData.spans.find((s) => s.id === spanId())!,
+    })("ipc::request")!.fields.map((f) => processFieldValue(f.request));
 
   const [responseHtml] = createResource(
     () => [responseCode()] as const,
     async ([code]) => {
-      return code === null ? null : (await getHighlightedCode({ lang: "rust" }))(code).replace(
-        /\\n/gim,
-        "\n"
-      );
+      return code === null
+        ? null
+        : (await getHighlightedCode({ lang: "rust" }))(code).replace(
+            /\\n/gim,
+            "\n"
+          );
     }
   );
 
@@ -60,7 +63,7 @@ export function SpanDetail() {
                             <div
                               class={"absolute bg-teal-500 top-0 left-0 h-full"}
                               style={slice}
-                             />
+                            />
                           )}
                         </For>
                       </div>
@@ -80,12 +83,20 @@ export function SpanDetail() {
               {(arg) => {
                 return (
                   <For each={Object.entries(JSON.parse(arg))}>
-                    {([k, v]) => ["cmd", "callback", "error", "__tauriModule"].includes(k) ? null : (
-                      <tr class="even:bg-[#ffffff09]">
-                        <td class="py-1 px-4 font-bold">{k}</td>
-                        <td class="py-1 px-4">{typeof v === 'object' ? JSON.stringify(v) : String(v)}</td>
-                      </tr>
-                    )}
+                    {([k, v]) =>
+                      ["cmd", "callback", "error", "__tauriModule"].includes(
+                        k
+                      ) ? null : (
+                        <tr class="even:bg-[#ffffff09]">
+                          <td class="py-1 px-4 font-bold">{k}</td>
+                          <td class="py-1 px-4">
+                            {typeof v === "object"
+                              ? JSON.stringify(v)
+                              : String(v)}
+                          </td>
+                        </tr>
+                      )
+                    }
                   </For>
                 );
               }}
@@ -94,7 +105,7 @@ export function SpanDetail() {
         </table>
       </div>
       <Show when={responseHtml()}>
-        {(html) =>
+        {(html) => (
           <div class="grid gap-2">
             <h2 class="text-xl p-4">Response</h2>
             <pre class="bg-black rounded max-w-full overflow-auto">
@@ -104,7 +115,7 @@ export function SpanDetail() {
               />
             </pre>
           </div>
-        }
+        )}
       </Show>
     </div>
   );
