@@ -5,7 +5,7 @@ export function timestampToDate(ts: Timestamp): Date {
 }
 
 export function convertTimestampToNanoseconds(timestamp: Timestamp): number {
-  return (Number(timestamp.seconds) * 1e9) + (timestamp.nanos);
+  return Number(timestamp.seconds) * 1e9 + timestamp.nanos;
 }
 
 export function formatMs(ms: string) {
@@ -29,10 +29,10 @@ export function formatTimestamp(stamp: Date) {
 }
 
 export function getTime(date: Date) {
-  return Intl.DateTimeFormat('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
+  return Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: false,
-    second: '2-digit'
-  }).format(date,)
+    second: "2-digit",
+  }).format(date);
 }
