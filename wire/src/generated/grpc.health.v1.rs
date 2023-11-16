@@ -1,6 +1,11 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct HealthCheckRequest {
+    /// / The service name to check the health for, or an empty string to check all services.
+    /// /
+    /// / Ideally you retrieve the service name from the generated files, but the current set of services names is
+    /// / `"rs.devtools.instrument.Instrument"`, `"rs.devtools.tauri.Tauri"`, `"rs.devtools.meta.Metadata"`, and
+    /// `"rs.devtools.sources.Sources"`-
     #[prost(string, tag = "1")]
     pub service: ::prost::alloc::string::String,
 }
