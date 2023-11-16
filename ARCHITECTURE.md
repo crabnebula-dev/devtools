@@ -44,7 +44,6 @@ flowchart LR
         Update
     "| S
     S <-->|gRPC| C
-    H <-->|gRPC| C
 
     C -->|mutation| P
     P -->|render| U
