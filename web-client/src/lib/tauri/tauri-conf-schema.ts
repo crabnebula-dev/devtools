@@ -1,37 +1,112 @@
 import tauriConfigSchemaV1 from "./tauri-conf-schema-v1.json";
 import tauriConfigSchemaV2 from "./tauri-conf-schema-v2.json";
 import { Draft07, JsonSchema, JsonPointer } from "json-schema-library";
-import { createResource } from "solid-js";
-import { useRouteData } from "@solidjs/router";
+import { createResource, Signal } from "solid-js";
+import { useRouteData, useLocation } from "@solidjs/router";
 import { Connection } from "~/lib/connection/transport.ts";
-import {
-  awaitEntries,
-  getEntryBytes
-} from "~/lib/sources/file-entries";
+import { awaitEntries, getEntryBytes } from "~/lib/sources/file-entries";
+import { useConfiguration } from "~/components/tauri/configuration-context";
+import { unwrap, reconcile } from "solid-js/store";
+import { useMonitor } from "../connection/monitor";
 
 const TEXT_DECODER = new TextDecoder();
 
+export type configurationStore = {
+  configs?: configurationObject[];
+};
+
+export type configurationObject = {
+  path: string;
+  data: tauriConfiguration;
+  size: number;
+  raw: string;
+};
+
+export type tauriConfiguration = Record<
+  "build" | "package" | "plugins" | "tauri",
+  object
+>;
+
+export function getTauriTabBasePath() {
+  const { pathname } = useLocation();
+  return pathname
+    .split("/")
+    .slice(
+      0,
+      pathname.split("/").findIndex((e) => e === "tauri")
+    )
+    .concat("tauri")
+    .join("/");
+}
+
+function createDeepConfigurationStoreSignal<T>(): Signal<T> {
+  const {
+    configurations: { configurations, setConfigurations },
+  } = useConfiguration();
+  return [
+    () => configurations.configs,
+    (v: T) => {
+      const unwrapped = unwrap(configurations.configs);
+      typeof v === "function" && (v = v(unwrapped));
+      setConfigurations("configs", reconcile(v));
+      return configurations.configs;
+    },
+  ] as Signal<T>;
+}
+
+export function retrieveConfigurationByPathAndKey(
+  path: string,
+  key: "build" | "package" | "plugins" | "tauri"
+) {
+  const [configs] = retrieveConfigurations();
+  return configs()?.find(
+    (config) =>
+      config?.path === path &&
+      config.data &&
+      Object.prototype.hasOwnProperty.call(config.data, key)
+  )?.data[key];
+}
+
 export function retrieveConfigurations() {
+  const {
+    configurations: { configurations },
+  } = useConfiguration();
+
+  if (configurations.configs)
+    return createResource(() => configurations.configs);
+
   const { client } = useRouteData<Connection>();
   const [entries] = awaitEntries(client.sources, "");
 
-  return createResource(entries, async (entries) => {
-    const filteredEntries =
-      entries?.filter((e) => e.path.endsWith(".conf.json")) || [];
-    return await Promise.all(
-      filteredEntries.map(async (e) => {
-        const bytes = await getEntryBytes(
-          client.sources,
-          e.path,
-          Number(e.size)
-        );
-        const text = TEXT_DECODER.decode(bytes);
-        const data = JSON.parse(text);
-        delete data["$schema"];
-        return { path: e.path, data: data ?? {}, size: Number(e.size) };
-      })
-    );
-  });
+  return createResource(
+    entries,
+    async (entries) => {
+      const filteredEntries =
+        entries?.filter((e) => e.path.endsWith(".conf.json")) || [];
+      return await Promise.all(
+        filteredEntries.map(async (e): Promise<configurationObject> => {
+          const bytes = await getEntryBytes(
+            client.sources,
+            e.path,
+            Number(e.size)
+          );
+
+          const text = TEXT_DECODER.decode(bytes);
+          const data: tauriConfiguration = JSON.parse(text);
+          delete data["$schema"];
+          return {
+            path: e.path,
+            data: data ?? {},
+            size: Number(e.size),
+            raw: text,
+          };
+        })
+      );
+    },
+    {
+      storage: createDeepConfigurationStoreSignal,
+    }
+  );
 }
 
 // version: semver
@@ -106,6 +181,20 @@ export function findLineNumberByNestedKey(
   }
 
   return -1; // Return -1 if the nested key is not found in the JSON string.
+}
+
+export function generateDescriptions(key: string, data: object) {
+  const { monitorData } = useMonitor();
+
+  const {
+    descriptions: { setDescriptions },
+  } = useConfiguration();
+
+  setDescriptions(
+    buildSchemaMap(monitorData.schema ?? {}, {
+      [key]: data,
+    })
+  );
 }
 
 export function buildSchemaMap(baseSchema: JsonSchema, data: object) {

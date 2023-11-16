@@ -1,20 +1,20 @@
 import { findLineNumberByNestedKey } from "~/lib/tauri/tauri-conf-schema";
 import { useConfiguration } from "./configuration-context";
-import { createEffect } from "solid-js";
+import { createEffect, Show } from "solid-js";
 import CodeView from "../sources/code-view";
+import { useParams, useSearchParams } from "@solidjs/router";
 
-export default function JsonView(props: {
-  path: string;
-  size: number;
-  lang: string;
-}) {
+export default function JsonView() {
+  const params = useParams<{ config: string }>();
+  const [searchParams] = useSearchParams<{ size: string }>();
+
   const {
     highlightKey: { highlightKey },
     configurations: { configurations },
   } = useConfiguration();
 
   const config = () =>
-    configurations.configs?.find((x) => x.path === props.path);
+    configurations.configs?.find((x) => x.path === params.config);
 
   const lineNumber = () =>
     findLineNumberByNestedKey(config()?.raw ?? "", highlightKey());
@@ -28,11 +28,13 @@ export default function JsonView(props: {
   });
 
   return (
-    <CodeView
-      path={props.path}
-      size={props.size}
-      lang={"json"}
-      highlightedLine={lineNumber()}
-    />
+    <Show when={params.config}>
+      <CodeView
+        path={params.config}
+        size={Number(searchParams.size)}
+        lang={"json"}
+        highlightedLine={lineNumber()}
+      />
+    </Show>
   );
 }

@@ -1,42 +1,39 @@
-import { Show, For, createEffect } from "solid-js";
+import { Show, For, createEffect, Suspense } from "solid-js";
 import { ConfigurationValue } from "./configuration-value";
 import { ConfigurationTooltip } from "./configuration-tooltip";
-import { useConfiguration } from "./configuration-context";
-import { buildSchemaMap } from "~/lib/tauri/tauri-conf-schema";
-import { useMonitor } from "~/lib/connection/monitor";
+import {
+  generateDescriptions,
+  retrieveConfigurationByPathAndKey,
+} from "~/lib/tauri/tauri-conf-schema";
+import { useParams } from "@solidjs/router";
 
-export function ConfigurationView(props: {
-  tab: {
-    name: string;
-    data: Record<string, object>;
-  };
-}) {
-  const { monitorData } = useMonitor();
+export function ConfigurationView() {
+  const params = useParams<{
+    config: string;
+    selected: "build" | "package" | "plugins" | "tauri";
+  }>();
 
-  const {
-    descriptions: { setDescriptions },
-  } = useConfiguration();
+  const tab = () =>
+    retrieveConfigurationByPathAndKey(params.config, params.selected);
 
   createEffect(() => {
-    setDescriptions(
-      buildSchemaMap(monitorData.schema ?? {}, {
-        [props.tab.name]: props.tab.data,
-      })
-    );
+    const data = tab();
+    if (!data) return;
+    generateDescriptions(params.selected, data);
   });
 
   return (
-    <Show when={props.tab} fallback={"Waiting for tab..."}>
+    <Show when={tab()}>
       <div class="p-4">
         <header>
           <h1 class="text-5xl pb-8 text-white">
-            <ConfigurationTooltip parentKey="" key={props.tab.name} />
+            <ConfigurationTooltip parentKey="" key={params.selected} />
           </h1>
         </header>
-        <For each={Object.entries(props.tab.data)}>
+        <For each={Object.entries(tab()!)}>
           {([key, value]) => (
             <ConfigurationValue
-              parentKey={props.tab.name}
+              parentKey={params.selected}
               key={key}
               value={value}
             />
