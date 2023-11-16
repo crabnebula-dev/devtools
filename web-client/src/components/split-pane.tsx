@@ -1,4 +1,5 @@
 import { type JSXElement, onMount, onCleanup, For } from "solid-js";
+import { clsx } from "clsx";
 import Split from "split.js";
 import {
   getArrayFromLocalStorage,
@@ -46,7 +47,7 @@ export function SplitPane(props: WrapperProps) {
   onCleanup(() => splitInstance?.destroy());
 
   return (
-    <div class={`flex h-full overflow-auto ${props.class || ""}`}>
+    <div class={clsx(`flex h-full overflow-auto`, props.class)}>
       <For each={children}>
         {(pane, idx) => (
           <section
