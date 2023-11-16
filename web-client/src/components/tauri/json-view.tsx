@@ -1,4 +1,7 @@
-import { findLineNumberByNestedKey } from "~/lib/tauri/tauri-conf-schema";
+import {
+  findLineNumberByKey,
+  scrollToHighlighted,
+} from "~/lib/tauri/tauri-conf-schema";
 import { useConfiguration } from "./configuration-context";
 import { createEffect, Show } from "solid-js";
 import CodeView from "../sources/code-view";
@@ -10,21 +13,13 @@ export default function JsonView() {
 
   const {
     highlightKey: { highlightKey },
-    configurations: { configurations },
   } = useConfiguration();
 
-  const config = () =>
-    configurations.configs?.find((x) => x.path === params.config);
-
-  const lineNumber = () =>
-    findLineNumberByNestedKey(config()?.raw ?? "", highlightKey());
+  const lineNumber = () => findLineNumberByKey(highlightKey());
 
   createEffect(() => {
     highlightKey();
-    const highlightedLine = document.querySelector(".line.highlighted");
-    if (highlightedLine) {
-      highlightedLine.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
+    scrollToHighlighted();
   });
 
   return (

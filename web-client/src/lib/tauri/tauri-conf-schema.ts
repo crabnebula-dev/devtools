@@ -2,7 +2,7 @@ import tauriConfigSchemaV1 from "./tauri-conf-schema-v1.json";
 import tauriConfigSchemaV2 from "./tauri-conf-schema-v2.json";
 import { Draft07, JsonSchema, JsonPointer } from "json-schema-library";
 import { createResource, Signal } from "solid-js";
-import { useRouteData, useLocation } from "@solidjs/router";
+import { useRouteData, useLocation, useParams } from "@solidjs/router";
 import { Connection } from "~/lib/connection/transport.ts";
 import { awaitEntries, getEntryBytes } from "~/lib/sources/file-entries";
 import { useConfiguration } from "~/components/tauri/configuration-context";
@@ -122,7 +122,34 @@ export function returnLatestSchemaForVersion(version: string) {
   }
 }
 
-export function findLineNumberByNestedKey(
+export function getDescriptionByKey(key: string) {
+  const {
+    descriptions: { descriptions },
+  } = useConfiguration();
+  return descriptions().has(key) ? descriptions().get(key) : undefined;
+}
+
+export function scrollToHighlighted() {
+  const highlightedLine = document.querySelector(".line.highlighted");
+
+  if (!highlightedLine) return;
+
+  highlightedLine.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+export function findLineNumberByKey(key: string) {
+  const {
+    configurations: { configurations },
+  } = useConfiguration();
+
+  const params = useParams<{ config: string }>();
+
+  const config = configurations.configs?.find((x) => x.path === params.config);
+
+  return findLineNumberByNestedKeyInSource(config?.raw ?? "", key);
+}
+
+export function findLineNumberByNestedKeyInSource(
   jsonString: string,
   nestedKeyPath: string
 ): number {

@@ -1,4 +1,4 @@
-import { Show, For, createEffect, Suspense } from "solid-js";
+import { Show, For, createEffect } from "solid-js";
 import { ConfigurationValue } from "./configuration-value";
 import { ConfigurationTooltip } from "./configuration-tooltip";
 import {
