@@ -22,9 +22,13 @@ type UiSpan = {
   slices: string[];
   colorClassName: string;
   children: UiSpan[];
-}
+};
 
-export function formatSpansForUi({ spans, metadata, granularity }: Options): UiSpan[] {
+export function formatSpansForUi({
+  spans,
+  metadata,
+  granularity,
+}: Options): UiSpan[] {
   const result = normalizeSpans(spans, granularity).map((span) => {
     const isProcessing = span.closedAt < 0;
     return {
@@ -32,16 +36,17 @@ export function formatSpansForUi({ spans, metadata, granularity }: Options): UiS
       isProcessing,
       name: getIpcRequestName({ metadata, span }) || "-",
       initiated: span.createdAt / 1000000,
-      time:
-        !isProcessing
-          ? (span.closedAt - span.createdAt) / 1e6
-          : Date.now() - span.createdAt / 1e6,
+      time: !isProcessing
+        ? (span.closedAt - span.createdAt) / 1e6
+        : Date.now() - span.createdAt / 1e6,
       waterfall: `width:${span.width}%;margin-left:${span.marginLeft}%;`,
       start: span.marginLeft,
       slices: span.slices.map(
         (slice) => `width:${slice.width}%;margin-left:${slice.marginLeft}%;`
       ),
-      colorClassName: calculateSpanColorFromRelativeDuration(span.relativeDuration),
+      colorClassName: calculateSpanColorFromRelativeDuration(
+        span.relativeDuration
+      ),
       children: formatSpansForUi({
         spans: flattenChildren(span.children),
         metadata,
