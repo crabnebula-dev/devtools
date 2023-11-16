@@ -2,10 +2,7 @@ import { For, createResource, Show } from "solid-js";
 import { useMonitor } from "~/lib/connection/monitor";
 import { formatSpansForUi } from "~/lib/span/formatSpansForUi";
 import { getIpcRequestValues } from "~/lib/span/getIpcRequestValue";
-import {
-  createHighlighter,
-  getHighlightedCode,
-} from "~/lib/sources/code-highlight";
+import { createHighlighter, getHighlightedCode } from "~/lib/code-highlight";
 import { useSearchParams } from "@solidjs/router";
 import { processFieldValue } from "~/lib/span/processFieldValue";
 
