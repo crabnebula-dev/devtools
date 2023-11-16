@@ -2,7 +2,10 @@ import { For, createResource, Show } from "solid-js";
 import { useMonitor } from "~/lib/connection/monitor";
 import { formatSpansForUi } from "~/lib/span/formatSpansForUi";
 import { getIpcRequestValues } from "~/lib/span/getIpcRequestValue";
-import { getHighlightedCode } from "~/lib/sources/code-highlight";
+import {
+  createHighlighter,
+  getHighlightedCode,
+} from "~/lib/sources/code-highlight";
 import { useSearchParams } from "@solidjs/router";
 import { processFieldValue } from "~/lib/span/processFieldValue";
 
@@ -31,11 +34,14 @@ export function SpanDetail() {
     })("ipc::request")!.fields.map((f) => processFieldValue(f.request));
 
   const [responseHtml] = createResource(
-    () => [responseCode()] as const,
-    async ([code]) => {
+    () => [responseCode(), createHighlighter()] as const,
+    async ([code, highlighter]) => {
       return code === null
         ? null
-        : (await getHighlightedCode({ lang: "rust" }))(code).replace(
+        : getHighlightedCode({
+            lang: "rust",
+            highlighter: await highlighter,
+          })(code).replace(
             /\\n/gim, // Turn escaped newlines into actual newlines
             "\n"
           );
