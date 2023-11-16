@@ -302,7 +302,6 @@ impl<R: Runtime> SourcesService<R> {
                     entry_type = FileType::DIR;
                 }
             } else if let Some(p) = entry_path.strip_prefix(&format!("{root}/")) {
-                println!("matches!");
                 if let Some((dir, _path)) = p.split_once('/') {
                     entry_path = dir.to_string();
                     entry_type = FileType::DIR;
@@ -315,8 +314,6 @@ impl<R: Runtime> SourcesService<R> {
             }
 
             if !entries.iter().any(|e| e.path == entry_path) {
-                println!("pushing entry {:?}", entry_path);
-
                 entries.push(Entry {
                     path: entry_path,
                     // we use resolver.get since it increases the size sometimes (e.g. injecting CSP on HTML files)
