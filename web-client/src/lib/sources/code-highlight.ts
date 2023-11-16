@@ -8,7 +8,7 @@ type HighlighterCodeParamsForSources = Readonly<
 
 type HighlighterCodeParamsForSpans = Readonly<{
   lang: HighlighterLang;
-}>
+}>;
 
 export const SUPPORTED_LANGS = [
   "js",
@@ -39,9 +39,15 @@ export function bytesToHtml(
   return highlighter.codeToHtml(text, { lang });
 }
 
-export async function getHighlightedCode(sourcesArg: HighlighterCodeParamsForSources): Promise<string | undefined>;
-export async function getHighlightedCode(spansArg: HighlighterCodeParamsForSpans): Promise<(code: string) => string>
-export async function getHighlightedCode(arg: HighlighterCodeParamsForSources | HighlighterCodeParamsForSpans) {
+export async function getHighlightedCode(
+  sourcesArg: HighlighterCodeParamsForSources
+): Promise<string | undefined>;
+export async function getHighlightedCode(
+  spansArg: HighlighterCodeParamsForSpans
+): Promise<(code: string) => string>;
+export async function getHighlightedCode(
+  arg: HighlighterCodeParamsForSources | HighlighterCodeParamsForSpans
+) {
   setCDN("/shiki/");
   const responseWasm = await fetch("/shiki/onig.wasm");
   setWasm(responseWasm);
@@ -54,7 +60,7 @@ export async function getHighlightedCode(arg: HighlighterCodeParamsForSources | 
 
   if ("lang" in arg) {
     const { lang } = arg;
-    return (code: string) => highlighter.codeToHtml(code, { lang })
+    return (code: string) => highlighter.codeToHtml(code, { lang });
   }
 
   const [sourcesClient, path, size, lang] = arg;

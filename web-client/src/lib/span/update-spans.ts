@@ -16,7 +16,7 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
           enters: [],
           exits: [],
           closedAt: -1,
-          duration: -1
+          duration: -1,
         };
 
         /**
@@ -42,7 +42,9 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
       }
       case "enterSpan": {
         const span = findSpanById(currentSpans, event.event.enterSpan.spanId);
-        const enteredAt = convertTimestampToNanoseconds(event.event.enterSpan.at!);
+        const enteredAt = convertTimestampToNanoseconds(
+          event.event.enterSpan.at!
+        );
         if (span) {
           span.enters.push(enteredAt);
         }
@@ -51,7 +53,9 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
       }
       case "exitSpan": {
         const span = findSpanById(currentSpans, event.event.exitSpan.spanId);
-        const exitedAt = convertTimestampToNanoseconds(event.event.exitSpan.at!);
+        const exitedAt = convertTimestampToNanoseconds(
+          event.event.exitSpan.at!
+        );
         if (span) {
           span.exits.push(exitedAt);
         }
@@ -61,7 +65,9 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
       case "closeSpan": {
         const span = findSpanById(currentSpans, event.event.closeSpan.spanId);
         if (span) {
-          span.closedAt = convertTimestampToNanoseconds(event.event.closeSpan.at!);
+          span.closedAt = convertTimestampToNanoseconds(
+            event.event.closeSpan.at!
+          );
           span.duration = span.closedAt - span.createdAt;
         }
         break;

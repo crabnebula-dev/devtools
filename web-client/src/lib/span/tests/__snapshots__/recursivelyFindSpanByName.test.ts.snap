@@ -1,3 +1,3 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`recursivelyFindSpanByName > should recurisvely find a span by name 1`] = `[]`;
+exports[`recursivelyFindSpanByName > should recursively find a span by name 1`] = `[]`;
