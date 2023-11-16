@@ -11,7 +11,20 @@ type Options = {
   granularity?: number;
 };
 
-export function formatSpansForUi({ spans, metadata, granularity }: Options): any {
+type UiSpan = {
+  id: string;
+  isProcessing: boolean;
+  name: string;
+  initiated: number;
+  time: number;
+  waterfall: string;
+  start: number;
+  slices: string[];
+  colorClassName: string;
+  children: UiSpan[];
+}
+
+export function formatSpansForUi({ spans, metadata, granularity }: Options): UiSpan[] {
   const result = normalizeSpans(spans, granularity).map((span) => {
     const isProcessing = span.closedAt < 0;
     return {
