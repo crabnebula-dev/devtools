@@ -11,7 +11,7 @@ const MOCK_SPAN: Span = {
   closedAt: -1,
   duration: -1,
   enters: [],
-  exits: []
+  exits: [],
 };
 
 describe("The store setter for the Span Waterfall", () => {
