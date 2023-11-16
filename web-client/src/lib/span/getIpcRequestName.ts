@@ -26,7 +26,7 @@ export function getIpcRequestName({ metadata, span }: Options) {
   } else if (meta?.name === "ipc::request::deserialize_arg") {
     const argField = span.fields.find((f) => f.name === "arg");
     if (argField) {
-      return `deserialize arg ${processFieldValue(argField.value)}`
+      return `deserialize arg ${processFieldValue(argField.value)}`;
     }
   }
   return meta?.name ?? null;
