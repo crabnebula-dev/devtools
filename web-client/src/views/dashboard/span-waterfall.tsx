@@ -94,7 +94,7 @@ export default function SpanWaterfall() {
     Math.min(...spans().map((s) => s.time));
 
   return (
-    <div class="h-[calc(100%-28px)]">
+    <div class="h-[calc(100%-var(--toolbar-height))]">
       <Toolbar>
         <div class="flex items-center gap-2">
           <Tooltip.Root>

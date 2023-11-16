@@ -9,7 +9,7 @@
   <body class="bg-navy-500 text-white">
     <div
       id="app"
-      class="grid bg-black bg-opacity-70 grid-rows-[56px,calc(100vh-88px),32px] h-screen"
+      class="grid bg-black bg-opacity-70 grid-rows-[var(--header-height),calc(100vh-calc(var(--header-height)+var(--footer-height))),var(--footer-height)] h-screen"
     ></div>
     <script type="module" src="/src/render-client.tsx"></script>
   </body>
