@@ -13,7 +13,7 @@ export function ConfigurationTooltip(props: {
   } = useConfiguration();
 
   const key = () =>
-    props.parentKey !== "" ? props.parentKey + "." + props.key : props.key;
+    props.parentKey ? props.parentKey + "." + props.key : props.key;
 
   const localSchema = () => getDescriptionByKey(key());
 
@@ -112,7 +112,7 @@ function StringValue(props: { value: string }) {
   return (
     <SolidMarkdown
       class="inline-block prose lg:prose-xl"
-      children={props.value as string}
+      children={props.value}
     />
   );
 }

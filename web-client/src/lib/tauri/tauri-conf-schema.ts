@@ -8,8 +8,7 @@ import { awaitEntries, getEntryBytes } from "~/lib/sources/file-entries";
 import { useConfiguration } from "~/components/tauri/configuration-context";
 import { unwrap, reconcile } from "solid-js/store";
 import { useMonitor } from "../connection/monitor";
-
-const TEXT_DECODER = new TextDecoder();
+import { bytesToText } from "../sources/code-highlight";
 
 export type configurationStore = {
   configs?: configurationObject[];
@@ -91,7 +90,7 @@ export function retrieveConfigurations() {
             Number(e.size)
           );
 
-          const text = TEXT_DECODER.decode(bytes);
+          const text = bytesToText(bytes);
           const data = JSON.parse(text);
           delete data["$schema"];
           return {

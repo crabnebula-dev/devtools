@@ -54,7 +54,7 @@ export function textToHtml(
     options.lineOptions = [
       {
         line: highlightedLine,
-        classes: ["highlighted"],
+        classes: ["highlighted bg-slate-800"],
       },
     ];
 
