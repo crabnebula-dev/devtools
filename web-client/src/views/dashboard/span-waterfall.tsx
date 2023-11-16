@@ -122,8 +122,11 @@ export default function SpanWaterfall() {
         </div>
       </Toolbar>
       <SplitPane
+        initialSizes={[700, 200]}
+        defaultMinSizes={[700, 200]}
         defaultPrefix="span-waterfall"
-        leftPaneComponent={
+      >
+        {[
           <table class="w-full table-fixed">
             <thead>
               <tr class="text-left">
@@ -192,10 +195,10 @@ export default function SpanWaterfall() {
                 }}
               </For>
             </tbody>
-          </table>
-        }
-        rightPaneComponent={<SpanDetailPanel />}
-      />
+          </table>,
+          <SpanDetailPanel />,
+        ]}
+      </SplitPane>
     </div>
   );
 }
