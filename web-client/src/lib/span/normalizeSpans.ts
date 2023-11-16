@@ -16,16 +16,22 @@ export function normalizeSpans(spans: Span[]) {
   const end = spans.find((s) => s.closedAt < 0)
     ? Date.now() * 1e6
     : Math.max(
-        ...spans.filter((s) => s.closedAt > 0).map((span) => span.closedAt)
-      );
+      ...spans.filter((s) => s.closedAt > 0).map((span) => span.closedAt)
+    );
   const totalDuration = end - start;
+  const completedSpans = spans.filter(s => s.closedAt > 0)
+  const averageSpanDuration = completedSpans.reduce((acc, span) => acc + span.duration, 0) / completedSpans.length;
+  const relativeDurations = scaleToMax(completedSpans.map(s => s.duration), averageSpanDuration).map(Math.ceil)
 
-  const result = spans.map((span) => {
+  const result = spans.map((span, i) => {
     const allExits = span.exits.reduce((acc, e) => acc + e, 0);
     const allEnters = span.enters.reduce((acc, e) => acc + e, 0);
+    const relativeDuration = relativeDurations[i];
+
     return {
       width: scaleToMax([span.duration], totalDuration)[0],
       marginLeft: scaleNumbers([span.createdAt], start, end)[0],
+      relativeDuration,
       slices: span.enters.map((enter, i) => {
         const width = scaleToMax(
           [span.exits[i] - enter],

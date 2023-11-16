@@ -4,6 +4,7 @@ exports[`formatSpansForUi > should format spans for UI 1`] = `
 [
   {
     "children": [],
+    "colorClassName": "bg-red-500",
     "id": "11",
     "initiated": 1700085057720.6262,
     "name": "-",
@@ -16,6 +17,7 @@ exports[`formatSpansForUi > should format spans for UI 1`] = `
   },
   {
     "children": [],
+    "colorClassName": "bg-red-500",
     "id": "12",
     "initiated": 1700085057720.6707,
     "name": "-",
@@ -28,6 +30,7 @@ exports[`formatSpansForUi > should format spans for UI 1`] = `
   },
   {
     "children": [],
+    "colorClassName": "bg-red-500",
     "id": "13",
     "initiated": 1700085057720.7607,
     "name": "-",
@@ -40,6 +43,7 @@ exports[`formatSpansForUi > should format spans for UI 1`] = `
   },
   {
     "children": [],
+    "colorClassName": "bg-red-500",
     "id": "14",
     "initiated": 1700085057720.7712,
     "name": "-",
@@ -64,6 +68,7 @@ exports[`formatSpansForUi > should format spans for UI 1`] = `
   },
   {
     "children": [],
+    "colorClassName": "bg-teal-500",
     "id": "4504149383184387",
     "initiated": 1700085057720.8862,
     "name": "-",
@@ -76,6 +81,7 @@ exports[`formatSpansForUi > should format spans for UI 1`] = `
   },
   {
     "children": [],
+    "colorClassName": "bg-teal-500",
     "id": "6755949196869635",
     "initiated": 1700085057720.911,
     "name": "-",
@@ -88,6 +94,7 @@ exports[`formatSpansForUi > should format spans for UI 1`] = `
   },
   {
     "children": [],
+    "colorClassName": "bg-red-500",
     "id": "15",
     "initiated": 1700085057720.775,
     "name": "-",
@@ -112,6 +119,7 @@ exports[`formatSpansForUi > should format spans for UI 1`] = `
   },
   {
     "children": [],
+    "colorClassName": "bg-teal-500",
     "id": "9007749010554884",
     "initiated": 1700085060054.4126,
     "name": "-",
@@ -124,6 +132,7 @@ exports[`formatSpansForUi > should format spans for UI 1`] = `
   },
   {
     "children": [],
+    "colorClassName": "bg-teal-500",
     "id": "549755813892",
     "initiated": 1700085060054.459,
     "name": "-",
@@ -137,6 +146,7 @@ exports[`formatSpansForUi > should format spans for UI 1`] = `
   },
   {
     "children": [],
+    "colorClassName": "bg-teal-500",
     "id": "16",
     "initiated": 1700085060057.302,
     "name": "-",
