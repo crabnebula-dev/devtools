@@ -36,7 +36,7 @@ export function SpanDetail() {
       return code === null
         ? null
         : (await getHighlightedCode({ lang: "rust" }))(code).replace(
-            /\\n/gim,
+            /\\n/gim, // Turn escaped newlines into actual newlines
             "\n"
           );
     }
@@ -58,10 +58,11 @@ export function SpanDetail() {
                     <div class="relative w-[90%]">
                       <div class="bg-gray-800 w-full absolute rounded-sm h-2" />
                       <div class="relative h-2" style={span.waterfall}>
+                        {/* Slices is "time slices" as in multiple entry points to a given span */}
                         <For each={span.slices}>
                           {(slice) => (
                             <div
-                              class={"absolute bg-teal-500 top-0 left-0 h-full"}
+                              class="absolute bg-teal-500 top-0 left-0 h-full"
                               style={slice}
                             />
                           )}
@@ -83,10 +84,17 @@ export function SpanDetail() {
               {(arg) => {
                 return (
                   <For each={Object.entries(JSON.parse(arg))}>
-                    {([k, v]) =>
-                      ["cmd", "callback", "error", "__tauriModule"].includes(
-                        k
-                      ) ? null : (
+                    {([k, v]) => (
+                      <Show
+                        when={
+                          ![
+                            "cmd",
+                            "callback",
+                            "error",
+                            "__tauriModule",
+                          ].includes(k)
+                        }
+                      >
                         <tr class="even:bg-[#ffffff09]">
                           <td class="py-1 px-4 font-bold">{k}</td>
                           <td class="py-1 px-4">
@@ -95,8 +103,8 @@ export function SpanDetail() {
                               : String(v)}
                           </td>
                         </tr>
-                      )
-                    }
+                      </Show>
+                    )}
                   </For>
                 );
               }}
