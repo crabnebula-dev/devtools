@@ -13,7 +13,7 @@ function scaleToMax(numbers: number[], max: number): number[] {
 
 export function normalizeSpans(spans: Span[]) {
   const start = Math.min(...spans.map((span) => span.createdAt));
-  const end = Math.max(
+  const end = spans.find(s => s.closedAt < 0) ? Date.now() * 1e6 : Math.max(
     ...spans.filter((s) => s.closedAt > 0).map((span) => span.closedAt)
   );
   const totalDuration = end - start;
