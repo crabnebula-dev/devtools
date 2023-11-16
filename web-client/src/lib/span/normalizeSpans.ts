@@ -1,4 +1,4 @@
-import { Span } from "../connection/monitor";
+import { FilteredSpan } from "./types";
 
 function scaleNumbers(numbers: number[], min: number, max: number): number[] {
   const range = max - min;
@@ -11,13 +11,13 @@ function scaleToMax(numbers: number[], max: number): number[] {
   return numbers.map((num) => (num / max) * 100);
 }
 
-export function normalizeSpans(spans: Span[], granularity = 1) {
+export function normalizeSpans(spans: FilteredSpan[], granularity = 1) {
   const start = Math.min(...spans.map((span) => span.createdAt));
   const end = spans.find((s) => s.closedAt < 0)
     ? Date.now() * 1e6
     : Math.max(
-        ...spans.filter((s) => s.closedAt > 0).map((span) => span.closedAt)
-      );
+      ...spans.filter((s) => s.closedAt > 0).map((span) => span.closedAt)
+    );
   const totalDuration = end - start;
   const completedSpans = spans.filter((s) => s.closedAt > 0);
   const averageSpanDuration =

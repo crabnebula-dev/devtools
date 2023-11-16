@@ -1,4 +1,4 @@
-import { useMonitor } from "~/lib/connection/monitor";
+import { Span, useMonitor } from "~/lib/connection/monitor";
 import { Toolbar } from "~/components/toolbar";
 import { For, Show, createEffect, createSignal } from "solid-js";
 import { formatSpansForUi } from "~/lib/span/formatSpansForUi";
@@ -12,6 +12,8 @@ import { useSearchParams } from "@solidjs/router";
 import { SpanDetailPanel } from "~/components/span/SpanDetailPanel";
 import clsx from "clsx";
 import { Tooltip } from "@kobalte/core";
+import { FilteredSpan } from "~/lib/span/types";
+import { getSpanKind } from "~/lib/span/getSpanKind";
 
 export type SortableColumn = keyof ReturnType<typeof formatSpansForUi>[-1];
 export type SortDirection = "asc" | "desc";
@@ -37,12 +39,23 @@ export default function SpanWaterfall() {
   });
 
   createEffect(() => {
-    const filteredSpans = () => [
-      ...monitorData.spans.filter((s) => {
-        const metadata = monitorData.metadata.get(s.metadataId);
-        return metadata && metadata.name.includes("ipc") && s.closedAt;
-      }),
-    ];
+    const filteredSpans = () => {
+      const filtered: FilteredSpan[] = [];
+
+      function recursivelyFilterSpans(spans: Span[]) {
+        for (const span of spans) {
+          const kind = getSpanKind({ metadata: monitorData.metadata, span });
+          if (kind) {
+            filtered.push({ kind, ...span });
+          }
+          recursivelyFilterSpans(span.children);
+        }
+      }
+
+      recursivelyFilterSpans(monitorData.spans);
+
+      return filtered;
+    };
 
     const hasPendingWork = () => filteredSpans().find((s) => s.closedAt < 0);
     const spans = () =>
@@ -181,7 +194,7 @@ export default function SpanWaterfall() {
                                 <div
                                   class="absolute top-0 left-0 bg-black bg-opacity-10 h-full"
                                   style={slice}
-                                ></div>
+                                 />
                               )}
                             </For>
                           </div>

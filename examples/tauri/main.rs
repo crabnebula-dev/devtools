@@ -3,15 +3,21 @@
 
 use std::time::Duration;
 
+use tauri::Manager;
+
 #[tauri::command]
-async fn test1(url: String, timeout_seconds: u64) -> String {
+async fn test1(app: tauri::AppHandle, url: String, timeout_seconds: u64) -> String {
     tracing::trace!("test trace event");
     tracing::debug!("test debug event");
     tracing::info!("test info event");
     tracing::warn!("test warn event");
     tracing::error!("test error event");
 
+    app.emit_all("test1-event", "sleeping").unwrap();
+
     tokio::time::sleep(Duration::from_secs(timeout_seconds)).await;
+
+    app.emit_all("test1-event", "making get request").unwrap();
 
     reqwest::get(url)
         .await
