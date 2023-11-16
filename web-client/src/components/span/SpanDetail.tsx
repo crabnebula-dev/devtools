@@ -1,4 +1,4 @@
-import { For, createEffect, createResource } from "solid-js";
+import { For, createEffect, createResource, Show } from "solid-js";
 import { useMonitor } from "~/lib/connection/monitor";
 import { formatSpansForUi } from "~/lib/span/formatSpansForUi";
 import { getIpcRequestValues } from "~/lib/span/getIpcRequestValue";
@@ -16,22 +16,23 @@ export function SpanDetail() {
       metadata: monitorData.metadata,
     })[0];
 
-  const code = () => processFieldValue(
-    getIpcRequestValues({
+  const responseCode = () => {
+    const field = getIpcRequestValues({
       metadata: monitorData.metadata,
       rootSpan: monitorData.spans.find((s) => s.id === spanId())!,
-    })("ipc::request::response")!.fields[0].response
-  );
+    })("ipc::request::response")?.fields[0]?.response;
+    return field ? processFieldValue(field) : null;
+  }
 
   const args = () => getIpcRequestValues({
     metadata: monitorData.metadata,
     rootSpan: monitorData.spans.find((s) => s.id === spanId())!,
   })("ipc::request")!.fields.map((f) => processFieldValue(f.request));
 
-  const [html] = createResource(
-    () => [code()] as const,
+  const [responseHtml] = createResource(
+    () => [responseCode()] as const,
     async ([code]) => {
-      return (await getHighlightedCode({ lang: "rust" }))(code).replace(
+      return code === null ? null : (await getHighlightedCode({ lang: "rust" }))(code).replace(
         /\\n/gim,
         "\n"
       );
@@ -92,15 +93,19 @@ export function SpanDetail() {
           </tbody>
         </table>
       </div>
-      <div class="grid gap-2">
-        <h2 class="text-xl p-4">Response</h2>
-        <pre class="bg-black rounded max-w-full overflow-auto">
-          <code
-            // eslint-disable-next-line solid/no-innerhtml
-            innerHTML={html()}
-          />
-        </pre>
-      </div>
+      <Show when={responseHtml()}>
+        {(html) =>
+          <div class="grid gap-2">
+            <h2 class="text-xl p-4">Response</h2>
+            <pre class="bg-black rounded max-w-full overflow-auto">
+              <code
+                // eslint-disable-next-line solid/no-innerhtml
+                innerHTML={html()}
+              />
+            </pre>
+          </div>
+        }
+      </Show>
     </div>
   );
 }
