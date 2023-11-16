@@ -5,8 +5,8 @@ import { flattenChildren } from "./flattenChildren";
 type Options = { span: Span, metadata: Map<bigint, Metadata> }
 
 export function recursivelyFindSpanByName({ span, metadata }: Options, name: string): Span[] | null {
-    const meta = metadata.get(span.metadataId);
-    if (meta?.name === name) {
+    const meta = metadata.get(span.metadataId)!;
+    if (meta.name === name) {
         return [span];
     }
 

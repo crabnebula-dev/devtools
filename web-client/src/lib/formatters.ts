@@ -8,7 +8,7 @@ export function convertTimestampToNanoseconds(timestamp: Timestamp): number {
   return (Number(timestamp.seconds) * 1e9) + (timestamp.nanos);
 }
 
-function formatMs(ms: string) {
+export function formatMs(ms: string) {
   switch (ms.length) {
     case 1:
       return "00" + ms;
@@ -18,6 +18,7 @@ function formatMs(ms: string) {
       return ms;
   }
 }
+
 export function formatTimestamp(stamp: Date) {
   return `${stamp.toLocaleTimeString("en", {
     hour: "2-digit",

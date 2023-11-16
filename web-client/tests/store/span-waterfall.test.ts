@@ -7,9 +7,11 @@ const MOCK_SPAN: Span = {
   metadataId: BigInt(2),
   fields: [],
   children: [],
-  createdAt: undefined,
-  enteredAt: undefined,
-  exitedAt: undefined,
+  createdAt: -1,
+  closedAt: -1,
+  duration: -1,
+  enters: [],
+  exits: []
 };
 
 describe("The store setter for the Span Waterfall", () => {
@@ -50,60 +52,14 @@ describe("The store setter for the Span Waterfall", () => {
     expect(result).toEqual([MOCK_SPAN]);
   });
 
-  it("should add `pendingActivity` on `enterSpan`", () => {
-    const enterSpan = {
-      spanId: BigInt(7), // used to locate parent
-      threadId: BigInt(11), // ?
-      at: {
-        seconds: BigInt(1),
-        nanos: 0,
-      },
-    };
-
-    const result = updatedSpans(
-      [MOCK_SPAN],
-      [
-        {
-          event: {
-            oneofKind: "enterSpan",
-            enterSpan,
-          },
-        },
-      ]
-    );
-
-    expect(result[0].pendingActivity?.timestamp).toEqual(enterSpan.at);
-  });
-
-  it("should add `exitSpan` on `exitSpan`", () => {
-    const exitSpan = {
-      spanId: BigInt(7), // used to locate parent
-      threadId: BigInt(11), // ?
-      at: {
-        seconds: BigInt(1),
-        nanos: 0,
-      },
-    };
-
-    const result = updatedSpans(
-      [MOCK_SPAN],
-      [
-        {
-          event: {
-            oneofKind: "exitSpan",
-            exitSpan,
-          },
-        },
-      ]
-    );
-
-    expect(result[0].pendingActivity?.timestamp).toEqual(exitSpan.at);
-  });
-
   it("should add `newSpan` without parent to root level", () => {
     const newSpan = {
       id: BigInt(3),
       metadataId: BigInt(20),
+      at: {
+        seconds: BigInt(1),
+        nanos: 0,
+      },
       fields: [
         {
           metadataId: BigInt(200),
@@ -137,6 +93,10 @@ describe("The store setter for the Span Waterfall", () => {
       parent: BigInt(7),
       id: BigInt(3),
       metadataId: BigInt(20),
+      at: {
+        seconds: BigInt(1),
+        nanos: 0,
+      },
       fields: [
         {
           metadataId: BigInt(200),
