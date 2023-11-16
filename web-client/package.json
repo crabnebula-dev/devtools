@@ -11,6 +11,7 @@
     "dev": "pnpm proto && vite",
     "build": "pnpm proto && vite build",
     "preview": "pnpm proto && vite preview",
+    "format": "prettier --write .",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --fix --ext .ts,.tsx",
     "test": "pnpm proto && vitest"
@@ -45,7 +46,7 @@
     "@protobuf-ts/plugin": "^2.9.1",
     "@protobuf-ts/runtime": "^2.9.1",
     "@protobuf-ts/runtime-rpc": "^2.9.1",
-    "@solidjs/router": "^0.8.3",
+    "@solidjs/router": "^0.8.4",
     "clsx": "^2.0.0",
     "csp_evaluator": "^1.1.1",
     "json-schema-library": "^9.1.2",
