@@ -11,6 +11,7 @@ import { getTime } from "~/lib/formatters";
 import { SplitPane } from "~/components/split-pane";
 import { useSearchParams } from "@solidjs/router";
 import { SpanDetailPanel } from "~/components/span/SpanDetailPanel";
+import clsx from "clsx";
 
 export type SortableColumn = keyof ReturnType<typeof formatSpansForUi>[-1];
 export type SortDirection = "asc" | "desc";
@@ -147,7 +148,10 @@ export default function SpanWaterfall() {
                         <div class="relative w-[90%]">
                           <div class="bg-gray-800 w-full absolute rounded-sm h-2" />
                           <div
-                            class="bg-teal-500 relative rounded-sm h-2"
+                            class={clsx(
+                              "relative rounded-sm h-2",
+                              span.colorClassName
+                            )}
                             style={span.waterfall}
                           >
                             <For each={span.slices}>
