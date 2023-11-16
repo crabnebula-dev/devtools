@@ -11,7 +11,7 @@ function scaleToMax(numbers: number[], max: number): number[] {
   return numbers.map((num) => (num / max) * 100);
 }
 
-export function normalizeSpans(spans: Span[], granularity = 0) {
+export function normalizeSpans(spans: Span[], granularity = 1) {
   const start = Math.min(...spans.map((span) => span.createdAt));
   const end = spans.find((s) => s.closedAt < 0)
     ? Date.now() * 1e6
@@ -27,10 +27,13 @@ export function normalizeSpans(spans: Span[], granularity = 0) {
     const allExits = span.exits.reduce((acc, e) => acc + e, 0);
     const allEnters = span.enters.reduce((acc, e) => acc + e, 0);
     const relativeDuration = relativeDurations[i];
+    const offset = scaleNumbers([span.createdAt], start, end)[0]
+    const width = Math.min(scaleToMax([span.duration], totalDuration / granularity)[0], 100 - offset);
+    const marginLeft = offset - (offset * width) / 100;
 
     return {
-      width: scaleToMax([span.duration], totalDuration)[0],
-      marginLeft: scaleNumbers([span.createdAt], start, end)[0],
+      marginLeft,
+      width,
       relativeDuration,
       slices: span.enters.map((enter, i) => {
         const width = scaleToMax(

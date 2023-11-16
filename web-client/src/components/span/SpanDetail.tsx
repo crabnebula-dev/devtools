@@ -1,4 +1,4 @@
-import { For, createEffect, createResource, Show } from "solid-js";
+import { For, createResource, Show } from "solid-js";
 import { useMonitor } from "~/lib/connection/monitor";
 import { formatSpansForUi } from "~/lib/span/formatSpansForUi";
 import { getIpcRequestValues } from "~/lib/span/getIpcRequestValue";
