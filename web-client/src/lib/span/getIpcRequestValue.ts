@@ -1,6 +1,7 @@
 import { Span } from "../connection/monitor";
 import { Field, Metadata } from "../proto/common";
-import { recursivelyFindSpanByName as recursivelyFindSpansByName } from "./recursivelyFindSpanByName";
+import { findSpansByName } from "./findSpansByName";
+import { SpanWithChildren } from "./types";
 
 type SpanName =
   /* tracks the whole duration of a req. fields: id = invoke ID and kind = "postmessage" */
@@ -18,12 +19,12 @@ type SpanName =
 
 type Options = {
   metadata: Map<bigint, Metadata>;
-  rootSpan: Span;
+  rootSpan: SpanWithChildren;
 };
 
 export function getIpcRequestValues({ metadata, rootSpan }: Options) {
   return function (name: SpanName) {
-    const spans = recursivelyFindSpansByName(
+    const spans = findSpansByName(
       { span: rootSpan, metadata },
       name
     );

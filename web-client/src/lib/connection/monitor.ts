@@ -10,9 +10,9 @@ import { Versions } from "../proto/tauri";
 
 export type Span = {
   id: bigint;
+  parentId?: bigint;
   metadataId: bigint;
   fields: Field[];
-  children: Span[];
   createdAt: number;
   enters: number[];
   exits: number[];

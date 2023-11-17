@@ -37,17 +37,16 @@ export default function SpanWaterfall() {
   });
 
   createEffect(() => {
-    const filteredSpans = () => [
-      ...monitorData.spans.filter((s) => {
-        const metadata = monitorData.metadata.get(s.metadataId);
-        return metadata && metadata.name.includes("ipc") && s.closedAt;
-      }),
-    ];
+    const filteredSpans = () => [...monitorData.spans.values()].filter((s) => {
+      const metadata = monitorData.metadata.get(s.metadataId);
+      return metadata && metadata.name === "wry::ipc::handle" && s.closedAt;
+    });
 
     const hasPendingWork = () => filteredSpans().find((s) => s.closedAt < 0);
     const spans = () =>
       [
         ...formatSpansForUi({
+          allSpans: monitorData.spans,
           spans: filteredSpans(),
           metadata: monitorData.metadata,
           granularity: granularity(),
@@ -184,7 +183,7 @@ export default function SpanWaterfall() {
                                 <div
                                   class="absolute top-0 left-0 bg-black bg-opacity-10 h-full"
                                   style={slice}
-                                ></div>
+                                 />
                               )}
                             </For>
                           </div>
