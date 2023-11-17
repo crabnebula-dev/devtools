@@ -1,11 +1,11 @@
 import { Span } from "../connection/monitor";
 import { Metadata } from "../proto/common";
 import { calculateSpanColorFromRelativeDuration } from "./calculateSpanColorFromRelativeDuration";
-import { flattenChildren } from "./flattenChildren";
 import { getIpcRequestName } from "./getIpcRequestName";
 import { normalizeSpans } from "./normalizeSpans";
 
 type Options = {
+  allSpans: Span[];
   spans: Span[];
   metadata: Map<bigint, Metadata>;
   granularity?: number;
@@ -25,11 +25,12 @@ type UiSpan = {
 };
 
 export function formatSpansForUi({
+  allSpans,
   spans,
   metadata,
   granularity,
 }: Options): UiSpan[] {
-  const result = normalizeSpans(spans, granularity).map((span) => {
+  const result = normalizeSpans(allSpans, spans, granularity).map((span) => {
     const isProcessing = span.closedAt < 0;
     return {
       id: String(span.id),
@@ -48,7 +49,8 @@ export function formatSpansForUi({
         span.relativeDuration
       ),
       children: formatSpansForUi({
-        spans: flattenChildren(span.children),
+        allSpans,
+        spans: span.children,
         metadata,
       }),
     };

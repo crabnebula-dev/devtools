@@ -1,18 +1,18 @@
-import { Span } from "../connection/monitor";
 import { Metadata } from "../proto/common";
 import { processFieldValue } from "./processFieldValue";
-import { recursivelyFindSpanByName } from "./recursivelyFindSpanByName";
+import { findSpansByName } from "./findSpansByName";
+import { SpanWithChildren } from "./types";
 
 type Options = {
   metadata: Map<bigint, Metadata>;
-  span: Span;
+  span: SpanWithChildren;
 };
 
 export function getIpcRequestName({ metadata, span }: Options) {
   const meta = metadata.get(span.metadataId);
   if (meta?.name === "wry::ipc::handle") {
     const commandHandlerSpan =
-      recursivelyFindSpanByName(
+      findSpansByName(
         { span, metadata },
         "ipc::request::handle"
       )?.[0] ?? null;
