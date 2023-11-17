@@ -1,4 +1,3 @@
-import { Span } from "../connection/monitor";
 import { Field, Metadata } from "../proto/common";
 import { findSpansByName } from "./findSpansByName";
 import { SpanWithChildren } from "./types";
@@ -24,10 +23,7 @@ type Options = {
 
 export function getIpcRequestValues({ metadata, rootSpan }: Options) {
   return function (name: SpanName) {
-    const spans = findSpansByName(
-      { span: rootSpan, metadata },
-      name
-    );
+    const spans = findSpansByName({ span: rootSpan, metadata }, name);
 
     if (!spans) {
       return null;

@@ -6,6 +6,8 @@ import { metadata } from "./fixtures/metadata";
 describe("formatSpansForUi", () => {
   it("should format spans for UI", () => {
     // @ts-expect-error this is a test...
-    expect(formatSpansForUi({ allSpans: spans, spans, metadata })).toMatchSnapshot();
+    expect(
+      formatSpansForUi({ allSpans: spans, spans, metadata })
+    ).toMatchSnapshot();
   });
 });

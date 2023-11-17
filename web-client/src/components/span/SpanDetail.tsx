@@ -7,6 +7,14 @@ import { useSearchParams } from "@solidjs/router";
 import { processFieldValue } from "~/lib/span/processFieldValue";
 import { getChildrenList } from "~/lib/span/getChildrenList";
 
+const ipcSpans = [
+  "ipc::request",
+  "ipc::request::deserialize_arg",
+  "ipc::request::run",
+  "ipc::request::respond",
+  "wry::eval",
+];
+
 export function SpanDetail() {
   const [searchParams] = useSearchParams();
   const { monitorData } = useMonitor();
@@ -14,7 +22,14 @@ export function SpanDetail() {
   const span = () => {
     const s = monitorData.spans.find((s) => s.id === spanId());
     if (s) {
-      return { ...s, children: getChildrenList(monitorData.spans, s) };
+      return {
+        ...s,
+        children: getChildrenList(monitorData.spans, s, (span) =>
+          ipcSpans.includes(
+            monitorData.metadata.get(span.metadataId)?.name ?? ""
+          )
+        ),
+      };
     }
     return null;
   };

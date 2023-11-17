@@ -1,5 +1,6 @@
 import { Span } from "../connection/monitor";
 import { getChildrenList } from "./getChildrenList";
+import { SpanWithChildren } from "./types";
 
 function scaleNumbers(numbers: number[], min: number, max: number): number[] {
   const range = max - min;
@@ -12,13 +13,17 @@ function scaleToMax(numbers: number[], max: number): number[] {
   return numbers.map((num) => (num / max) * 100);
 }
 
-export function normalizeSpans(allSpans: Span[], spans: Span[], granularity = 1) {
+export function normalizeSpans(
+  allSpans: Span[],
+  spans: (Span | SpanWithChildren)[],
+  granularity = 1
+) {
   const start = Math.min(...spans.map((span) => span.createdAt));
   const end = spans.find((s) => s.closedAt < 0)
     ? Date.now() * 1e6
     : Math.max(
-      ...spans.filter((s) => s.closedAt > 0).map((span) => span.closedAt)
-    );
+        ...spans.filter((s) => s.closedAt > 0).map((span) => span.closedAt)
+      );
   const totalDuration = end - start;
   const completedSpans = spans.filter((s) => s.closedAt > 0);
   const averageSpanDuration =
@@ -59,6 +64,10 @@ export function normalizeSpans(allSpans: Span[], spans: Span[], granularity = 1)
     };
   });
 
-  const newSpans = spans.map((s, i) => ({ ...s, ...result[i], children: getChildrenList(allSpans, s) }));
+  const newSpans = spans.map((s, i) => ({
+    ...s,
+    ...result[i],
+    children: "children" in s ? s.children : getChildrenList(allSpans, s),
+  }));
   return newSpans;
 }
