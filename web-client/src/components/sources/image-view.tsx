@@ -1,12 +1,11 @@
 import { createResource, Show } from "solid-js";
-import { useRouteData } from "@solidjs/router";
-import { Connection } from "~/lib/connection/transport.ts";
+import { useConnection } from "~/context/connection-provider";
 import { decodeFileName, getEntryBytes } from "~/lib/sources/file-entries.ts";
 
 export function ImageView(props: { path: string; size: number; type: string }) {
-  const { client } = useRouteData<Connection>();
+  const { connectionStore } = useConnection();
   const [bytes] = createResource(
-    () => [client.sources, props.path, props.size] as const,
+    () => [connectionStore.client.sources, props.path, props.size] as const,
     ([client, path, size]) => getEntryBytes(client, decodeFileName(path), size)
   );
 

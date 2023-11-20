@@ -2,9 +2,9 @@ import { For, Show, createSignal } from "solid-js";
 import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { formatTimestamp, timestampToDate } from "~/lib/formatters";
-import { useMonitor } from "~/lib/connection/monitor";
 import { Toolbar } from "~/components/toolbar";
 import { Metadata_Level, MetaId } from "~/lib/proto/common";
+import { useMonitor } from "~/context/monitor-provider";
 
 const levelStyles = (level: Metadata_Level | undefined) => {
   switch (level) {

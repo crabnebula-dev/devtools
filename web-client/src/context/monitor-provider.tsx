@@ -1,0 +1,56 @@
+import {
+  type JSXElement,
+  createEffect,
+  Show,
+  createContext,
+  useContext,
+} from "solid-js";
+import { SetStoreFunction, createStore } from "solid-js/store";
+import { getTauriConfig, getTauriMetrics } from "~/lib/connection/getters";
+import { MonitorData, initialMonitorData } from "~/lib/connection/monitor";
+import { addStreamListneners } from "~/lib/connection/transport";
+import { useConnection } from "~/context/connection-provider";
+
+type ProviderProps = {
+  children: JSXElement;
+};
+
+const MonitorContext = createContext<{
+  monitorData: MonitorData;
+  setMonitorData: SetStoreFunction<MonitorData>;
+}>();
+
+export function useMonitor() {
+  const ctx = useContext(MonitorContext);
+
+  if (!ctx) throw new Error("can not find context");
+  return ctx;
+}
+
+export function MonitorProvider(props: ProviderProps) {
+  const { connectionStore } = useConnection();
+  const [monitorData, setMonitorData] = createStore(initialMonitorData);
+  const [tauriMetrics] = getTauriMetrics(connectionStore.client.tauri);
+  const [tauriConfig] = getTauriConfig(connectionStore.client.tauri);
+
+  createEffect(() => {
+    setMonitorData("tauriConfig", tauriConfig());
+  });
+
+  createEffect(() => {
+    if (tauriMetrics()) {
+      //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      setMonitorData("perf", tauriMetrics()!);
+    }
+  });
+
+  addStreamListneners(connectionStore.stream.update, setMonitorData);
+
+  return (
+    <Show when={tauriMetrics()}>
+      <MonitorContext.Provider value={{ monitorData, setMonitorData }}>
+        {props.children}
+      </MonitorContext.Provider>
+    </Show>
+  );
+}

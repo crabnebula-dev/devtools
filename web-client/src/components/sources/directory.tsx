@@ -5,10 +5,10 @@ import {
   mergeProps,
   Show,
   Suspense,
+  untrack,
 } from "solid-js";
 import { Entry } from "~/lib/proto/sources.ts";
-import { A, useRouteData } from "@solidjs/router";
-import { Connection } from "~/lib/connection/transport.ts";
+import { A } from "@solidjs/router";
 import { Collapsible } from "@kobalte/core";
 import CaretDown from "~/components/icons/caret-down.tsx";
 import CaretRight from "~/components/icons/caret-right.tsx";
@@ -21,6 +21,7 @@ import {
   encodeFileName,
 } from "~/lib/sources/file-entries";
 import { Loader } from "~/components/loader";
+import { useConnection } from "~/context/connection-provider";
 
 type DirectoryProps = {
   parent?: Entry["path"];
@@ -40,11 +41,11 @@ type TreeEntryProps = {
 const liStyles = "hover:bg-gray-800 hover:text-white focus:bg-gray-800";
 
 export function Directory(props: DirectoryProps) {
-  const { client } = useRouteData<Connection>();
-  const path = props.parent
-    ? `${props.parent}/${props.defaultPath}`
-    : props.defaultPath;
-  const [entries] = awaitEntries(client.sources, path);
+  const { connectionStore } = useConnection();
+  const path = untrack(() =>
+    props.parent ? `${props.parent}/${props.defaultPath}` : props.defaultPath
+  );
+  const [entries] = awaitEntries(connectionStore.client.sources, path);
   const sortedEntries = () => entries()?.sort(sortByPath);
 
   return (

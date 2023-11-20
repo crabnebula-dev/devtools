@@ -1,4 +1,3 @@
-import { useMonitor } from "~/lib/connection/monitor";
 import { Toolbar } from "~/components/toolbar";
 import { createEffect, createSignal } from "solid-js";
 import { formatSpansForUi } from "~/lib/span/format-spans-for-ui";
@@ -7,6 +6,7 @@ import { SplitPane } from "~/components/split-pane";
 import { SpanDetailPanel } from "~/components/span/span-detail-panel";
 import { ColumnSort, SpanList } from "~/components/span/span-list";
 import { SpanScaleSlider } from "~/components/span/span-scale-slider";
+import { useMonitor } from "~/context/monitor-provider";
 
 export default function SpanWaterfall() {
   const { monitorData } = useMonitor();
