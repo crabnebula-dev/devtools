@@ -1,15 +1,18 @@
 use crate::aggregator::Aggregator;
-use crate::server::{Server, DEFAULT_ADDRESS};
+use crate::server::Server;
 use crate::Command;
+use std::net::SocketAddr;
 use std::sync::Arc;
 use std::thread;
-use std::time::Instant;
 use std::time::SystemTime;
+use std::time::{Duration, Instant};
 use tauri::{RunEvent, Runtime};
 use tauri_devtools_wire_format::tauri::Metrics;
 use tokio::sync::{mpsc, RwLock};
 
 pub(crate) fn init<R: Runtime>(
+    addr: SocketAddr,
+    publish_interval: Duration,
     aggregator: Aggregator,
     cmd_tx: mpsc::Sender<Command>,
 ) -> tauri::plugin::TauriPlugin<R> {
@@ -40,8 +43,8 @@ pub(crate) fn init<R: Runtime>(
                     .unwrap();
 
                 rt.block_on(async move {
-                    let aggregator = tokio::spawn(aggregator.run());
-                    server.run(DEFAULT_ADDRESS).await.unwrap();
+                    let aggregator = tokio::spawn(aggregator.run(publish_interval));
+                    server.run(addr).await.unwrap();
                     aggregator.abort();
                 });
             });
