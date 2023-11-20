@@ -104,6 +104,10 @@ export default function Layout() {
       setMonitorData("metadata", (prev) => updateSpanMetadata(prev, update));
     }
 
+    console.log(
+      `dropped: log ${update.logsUpdate?.droppedEvents} span ${update.spansUpdate?.droppedEvents}`
+    );
+
     const logsUpdate = update.logsUpdate;
     if (logsUpdate && logsUpdate.logEvents.length > 0) {
       setMonitorData("logs", (prev) => [...prev, ...logsUpdate.logEvents]);

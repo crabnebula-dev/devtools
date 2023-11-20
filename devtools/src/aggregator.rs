@@ -83,6 +83,10 @@ impl Aggregator {
         loop {
             let should_publish = tokio::select! {
                 _ = interval.tick() => true,
+                _ = self.shared.flush.notified() => {
+                    tracing::debug!("event buffer approaching capacity, flushing...");
+                    false
+                },
                 cmd = self.cmds.recv() => {
                     if let Some(Command::Instrument(watcher)) = cmd {
                         self.attach_watcher(watcher).await;

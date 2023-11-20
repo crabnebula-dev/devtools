@@ -43,7 +43,7 @@ use std::sync::Arc;
 use std::time::Instant;
 use tauri::Runtime;
 use tauri_devtools_wire_format::{instrument, Field};
-use tokio::sync::mpsc;
+use tokio::sync::{mpsc, Notify};
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::Layer as _;
@@ -54,6 +54,8 @@ pub(crate) type Result<T> = std::result::Result<T, Error>;
 /// The server host is added automatically eg: `127.0.0.1:56609`.
 const DEVTOOL_URL: &str = "http://localhost:5173/dash/";
 // const DEVTOOL_URL: &str = "https://crabnebula.dev/debug/#";
+
+const EVENT_BUFFER_CAPACITY: usize = 512;
 
 /// Initializes the global tracing subscriber.
 ///
@@ -112,7 +114,7 @@ pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
 pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
     // set up data channels & shared data
     let shared = Arc::new(Shared::default());
-    let (event_tx, event_rx) = mpsc::channel(512);
+    let (event_tx, event_rx) = mpsc::channel(EVENT_BUFFER_CAPACITY);
     let (cmd_tx, cmd_rx) = mpsc::channel(256);
 
     // set up components
@@ -151,6 +153,7 @@ pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
 pub(crate) struct Shared {
     dropped_log_events: AtomicUsize,
     dropped_span_events: AtomicUsize,
+    flush: Notify,
 }
 
 /// Data sent from the `Layer` to the `Aggregator`
