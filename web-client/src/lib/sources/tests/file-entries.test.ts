@@ -1,10 +1,13 @@
 import { getEntryBytes } from "../file-entries";
 
 const length = 512;
-const buffer = window.crypto.getRandomValues(new Uint8Array(length));
+const getChunk = (len: number) => window.crypto.getRandomValues(new Uint8Array(len));
+const buffer = [getChunk(length / 2), getChunk(length / 2)];
 
 async function* fileResponse() {
-  yield { bytes: buffer };
+  for (const buf of buffer) {
+    yield { bytes: buf };
+  }
 }
 
 class SourcesClient {
