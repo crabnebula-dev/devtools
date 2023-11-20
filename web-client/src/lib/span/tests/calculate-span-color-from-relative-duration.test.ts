@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import { calculateSpanColorFromRelativeDuration } from "../calculate-span-color-from-relative-duration";
 
 describe("calculateSpanColorFromRelativeDuration", () => {

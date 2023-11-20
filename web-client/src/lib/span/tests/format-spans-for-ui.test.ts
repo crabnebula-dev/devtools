@@ -1,4 +1,3 @@
-import { describe, expect } from "vitest";
 import { formatSpansForUi } from "../format-spans-for-ui";
 import { spans } from "./fixtures/spans";
 import { metadata } from "./fixtures/metadata";
