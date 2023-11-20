@@ -1,15 +1,15 @@
 import { useMonitor } from "~/lib/connection/monitor";
 import { Toolbar } from "~/components/toolbar";
 import { For, Show, createEffect, createSignal } from "solid-js";
-import { formatSpansForUi } from "~/lib/span/formatSpansForUi";
+import { formatSpansForUi } from "~/lib/span/format-spans-for-ui";
 import { createStore } from "solid-js/store";
-import { getColumnDirection } from "~/lib/span/getColumnDirection";
-import { SortCaret } from "~/components/span/SortCaret";
-import { resolveColumnAlias } from "~/lib/span/resolveColumnAlias";
+import { getColumnDirection } from "~/lib/span/get-column-direction";
+import { SortCaret } from "~/components/span/sort-caret";
+import { resolveColumnAlias } from "~/lib/span/resolve-column-alias";
 import { getTime } from "~/lib/formatters";
 import { SplitPane } from "~/components/split-pane";
 import { useSearchParams } from "@solidjs/router";
-import { SpanDetailPanel } from "~/components/span/SpanDetailPanel";
+import { SpanDetailPanel } from "~/components/span/span-detail-panel";
 import clsx from "clsx";
 import { Tooltip } from "@kobalte/core";
 

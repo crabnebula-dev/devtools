@@ -1,6 +1,6 @@
 import { Metadata } from "../proto/common";
-import { processFieldValue } from "./processFieldValue";
-import { findSpansByName } from "./findSpansByName";
+import { processFieldValue } from "./process-field-value";
+import { findSpansByName } from "./find-spans-by-name";
 import { SpanWithChildren } from "./types";
 
 type Options = {

@@ -1,11 +1,11 @@
 import { For, createResource, Show } from "solid-js";
 import { useMonitor } from "~/lib/connection/monitor";
-import { formatSpansForUi } from "~/lib/span/formatSpansForUi";
-import { getIpcRequestValues } from "~/lib/span/getIpcRequestValue";
+import { formatSpansForUi } from "~/lib/span/format-spans-for-ui";
+import { getIpcRequestValues } from "~/lib/span/get-ipc-request-value";
 import { createHighlighter, getHighlightedCode } from "~/lib/code-highlight";
 import { useSearchParams } from "@solidjs/router";
-import { processFieldValue } from "~/lib/span/processFieldValue";
-import { getChildrenList } from "~/lib/span/getChildrenList";
+import { processFieldValue } from "~/lib/span/process-field-value";
+import { getChildrenList } from "~/lib/span/get-children-list";
 
 const ipcSpans = [
   "ipc::request",

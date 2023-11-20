@@ -1,5 +1,5 @@
 import { describe, expect } from "vitest";
-import { findSpansByName } from "../findSpansByName";
+import { findSpansByName } from "../find-spans-by-name";
 import { metadata } from "./fixtures/metadata";
 import { spans } from "./fixtures/spans";
 
