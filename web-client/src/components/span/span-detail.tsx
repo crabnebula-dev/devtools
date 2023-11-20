@@ -41,7 +41,8 @@ export function SpanDetail() {
       metadata: monitorData.metadata,
     })[0];
   // filter child only used for metadata (response in this case)
-  const children = () => formattedSpan().children.filter((s) => s.name !== "ipc::request::response");
+  const children = () =>
+    formattedSpan().children.filter((s) => s.name !== "ipc::request::response");
 
   const responseCode = () => {
     const field = getIpcRequestValues({
