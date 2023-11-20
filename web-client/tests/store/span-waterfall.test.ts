@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import { Span } from "~/lib/connection/monitor";
 import { updatedSpans } from "~/lib/span/update-spans";
 

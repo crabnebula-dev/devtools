@@ -1,4 +1,3 @@
-import { describe } from "vitest";
 import {
   convertTimestampToNanoseconds,
   formatMs,
