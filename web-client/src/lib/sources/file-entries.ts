@@ -1,6 +1,8 @@
 import { SourcesClient } from "~/lib/proto/sources.client.ts";
 import { createResource } from "solid-js";
 import { Entry } from "~/lib/proto/sources.ts";
+import { RpcOutputStream } from "@protobuf-ts/runtime-rpc";
+import { Chunk } from "~/lib/proto/sources.ts";
 
 export function encodeFileName(path: string) {
   return path.replaceAll(".", "-");
@@ -30,20 +32,61 @@ export function awaitEntries(client: SourcesClient, path: string) {
 export async function getEntryBytes(
   client: SourcesClient,
   path: string,
-  size: number
+  size: number | undefined
 ) {
   const call = client.getEntryBytes({ path });
 
-  // we pre-allocate a uint8array with the correct size to avoid reallocation
-  const out = new Uint8Array(size);
+  if (size)
+    return await getEntryBytesBySize(call.responses, size, client, path);
 
+  return await getEntryBytesWithoutSize(call.responses);
+}
+
+async function getEntryBytesWithoutSize(callResponses: RpcOutputStream<Chunk>) {
+  return new Uint8Array(
+    await fillArrayByCallResponses(new entryBytesArray(), callResponses)
+  );
+}
+
+async function getEntryBytesBySize(
+  callResponses: RpcOutputStream<Chunk>,
+  size: number,
+  client: SourcesClient,
+  path: string
+): Promise<Uint8Array | undefined> {
+  try {
+    return await fillArrayByCallResponses(new Uint8Array(size), callResponses);
+  } catch (e) {
+    if (!(e instanceof RangeError)) return undefined;
+    return await getEntryBytes(client, path, undefined);
+  }
+}
+
+async function fillArrayByCallResponses(
+  array: Uint8Array,
+  callResponses: RpcOutputStream<Chunk>
+): Promise<Uint8Array>;
+async function fillArrayByCallResponses(
+  array: entryBytesArray,
+  callResponses: RpcOutputStream<Chunk>
+): Promise<entryBytesArray>;
+async function fillArrayByCallResponses(
+  array: Uint8Array | entryBytesArray,
+  callResponses: RpcOutputStream<Chunk>
+) {
   let offset = 0;
-  for await (const chunk of call.responses) {
-    out.set(chunk.bytes, offset);
+  for await (const chunk of callResponses) {
+    array.set(chunk.bytes, offset);
     offset += chunk.bytes.length;
   }
+  return array;
+}
 
-  return out;
+class entryBytesArray extends Array {
+  set(array: Uint8Array, offset: number) {
+    for (let i = offset; i < array.length + offset; i++)
+      this[i] = array[i - offset];
+  }
 }
 
 export const FileType = {
