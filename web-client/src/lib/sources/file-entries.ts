@@ -38,7 +38,7 @@ export async function getEntryBytes(
 
   if (size) {
     try {
-      return await fillArrayByCallResponses(
+      return await fillWithChunkStream(
         new Uint8Array(size),
         call.responses
       );
@@ -48,18 +48,18 @@ export async function getEntryBytes(
     }
   }
 
-  return new Uint8Array(await fillArrayByCallResponses([], call.responses));
+  return new Uint8Array(await fillWithChunkStream([], call.responses));
 }
 
-async function fillArrayByCallResponses(
+async function fillWithChunkStream(
   array: Uint8Array,
   callResponses: RpcOutputStream<Chunk>
 ): Promise<Uint8Array>;
-async function fillArrayByCallResponses(
+async function fillWithChunkStream(
   array: number[],
   callResponses: RpcOutputStream<Chunk>
 ): Promise<number[]>;
-async function fillArrayByCallResponses(
+async function fillWithChunkStream(
   array: Uint8Array | number[],
   callResponses: RpcOutputStream<Chunk>
 ) {
