@@ -215,10 +215,17 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         req: Request<EntryRequest>,
     ) -> Result<Response<Self::ListEntriesStream>, Status> {
         tracing::debug!("list entries");
-        let mut cwd = std::env::current_dir()?;
-        cwd.push(req.into_inner().path);
+        let mut path = std::env::current_dir()?;
+        path.push(req.into_inner().path);
+        let path = path.canonicalize()?;
 
-        let stream = self.list_entries_inner(cwd).or_else(|err| async move {
+        if !path.starts_with(std::env::current_dir()?) {
+            return Err(Status::not_found(
+                "directory with the specified path not found",
+            ));
+        }
+
+        let stream = self.list_entries_inner(path).or_else(|err| async move {
             tracing::error!("List Entries failed with error {err:?}");
 
             // TODO set the health service status to NotServing here
@@ -237,6 +244,11 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
     ) -> Result<Response<Self::GetEntryBytesStream>, Status> {
         let mut path = std::env::current_dir()?;
         path.push(req.into_inner().path);
+        let path = path.canonicalize()?;
+
+        if !path.starts_with(std::env::current_dir()?) {
+            return Err(Status::not_found("file with the specified path not found"));
+        }
 
         let stream = try_stream! {
             use tokio::io::AsyncReadExt;
