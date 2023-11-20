@@ -1,5 +1,5 @@
 import { Field, Metadata } from "../proto/common";
-import { findSpansByName } from "./findSpansByName";
+import { findSpansByName } from "./find-spans-by-name";
 import { SpanWithChildren } from "./types";
 
 type SpanName =

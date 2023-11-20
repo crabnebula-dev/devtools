@@ -1,5 +1,5 @@
 import { Span } from "../connection/monitor";
-import { getChildrenList } from "./getChildrenList";
+import { getChildrenList } from "./get-children-list";
 import { SpanWithChildren } from "./types";
 
 function scaleNumbers(numbers: number[], min: number, max: number): number[] {
