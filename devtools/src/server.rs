@@ -2,7 +2,6 @@ use crate::{Command, Watcher};
 use async_stream::try_stream;
 use bytes::BytesMut;
 use futures::{FutureExt, Stream, TryStreamExt};
-use std::env;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -112,7 +111,7 @@ impl<R: Runtime> Server<R> {
             .allow_methods([Method::GET, Method::POST])
             .allow_headers(AllowHeaders::any());
 
-        let cors = if env::var("UNSAFE_BYPASS_CLIENT_AUTH").is_ok() {
+        let cors = if option_env!("UNSAFE_BYPASS_CLIENT_AUTH").is_some() {
             cors.allow_origin(tower_http::cors::Any)
         } else {
             cors.allow_origin(HeaderValue::from_str("https://devtools.crabnebula.dev").unwrap())

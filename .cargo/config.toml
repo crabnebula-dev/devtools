@@ -1,0 +1,2 @@
+[env]
+UNSAFE_BYPASS_CLIENT_AUTH = "true" # disable gRPC client auth and CORS checking for local development
