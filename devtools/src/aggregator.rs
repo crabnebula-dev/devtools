@@ -314,7 +314,7 @@ impl<T, const CAP: usize> EventBuf<T, CAP> {
     // TODO does it really make sense to track the dropped events here?
     pub fn push_overwrite(&mut self, item: T) {
         if self.inner.push_overwrite(item).is_some() {
-            self.sent -= 1;
+            self.sent = self.sent.saturating_sub(1);
         }
     }
 
