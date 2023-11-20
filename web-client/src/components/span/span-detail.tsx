@@ -12,6 +12,7 @@ const ipcSpans = [
   "ipc::request::deserialize_arg",
   "ipc::request::run",
   "ipc::request::respond",
+  "ipc::request::response",
   "wry::eval",
 ];
 
@@ -39,6 +40,8 @@ export function SpanDetail() {
       spans: [span()!],
       metadata: monitorData.metadata,
     })[0];
+  // filter child only used for metadata (response in this case)
+  const children = () => formattedSpan().children.filter((s) => s.name !== "ipc::request::response");
 
   const responseCode = () => {
     const field = getIpcRequestValues({
@@ -76,7 +79,7 @@ export function SpanDetail() {
       </div>
       <table>
         <tbody>
-          <For each={formattedSpan().children ?? []}>
+          <For each={children()}>
             {(span) => {
               return (
                 <tr class="even:bg-[#ffffff09] cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]">
