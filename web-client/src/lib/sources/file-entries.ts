@@ -33,7 +33,7 @@ export async function getEntryBytes(
   client: SourcesClient,
   path: string,
   size: number | undefined
-) {
+): Promise<Uint8Array | undefined> {
   const call = client.getEntryBytes({ path });
 
   if (size) {
