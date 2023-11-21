@@ -38,10 +38,7 @@ export async function getEntryBytes(
 
   if (size) {
     try {
-      return await fillWithChunkStream(
-        new Uint8Array(size),
-        call.responses
-      );
+      return await fillWithChunkStream(new Uint8Array(size), call.responses);
     } catch (e) {
       if (!(e instanceof RangeError)) return undefined;
       return await getEntryBytes(client, path, undefined);
