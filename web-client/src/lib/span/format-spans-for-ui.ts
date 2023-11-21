@@ -1,7 +1,7 @@
 import { Span } from "../connection/monitor";
 import { Metadata } from "../proto/common";
 import { calculateSpanColorFromRelativeDuration } from "./calculate-span-color-from-relative-duration";
-import { getIpcRequestName } from "./getIpcRequestName";
+import { getIpcRequestName } from "./get-ipc-request-name";
 import { normalizeSpans } from "./normalize-spans";
 
 type Options = {
