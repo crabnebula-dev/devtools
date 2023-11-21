@@ -8,15 +8,7 @@ import { processFieldValue } from "~/lib/span/process-field-value";
 import { getChildrenList } from "~/lib/span/get-children-list";
 import { SpanDetailTrace } from "./span-detail-trace";
 import { SpanDetailArgs } from "./span-detail-args";
-
-const ipcSpans = [
-  "ipc::request",
-  "ipc::request::deserialize_arg",
-  "ipc::request::run",
-  "ipc::request::respond",
-  "ipc::request::response",
-  "wry::eval",
-];
+import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
 
 export function SpanDetail() {
   const [searchParams] = useSearchParams();
@@ -28,9 +20,7 @@ export function SpanDetail() {
       return {
         ...s,
         children: getChildrenList(monitorData.spans, s, (span) =>
-          ipcSpans.includes(
-            monitorData.metadata.get(span.metadataId)?.name ?? ""
-          )
+          isIpcSpanName(monitorData.metadata.get(span.metadataId)?.name ?? "")
         ),
       };
     }
