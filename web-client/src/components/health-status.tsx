@@ -1,6 +1,6 @@
 import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
 import { Show, createEffect, createSignal, onMount } from "solid-js";
-import { Dialog } from "./dialog";
+import { ErrorDialog } from "./error-dialog";
 import { addStreamListneners, connect } from "~/lib/connection/transport";
 import { reconcile } from "solid-js/store";
 import { useConnection } from "~/context/connection-provider";
@@ -77,12 +77,12 @@ export function HealthStatus() {
   return (
     <section>
       <Show when={isConnectionDead()}>
-        <Dialog title="Connection lost">
+        <ErrorDialog title="Connection lost">
           <p class="text-xl">Streaming has stopped.</p>
           <p class="text-red-300 text-xl">
             Waiting on new signal from your Tauri app.
           </p>
-        </Dialog>
+        </ErrorDialog>
       </Show>
       <span class={variant(monitorData.health).style} />
       <span>{variant(monitorData.health).tooltip}</span>

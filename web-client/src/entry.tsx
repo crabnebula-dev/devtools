@@ -1,7 +1,7 @@
 import { type RouteDefinition, useNavigate, useRoutes } from "@solidjs/router";
 import { lazy, ErrorBoundary } from "solid-js";
 import { setCDN } from "@crabnebula/file-icons";
-import { ErrorDialog } from "./components/error-dialog.tsx";
+import { ErrorRoot } from "./components/error-root.tsx";
 
 const ROUTES: RouteDefinition[] = [
   {
@@ -46,7 +46,7 @@ export default function Entry() {
   setCDN("/icons");
 
   return (
-    <ErrorBoundary fallback={(e) => <ErrorDialog error={e} />}>
+    <ErrorBoundary fallback={(e) => <ErrorRoot error={e} />}>
       <Routes />
     </ErrorBoundary>
   );
