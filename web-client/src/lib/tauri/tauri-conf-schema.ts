@@ -9,6 +9,8 @@ import { useConfiguration } from "~/components/tauri/configuration-context";
 import { unwrap, reconcile } from "solid-js/store";
 import { useMonitor } from "../connection/monitor";
 import { bytesToText } from "../code-highlight";
+import type { Entry } from "../proto/sources";
+import type { SourcesClient } from "../proto/sources.client";
 
 export type configurationStore = {
   configs?: configurationObject[];
@@ -77,34 +79,56 @@ export function retrieveConfigurations() {
   const { client } = useRouteData<Connection>();
   const [entries] = awaitEntries(client.sources, "");
 
+  const { monitorData } = useMonitor();
+
   return createResource(
     entries,
     async (entries) => {
       const filteredEntries =
         entries?.filter((e) => e.path.endsWith(".conf.json")) || [];
-      return await Promise.all(
-        filteredEntries.map(async (e): Promise<configurationObject> => {
-          const bytes = await getEntryBytes(
-            client.sources,
-            e.path,
-            Number(e.size)
-          );
-
-          const text = bytesToText(bytes);
-          const data = JSON.parse(text);
-          delete data["$schema"];
-          return {
-            path: e.path,
-            data: (data as tauriConfiguration) ?? {},
-            size: Number(e.size),
-            raw: text,
-          };
-        })
+      const configurations = await readListOfConfigurations(
+        filteredEntries,
+        client.sources
       );
+
+      configurations.unshift({
+        path: "tauri.conf.json",
+        size: 0,
+        data: monitorData.tauriConfig ?? {
+          build: {},
+          package: {},
+          tauri: {},
+          plugins: {},
+        },
+        raw: JSON.stringify(monitorData.tauriConfig ?? ""),
+      });
+
+      return configurations;
     },
     {
       storage: createDeepConfigurationStoreSignal,
     }
+  );
+}
+
+async function readListOfConfigurations(
+  entries: Entry[],
+  client: SourcesClient
+) {
+  return await Promise.all(
+    entries.map(async (e): Promise<configurationObject> => {
+      const bytes = await getEntryBytes(client, e.path, Number(e.size));
+
+      const text = bytesToText(bytes);
+      const data = JSON.parse(text);
+      delete data["$schema"];
+      return {
+        path: e.path,
+        data: (data as tauriConfiguration) ?? {},
+        size: Number(e.size),
+        raw: text,
+      };
+    })
   );
 }
 
