@@ -2,9 +2,10 @@ use crate::{Command, Watcher};
 use async_stream::try_stream;
 use bytes::BytesMut;
 use futures::{FutureExt, Stream, TryStreamExt};
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::net::SocketAddr;
 use std::path::{Component, PathBuf};
 use std::sync::Arc;
+use tauri::http::header::HeaderValue;
 use tauri::{AppHandle, Runtime};
 use tauri_devtools_wire_format as wire;
 use tauri_devtools_wire_format::instrument;
@@ -34,8 +35,6 @@ use tower_http::cors::{AllowHeaders, CorsLayer};
 /// When this capacity is exhausted, the client is assumed to be inactive,
 /// and may be disconnected.
 const DEFAULT_CLIENT_BUFFER_CAPACITY: usize = 1024 * 4;
-
-pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 3000);
 
 /// The `gRPC` server that exposes the instrumenting API
 /// This is made up of 3 services:
@@ -108,9 +107,13 @@ impl<R: Runtime> Server<R> {
         let cors = CorsLayer::new()
             // allow `GET` and `POST` when accessing the resource
             .allow_methods([Method::GET, Method::POST])
-            .allow_headers(AllowHeaders::any())
-            // allow requests from any origin
-            .allow_origin(tower_http::cors::Any);
+            .allow_headers(AllowHeaders::any());
+
+        let cors = if option_env!("UNSAFE_BYPASS_CLIENT_AUTH").is_some() {
+            cors.allow_origin(tower_http::cors::Any)
+        } else {
+            cors.allow_origin(HeaderValue::from_str("https://devtools.crabnebula.dev").unwrap())
+        };
 
         tonic::transport::Server::builder()
             .accept_http1(true)
