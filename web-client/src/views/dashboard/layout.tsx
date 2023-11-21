@@ -111,7 +111,7 @@ export default function Layout() {
       );
       console.assert(
         update.spansUpdate.droppedEvents == 0n,
-        "Dropped span events because the internal even buffer was at capacity. This is a bug, please report!"
+        "Dropped span events because the internal event buffer was at capacity. This is a bug, please report!"
       );
     }
 
