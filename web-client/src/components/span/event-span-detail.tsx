@@ -61,16 +61,16 @@ export function EventSpanDetail(props: Props) {
           </For>
         </tbody>
       </table>
-      <Show when={payload().length > 0}>
-        <div class="grid gap-2">
+      <div class="grid gap-2">
+        <Show when={payload().length > 0} fallback={<h4 class="p-4">Event dropped</h4>}>
           <h2 class="text-xl p-4">Payload</h2>
           <table>
             <tbody>
               <SpanDetailArgs args={payload()} />
             </tbody>
           </table>
-        </div>
-      </Show>
+        </Show>
+      </div>
     </div>
   );
 }
