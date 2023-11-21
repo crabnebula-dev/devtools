@@ -2,7 +2,7 @@ use crate::{Command, Watcher};
 use async_stream::try_stream;
 use bytes::BytesMut;
 use futures::{FutureExt, Stream, TryStreamExt};
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{AppHandle, Runtime};
@@ -34,8 +34,6 @@ use tower_http::cors::{AllowHeaders, CorsLayer};
 /// When this capacity is exhausted, the client is assumed to be inactive,
 /// and may be disconnected.
 const DEFAULT_CLIENT_BUFFER_CAPACITY: usize = 1024 * 4;
-
-pub const DEFAULT_ADDRESS: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 3000);
 
 /// The `gRPC` server that exposes the instrumenting API
 /// This is made up of 3 services:
