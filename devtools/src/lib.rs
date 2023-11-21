@@ -40,7 +40,9 @@ use std::sync::atomic::AtomicUsize;
 use std::time::Instant;
 use tauri::Runtime;
 use tauri_devtools_wire_format::{instrument, Field};
-use tokio::sync::mpsc;
+use tokio::sync::{mpsc, Notify};
+
+const EVENT_BUFFER_CAPACITY: usize = 512;
 
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 
@@ -73,6 +75,7 @@ pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
 pub(crate) struct Shared {
     dropped_log_events: AtomicUsize,
     dropped_span_events: AtomicUsize,
+    flush: Notify,
 }
 
 /// Data sent from the `Layer` to the `Aggregator`
