@@ -18,6 +18,7 @@ export default {
         sans: ["Euclid Circular B", "Inter", ...defaultTheme.fontFamily.sans],
       },
       colors: {
+        'nearly-invisible': '#ffffff09',
         navy: {
           50: "#DCE2F4",
           100: "#B9C6E9",

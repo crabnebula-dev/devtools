@@ -11,7 +11,7 @@ type Options = {
   granularity?: number;
 };
 
-type UiSpan = {
+export type UiSpan = {
   id: string;
   isProcessing: boolean;
   name: string;

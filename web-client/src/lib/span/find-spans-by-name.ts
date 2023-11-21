@@ -14,7 +14,7 @@ export function findSpansByName(
   }
 
   return (
-    span.children.filter((c) => metadata.get(c.metadataId)!.name === name) ??
+    span.children.filter((c) => metadata.get(c.metadataId)?.name === name) ??
     null
   );
 }

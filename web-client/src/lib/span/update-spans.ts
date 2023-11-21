@@ -11,7 +11,7 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
           parentId: event.event.newSpan.parent,
           metadataId: event.event.newSpan.metadataId,
           fields: event.event.newSpan.fields,
-          createdAt: convertTimestampToNanoseconds(event.event.newSpan.at!),
+          createdAt: event.event.newSpan.at ? convertTimestampToNanoseconds(event.event.newSpan.at) : -1,
           enters: [],
           exits: [],
           closedAt: -1,
@@ -25,9 +25,9 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
       case "enterSpan": {
         const spanId = event.event.enterSpan.spanId;
         const span = currentSpans.find((s) => s.id === spanId);
-        const enteredAt = convertTimestampToNanoseconds(
-          event.event.enterSpan.at!
-        );
+        const enteredAt = event.event.enterSpan.at ? convertTimestampToNanoseconds(
+          event.event.enterSpan.at
+        ) : -1;
         if (span) {
           span.enters.push(enteredAt);
         }
@@ -37,9 +37,9 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
       case "exitSpan": {
         const spanId = event.event.exitSpan.spanId;
         const span = currentSpans.find((s) => s.id === spanId);
-        const exitedAt = convertTimestampToNanoseconds(
-          event.event.exitSpan.at!
-        );
+        const exitedAt = event.event.exitSpan.at ? convertTimestampToNanoseconds(
+          event.event.exitSpan.at
+        ) : -1;
         if (span) {
           span.exits.push(exitedAt);
         }
@@ -50,9 +50,9 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
         const spanId = event.event.closeSpan.spanId;
         const span = currentSpans.find((s) => s.id === spanId);
         if (span) {
-          span.closedAt = convertTimestampToNanoseconds(
-            event.event.closeSpan.at!
-          );
+          span.closedAt = event.event.closeSpan.at ? convertTimestampToNanoseconds(
+            event.event.closeSpan.at
+          ) : -1;
           span.duration = span.closedAt - span.createdAt;
         }
         break;

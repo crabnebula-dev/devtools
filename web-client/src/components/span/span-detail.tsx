@@ -6,6 +6,8 @@ import { createHighlighter, getHighlightedCode } from "~/lib/code-highlight";
 import { useSearchParams } from "@solidjs/router";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { getChildrenList } from "~/lib/span/get-children-list";
+import { SpanDetailTrace } from "./span-detail-trace";
+import { SpanDetailArgs } from "./span-detail-args";
 
 const ipcSpans = [
   "ipc::request",
@@ -32,12 +34,13 @@ export function SpanDetail() {
         ),
       };
     }
-    return null;
+    throw new Error("No Span");
   };
+
   const formattedSpan = () =>
     formatSpansForUi({
       allSpans: monitorData.spans,
-      spans: [span()!],
+      spans: [span()],
       metadata: monitorData.metadata,
     })[0];
   // filter child only used for metadata (response in this case)
@@ -47,7 +50,7 @@ export function SpanDetail() {
   const responseCode = () => {
     const field = getIpcRequestValues({
       metadata: monitorData.metadata,
-      rootSpan: span()!,
+      rootSpan: span(),
     })("ipc::request::response")?.fields[0]?.response;
     return field ? processFieldValue(field) : null;
   };
@@ -55,8 +58,8 @@ export function SpanDetail() {
   const args = () =>
     getIpcRequestValues({
       metadata: monitorData.metadata,
-      rootSpan: span()!,
-    })("ipc::request")!.fields.map((f) => processFieldValue(f.request));
+      rootSpan: span(),
+    })("ipc::request")?.fields.map((f) => processFieldValue(f.request)) ?? [];
 
   const [responseHtml] = createResource(
     () => [responseCode(), createHighlighter()] as const,
@@ -81,29 +84,7 @@ export function SpanDetail() {
       <table>
         <tbody>
           <For each={children()}>
-            {(span) => {
-              return (
-                <tr class="even:bg-[#ffffff09] cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]">
-                  <td class="py-1 px-4">{span.name}</td>
-                  <td class="py-1 px-4 relative w-[60%]">
-                    <div class="relative w-[90%]">
-                      <div class="bg-gray-800 w-full absolute rounded-sm h-2" />
-                      <div class="relative h-2" style={span.waterfall}>
-                        {/* Slices is "time slices" as in multiple entry points to a given span */}
-                        <For each={span.slices}>
-                          {(slice) => (
-                            <div
-                              class="absolute bg-teal-500 top-0 left-0 h-full"
-                              style={slice}
-                            />
-                          )}
-                        </For>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              );
-            }}
+            {(span) => <SpanDetailTrace span={span} />}
           </For>
         </tbody>
       </table>
@@ -111,35 +92,7 @@ export function SpanDetail() {
         <h2 class="text-xl p-4">Inputs</h2>
         <table>
           <tbody>
-            <For each={args()}>
-              {(arg) => {
-                return (
-                  <For each={Object.entries(JSON.parse(arg))}>
-                    {([k, v]) => (
-                      <Show
-                        when={
-                          ![
-                            "cmd",
-                            "callback",
-                            "error",
-                            "__tauriModule",
-                          ].includes(k)
-                        }
-                      >
-                        <tr class="even:bg-[#ffffff09]">
-                          <td class="py-1 px-4 font-bold">{k}</td>
-                          <td class="py-1 px-4">
-                            {typeof v === "object"
-                              ? JSON.stringify(v)
-                              : String(v)}
-                          </td>
-                        </tr>
-                      </Show>
-                    )}
-                  </For>
-                );
-              }}
-            </For>
+            <SpanDetailArgs args={args()} />
           </tbody>
         </table>
       </div>
