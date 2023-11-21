@@ -107,7 +107,7 @@ export default function Layout() {
     if (update.logsUpdate && update.spansUpdate) {
       console.assert(
         update.logsUpdate.droppedEvents == 0n,
-        "Dropped log events because the internal even buffer was at capacity. This is a bug, please report!"
+        "Dropped log events because the internal event buffer was at capacity. This is a bug, please report!"
       );
       console.assert(
         update.spansUpdate.droppedEvents == 0n,
