@@ -12,9 +12,6 @@ use tauri_devtools_wire_format::spans::SpanEvent;
 use tauri_devtools_wire_format::{instrument, logs, spans, NewMetadata};
 use tokio::sync::mpsc;
 
-/// How often to send updates to all connected clients
-const BROADCAST_INTERVAL: Duration = Duration::from_millis(200); // TODO find good value for this
-
 /// The event aggregator
 ///
 /// This is the heart of the instrumentation, it receives events from the
@@ -77,12 +74,16 @@ impl Aggregator {
         }
     }
 
-    pub async fn run(mut self) {
-        let mut interval = tokio::time::interval(BROADCAST_INTERVAL);
+    pub async fn run(mut self, publish_interval: Duration) {
+        let mut interval = tokio::time::interval(publish_interval);
 
         loop {
             let should_publish = tokio::select! {
                 _ = interval.tick() => true,
+                _ = self.shared.flush.notified() => {
+                    tracing::debug!("event buffer approaching capacity, flushing...");
+                    false
+                },
                 cmd = self.cmds.recv() => {
                     if let Some(Command::Instrument(watcher)) = cmd {
                         self.attach_watcher(watcher).await;
@@ -310,7 +311,7 @@ impl<T, const CAP: usize> EventBuf<T, CAP> {
     // TODO does it really make sense to track the dropped events here?
     pub fn push_overwrite(&mut self, item: T) {
         if self.inner.push_overwrite(item).is_some() {
-            self.sent -= 1;
+            self.sent = self.sent.saturating_sub(1);
         }
     }
 
@@ -364,7 +365,7 @@ mod test {
             .unwrap();
         drop(cmd_tx);
 
-        mf.run().await; // run the aggregators event loop to completion
+        mf.run(Duration::from_millis(10)).await; // run the aggregators event loop to completion
 
         let mut out = Vec::new();
         while let Some(Ok(update)) = client_rx.recv().await {
@@ -387,7 +388,7 @@ mod test {
             .unwrap();
         drop(cmd_tx); // drop the cmd_tx connection here, this will stop the aggregator
 
-        let (maybe_update, _) = futures::join!(client_rx.recv(), mf.run());
+        let (maybe_update, _) = futures::join!(client_rx.recv(), mf.run(Duration::from_millis(10)));
         let update = maybe_update.unwrap().unwrap();
         assert_eq!(update.logs_update.unwrap().log_events.len(), 0);
         assert_eq!(update.spans_update.unwrap().span_events.len(), 0);

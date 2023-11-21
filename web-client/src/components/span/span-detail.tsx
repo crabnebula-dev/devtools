@@ -1,17 +1,16 @@
 import { useMonitor } from "~/lib/connection/monitor";
 import { useSearchParams } from "@solidjs/router";
-import { IpcSpanDetail } from "./IpcSpanDetail";
-import { getSpanKind } from "~/lib/span/getSpanKind";
+import { IpcSpanDetail } from "./ipc-span-detail";
+import { getSpanKind } from "~/lib/span/get-span-kind";
 import { Match, Switch } from "solid-js";
-import { recursivelyFindSpanById } from "~/lib/span/recursivelyFindSpanById";
-import { EventSpanDetail } from "./EventSpanDetail";
+import { EventSpanDetail } from "./event-span-detail";
 
 export function SpanDetail() {
   const [searchParams] = useSearchParams();
   const { monitorData } = useMonitor();
   const spanId = () => BigInt(searchParams.span);
   const spanKind = () => {
-    const span = recursivelyFindSpanById(monitorData.spans, spanId());
+    const span = monitorData.spans.find((s) => s.id === spanId());
     if (span) {
       return getSpanKind({ metadata: monitorData.metadata, span });
     }

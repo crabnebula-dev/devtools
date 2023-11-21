@@ -4403,7 +4403,7 @@ dependencies = [
 [[package]]
 name = "wry"
 version = "0.24.4"
-source = "git+https://github.com/crabnebula-dev/wry?branch=feat/0.24-tracing#52d3afbef4124360ce0b83f9b08384418eb41698"
+source = "git+https://github.com/crabnebula-dev/wry?branch=feat/0.24-tracing#31adbad37e2958a5e92e17aca8cb5c77ffa505b2"
 dependencies = [
  "base64 0.13.1",
  "block",

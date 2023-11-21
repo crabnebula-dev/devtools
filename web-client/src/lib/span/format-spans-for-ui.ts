@@ -1,18 +1,19 @@
+import { Span } from "../connection/monitor";
 import { Metadata } from "../proto/common";
-import { calculateSpanColorFromRelativeDuration } from "./calculateSpanColorFromRelativeDuration";
-import { flattenChildren } from "./flattenChildren";
-import { getEventName } from "./getEventName";
+import { calculateSpanColorFromRelativeDuration } from "./calculate-span-color-from-relative-duration";
+import { getEventName } from "./get-event-name";
 import { getIpcRequestName } from "./getIpcRequestName";
-import { normalizeSpans } from "./normalizeSpans";
-import { FilteredSpan } from "./types";
+import { normalizeSpans } from "./normalize-spans";
+import { FilteredSpanWithChildren } from "./types";
 
 type Options = {
-  spans: FilteredSpan[];
+  allSpans: Span[];
+  spans: Span[];
   metadata: Map<bigint, Metadata>;
   granularity?: number;
 };
 
-type UiSpan = {
+export type UiSpan = {
   id: string;
   isProcessing: boolean;
   name: string;
@@ -25,7 +26,7 @@ type UiSpan = {
   children: UiSpan[];
 };
 
-function getSpanName(span: FilteredSpan, metadata: Map<bigint, Metadata>) {
+function getSpanName(span: FilteredSpanWithChildren, metadata: Map<bigint, Metadata>) {
   if (span.kind === "ipc") {
     return getIpcRequestName({ metadata, span })
   } else if (span.kind === "event") {
@@ -38,11 +39,12 @@ function getSpanName(span: FilteredSpan, metadata: Map<bigint, Metadata>) {
 }
 
 export function formatSpansForUi({
+  allSpans,
   spans,
   metadata,
   granularity,
 }: Options): UiSpan[] {
-  const result = normalizeSpans(spans, granularity).map((span) => {
+  const result = normalizeSpans(allSpans, spans, granularity).map((span) => {
     const isProcessing = span.closedAt < 0;
     return {
       id: String(span.id),
@@ -61,7 +63,8 @@ export function formatSpansForUi({
         span.relativeDuration
       ),
       children: formatSpansForUi({
-        spans: flattenChildren(span.children),
+        allSpans,
+        spans: span.children,
         metadata,
       }),
     };

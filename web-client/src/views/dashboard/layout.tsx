@@ -10,6 +10,8 @@ import {
   getHealthStatus,
   getTauriConfig,
   getTauriMetrics,
+  getVersions,
+  getMetadata,
 } from "~/lib/connection/getters";
 import {
   HealthCheckRequest,
@@ -22,6 +24,7 @@ import { useNavigate } from "@solidjs/router";
 import { DisconnectButton } from "~/components/disconnect-button";
 import { updatedSpans } from "~/lib/span/update-spans";
 import { updateSpanMetadata } from "~/lib/span/update-span-metadata";
+import { returnLatestSchemaForVersion } from "~/lib/tauri/tauri-conf-schema";
 
 export default function Layout() {
   const { abortController, client } = useRouteData<Connection>();
@@ -29,6 +32,8 @@ export default function Layout() {
   const [monitorData, setMonitorData] = createStore(initialMonitorData);
   const [tauriMetrics] = getTauriMetrics(client.tauri);
   const [tauriConfig] = getTauriConfig(client.tauri);
+  const [tauriVersions] = getVersions(client.tauri);
+  const [appMetaData] = getMetadata(client.meta);
 
   const healthStream = client.health.watch(
     HealthCheckRequest.create({ service: "" })
@@ -53,6 +58,19 @@ export default function Layout() {
 
   createEffect(() => {
     setMonitorData("tauriConfig", tauriConfig());
+  });
+
+  createEffect(() => {
+    const versions = tauriVersions();
+    if (versions) {
+      const schema = returnLatestSchemaForVersion(versions.tauri);
+      setMonitorData("schema", schema);
+    }
+    setMonitorData("tauriVersions", versions);
+  });
+
+  createEffect(() => {
+    setMonitorData("appMetaData", appMetaData());
   });
 
   createEffect(() => {
@@ -84,6 +102,17 @@ export default function Layout() {
   updateStream.responses.onMessage((update) => {
     if (update.newMetadata.length > 0) {
       setMonitorData("metadata", (prev) => updateSpanMetadata(prev, update));
+    }
+
+    if (update.logsUpdate && update.spansUpdate) {
+      console.assert(
+        update.logsUpdate.droppedEvents == 0n,
+        "Dropped log events because the internal event buffer was at capacity. This is a bug, please report!"
+      );
+      console.assert(
+        update.spansUpdate.droppedEvents == 0n,
+        "Dropped span events because the internal event buffer was at capacity. This is a bug, please report!"
+      );
     }
 
     const logsUpdate = update.logsUpdate;

@@ -1,21 +1,25 @@
-import { Span } from "../connection/monitor";
 import { Metadata } from "../proto/common";
-import { processFieldValue } from "./processFieldValue";
-import { recursivelyFindSpanByName } from "./recursivelyFindSpanByName";
+import { processFieldValue } from "./process-field-value";
+import { findSpansByName } from "./find-spans-by-name";
+import { SpanWithChildren } from "./types";
 
 type Options = {
   metadata: Map<bigint, Metadata>;
-  span: Span;
+  span: SpanWithChildren;
+};
+
+const ipcSpanNameMap: Record<string, string> = {
+  "ipc::request": "Request",
+  "ipc::request::run": "Command Run",
+  "ipc::request::respond": "Response",
+  "wry::eval": "Eval Response",
 };
 
 export function getIpcRequestName({ metadata, span }: Options) {
   const meta = metadata.get(span.metadataId);
   if (meta?.name === "wry::ipc::handle") {
     const commandHandlerSpan =
-      recursivelyFindSpanByName(
-        { span, metadata },
-        "ipc::request::handle"
-      )?.[0] ?? null;
+      findSpansByName({ span, metadata }, "ipc::request::handle")?.[0] ?? null;
     if (commandHandlerSpan) {
       const val = commandHandlerSpan.fields.find(
         (f) => f.name === "cmd"
@@ -26,8 +30,9 @@ export function getIpcRequestName({ metadata, span }: Options) {
   } else if (meta?.name === "ipc::request::deserialize_arg") {
     const argField = span.fields.find((f) => f.name === "arg");
     if (argField) {
-      return `deserialize arg ${processFieldValue(argField.value)}`;
+      return `Deserialize "${processFieldValue(argField.value)}"`;
     }
   }
-  return meta?.name ?? null;
+  const name = meta?.name;
+  return name ? ipcSpanNameMap[name] ?? name : null;
 }

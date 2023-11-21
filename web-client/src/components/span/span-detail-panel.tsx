@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import { SpanDetail } from "./SpanDetail";
+import { SpanDetail } from "./span-detail";
 import { useSearchParams } from "@solidjs/router";
 
 export function SpanDetailPanel() {

@@ -27,123 +27,47 @@
 //! ```
 
 mod aggregator;
+mod builder;
 mod error;
 mod layer;
 mod server;
 mod tauri_plugin;
 mod visitors;
 
-use crate::aggregator::Aggregator;
-use crate::layer::Layer;
-use colored::Colorize;
+pub use builder::Builder;
 pub use error::Error;
-use server::DEFAULT_ADDRESS;
 use std::sync::atomic::AtomicUsize;
-use std::sync::Arc;
 use std::time::Instant;
 use tauri::Runtime;
 use tauri_devtools_wire_format::{instrument, Field};
-use tokio::sync::mpsc;
-use tracing_subscriber::layer::SubscriberExt;
-use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::Layer as _;
+use tokio::sync::{mpsc, Notify};
+
+const EVENT_BUFFER_CAPACITY: usize = 512;
 
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 
-/// URL of the web-based devtool
-/// The server host is added automatically eg: `127.0.0.1:56609`.
-const DEVTOOL_URL: &str = "http://localhost:5173/dash/";
-// const DEVTOOL_URL: &str = "https://crabnebula.dev/debug/#";
-
 /// Initializes the global tracing subscriber.
 ///
-/// This should be called as early in the execution of the app as possible.
-/// Any events that occur before initialization will be ignored.
-///
-/// This function returns a [`tauri::plugin::TauriPlugin`] that needs to be added to the
-/// Tauri app in order to properly instrument it.
-///
-/// # Example
-///
-/// ```ignore
-/// fn main() {
-///     let devtools = tauri_devtools::init();
-///
-///     tauri::Builder::default()
-///         .plugin(devtools)
-///         .run(tauri::generate_context!())
-///         .expect("error while running tauri application");
-/// }
-/// ```
+/// See [`Builder::init`] for details and documentation.
 ///
 /// # Panics
 ///
 /// This function will panic if it is called more than once, or if another library has already initialized a global tracing subscriber.
 #[must_use = "This function returns a TauriPlugin that needs to be added to the Tauri app in order to properly instrument it."]
 pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
-    try_init().unwrap()
+    Builder::default().init()
 }
 
 /// Initializes the global tracing subscriber.
 ///
-/// This should be called as early in the execution of the app as possible.
-/// Any events that occur before initialization will be ignored.
-///
-/// This function returns a [`tauri::plugin::TauriPlugin`] that needs to be added to the
-/// Tauri app in order to properly instrument it.
-///
-/// # Example
-///
-/// ```ignore
-/// fn main() {
-///     let devtools = tauri_devtools::init();
-///
-///     tauri::Builder::default()
-///         .plugin(devtools)
-///         .run(tauri::generate_context!("../examples/tauri/tauri.conf.json"))
-///         .expect("error while running tauri application");
-/// }
-/// ```
+/// See [`Builder::try_init`] for details and documentation.
 ///
 /// # Errors
 ///
 /// This function will fail if it is called more than once, or if another library has already initialized a global tracing subscriber.
 #[must_use = "This function returns a TauriPlugin that needs to be added to the Tauri app in order to properly instrument it."]
 pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
-    // set up data channels & shared data
-    let shared = Arc::new(Shared::default());
-    let (event_tx, event_rx) = mpsc::channel(512);
-    let (cmd_tx, cmd_rx) = mpsc::channel(256);
-
-    // set up components
-    let layer = Layer::new(shared.clone(), event_tx);
-    let aggregator = Aggregator::new(shared, event_rx, cmd_rx);
-
-    // initialize early so we don't miss any spans
-    tracing_subscriber::registry()
-        .with(layer.with_filter(tracing_subscriber::filter::LevelFilter::TRACE))
-        .try_init()?;
-
-    // This is pretty ugly code I know, but it looks nice in the terminal soo ¯\_(ツ)_/¯
-    let url = format!(
-        "{DEVTOOL_URL}{}/{}",
-        DEFAULT_ADDRESS.ip(),
-        DEFAULT_ADDRESS.port()
-    );
-    println!(
-        r#"
-   {} {}{}
-   {}   Local:   {}
-"#,
-        "Tauri Devtools".bright_purple(),
-        "v".purple(),
-        env!("CARGO_PKG_VERSION").purple(),
-        "→".bright_purple(),
-        url.underline().blue()
-    );
-
-    let plugin = tauri_plugin::init(aggregator, cmd_tx);
-    Ok(plugin)
+    Builder::default().try_init()
 }
 
 /// Shared data between the [`Layer`] and the [`Aggregator`]
@@ -151,6 +75,7 @@ pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
 pub(crate) struct Shared {
     dropped_log_events: AtomicUsize,
     dropped_span_events: AtomicUsize,
+    flush: Notify,
 }
 
 /// Data sent from the `Layer` to the `Aggregator`

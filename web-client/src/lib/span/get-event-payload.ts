@@ -1,6 +1,6 @@
-import { Span } from "../connection/monitor";
 import { Field, Metadata } from "../proto/common";
-import { recursivelyFindSpanByName as recursivelyFindSpansByName } from "./recursivelyFindSpanByName";
+import { findSpansByName } from "./find-spans-by-name";
+import { SpanWithChildren } from "./types";
 
 type SpanName =
   /* window is emitting the event */
@@ -8,12 +8,12 @@ type SpanName =
 
 type Options = {
   metadata: Map<bigint, Metadata>;
-  rootSpan: Span;
+  rootSpan: SpanWithChildren;
 };
 
 export function getEventPayload({ metadata, rootSpan }: Options) {
   return function (name: SpanName) {
-    const spans = recursivelyFindSpansByName(
+    const spans = findSpansByName(
       { span: rootSpan, metadata },
       name
     );

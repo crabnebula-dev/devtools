@@ -1,5 +1,5 @@
 use crate::visitors::{EventVisitor, FieldVisitor};
-use crate::{Event, Shared};
+use crate::{Event, Shared, EVENT_BUFFER_CAPACITY};
 use std::sync::atomic::{AtomicU64, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
@@ -50,6 +50,11 @@ impl Layer {
             Err(TrySendError::Full(())) => {
                 dropped.fetch_add(1, Ordering::Release);
             }
+        }
+
+        let capacity = self.tx.capacity();
+        if capacity <= EVENT_BUFFER_CAPACITY / 2 {
+            self.shared.flush.notify_one();
         }
     }
 }

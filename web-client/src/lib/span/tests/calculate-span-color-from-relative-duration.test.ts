@@ -1,5 +1,4 @@
-import { describe, expect, it } from "vitest";
-import { calculateSpanColorFromRelativeDuration } from "../calculateSpanColorFromRelativeDuration";
+import { calculateSpanColorFromRelativeDuration } from "../calculate-span-color-from-relative-duration";
 
 describe("calculateSpanColorFromRelativeDuration", () => {
   it("should return bg-red-500 when inputValue is greater than 150", () => {

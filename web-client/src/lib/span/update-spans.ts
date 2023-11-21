@@ -1,6 +1,6 @@
 import { type Span } from "~/lib/connection/monitor";
 import { type SpanEvent } from "~/lib/proto/spans";
-import { findSpanById } from "~/lib/span/find-span-by-id";
+import { convertTimestampToNanoseconds } from "../formatters";
 import { convertTimestampToNanoseconds } from "../formatters";
 
 export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
@@ -9,42 +9,28 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
       case "newSpan": {
         const span: Span = {
           id: event.event.newSpan.id,
+          parentId: event.event.newSpan.parent,
           metadataId: event.event.newSpan.metadataId,
           fields: event.event.newSpan.fields,
-          children: [],
-          createdAt: convertTimestampToNanoseconds(event.event.newSpan.at!),
+          createdAt: event.event.newSpan.at
+            ? convertTimestampToNanoseconds(event.event.newSpan.at)
+            : -1,
           enters: [],
           exits: [],
           closedAt: -1,
           duration: -1,
         };
 
-        /**
-         * check if there's a parent event
-         */
-        const parent = event.event.newSpan.parent;
-        if (parent) {
-          const parentSpan = findSpanById(currentSpans, parent);
-          if (parentSpan) {
-            /**
-             * push into parent's tree
-             */
-            parentSpan.children.push(span);
-          }
-        } else {
-          /**
-           * push to root level
-           */
-          currentSpans.push(span);
-        }
+        currentSpans.push(span);
 
         break;
       }
       case "enterSpan": {
-        const span = findSpanById(currentSpans, event.event.enterSpan.spanId);
-        const enteredAt = convertTimestampToNanoseconds(
-          event.event.enterSpan.at!
-        );
+        const spanId = event.event.enterSpan.spanId;
+        const span = currentSpans.find((s) => s.id === spanId);
+        const enteredAt = event.event.enterSpan.at
+          ? convertTimestampToNanoseconds(event.event.enterSpan.at)
+          : -1;
         if (span) {
           span.enters.push(enteredAt);
         }
@@ -52,10 +38,11 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
         break;
       }
       case "exitSpan": {
-        const span = findSpanById(currentSpans, event.event.exitSpan.spanId);
-        const exitedAt = convertTimestampToNanoseconds(
-          event.event.exitSpan.at!
-        );
+        const spanId = event.event.exitSpan.spanId;
+        const span = currentSpans.find((s) => s.id === spanId);
+        const exitedAt = event.event.exitSpan.at
+          ? convertTimestampToNanoseconds(event.event.exitSpan.at)
+          : -1;
         if (span) {
           span.exits.push(exitedAt);
         }
@@ -63,11 +50,12 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
       }
 
       case "closeSpan": {
-        const span = findSpanById(currentSpans, event.event.closeSpan.spanId);
+        const spanId = event.event.closeSpan.spanId;
+        const span = currentSpans.find((s) => s.id === spanId);
         if (span) {
-          span.closedAt = convertTimestampToNanoseconds(
-            event.event.closeSpan.at!
-          );
+          span.closedAt = event.event.closeSpan.at
+            ? convertTimestampToNanoseconds(event.event.closeSpan.at)
+            : -1;
           span.duration = span.closedAt - span.createdAt;
         }
         break;
