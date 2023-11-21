@@ -14,6 +14,7 @@ tauri-devtools = { path = "../../devtools" }
 tracing.workspace = true
 tokio = { workspace = true, features = ["time"] }
 reqwest = "0.11"
+serde = "1"
 
 [build-dependencies]
 tauri-build.workspace = true

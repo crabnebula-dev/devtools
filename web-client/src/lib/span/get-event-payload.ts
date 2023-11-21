@@ -1,5 +1,6 @@
-import { Field, Metadata } from "../proto/common";
+import { Metadata } from "../proto/common";
 import { findSpansByName } from "./find-spans-by-name";
+import { spanFieldsToObject } from "./span-fields-to-object";
 import { SpanWithChildren } from "./types";
 
 type SpanName =
@@ -21,13 +22,7 @@ export function getEventPayload({ metadata, rootSpan }: Options) {
 
     const result = {
       spans,
-      fields: spans.map(
-        (span) =>
-          (span?.fields?.reduce(
-            (acc, field) => ({ ...acc, [field.name]: field.value }),
-            {}
-          ) ?? {}) as Record<string, Field["value"]>
-      ),
+      fields: spans.map(spanFieldsToObject),
       metadata: spans.map((span) =>
         metadata.get(span?.metadataId ?? BigInt(0))
       ),
