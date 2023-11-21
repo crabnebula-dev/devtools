@@ -14,6 +14,10 @@
         const rpcApiUrl = window.location.hash.slice(1);
         const test1 = document.getElementById("test1");
 
+        window.__TAURI__.event.listen("from-window", (event) => {
+          console.log("got from window event", event);
+        });
+
         test1.onclick = function (e) {
           e.preventDefault();
           window

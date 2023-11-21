@@ -44,14 +44,7 @@ async fn test1(
         .unwrap();
 
     window
-        .emit_to(
-            "other-window",
-            "to-window",
-            &EventPayload {
-                key: "url",
-                value: url.to_string(),
-            },
-        )
+        .emit_to("other-window", "to-other-window", ())
         .unwrap();
 
     reqwest::get(url)

@@ -40,7 +40,7 @@ export function EventSpanDetail(props: Props) {
     const eventPayload = getEventPayload({
       metadata: monitorData.metadata,
       rootSpan: span(),
-    })("window::emit")?.fields.map((f) =>
+    })("window::emit::eval")?.fields.map((f) =>
       f.payload ? processFieldValue(f.payload) : ""
     )[0];
     return eventPayload ? [{ payload: eventPayload }] : [];
@@ -61,14 +61,16 @@ export function EventSpanDetail(props: Props) {
           </For>
         </tbody>
       </table>
-      <div class="grid gap-2">
-        <h2 class="text-xl p-4">Payload</h2>
-        <table>
-          <tbody>
-            <SpanDetailArgs args={payload()} />
-          </tbody>
-        </table>
-      </div>
+      <Show when={payload().length > 0}>
+        <div class="grid gap-2">
+          <h2 class="text-xl p-4">Payload</h2>
+          <table>
+            <tbody>
+              <SpanDetailArgs args={payload()} />
+            </tbody>
+          </table>
+        </div>
+      </Show>
     </div>
   );
 }

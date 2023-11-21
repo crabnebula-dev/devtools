@@ -4,8 +4,8 @@ import { spanFieldsToObject } from "./span-fields-to-object";
 import { SpanWithChildren } from "./types";
 
 type SpanName =
-  /* window is emitting the event */
-  "window::emit";
+  /* webview is running eval() on event JS code */
+  "window::emit::eval";
 
 type Options = {
   metadata: Map<bigint, Metadata>;
