@@ -3,7 +3,7 @@ use async_stream::try_stream;
 use bytes::BytesMut;
 use futures::{FutureExt, Stream, TryStreamExt};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use std::path::PathBuf;
+use std::path::{Component, PathBuf};
 use std::sync::Arc;
 use tauri::{AppHandle, Runtime};
 use tauri_devtools_wire_format as wire;
@@ -215,14 +215,15 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         req: Request<EntryRequest>,
     ) -> Result<Response<Self::ListEntriesStream>, Status> {
         tracing::debug!("list entries");
-        let mut path = std::env::current_dir()?;
-        path.push(req.into_inner().path);
-        let path = path.canonicalize()?;
+        let path = PathBuf::from(req.into_inner().path);
 
-        if !path.starts_with(std::env::current_dir()?) {
-            return Err(Status::not_found(
-                "directory with the specified path not found",
-            ));
+        // deny requests that contain special path components, like root dir, parent dir,
+        // or weird windows ones. Only plain old regular, relative paths.
+        if !path
+            .components()
+            .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
+        {
+            return Err(Status::not_found("file with the specified path not found"));
         }
 
         let stream = self.list_entries_inner(path).or_else(|err| async move {
@@ -242,11 +243,15 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         &self,
         req: Request<EntryRequest>,
     ) -> Result<Response<Self::GetEntryBytesStream>, Status> {
-        let mut path = std::env::current_dir()?;
-        path.push(req.into_inner().path);
-        let path = path.canonicalize()?;
+        let path = PathBuf::from(req.into_inner().path);
 
-        if !path.starts_with(std::env::current_dir()?) {
+        // deny requests that contain special path components, like root dir, parent dir,
+        // or weird windows ones. Only plain old regular, relative paths.
+        if !path
+            .components()
+            .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
+        {
+            tracing::debug!("directory traversal or weird path");
             return Err(Status::not_found("file with the specified path not found"));
         }
 
