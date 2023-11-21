@@ -218,18 +218,27 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         req: Request<EntryRequest>,
     ) -> Result<Response<Self::ListEntriesStream>, Status> {
         tracing::debug!("list entries");
-        let mut cwd = std::env::current_dir()?;
-        cwd.push(req.into_inner().path);
+        let path = req.into_inner().path;
 
-        let stream = self.list_entries_inner(cwd).or_else(|err| async move {
-            tracing::error!("List Entries failed with error {err:?}");
-
-            // TODO set the health service status to NotServing here
-
-            Err(Status::internal("boom"))
-        });
-
-        Ok(Response::new(Box::pin(stream)))
+        if self.app_handle.asset_resolver().iter().count() == 0 {
+            let mut cwd = std::env::current_dir()?;
+            cwd.push(path);
+            let stream = self.list_entries_from_dir(cwd).or_else(|err| async move {
+                tracing::error!("List Entries failed with error {err:?}");
+                // TODO set the health service status to NotServing here
+                Err(Status::internal("boom"))
+            });
+            Ok(Response::new(Box::pin(stream)))
+        } else {
+            let stream = self
+                .list_entries_from_assets(path)
+                .or_else(|err| async move {
+                    tracing::error!("List Entries failed with error {err:?}");
+                    // TODO set the health service status to NotServing here
+                    Err(Status::internal("boom"))
+                });
+            Ok(Response::new(Box::pin(stream)))
+        }
     }
 
     type GetEntryBytesStream = BoxStream<Chunk>;
@@ -238,28 +247,89 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         &self,
         req: Request<EntryRequest>,
     ) -> Result<Response<Self::GetEntryBytesStream>, Status> {
-        let mut path = std::env::current_dir()?;
-        path.push(req.into_inner().path);
+        let entry_path = req.into_inner().path;
 
-        let stream = try_stream! {
-            use tokio::io::AsyncReadExt;
-            let mut file = tokio::fs::File::open(path).await?;
-            let mut buf = BytesMut::with_capacity(512);
+        if let Some(asset) = self
+            .app_handle
+            .asset_resolver()
+            .get(format!("/{entry_path}"))
+        {
+            let chunks = asset
+                .bytes
+                .chunks(512)
+                .map(|b| {
+                    Ok(Chunk {
+                        bytes: bytes::Bytes::copy_from_slice(b),
+                    })
+                })
+                .collect::<Vec<_>>();
+            let stream = futures::stream::iter(chunks);
+            Ok(Response::new(Box::pin(stream)))
+        } else {
+            let mut path = std::env::current_dir()?;
+            path.push(entry_path);
 
-            while let Ok(n) = file.read_buf(&mut buf).await {
-                if n == 0 {
-                    break;
+            let stream = try_stream! {
+                use tokio::io::AsyncReadExt;
+                let mut file = tokio::fs::File::open(path).await?;
+                let mut buf = BytesMut::with_capacity(512);
+
+                while let Ok(n) = file.read_buf(&mut buf).await {
+                    if n == 0 {
+                        break;
+                    }
+                    yield Chunk { bytes: buf.split().freeze() };
                 }
-                yield Chunk { bytes: buf.split().freeze() };
-            }
-        };
+            };
 
-        Ok(Response::new(Box::pin(stream)))
+            Ok(Response::new(Box::pin(stream)))
+        }
     }
 }
 
 impl<R: Runtime> SourcesService<R> {
-    fn list_entries_inner(&self, root: PathBuf) -> impl Stream<Item = crate::Result<Entry>> {
+    fn list_entries_from_assets(&self, root: String) -> impl Stream<Item = crate::Result<Entry>> {
+        let resolver = self.app_handle.asset_resolver();
+
+        let mut entries: Vec<Entry> = Vec::new();
+        for (asset_path, _bytes) in self.app_handle.asset_resolver().iter() {
+            // strip `/` prefix
+            let path: String = asset_path.chars().skip(1).collect();
+
+            let mut entry_path = path;
+            let mut entry_type = FileType::FILE;
+
+            if root.is_empty() {
+                if let Some((dir, _path)) = entry_path.split_once('/') {
+                    entry_path = dir.to_string();
+                    entry_type = FileType::DIR;
+                }
+            } else if let Some(p) = entry_path.strip_prefix(&format!("{root}/")) {
+                if let Some((dir, _path)) = p.split_once('/') {
+                    entry_path = dir.to_string();
+                    entry_type = FileType::DIR;
+                } else {
+                    entry_path = p.to_string();
+                }
+            } else {
+                // asset does not belong to root
+                continue;
+            }
+
+            if !entries.iter().any(|e| e.path == entry_path) {
+                entries.push(Entry {
+                    path: entry_path,
+                    // we use resolver.get since it increases the size sometimes (e.g. injecting CSP on HTML files)
+                    size: resolver.get(asset_path.to_string()).unwrap().bytes.len() as u64,
+                    file_type: (FileType::ASSET | entry_type).bits(),
+                });
+            }
+        }
+
+        futures::stream::iter(entries.into_iter().map(Ok))
+    }
+
+    fn list_entries_from_dir(&self, root: PathBuf) -> impl Stream<Item = crate::Result<Entry>> {
         let app_handle = self.app_handle.clone();
 
         try_stream! {
