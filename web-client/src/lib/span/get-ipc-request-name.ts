@@ -38,9 +38,7 @@ export function getIpcRequestName({ metadata, span }: Options) {
         try {
           const arg = args.length > 0 ? JSON.parse(args[0]) : {};
           return `${arg.__tauriModule}.${arg.message.cmd}`;
-        } catch (_) {
-          // ignore
-        }
+        } catch { /* intentionally ignore */ }
       }
 
       return commandName;
