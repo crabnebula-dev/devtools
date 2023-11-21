@@ -1,0 +1,58 @@
+@layer components {
+  /* Range Input */
+  .range-input {
+    @apply w-60 cursor-pointer bg-transparent appearance-none;
+  }
+
+  .range-input-focus {
+    @apply outline-none;
+  }
+
+  .slider-track {
+    @apply bg-gray-800 rounded-lg h-2;
+  }
+
+  .slider-thumb {
+    @apply appearance-none translate-y-[-25%] bg-teal-500 h-4 w-4 rounded-full;
+  }
+
+  .slider-thumb-focus {
+    @apply border border-gray-800 outline outline-1 outline-gray-800;
+  }
+
+  /* Applying styles */
+  input[type="range"] {
+    @apply range-input;
+  }
+
+  input[type="range"]:focus {
+    @apply range-input-focus;
+  }
+
+  /* Chrome, Safari, Opera, and Edge Chromium styles */
+  input[type="range"]::-webkit-slider-runnable-track {
+    @apply slider-track;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    @apply slider-thumb;
+  }
+
+  input[type="range"]:focus::-webkit-slider-thumb {
+    @apply slider-thumb-focus;
+  }
+
+  /* Firefox styles */
+  input[type="range"]::-moz-range-track {
+    @apply slider-track;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    @apply border-none rounded-none bg-[#5cd5eb] h-8 w-4;
+  }
+
+  input[type="range"]:focus::-moz-range-thumb {
+    @apply border border-[#053a5f] outline outline-1 outline-[#053a5f];
+  }
+  /* End Range Input */
+}

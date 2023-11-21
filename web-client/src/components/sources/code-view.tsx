@@ -7,7 +7,7 @@ import {
   createHighlighter,
   getHighlightedCode,
   getText,
-} from "~/lib/sources/code-highlight";
+} from "~/lib/code-highlight";
 
 import { Highlighter } from "shiki";
 

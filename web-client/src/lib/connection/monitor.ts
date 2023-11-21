@@ -10,12 +10,14 @@ import { Versions } from "../proto/tauri";
 
 export type Span = {
   id: bigint;
+  parentId?: bigint;
   metadataId: bigint;
   fields: Field[];
-  children: Span[];
-  createdAt?: Timestamp;
-  enteredAt?: Timestamp;
-  exitedAt?: Timestamp;
+  createdAt: number;
+  enters: number[];
+  exits: number[];
+  closedAt: number;
+  duration: number;
 };
 
 export type MonitorData = {

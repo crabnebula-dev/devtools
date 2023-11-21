@@ -8,7 +8,7 @@ import { awaitEntries, getEntryBytes } from "~/lib/sources/file-entries";
 import { useConfiguration } from "~/components/tauri/configuration-context";
 import { unwrap, reconcile } from "solid-js/store";
 import { useMonitor } from "../connection/monitor";
-import { bytesToText } from "../sources/code-highlight";
+import { bytesToText } from "../code-highlight";
 
 export type configurationStore = {
   configs?: configurationObject[];
