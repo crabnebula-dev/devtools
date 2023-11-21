@@ -29,10 +29,12 @@ export function getIpcRequestName({ metadata, span }: Options) {
       const commandName = val?.oneofKind === "strVal" ? val.strVal : null;
 
       if (commandName === "tauri") {
-        const args = getIpcRequestValues({
-          metadata,
-          rootSpan: span,
-        })("ipc::request")?.fields.map((f) => processFieldValue(f.request)) ?? [];
+        const args =
+          getIpcRequestValues({
+            metadata,
+            rootSpan: span,
+          })("ipc::request")?.fields.map((f) => processFieldValue(f.request)) ??
+          [];
         try {
           const arg = args.length > 0 ? JSON.parse(args[0]) : {};
           return `${arg.__tauriModule}.${arg.message.cmd}`;
