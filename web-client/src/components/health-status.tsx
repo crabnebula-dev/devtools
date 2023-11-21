@@ -1,20 +1,10 @@
-import {
-  HealthCheckRequest,
-  HealthCheckResponse_ServingStatus,
-} from "~/lib/proto/health";
-import { Show, createEffect, createSignal, on, onMount } from "solid-js";
+import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
+import { Show, createEffect, createSignal, onMount } from "solid-js";
 import { Dialog } from "./dialog";
 import { addStreamListneners, connect } from "~/lib/connection/transport";
-import { produce } from "solid-js/store";
+import { reconcile } from "solid-js/store";
 import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
-
-/**
- * Reconnect
- * terminate all connections
- * createResource => setup a new connection, push new data to monitor store. [retry for 5s]
- * return resource.
- */
 
 const variant = (status: HealthCheckResponse_ServingStatus) => {
   return [
@@ -36,37 +26,46 @@ const variant = (status: HealthCheckResponse_ServingStatus) => {
   ][status];
 };
 
+const INITIAL_ERROR_TIMER_SECONDS = 10;
+
 export function HealthStatus() {
+  const updateErrorHandler = () => {
+    console.error("an error happened on Updates Stream");
+    // if (isConnectionDead()) {
+    /**
+     * we do nothing because it's not an instrumentation issue.
+     */
+    return;
+    // }
+  };
+
+  const healthErrorHandler = () => {
+    console.error("an error happened on Health Stream");
+    setMonitorData("health", 0);
+    setConnectionDead(true);
+
+    /** cleanup possible connections */
+    connectionStore.abortController.abort();
+    reconnect();
+    // setTimeout(reconnect, INITIAL_ERROR_TIMER_SECONDS * 1000);
+  };
+
+  function reconnect() {
+    const newConnection = connect(connectionStore.serviceUrl);
+    setConnection(reconcile(newConnection, { merge: false }));
+
+    addStreamListneners(connectionStore.stream.update, setMonitorData);
+    connectionStore.stream.health.responses.onError(healthErrorHandler);
+    connectionStore.stream.update.responses.onError(updateErrorHandler);
+  }
+
   const { connectionStore, setConnection } = useConnection();
   const { monitorData, setMonitorData } = useMonitor();
   const [isConnectionDead, setConnectionDead] = createSignal(false);
 
   onMount(() => {
-    connectionStore.stream.health.responses.onError(() => {
-      console.error("an error happened on Health Stream");
-      setMonitorData("health", 0);
-      setConnectionDead(true);
-
-      /** cleanup connections */
-      connectionStore.abortController.abort();
-
-      setTimeout(() => {
-        const newConnection = connect(connectionStore.serviceUrl);
-        console.log(newConnection);
-        addStreamListneners(newConnection.stream.update, setMonitorData);
-        setConnection(produce(() => newConnection));
-      }, 10000);
-    });
-
-    connectionStore.stream.update.responses.onError(() => {
-      console.error("an error happened on Updates Stream");
-      // if (isConnectionDead()) {
-      /**22
-       * we do nothing because it's not an instrumentation issue.
-       */
-      return;
-      // }
-    });
+    connectionStore.stream.health.responses.onError(healthErrorHandler);
+    connectionStore.stream.update.responses.onError(updateErrorHandler);
   });
 
   createEffect(() => {
@@ -78,7 +77,12 @@ export function HealthStatus() {
   return (
     <section>
       <Show when={isConnectionDead()}>
-        <Dialog title="Connection lost">Tauri app stopped streaming.</Dialog>
+        <Dialog title="Connection lost">
+          <p class="text-xl">Streaming has stopped.</p>
+          <p class="text-red-300 text-xl">
+            Waiting on new signal from your Tauri app.
+          </p>
+        </Dialog>
       </Show>
       <span class={variant(monitorData.health).style} />
       <span>{variant(monitorData.health).tooltip}</span>

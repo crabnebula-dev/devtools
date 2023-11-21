@@ -16,7 +16,7 @@ export function Dialog(p: Props) {
       <AlertDialog.Portal mount={document.getElementById("app")!}>
         <AlertDialog.Overlay class="fixed h-screen w-screen grid place-items-center backdrop-blur-md z-50 top-0 left-0" />
         <div class="fixed inset-0 z-50 flex items-center justify-center text-xl">
-          <AlertDialog.Content class="z-50 max-w-prose md:max-w-96 border border-neutral-800 rounded-lg p-10 bg-navy-700 bg-opacity-80 shadow-lg shadow-navy-600 kb-expanded:animate-content-show kb-disabled:animate-content-hide">
+          <AlertDialog.Content class="z-50 text-4xl max-w-prose md:max-w-96 border border-neutral-800 rounded-lg p-10 bg-navy-700 bg-opacity-80 shadow-lg shadow-navy-600 kb-expanded:animate-content-show kb-disabled:animate-content-hide">
             <div class="flex items-baseline justify-between mb-3">
               <Show when={props.title}>{props.title}</Show>
             </div>
@@ -37,7 +37,7 @@ export function Dialog(p: Props) {
               </AlertDialog.CloseButton>
               <A
                 href="/"
-                class="bg-red-600 border border-red-400 hover:bg-red-700 hover:border-red-900 text-white text-lg py-2 px-4 rounded focus:outline-dashed focus:outline-white focus:outline-offset-2"
+                class="bg-red-400 border border-red-400 hover:bg-red-700 hover:border-red-900 text-white text-lg py-2 px-4 rounded focus:outline-dashed focus:outline-white focus:outline-offset-2"
               >
                 Reset App
               </A>
