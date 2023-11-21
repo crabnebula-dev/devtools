@@ -14,7 +14,7 @@ export function SpanDetail() {
     if (span) {
       return getSpanKind({ metadata: monitorData.metadata, span });
     }
-    return undefined
+    return undefined;
   };
 
   return (

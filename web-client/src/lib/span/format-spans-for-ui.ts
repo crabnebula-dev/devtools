@@ -26,15 +26,18 @@ export type UiSpan = {
   children: UiSpan[];
 };
 
-function getSpanName(span: FilteredSpanWithChildren, metadata: Map<bigint, Metadata>) {
+function getSpanName(
+  span: FilteredSpanWithChildren,
+  metadata: Map<bigint, Metadata>
+) {
   if (span.kind === "ipc") {
-    return getIpcRequestName({ metadata, span })
+    return getIpcRequestName({ metadata, span });
   } else if (span.kind === "event") {
-    return getEventName({ metadata, span })
+    return getEventName({ metadata, span });
   } else if (span.kind === undefined) {
-    return metadata.get(span.metadataId)?.name ?? null
+    return metadata.get(span.metadataId)?.name ?? null;
   } else {
-    return "not implemented"
+    return "not implemented";
   }
 }
 

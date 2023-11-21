@@ -4,7 +4,7 @@ import { SpanWithChildren } from "./types";
 
 type SpanName =
   /* window is emitting the event */
-  | "window::emit";
+  "window::emit";
 
 type Options = {
   metadata: Map<bigint, Metadata>;
@@ -13,10 +13,7 @@ type Options = {
 
 export function getEventPayload({ metadata, rootSpan }: Options) {
   return function (name: SpanName) {
-    const spans = findSpansByName(
-      { span: rootSpan, metadata },
-      name
-    );
+    const spans = findSpansByName({ span: rootSpan, metadata }, name);
 
     if (!spans) {
       return null;

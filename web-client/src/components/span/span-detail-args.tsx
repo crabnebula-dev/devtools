@@ -9,7 +9,11 @@ export function SpanDetailArgs(props: Props) {
     <For each={props.args}>
       {(arg) => {
         return (
-          <For each={Object.entries(typeof arg === "string" ? JSON.parse(arg) : arg)}>
+          <For
+            each={Object.entries(
+              typeof arg === "string" ? JSON.parse(arg) : arg
+            )}
+          >
             {([k, v]) => (
               <Show
                 when={
