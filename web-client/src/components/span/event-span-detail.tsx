@@ -1,7 +1,6 @@
 import { For } from "solid-js";
 import { useMonitor } from "~/lib/connection/monitor";
 import { formatSpansForUi } from "~/lib/span/format-spans-for-ui";
-import { useSearchParams } from "@solidjs/router";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { getEventPayload } from "~/lib/span/get-event-payload";
 import { getChildrenList } from "~/lib/span/get-children-list";
@@ -9,12 +8,14 @@ import { SpanDetailTrace } from "./span-detail-trace";
 import { SpanDetailArgs } from "./span-detail-args";
 import { SpanKind } from "~/lib/span/types";
 
-export function EventSpanDetail() {
-  const [searchParams] = useSearchParams();
+type Props = {
+  spanId: bigint;
+};
+
+export function EventSpanDetail(props: Props) {
   const { monitorData } = useMonitor();
-  const spanId = () => BigInt(searchParams.span);
   const span = () => {
-    const s = monitorData.spans.find((s) => s.id === spanId());
+    const s = monitorData.spans.find((s) => s.id === props.spanId);
     if (s) {
       const span = { ...s, kind: "event" as SpanKind };
       return {

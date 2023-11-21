@@ -3,7 +3,6 @@ import { useMonitor } from "~/lib/connection/monitor";
 import { formatSpansForUi } from "~/lib/span/format-spans-for-ui";
 import { getIpcRequestValues } from "~/lib/span/get-ipc-request-value";
 import { createHighlighter, getHighlightedCode } from "~/lib/code-highlight";
-import { useSearchParams } from "@solidjs/router";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { getChildrenList } from "~/lib/span/get-children-list";
 import { SpanDetailTrace } from "./span-detail-trace";
@@ -11,12 +10,14 @@ import { SpanDetailArgs } from "./span-detail-args";
 import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
 import { SpanKind } from "~/lib/span/types";
 
-export function IpcSpanDetail() {
-  const [searchParams] = useSearchParams();
+type Props = {
+  spanId: bigint;
+};
+
+export function IpcSpanDetail(props: Props) {
   const { monitorData } = useMonitor();
-  const spanId = () => BigInt(searchParams.span);
   const span = () => {
-    const s = monitorData.spans.find((s) => s.id === spanId());
+    const s = monitorData.spans.find((s) => s.id === props.spanId);
     if (s) {
       const span = { ...s, kind: "ipc" as SpanKind };
       return {

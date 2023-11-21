@@ -20,10 +20,10 @@ export function SpanDetail() {
   return (
     <Switch fallback={<p>Unknown span kind: {spanKind()}</p>}>
       <Match when={spanKind() === "ipc"}>
-        <IpcSpanDetail />
+        <IpcSpanDetail spanId={spanId()} />
       </Match>
       <Match when={spanKind() === "event"}>
-        <EventSpanDetail />
+        <EventSpanDetail spanId={spanId()} />
       </Match>
     </Switch>
   );
