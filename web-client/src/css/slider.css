@@ -1,66 +1,58 @@
-/********** Range Input Styles **********/
-/*Range Reset*/
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  background: transparent;
-  cursor: pointer;
-  width: 15rem;
-}
+@layer components {
+  /* Range Input */
+  .range-input {
+    @apply w-60 cursor-pointer bg-transparent appearance-none;
+  }
 
-/* Removes default focus */
-input[type="range"]:focus {
-  outline: none;
-}
+  .range-input-focus {
+    @apply outline-none;
+  }
 
-/***** Chrome, Safari, Opera and Edge Chromium styles *****/
-/* slider track */
-input[type="range"]::-webkit-slider-runnable-track {
-  background-color: theme("colors.gray.800");
-  border-radius: 0.5rem;
-  height: 0.5rem;
-}
+  .slider-track {
+    @apply bg-gray-800 rounded-lg h-2;
+  }
 
-/* slider thumb */
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Override default look */
-  appearance: none;
-  transform: translateY(-25%);
+  .slider-thumb {
+    @apply appearance-none translate-y-[-25%] bg-teal-500 h-4 w-4 rounded-full;
+  }
 
-  /*custom styles*/
-  background-color: theme("colors.teal.500");
-  height: 1rem;
-  width: 1rem;
-  border-radius: 100%;
-}
+  .slider-thumb-focus {
+    @apply border border-gray-800 outline outline-1 outline-gray-800;
+  }
 
-input[type="range"]:focus::-webkit-slider-thumb {
-  border: 1px solid theme("colors.gray.800");
-  outline: 3px solid theme("colors.gray.800");
-  outline-offset: 0.125rem;
-}
+  /* Applying styles */
+  input[type="range"] {
+    @apply range-input;
+  }
 
-/******** Firefox styles ********/
-/* slider track */
-input[type="range"]::-moz-range-track {
-  background-color: theme("colors.gray.800");
-  border-radius: 0.5rem;
-  height: 0.5rem;
-}
+  input[type="range"]:focus {
+    @apply range-input-focus;
+  }
 
-/* slider thumb */
-input[type="range"]::-moz-range-thumb {
-  border: none; /*Removes extra border that FF applies*/
-  border-radius: 0; /*Removes default border-radius that FF applies*/
+  /* Chrome, Safari, Opera, and Edge Chromium styles */
+  input[type="range"]::-webkit-slider-runnable-track {
+    @apply slider-track;
+  }
 
-  /*custom styles*/
-  background-color: #5cd5eb;
-  height: 2rem;
-  width: 1rem;
-}
+  input[type="range"]::-webkit-slider-thumb {
+    @apply slider-thumb;
+  }
 
-input[type="range"]:focus::-moz-range-thumb {
-  border: 1px solid #053a5f;
-  outline: 3px solid #053a5f;
-  outline-offset: 0.125rem;
+  input[type="range"]:focus::-webkit-slider-thumb {
+    @apply slider-thumb-focus;
+  }
+
+  /* Firefox styles */
+  input[type="range"]::-moz-range-track {
+    @apply slider-track;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    @apply border-none rounded-none bg-[#5cd5eb] h-8 w-4;
+  }
+
+  input[type="range"]:focus::-moz-range-thumb {
+    @apply border border-[#053a5f] outline outline-1 outline-[#053a5f];
+  }
+  /* End Range Input */
 }
