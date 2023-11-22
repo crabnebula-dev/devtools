@@ -4,7 +4,11 @@ export function timestampToDate(ts: Timestamp): Date {
   return new Date(Number(ts.seconds * 1000n) + ts.nanos / 1e6);
 }
 
-function formatMs(ms: string) {
+export function convertTimestampToNanoseconds(timestamp: Timestamp): number {
+  return Number(timestamp.seconds) * 1e9 + timestamp.nanos;
+}
+
+export function formatMs(ms: string) {
   switch (ms.length) {
     case 1:
       return "00" + ms;
@@ -14,6 +18,7 @@ function formatMs(ms: string) {
       return ms;
   }
 }
+
 export function formatTimestamp(stamp: Date) {
   return `${stamp.toLocaleTimeString("en", {
     hour: "2-digit",
@@ -21,4 +26,13 @@ export function formatTimestamp(stamp: Date) {
     second: "2-digit",
     hour12: false,
   })}:${formatMs(String(stamp.getMilliseconds()))}`;
+}
+
+export function getTime(date: Date) {
+  return Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    second: "2-digit",
+  }).format(date);
 }

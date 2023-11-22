@@ -80,6 +80,10 @@ impl Aggregator {
         loop {
             let should_publish = tokio::select! {
                 _ = interval.tick() => true,
+                _ = self.shared.flush.notified() => {
+                    tracing::debug!("event buffer approaching capacity, flushing...");
+                    false
+                },
                 cmd = self.cmds.recv() => {
                     if let Some(Command::Instrument(watcher)) = cmd {
                         self.attach_watcher(watcher).await;
@@ -307,7 +311,7 @@ impl<T, const CAP: usize> EventBuf<T, CAP> {
     // TODO does it really make sense to track the dropped events here?
     pub fn push_overwrite(&mut self, item: T) {
         if self.inner.push_overwrite(item).is_some() {
-            self.sent -= 1;
+            self.sent = self.sent.saturating_sub(1);
         }
     }
 

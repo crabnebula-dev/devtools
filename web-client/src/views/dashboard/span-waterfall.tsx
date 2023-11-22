@@ -1,118 +1,97 @@
-import { For, createSignal, Show } from "solid-js";
-import { AutoscrollPane } from "~/components/autoscroll-pane";
-import { FilterToggle } from "~/components/filter-toggle";
 import { useMonitor } from "~/lib/connection/monitor";
-import { Field } from "~/lib/proto/common";
 import { Toolbar } from "~/components/toolbar";
-
-function fieldValue(field: Field): string {
-  switch (field.value.oneofKind) {
-    case "debugVal":
-      return field.value.debugVal;
-    case "strVal":
-      return field.value.strVal;
-    case "u64Val":
-      return field.value.u64Val.toString();
-    case "i64Val":
-      return field.value.i64Val.toString();
-    case "boolVal":
-      return field.value.boolVal.toString();
-    case "doubleVal":
-      return field.value.doubleVal.toString();
-    default:
-      return "";
-  }
-}
-
-const serializer = (_: unknown, v: unknown) =>
-  typeof v === "bigint" ? v.toString() : v;
+import { createEffect, createSignal } from "solid-js";
+import { formatSpansForUi } from "~/lib/span/format-spans-for-ui";
+import { createStore } from "solid-js/store";
+import { SplitPane } from "~/components/split-pane";
+import { SpanDetailPanel } from "~/components/span/span-detail-panel";
+import { ColumnSort, SpanList } from "~/components/span/span-list";
+import { SpanScaleSlider } from "~/components/span/span-scale-slider";
 
 export default function SpanWaterfall() {
   const { monitorData } = useMonitor();
-  const [shouldAutoScroll, toggleAutoScroll] = createSignal<boolean>(true);
+  const [granularity, setGranularity] = createSignal(1);
+  const [spans, setSpans] = createSignal<ReturnType<typeof formatSpansForUi>>(
+    []
+  );
+  const [columnSort, setColumnSort] = createStore<ColumnSort>({
+    name: "initiated",
+    direction: "asc",
+  });
 
-  const filteredSpans = () => {
-    const spans = monitorData.spans.filter((s) => {
-      const metadata = monitorData.metadata.get(s.metadataId);
-      return (
-        metadata && ["tauri", "wry"].some((t) => metadata.target.startsWith(t))
-      );
-    });
+  createEffect(() => {
+    const filteredSpans = () =>
+      [...monitorData.spans.values()].filter((s) => {
+        const metadata = monitorData.metadata.get(s.metadataId);
+        return metadata && metadata.name === "wry::ipc::handle" && s.closedAt;
+      });
 
-    return spans;
-  };
+    const hasPendingWork = () => filteredSpans().find((s) => s.closedAt < 0);
+    const spans = () =>
+      [
+        ...formatSpansForUi({
+          allSpans: monitorData.spans,
+          spans: filteredSpans(),
+          metadata: monitorData.metadata,
+          granularity: granularity(),
+        }),
+      ].sort((a, b) => {
+        const columnName = columnSort.name;
+        const lhs = a[columnName];
+        const rhs = b[columnName];
+
+        if (typeof lhs !== "number" || typeof rhs !== "number") {
+          throw new Error("Cannot sort non-numeric values");
+        }
+
+        if (columnSort.direction === "asc") {
+          return lhs - rhs;
+        }
+        return rhs - lhs;
+      });
+
+    function animate() {
+      if (!hasPendingWork()) {
+        return;
+      }
+      setSpans(spans());
+      requestAnimationFrame(animate);
+    }
+
+    if (hasPendingWork()) {
+      animate();
+    }
+
+    setSpans(spans());
+  });
+
+  const totalDuration = () =>
+    Math.max(...spans().map((s) => s.time)) /
+    Math.min(...spans().map((s) => s.time));
 
   return (
-    <div class="px-5 ">
+    <div class="h-[calc(100%-var(--toolbar-height))]">
       <Toolbar>
-        <FilterToggle
-          aria-label="auto scroll"
-          defaultPressed
-          changeHandler={() => toggleAutoScroll((prev) => !prev)}
-        >
-          Autoscroll
-        </FilterToggle>
+        <SpanScaleSlider
+          granularity={granularity()}
+          setGranularity={setGranularity}
+          totalDuration={totalDuration()}
+        />
       </Toolbar>
-      <AutoscrollPane
-        dataStream={monitorData.spans[0]}
-        shouldAutoScroll={shouldAutoScroll}
+      <SplitPane
+        initialSizes={[70, 30]}
+        defaultMinSizes={[700, 300]}
+        defaultPrefix="span-waterfall"
       >
-        <For each={filteredSpans()}>
-          {(span) => {
-            const metadata = monitorData.metadata.get(span.metadataId);
-
-            return (
-              <li class="py-1 flex w-full">
-                <pre class="border border-neutral-800 p-2 w-full overflow-x-auto">
-                  <p>ID: {span.id.toString()}</p>
-                  <p>
-                    (Target, Name): ({metadata?.target} /// {metadata?.name})
-                  </p>
-                  <p>
-                    Location: {metadata?.location?.file}@
-                    {metadata?.location?.line}:{metadata?.location?.column}
-                  </p>
-                  <p>Created: {JSON.stringify(span.createdAt, serializer)}</p>
-                  <p>Entered: {JSON.stringify(span.enteredAt, serializer)}</p>
-                  <p>Exited: {JSON.stringify(span.exitedAt, serializer)}</p>
-                  <Show when={span.fields.length > 0}>
-                    <div>
-                      <p>Fields</p>
-                      <For each={span.fields}>
-                        {(field) => {
-                          return (
-                            <p>
-                              {field.name} = {fieldValue(field)}
-                            </p>
-                          );
-                        }}
-                      </For>
-                    </div>
-                  </Show>
-                  <Show when={span.children.length > 0}>
-                    <div>
-                      <p>Children</p>
-                      <For each={span.children}>
-                        {(s) => {
-                          return (
-                            <div>
-                              <p>Id: {s.id.toString()}</p>
-                              <p>
-                                Name:{" "}
-                                {monitorData.metadata.get(s.metadataId)?.name}
-                              </p>
-                            </div>
-                          );
-                        }}
-                      </For>
-                    </div>
-                  </Show>
-                </pre>
-              </li>
-            );
-          }}
-        </For>
-      </AutoscrollPane>
+        {[
+          <SpanList
+            columnSort={columnSort}
+            setColumnSort={setColumnSort}
+            spans={spans()}
+          />,
+          <SpanDetailPanel />,
+        ]}
+      </SplitPane>
     </div>
   );
 }

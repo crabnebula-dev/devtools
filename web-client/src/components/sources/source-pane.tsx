@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from "@solidjs/router";
 import { decodeFileName, guessContentType } from "~/lib/sources/file-entries";
 import CodeView from "~/components/sources/code-view";
 import { Loader } from "~/components/loader";
-import { HighlighterLang } from "~/lib/sources/code-highlight";
+import { HighlighterLang } from "~/lib/code-highlight";
 
 export function SourcePane() {
   const params = useParams<Record<"source", string>>();

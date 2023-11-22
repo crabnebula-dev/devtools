@@ -7,7 +7,7 @@ import {
   createHighlighter,
   getHighlightedCode,
   getText,
-} from "~/lib/sources/code-highlight";
+} from "~/lib/code-highlight";
 
 import { Highlighter } from "shiki";
 
@@ -44,7 +44,6 @@ export default function CodeView(props: CodeViewProps) {
 
   return (
     <div class="min-h-full h-max min-w-full w-max bg-black bg-opacity-50">
-      <h1 class="text-2xl p-3">{props.path}</h1>
       <Suspense fallback={<Loader />}>
         <div
           //eslint-disable-next-line solid/no-innerhtml

@@ -1,9 +1,15 @@
+@import "./css/slider.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   /** fonts */
+  :root {
+    --header-height: 69px;
+    --toolbar-height: 28px;
+    --footer-height: 32px;
+  }
 
   @font-face {
     font-family: "Euclid Circular B";
@@ -43,11 +49,6 @@
     src: url("/fonts/EuclidCircularB-Semibold.woff") format("woff");
     font-weight: 600;
     font-display: swap;
-  }
-
-  :root {
-    font-size: 13px;
-    --toolbar-height: 2.15rem;
   }
 
   * {

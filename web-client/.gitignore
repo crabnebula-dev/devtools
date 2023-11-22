@@ -28,3 +28,4 @@ src/lib/proto/*
 
 # Except for the README.md file
 !src/lib/proto/README.md
+coverage

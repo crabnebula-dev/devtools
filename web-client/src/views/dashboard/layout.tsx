@@ -104,6 +104,17 @@ export default function Layout() {
       setMonitorData("metadata", (prev) => updateSpanMetadata(prev, update));
     }
 
+    if (update.logsUpdate && update.spansUpdate) {
+      console.assert(
+        update.logsUpdate.droppedEvents == 0n,
+        "Dropped log events because the internal event buffer was at capacity. This is a bug, please report!"
+      );
+      console.assert(
+        update.spansUpdate.droppedEvents == 0n,
+        "Dropped span events because the internal event buffer was at capacity. This is a bug, please report!"
+      );
+    }
+
     const logsUpdate = update.logsUpdate;
     if (logsUpdate && logsUpdate.logEvents.length > 0) {
       setMonitorData("logs", (prev) => [...prev, ...logsUpdate.logEvents]);
@@ -134,7 +145,7 @@ export default function Layout() {
         </div>
         <Navigation />
       </header>
-      <main class="max-h-full overflow-auto">
+      <main class="max-h-full w-full overflow-auto">
         <Outlet />
       </main>
       <footer class="p-2 flex justify-center border-t border-gray-800 gap-2 items-center">
