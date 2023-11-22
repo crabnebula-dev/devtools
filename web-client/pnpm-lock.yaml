@@ -11,6 +11,9 @@ dependencies:
   '@kobalte/core':
     specifier: ^0.11.2
     version: 0.11.2(solid-js@1.8.5)
+  '@kobalte/tailwindcss':
+    specifier: ^0.9.0
+    version: 0.9.0(tailwindcss@3.3.5)
   '@protobuf-ts/grpcweb-transport':
     specifier: ^2.9.1
     version: 2.9.1
@@ -872,6 +875,14 @@ packages:
       '@internationalized/number': 3.4.0
       '@kobalte/utils': 0.9.0(solid-js@1.8.5)
       solid-js: 1.8.5
+    dev: false
+
+  /@kobalte/tailwindcss@0.9.0(tailwindcss@3.3.5):
+    resolution: {integrity: sha512-WbueJTVRiO4yrmfHIBwp07y3M5iibJ/gauEAQ7mOyg1tZulvpO7SM/UdgzX95a9a0KDt1mQFxwO7RmpOUXWOWA==}
+    peerDependencies:
+      tailwindcss: ^3.3.3
+    dependencies:
+      tailwindcss: 3.3.5
     dev: false
 
   /@kobalte/utils@0.9.0(solid-js@1.8.5):

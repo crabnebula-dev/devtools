@@ -1,4 +1,4 @@
-import { Accessor, JSX, createEffect, on } from "solid-js";
+import { Accessor, JSXElement, createEffect, on } from "solid-js";
 
 function scrollEnd(ref?: HTMLElement, smooth?: boolean) {
   ref?.scroll({
@@ -14,7 +14,7 @@ function scrollEnd(ref?: HTMLElement, smooth?: boolean) {
 type AutoScrollPaneProps = {
   dataStream: unknown;
   shouldAutoScroll: Accessor<boolean>;
-  children: JSX.Element;
+  children: JSXElement;
 };
 
 export function AutoscrollPane(props: AutoScrollPaneProps) {

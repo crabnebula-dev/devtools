@@ -1,15 +1,13 @@
+import { Highlighter } from "shiki";
 import { Suspense, createResource } from "solid-js";
-import { Connection } from "~/lib/connection/transport.ts";
-import { useRouteData } from "@solidjs/router";
 import { Loader } from "~/components/loader";
+import { useConnection } from "~/context/connection-provider";
 import {
   HighlighterLang,
   createHighlighter,
   getHighlightedCode,
   getText,
 } from "~/lib/code-highlight";
-
-import { Highlighter } from "shiki";
 
 type CodeViewProps = {
   path: string;
@@ -19,13 +17,10 @@ type CodeViewProps = {
 };
 
 export default function CodeView(props: CodeViewProps) {
-  const { client } = useRouteData<Connection>();
+  const { connectionStore } = useConnection();
 
-  // We split the computations into 3 steps. This decouples them from the reactive props they don't need to react to
-
-  // The text only needs to be computed when the the source changes
   const [text] = createResource(
-    () => [client.sources, props.path, props.size] as const,
+    () => [connectionStore.client.sources, props.path, props.size] as const,
     async (textProps) => getText(...textProps)
   );
 

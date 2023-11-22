@@ -1,4 +1,3 @@
-import { createContext, useContext } from "solid-js";
 import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
 import { LogEvent } from "~/lib/proto/logs";
 import { Field, Metadata } from "~/lib/proto/common";
@@ -7,6 +6,8 @@ import { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
 import { timestampToDate } from "~/lib/formatters";
 import { AppMetadata } from "../proto/meta";
 import { Versions } from "../proto/tauri";
+
+export type HealthStatus = keyof typeof HealthCheckResponse_ServingStatus;
 
 export type Span = {
   id: bigint;
@@ -34,6 +35,8 @@ export type MonitorData = {
   perfStartDate: Date | null;
   perfReadyDate: Date | null;
   perfElapsed: Timestamp | null;
+
+  connectionStatus: HealthStatus;
 };
 
 export const initialMonitorData: MonitorData = {
@@ -49,6 +52,10 @@ export const initialMonitorData: MonitorData = {
   perf: {
     initializedAt: undefined,
     readyAt: undefined,
+  },
+
+  get connectionStatus() {
+    return HealthCheckResponse_ServingStatus[this.health] as HealthStatus;
   },
 
   get perfStartDate() {
@@ -72,14 +79,3 @@ export const initialMonitorData: MonitorData = {
     }
   },
 };
-
-export const MonitorContext = createContext<{
-  monitorData: MonitorData;
-}>();
-
-export function useMonitor() {
-  const ctx = useContext(MonitorContext);
-
-  if (!ctx) throw new Error("can not find context");
-  return ctx;
-}
