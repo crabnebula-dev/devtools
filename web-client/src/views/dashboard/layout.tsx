@@ -6,6 +6,7 @@ import { Logo } from "~/components/crabnebula-logo";
 import { DisconnectButton } from "~/components/disconnect-button";
 import { MonitorProvider } from "~/context/monitor-provider";
 import { ConnectionProvider } from "~/context/connection-provider";
+import IncompatibleInstrumentationVersion from "~/components/incompatible-instrumentation-version.tsx";
 
 type RouteParams = Record<"host" | "port", string>;
 
@@ -20,6 +21,7 @@ export default function Layout() {
             <HealthStatus />
             <BootTime />
             <DisconnectButton />
+            <IncompatibleInstrumentationVersion />
           </div>
           <Navigation />
         </header>

@@ -56,3 +56,14 @@ export function getHealthStatus(res: HealthCheckResponse) {
   }
   return res.status;
 }
+
+export function getInstrumentationMetadata(client: MetadataClient) {
+  return createResource(client, async () => {
+    try {
+      const a = await client.getInstrumentationMetadata({});
+      return a.response;
+    } catch (e) {
+      throw new Error("failed parsing instrumentation metadata");
+    }
+  });
+}

@@ -2,8 +2,11 @@ syntax = "proto3";
 
 package rs.devtools.meta;
 
+import "google/protobuf/duration.proto";
+
 service Metadata {
-    rpc GetAppMetadata(AppMetadataRequest) returns (AppMetadata) {} 
+    rpc GetAppMetadata(AppMetadataRequest) returns (AppMetadata) {}
+    rpc GetInstrumentationMetadata(InstrumentationMetadataRequest) returns (InstrumentationMetadata) {}
 }
 
 message AppMetadataRequest {}
@@ -36,4 +39,15 @@ message AppMetadata {
     string arch = 6;
     /// Whether the app was compiled with debug assertions enabled.
     bool debug_assertions = 7;
+}
+
+message InstrumentationMetadataRequest {}
+
+message InstrumentationMetadata {
+    // the version of the instrumentation crate used
+    string version = 1;
+    // the publish interval configured for the instrumentation
+    // NOTE: This is not a stable property and might be removed at any time
+    // DO NOT RELY ON THIS
+    optional google.protobuf.Duration publish_interval = 99;
 }

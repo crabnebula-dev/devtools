@@ -25,7 +25,7 @@ pub(crate) fn init<R: Runtime>(
     let m = metrics.clone();
     tauri::plugin::Builder::new("probe")
         .setup(move |app_handle| {
-            let server = Server::new(cmd_tx, app_handle.clone(), m);
+            let server = Server::new(cmd_tx, app_handle.clone(), publish_interval, m);
 
             // spawn the server and aggregator in a separate thread
             // so we don't interfere with the application we're trying to instrument

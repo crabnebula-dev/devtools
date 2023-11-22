@@ -5,6 +5,7 @@ use futures::{FutureExt, Stream, TryStreamExt};
 use std::net::SocketAddr;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Duration;
 use tauri::http::header::HeaderValue;
 use tauri::{AppHandle, Runtime};
 use tauri_devtools_wire_format as wire;
@@ -12,7 +13,10 @@ use tauri_devtools_wire_format::instrument;
 use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
 use tauri_devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
 use tauri_devtools_wire_format::meta::metadata_server::MetadataServer;
-use tauri_devtools_wire_format::meta::{metadata_server, AppMetadata, AppMetadataRequest};
+use tauri_devtools_wire_format::meta::{
+    metadata_server, AppMetadata, AppMetadataRequest, InstrumentationMetadata,
+    InstrumentationMetadataRequest,
+};
 use tauri_devtools_wire_format::sources::sources_server::SourcesServer;
 use tauri_devtools_wire_format::sources::{Chunk, Entry, EntryRequest, FileType};
 use tauri_devtools_wire_format::tauri::tauri_server::TauriServer;
@@ -65,12 +69,14 @@ struct SourcesService<R: Runtime> {
 
 struct MetaService<R: Runtime> {
     app_handle: AppHandle<R>,
+    publish_interval: Duration,
 }
 
 impl<R: Runtime> Server<R> {
     pub fn new(
         cmd_tx: mpsc::Sender<Command>,
         app_handle: AppHandle<R>,
+        publish_interval: Duration,
         metrics: Arc<RwLock<Metrics>>,
     ) -> Self {
         let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
@@ -95,6 +101,7 @@ impl<R: Runtime> Server<R> {
             }, // the TauriServer doesn't need a health_reporter. It can never fail.
             meta: MetaService {
                 app_handle: app_handle.clone(),
+                publish_interval,
             },
             sources: SourcesService { app_handle },
             health: unsafe { std::mem::transmute(health_service) },
@@ -391,6 +398,21 @@ impl<R: Runtime> metadata_server::Metadata for MetaService<R> {
         };
 
         Ok(Response::new(meta))
+    }
+
+    async fn get_instrumentation_metadata(
+        &self,
+        _req: Request<InstrumentationMetadataRequest>,
+    ) -> Result<Response<InstrumentationMetadata>, Status> {
+        let duration = prost_types::Duration {
+            seconds: self.publish_interval.as_secs() as i64,
+            nanos: self.publish_interval.subsec_nanos() as i32,
+        };
+
+        Ok(Response::new(InstrumentationMetadata {
+            version: env!("CARGO_PKG_VERSION").to_string(),
+            publish_interval: Some(duration),
+        }))
     }
 }
 

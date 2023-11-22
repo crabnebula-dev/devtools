@@ -8,10 +8,17 @@ import wasm from "vite-plugin-wasm";
 import topLevelAwait from "vite-plugin-top-level-await";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import { normalizePath } from "vite";
+import fs from "fs";
+import * as toml from "@iarna/toml";
+
+const rustPkg = toml.parse(fs.readFileSync("../Cargo.toml", "utf-8"));
 
 export default defineConfig({
   server: {
     strictPort: true,
+  },
+  define: {
+    "INSTRUMENTATION_VERSION": JSON.stringify(rustPkg.workspace.package.version),
   },
   plugins: [
     wasm(),

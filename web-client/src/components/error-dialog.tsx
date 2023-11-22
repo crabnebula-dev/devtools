@@ -4,10 +4,12 @@ import { JSXElement, Show, mergeProps } from "solid-js";
 type Props = {
   title?: JSXElement;
   children: JSXElement;
+  dismissible?: boolean;
 };
 
 export function ErrorDialog(p: Props) {
   const props = mergeProps({ title: "Alert" }, p);
+  const dismissible = () => props.dismissible ?? true;
 
   return (
     <AlertDialog.Root defaultOpen modal preventScroll>
@@ -31,9 +33,11 @@ export function ErrorDialog(p: Props) {
               >
                 Reload route
               </AlertDialog.CloseButton>
-              <AlertDialog.CloseButton class="border border-neutral-400 hover:bg-neutral-800 hover:border-neutral-100 text-white text-lg py-2 px-4 rounded focus:outline-dashed focus:outline-white focus:outline-offset-2">
-                Dismiss
-              </AlertDialog.CloseButton>
+              <Show when={dismissible()}>
+                <AlertDialog.CloseButton class="border border-neutral-400 hover:bg-neutral-800 hover:border-neutral-100 text-white text-lg py-2 px-4 rounded focus:outline-dashed focus:outline-white focus:outline-offset-2">
+                  Dismiss
+                </AlertDialog.CloseButton>
+              </Show>
               <a
                 href="/"
                 class="bg-red-400 border border-red-400 hover:bg-red-700 hover:border-red-900 text-white text-lg py-2 px-4 rounded focus:outline-dashed focus:outline-white focus:outline-offset-2"

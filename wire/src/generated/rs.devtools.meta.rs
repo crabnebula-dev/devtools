@@ -39,6 +39,21 @@ pub struct AppMetadata {
     #[prost(bool, tag = "7")]
     pub debug_assertions: bool,
 }
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct InstrumentationMetadataRequest {}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct InstrumentationMetadata {
+    /// the version of the instrumentation crate used
+    #[prost(string, tag = "1")]
+    pub version: ::prost::alloc::string::String,
+    /// the publish interval configured for the instrumentation
+    /// NOTE: This is not a stable property and might be removed at any time
+    /// DO NOT RELY ON THIS
+    #[prost(message, optional, tag = "99")]
+    pub publish_interval: ::core::option::Option<::prost_types::Duration>,
+}
 /// Generated server implementations.
 #[allow(clippy::all)]
 pub mod metadata_server {
@@ -51,6 +66,13 @@ pub mod metadata_server {
             &self,
             request: tonic::Request<super::AppMetadataRequest>,
         ) -> std::result::Result<tonic::Response<super::AppMetadata>, tonic::Status>;
+        async fn get_instrumentation_metadata(
+            &self,
+            request: tonic::Request<super::InstrumentationMetadataRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::InstrumentationMetadata>,
+            tonic::Status,
+        >;
     }
     #[derive(Debug)]
     pub struct MetadataServer<T: Metadata> {
@@ -162,6 +184,58 @@ pub mod metadata_server {
                     let fut = async move {
                         let inner = inner.0;
                         let method = GetAppMetadataSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/rs.devtools.meta.Metadata/GetInstrumentationMetadata" => {
+                    #[allow(non_camel_case_types)]
+                    struct GetInstrumentationMetadataSvc<T: Metadata>(pub Arc<T>);
+                    impl<
+                        T: Metadata,
+                    > tonic::server::UnaryService<super::InstrumentationMetadataRequest>
+                    for GetInstrumentationMetadataSvc<T> {
+                        type Response = super::InstrumentationMetadata;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<
+                                super::InstrumentationMetadataRequest,
+                            >,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as Metadata>::get_instrumentation_metadata(
+                                        &inner,
+                                        request,
+                                    )
+                                    .await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let inner = inner.0;
+                        let method = GetInstrumentationMetadataSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(
