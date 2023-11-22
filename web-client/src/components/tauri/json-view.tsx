@@ -30,7 +30,7 @@ export default function JsonView() {
         when={path()}
         fallback={
           <p class="p-3">
-            This configuration is parsed and merged. So there is no direct
+            This configuration is parsed and merged, so there is no direct
             source file to display.
           </p>
         }
