@@ -2,7 +2,7 @@ import { For, Suspense } from "solid-js";
 import { FileIcon } from "~/components/icons/ide-icons";
 import { A } from "@solidjs/router";
 import {
-  configurationObject,
+  type ConfigurationObject,
   retrieveConfigurations,
   getTauriTabBasePath,
 } from "~/lib/tauri/tauri-conf-schema";
@@ -20,7 +20,7 @@ export function Sidebar() {
   );
 }
 
-function Config(props: { config: configurationObject }) {
+function Config(props: { config: ConfigurationObject }) {
   return (
     <section class="p-2">
       <div class="grid gap-1.5 items-center text-left grid-cols-[1rem_1fr] text-xl">

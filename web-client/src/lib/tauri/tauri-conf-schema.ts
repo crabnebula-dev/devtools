@@ -12,20 +12,20 @@ import type { SourcesClient } from "../proto/sources.client";
 import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
 
-export type configurationStore = {
-  configs?: configurationObject[];
+export type ConfigurationStore = {
+  configs?: ConfigurationObject[];
 };
 
-export type configurationObject = {
+export type ConfigurationObject = {
   label: string;
   key: string;
   path: string;
-  data: tauriConfiguration;
+  data: TauriConfiguration;
   size: number;
   raw: string;
 };
 
-export type tauriConfiguration = Record<
+export type TauriConfiguration = Record<
   "build" | "package" | "plugins" | "tauri",
   object
 >;
@@ -51,7 +51,7 @@ function createDeepConfigurationStoreSignal<T>(): Signal<T> {
     (v: T) => {
       const unwrapped = unwrap(configurations.configs);
       typeof v === "function" && (v = v(unwrapped));
-      setConfigurations("configs", reconcile(v as configurationObject[]));
+      setConfigurations("configs", reconcile(v as ConfigurationObject[]));
       return configurations.configs;
     },
   ] as Signal<T>;
@@ -114,7 +114,7 @@ async function readListOfConfigurations(
   client: SourcesClient
 ) {
   return await Promise.all(
-    entries.map(async (e): Promise<configurationObject> => {
+    entries.map(async (e): Promise<ConfigurationObject> => {
       const bytes = await getEntryBytes(client, e.path, Number(e.size));
 
       const text = bytesToText(bytes);
@@ -124,7 +124,7 @@ async function readListOfConfigurations(
         label: "File: " + e.path,
         key: e.path,
         path: e.path,
-        data: (data as tauriConfiguration) ?? {},
+        data: (data as TauriConfiguration) ?? {},
         size: Number(e.size),
         raw: text,
       };
