@@ -38,7 +38,7 @@ export default function JsonView() {
         <CodeView
           path={path() ?? ""}
           size={Number(searchParams.size)}
-          lang={"json"}
+          lang="json"
           highlightedLine={lineNumber()}
         />
       </Show>
