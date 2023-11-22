@@ -45,14 +45,14 @@ fn main() {
             for request in server.incoming_requests() {
                 let url = request.url().trim_start_matches('/');
                 let path = std::path::Path::new(if url.is_empty() { "index.html" } else { url });
-                let file = std::fs::File::open(&path);
+                let file = std::fs::File::open(path);
 
-                if file.is_ok() {
-                    let response = tiny_http::Response::from_file(file.unwrap());
+                if let Ok(f) = file {
+                    let response = tiny_http::Response::from_file(f);
 
                     let response = response.with_header(tiny_http::Header {
                         field: "Content-Type".parse().unwrap(),
-                        value: get_content_type(&path).parse().unwrap(),
+                        value: get_content_type(path).parse().unwrap(),
                     });
 
                     let _ = request.respond(response);
