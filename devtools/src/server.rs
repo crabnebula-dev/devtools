@@ -255,9 +255,11 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
             .asset_resolver()
             .iter()
             .find(|(path, _bytes)| path == &&asset_path)
-            .map(|(_path, bytes)| bytes)
+            // decompress the asset
+            .and_then(|(path, _bytes)| self.app_handle.asset_resolver().get(path.to_string()))
         {
             let chunks = asset
+                .bytes
                 .chunks(512)
                 .map(|b| {
                     Ok(Chunk {
