@@ -2,15 +2,15 @@ import tauriConfigSchemaV1 from "./tauri-conf-schema-v1.json";
 import tauriConfigSchemaV2 from "./tauri-conf-schema-v2.json";
 import { Draft07, JsonSchema, JsonPointer } from "json-schema-library";
 import { createResource, Signal } from "solid-js";
-import { useRouteData, useLocation, useParams } from "@solidjs/router";
-import { Connection } from "~/lib/connection/transport.ts";
+import { useLocation, useParams } from "@solidjs/router";
 import { awaitEntries, getEntryBytes } from "~/lib/sources/file-entries";
 import { useConfiguration } from "~/components/tauri/configuration-context";
 import { unwrap, reconcile } from "solid-js/store";
-import { useMonitor } from "../connection/monitor";
 import { bytesToText } from "../code-highlight";
 import type { Entry } from "../proto/sources";
 import type { SourcesClient } from "../proto/sources.client";
+import { useConnection } from "~/context/connection-provider";
+import { useMonitor } from "~/context/monitor-provider";
 
 export type configurationStore = {
   configs?: configurationObject[];
@@ -70,8 +70,8 @@ export function retrieveConfigurations() {
   if (configurations.configs)
     return createResource(() => configurations.configs);
 
-  const { client } = useRouteData<Connection>();
-  const [entries] = awaitEntries(client.sources, "");
+  const { connectionStore } = useConnection();
+  const [entries] = awaitEntries(connectionStore.client.sources, "");
 
   const { monitorData } = useMonitor();
 
@@ -80,9 +80,10 @@ export function retrieveConfigurations() {
     async (entries) => {
       const filteredEntries =
         entries?.filter((e) => e.path.endsWith(".conf.json")) || [];
+
       const configurations = await readListOfConfigurations(
         filteredEntries,
-        client.sources
+        connectionStore.client.sources
       );
 
       configurations.unshift({

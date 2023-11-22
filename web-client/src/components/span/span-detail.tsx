@@ -1,5 +1,4 @@
 import { For, createResource, Show } from "solid-js";
-import { useMonitor } from "~/lib/connection/monitor";
 import { formatSpansForUi } from "~/lib/span/format-spans-for-ui";
 import { getIpcRequestValues } from "~/lib/span/get-ipc-request-value";
 import { createHighlighter, getHighlightedCode } from "~/lib/code-highlight";
@@ -9,6 +8,7 @@ import { getChildrenList } from "~/lib/span/get-children-list";
 import { SpanDetailTrace } from "./span-detail-trace";
 import { SpanDetailArgs } from "./span-detail-args";
 import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
+import { useMonitor } from "~/context/monitor-provider";
 
 export function SpanDetail() {
   const [searchParams] = useSearchParams();

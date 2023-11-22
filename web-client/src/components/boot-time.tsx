@@ -1,16 +1,16 @@
 import { Show } from "solid-js";
-import { useMonitor } from "~/lib/connection/monitor";
+import { Loader } from "./loader";
+import { useMonitor } from "~/context/monitor-provider";
 
 export function BootTime() {
   const { monitorData } = useMonitor();
-
   return (
-    <Show when={monitorData.perfElapsed} fallback={"Waiting for data..."}>
+    <Show when={monitorData.perfElapsed} fallback={<Loader />}>
       {(e) => (
         <section>
           <strong>Loading time: </strong>
           <span class="font-mono">
-            {Number(e().seconds) * 1000 + e().nanos / 1e6}ms
+            {(Number(e().seconds) * 1000 + e().nanos / 1e6).toFixed(2)}ms
           </span>
         </section>
       )}

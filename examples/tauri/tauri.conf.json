@@ -2,7 +2,7 @@
   "$schema": "../../core/tauri-config-schema/schema.json",
   "build": {
     "distDir": ["index.html", "test.html"],
-    "devPath": ["index.html", "test.html"],
+    "devPath": "http://localhost:1420",
     "beforeDevCommand": "",
     "beforeBuildCommand": ""
   },

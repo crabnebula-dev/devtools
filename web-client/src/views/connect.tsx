@@ -21,13 +21,7 @@ export default function Connect() {
           <code>--inspect</code> flag. Then, paste the appropriate connection
           values below.
         </p>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate(`/dash/${host()}/${port()}/`);
-          }}
-          class="grid gap-8 border-neutral-800 p-4 rounded"
-        >
+        <form class="grid gap-8 border-neutral-800 p-4 rounded">
           <fieldset>
             <legend class="sr-only">web socket URL host</legend>
             <FormField
@@ -53,9 +47,13 @@ export default function Connect() {
             />
           </fieldset>
           <Button.Root
-            type="submit"
+            type="button"
             class="p-2 disabled:opacity-25 disabled:cursor-not-allowed bg-white text-black text-xl font-bold rounded-sm"
             disabled={!port() || !host()}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(`/dash/${host()}/${port()}/`);
+            }}
           >
             Inspect
           </Button.Root>
