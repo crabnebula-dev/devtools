@@ -1,5 +1,5 @@
 import { For, Show } from "solid-js";
-import { useMonitor } from "~/lib/connection/monitor";
+import { useMonitor } from "~/context/monitor-provider";
 import { formatSpansForUi } from "~/lib/span/format-spans-for-ui";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { getEventPayload } from "~/lib/span/get-event-payload";

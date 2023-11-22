@@ -14,7 +14,11 @@ tauri-devtools = { path = "../../devtools" }
 tracing.workspace = true
 tokio = { workspace = true, features = ["time"] }
 reqwest = "0.11"
+tiny_http = "0.11"
 serde = "1"
 
 [build-dependencies]
 tauri-build.workspace = true
+
+[features]
+custom-protocol = [ "tauri/custom-protocol" ]

@@ -1,7 +1,7 @@
 import { type RouteDefinition, useNavigate, useRoutes } from "@solidjs/router";
-import { lazy } from "solid-js";
-import { connect } from "./lib/connection/transport.ts";
+import { lazy, ErrorBoundary } from "solid-js";
 import { setCDN } from "@crabnebula/file-icons";
+import { ErrorRoot } from "./components/error-root.tsx";
 
 const ROUTES: RouteDefinition[] = [
   {
@@ -11,12 +11,6 @@ const ROUTES: RouteDefinition[] = [
   {
     path: "/dash/:host/:port",
     component: lazy(() => import("./views/dashboard/layout.tsx")),
-    data: ({ params }) => {
-      const { host, port } = params;
-      const connection = connect(`http://${host}:${port}`);
-
-      return connection;
-    },
     children: [
       {
         path: "/",
@@ -51,5 +45,9 @@ export default function Entry() {
 
   setCDN("/icons");
 
-  return <Routes />;
+  return (
+    <ErrorBoundary fallback={(e) => <ErrorRoot error={e} />}>
+      <Routes />
+    </ErrorBoundary>
+  );
 }

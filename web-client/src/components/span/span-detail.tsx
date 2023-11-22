@@ -1,4 +1,4 @@
-import { useMonitor } from "~/lib/connection/monitor";
+import { useMonitor } from "~/context/monitor-provider";
 import { useSearchParams } from "@solidjs/router";
 import { IpcSpanDetail } from "./ipc-span-detail";
 import { getSpanKind } from "~/lib/span/get-span-kind";

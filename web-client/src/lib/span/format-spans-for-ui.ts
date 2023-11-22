@@ -2,7 +2,7 @@ import { Span } from "../connection/monitor";
 import { Metadata } from "../proto/common";
 import { calculateSpanColorFromRelativeDuration } from "./calculate-span-color-from-relative-duration";
 import { getEventName } from "./get-event-name";
-import { getIpcRequestName } from "./getIpcRequestName";
+import { getIpcRequestName } from "./get-ipc-request-name";
 import { normalizeSpans } from "./normalize-spans";
 import { FilteredSpanWithChildren } from "./types";
 

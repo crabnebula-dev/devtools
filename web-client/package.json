@@ -44,6 +44,7 @@
   "dependencies": {
     "@crabnebula/file-icons": "^0.1.0",
     "@kobalte/core": "^0.11.2",
+    "@kobalte/tailwindcss": "^0.9.0",
     "@protobuf-ts/grpcweb-transport": "^2.9.1",
     "@protobuf-ts/plugin": "^2.9.1",
     "@protobuf-ts/runtime": "^2.9.1",

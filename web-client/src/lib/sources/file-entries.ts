@@ -1,6 +1,8 @@
 import { SourcesClient } from "~/lib/proto/sources.client.ts";
 import { createResource } from "solid-js";
 import { Entry } from "~/lib/proto/sources.ts";
+import { RpcOutputStream } from "@protobuf-ts/runtime-rpc";
+import { Chunk } from "~/lib/proto/sources.ts";
 
 export function encodeFileName(path: string) {
   return path.replaceAll(".", "-");
@@ -30,20 +32,44 @@ export function awaitEntries(client: SourcesClient, path: string) {
 export async function getEntryBytes(
   client: SourcesClient,
   path: string,
-  size: number
-) {
+  size: number | undefined
+): Promise<Uint8Array | undefined> {
   const call = client.getEntryBytes({ path });
 
-  // we pre-allocate a uint8array with the correct size to avoid reallocation
-  const out = new Uint8Array(size);
-
-  let offset = 0;
-  for await (const chunk of call.responses) {
-    out.set(chunk.bytes, offset);
-    offset += chunk.bytes.length;
+  if (size) {
+    try {
+      return await fillWithChunkStream(new Uint8Array(size), call.responses);
+    } catch (e) {
+      if (!(e instanceof RangeError)) return undefined;
+      return await getEntryBytes(client, path, undefined);
+    }
   }
 
-  return out;
+  return new Uint8Array(await fillWithChunkStream([], call.responses));
+}
+
+async function fillWithChunkStream(
+  array: Uint8Array,
+  callResponses: RpcOutputStream<Chunk>
+): Promise<Uint8Array>;
+async function fillWithChunkStream(
+  array: number[],
+  callResponses: RpcOutputStream<Chunk>
+): Promise<number[]>;
+async function fillWithChunkStream(
+  array: Uint8Array | number[],
+  callResponses: RpcOutputStream<Chunk>
+) {
+  let offset = 0;
+  for await (const chunk of callResponses) {
+    if (array instanceof Uint8Array) {
+      array.set(chunk.bytes, offset);
+      offset += chunk.bytes.length;
+    } else {
+      array = array.concat(...chunk.bytes);
+    }
+  }
+  return array;
 }
 
 export const FileType = {

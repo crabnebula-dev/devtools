@@ -3,12 +3,12 @@ import tauriConfigSchemaV2 from "./tauri-conf-schema-v2.json";
 import { Draft07, JsonSchema, JsonPointer } from "json-schema-library";
 import { createResource, Signal } from "solid-js";
 import { useRouteData, useLocation, useParams } from "@solidjs/router";
-import { Connection } from "~/lib/connection/transport.ts";
 import { awaitEntries, getEntryBytes } from "~/lib/sources/file-entries";
 import { useConfiguration } from "~/components/tauri/configuration-context";
 import { unwrap, reconcile } from "solid-js/store";
-import { useMonitor } from "../connection/monitor";
 import { bytesToText } from "../code-highlight";
+import { useConnection } from "~/context/connection-provider";
+import { useMonitor } from "~/context/monitor-provider";
 
 export type configurationStore = {
   configs?: configurationObject[];
@@ -74,8 +74,8 @@ export function retrieveConfigurations() {
   if (configurations.configs)
     return createResource(() => configurations.configs);
 
-  const { client } = useRouteData<Connection>();
-  const [entries] = awaitEntries(client.sources, "");
+  const { connectionStore } = useConnection();
+  const [entries] = awaitEntries(connectionStore.client.sources, "");
 
   return createResource(
     entries,
@@ -85,7 +85,7 @@ export function retrieveConfigurations() {
       return await Promise.all(
         filteredEntries.map(async (e): Promise<configurationObject> => {
           const bytes = await getEntryBytes(
-            client.sources,
+            connectionStore.client.sources,
             e.path,
             Number(e.size)
           );

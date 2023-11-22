@@ -1,5 +1,5 @@
 import { For, createResource, Show } from "solid-js";
-import { useMonitor } from "~/lib/connection/monitor";
+import { useMonitor } from "~/context/monitor-provider";
 import { formatSpansForUi } from "~/lib/span/format-spans-for-ui";
 import { getIpcRequestValues } from "~/lib/span/get-ipc-request-value";
 import { createHighlighter, getHighlightedCode } from "~/lib/code-highlight";

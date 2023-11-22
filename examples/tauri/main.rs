@@ -56,6 +56,48 @@ async fn test1(
 }
 
 fn main() {
+    #[cfg(dev)]
+    {
+        std::env::set_current_dir(env!("CARGO_MANIFEST_DIR")).unwrap();
+
+        std::thread::spawn(|| {
+            let server = tiny_http::Server::http("localhost:1420").unwrap();
+
+            fn get_content_type(path: &std::path::Path) -> &'static str {
+                let extension = match path.extension() {
+                    None => return "text/plain",
+                    Some(e) => e,
+                };
+
+                match extension.to_str().unwrap() {
+                    "html" => "text/html; charset=utf8",
+                    "js" => "text/javascript; charset=utf8",
+                    _ => "text/plain; charset=utf8",
+                }
+            }
+
+            for request in server.incoming_requests() {
+                let url = request.url().trim_start_matches('/');
+                let path = std::path::Path::new(if url.is_empty() { "index.html" } else { url });
+                let file = std::fs::File::open(path);
+
+                if let Ok(f) = file {
+                    let response = tiny_http::Response::from_file(f);
+
+                    let response = response.with_header(tiny_http::Header {
+                        field: "Content-Type".parse().unwrap(),
+                        value: get_content_type(path).parse().unwrap(),
+                    });
+
+                    let _ = request.respond(response);
+                } else {
+                    let rep = tiny_http::Response::new_empty(tiny_http::StatusCode(404));
+                    let _ = request.respond(rep);
+                }
+            }
+        });
+    }
+
     let devtools = tauri_devtools::init();
 
     tauri::Builder::default()
