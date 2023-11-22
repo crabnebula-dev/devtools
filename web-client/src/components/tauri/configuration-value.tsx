@@ -94,7 +94,7 @@ function TextValue(props: TextConfigurationValueProps) {
       </div>
       <div class="basis-3/5 border-l-2 border-[#4B4B4B] p-1 text-right flex justify-between">
         <Flags key={key()} value={props.value} />
-        <span class="ml-auto">{value() as string}</span>
+        <span class="ml-auto">{value()}</span>
       </div>
     </div>
   );
