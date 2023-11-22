@@ -17,6 +17,8 @@ export type configurationStore = {
 };
 
 export type configurationObject = {
+  label: string;
+  key: string;
   path: string;
   data: tauriConfiguration;
   size: number;
@@ -55,17 +57,9 @@ function createDeepConfigurationStoreSignal<T>(): Signal<T> {
   ] as Signal<T>;
 }
 
-export function retrieveConfigurationByPathAndKey(
-  path: string,
-  key: "build" | "package" | "plugins" | "tauri"
-) {
+export function retrieveConfigurationByKey(key: string) {
   const [configs] = retrieveConfigurations();
-  return configs()?.find(
-    (config) =>
-      config?.path === path &&
-      config.data &&
-      Object.prototype.hasOwnProperty.call(config.data, key)
-  )?.data[key];
+  return configs()?.find((config) => config?.key === key);
 }
 
 export function retrieveConfigurations() {
@@ -92,7 +86,9 @@ export function retrieveConfigurations() {
       );
 
       configurations.unshift({
-        path: "tauri.conf.json",
+        label: "Loaded configuration",
+        key: "loaded",
+        path: "",
         size: 0,
         data: monitorData.tauriConfig ?? {
           build: {},
@@ -123,6 +119,8 @@ async function readListOfConfigurations(
       const data = JSON.parse(text);
       delete data["$schema"];
       return {
+        label: "File: " + e.path,
+        key: e.path,
         path: e.path,
         data: (data as tauriConfiguration) ?? {},
         size: Number(e.size),
@@ -161,14 +159,8 @@ export function scrollToHighlighted() {
 }
 
 export function findLineNumberByKey(key: string) {
-  const {
-    configurations: { configurations },
-  } = useConfiguration();
-
   const params = useParams<{ config: string }>();
-
-  const config = configurations.configs?.find((x) => x.path === params.config);
-
+  const config = retrieveConfigurationByKey(params.config);
   return findLineNumberByNestedKeyInSource(config?.raw ?? "", key);
 }
 

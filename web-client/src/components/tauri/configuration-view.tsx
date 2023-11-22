@@ -3,7 +3,7 @@ import { ConfigurationValue } from "./configuration-value";
 import { ConfigurationTooltip } from "./configuration-tooltip";
 import {
   generateDescriptions,
-  retrieveConfigurationByPathAndKey,
+  retrieveConfigurationByKey,
 } from "~/lib/tauri/tauri-conf-schema";
 import { useParams } from "@solidjs/router";
 
@@ -14,7 +14,7 @@ export function ConfigurationView() {
   }>();
 
   const tab = () =>
-    retrieveConfigurationByPathAndKey(params.config, params.selected) ?? {};
+    retrieveConfigurationByKey(params.config)?.data[params.selected];
 
   createEffect(() => {
     const data = tab();

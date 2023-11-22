@@ -6,11 +6,13 @@ import { useConfiguration } from "./configuration-context";
 import { createEffect, Show } from "solid-js";
 import CodeView from "../sources/code-view";
 import { useParams, useSearchParams } from "@solidjs/router";
+import { retrieveConfigurationByKey } from "~/lib/tauri/tauri-conf-schema";
 
 export default function JsonView() {
   const params = useParams<{ config: string }>();
   const [searchParams] = useSearchParams<{ size: string }>();
-
+  const path = () =>
+    retrieveConfigurationByKey(params.config)?.path ?? undefined;
   const {
     highlightKey: { highlightKey },
   } = useConfiguration();
@@ -19,17 +21,29 @@ export default function JsonView() {
 
   createEffect(() => {
     highlightKey();
+    console.log(highlightKey());
+    console.log(lineNumber());
     scrollToHighlighted();
   });
 
   return (
     <Show when={params.config}>
-      <CodeView
-        path={params.config}
-        size={Number(searchParams.size)}
-        lang={"json"}
-        highlightedLine={lineNumber()}
-      />
+      <Show
+        when={path()}
+        fallback={
+          <p class="p-3">
+            This configuration is parsed and merged. So there is no direct
+            source file to display.
+          </p>
+        }
+      >
+        <CodeView
+          path={path() ?? ""}
+          size={Number(searchParams.size)}
+          lang={"json"}
+          highlightedLine={lineNumber()}
+        />
+      </Show>
     </Show>
   );
 }

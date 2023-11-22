@@ -21,9 +21,9 @@ export function ConfigurationContextProvider(props: { children: JSXElement }) {
 
 export const makeConfigurationContext = () => {
   const [highlightKey, setHighlightKey] = createSignal<string>("");
-  const [descriptions, setDescriptions] = createSignal<Map<string, object>>(
-    new Map()
-  );
+  const [descriptions, setDescriptions] = createSignal<
+    Map<string, { default?: string }>
+  >(new Map());
   const [configurations, setConfigurations] = createStore<configurationStore>();
   return {
     highlightKey: {
