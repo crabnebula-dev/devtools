@@ -248,14 +248,16 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         req: Request<EntryRequest>,
     ) -> Result<Response<Self::GetEntryBytesStream>, Status> {
         let entry_path = req.into_inner().path;
+        let asset_path = format!("/{entry_path}");
 
         if let Some(asset) = self
             .app_handle
             .asset_resolver()
-            .get(format!("/{entry_path}"))
+            .iter()
+            .find(|(path, _bytes)| path == &&asset_path)
+            .map(|(_path, bytes)| bytes)
         {
             let chunks = asset
-                .bytes
                 .chunks(512)
                 .map(|b| {
                     Ok(Chunk {
