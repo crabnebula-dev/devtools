@@ -86,21 +86,22 @@ export function retrieveConfigurations() {
         connectionStore.client.sources
       );
 
-      configurations.unshift({
-        label: "Loaded configuration",
-        key: "loaded",
-        path: "",
-        size: 0,
-        data: monitorData.tauriConfig ?? {
-          build: {},
-          package: {},
-          tauri: {},
-          plugins: {},
+      return [
+        {
+          label: "Loaded configuration",
+          key: "loaded",
+          path: "",
+          size: 0,
+          data: monitorData.tauriConfig ?? {
+            build: {},
+            package: {},
+            tauri: {},
+            plugins: {},
+          },
+          raw: JSON.stringify(monitorData.tauriConfig ?? ""),
         },
-        raw: JSON.stringify(monitorData.tauriConfig ?? ""),
-      });
-
-      return configurations;
+        ...configurations,
+      ];
     },
     {
       storage: createDeepConfigurationStoreSignal,
