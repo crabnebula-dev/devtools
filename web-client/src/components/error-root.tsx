@@ -1,4 +1,3 @@
-import { A } from "@solidjs/router";
 import * as pkg from "~/../package.json";
 
 type Props = {
@@ -33,12 +32,12 @@ export function ErrorRoot(props: Props) {
             </ul>
           </div>
           <div class="flex gap-10">
-            <A
+            <a
               href="/"
               class="border border-red-400 hover:bg-red-700 hover:border-red-900 text-white text-lg py-2 px-4 rounded focus:outline-dashed focus:outline-white focus:outline-offset-2 focus:outline-1"
             >
               Reset App
-            </A>
+            </a>
             <button
               onClick={() => {
                 window.location.reload();
