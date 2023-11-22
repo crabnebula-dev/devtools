@@ -14,7 +14,7 @@ export function ConfigurationView() {
   }>();
 
   const tab = () =>
-    retrieveConfigurationByKey(params.config)?.data[params.selected];
+    retrieveConfigurationByKey(params.config)?.data[params.selected] ?? {};
 
   createEffect(() => {
     const data = tab();

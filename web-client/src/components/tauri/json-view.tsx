@@ -21,8 +21,6 @@ export default function JsonView() {
 
   createEffect(() => {
     highlightKey();
-    console.log(highlightKey());
-    console.log(lineNumber());
     scrollToHighlighted();
   });
 
