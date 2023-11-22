@@ -124,6 +124,8 @@ async function readListOfConfigurations(
         label: "File: " + e.path,
         key: e.path,
         path: e.path,
+        /*  TODO add validator type guard to make sure data we receive is actually a proper configuration ref: 
+            https://linear.app/crabnebula/issue/DR-428/tauri-tab-strong-type-tauriconfigjson-according-to-existing-schema */
         data: (data as TauriConfiguration) ?? {},
         size: Number(e.size),
         raw: text,
