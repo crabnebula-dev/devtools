@@ -220,8 +220,6 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         tracing::debug!("list entries");
 
         if self.app_handle.asset_resolver().iter().count() == 0 {
-            let mut cwd = std::env::current_dir()?;
-
             let path = PathBuf::from(req.into_inner().path);
 
             // deny requests that contain special path components, like root dir, parent dir,
@@ -233,7 +231,9 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
                 return Err(Status::not_found("file with the specified path not found"));
             }
 
+            let mut cwd = std::env::current_dir()?;
             cwd.push(path);
+
             let stream = self.list_entries_from_dir(cwd).or_else(|err| async move {
                 tracing::error!("List Entries failed with error {err:?}");
                 // TODO set the health service status to NotServing here
@@ -282,6 +282,16 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
             let stream = futures::stream::iter(chunks);
             Ok(Response::new(Box::pin(stream)))
         } else {
+            let entry_path = PathBuf::from(entry_path);
+            // deny requests that contain special path components, like root dir, parent dir,
+            // or weird windows ones. Only plain old regular, relative paths.
+            if !entry_path
+                .components()
+                .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
+            {
+                return Err(Status::not_found("file with the specified path not found"));
+            }
+
             let mut path = std::env::current_dir()?;
             path.push(entry_path);
 
