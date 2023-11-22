@@ -89,17 +89,3 @@ export function addStreamListneners(
     }
   });
 }
-
-// function reconnect(connectionStore: ReturnType<typeof connect>,
-//   setMonitorData: SetStoreFunction<MonitorData>
-// ) {
-//   connectionStore.abortController.abort()
-
-//   const [data] =  createResource(async () => {
-//     const newConnection = connect(connectionStore.serviceUrl)
-
-//     addStreamListneners(connectionStore.stream.update, setMonitorData)
-
-//   })
-
-// }

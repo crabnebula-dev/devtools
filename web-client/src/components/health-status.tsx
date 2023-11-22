@@ -11,7 +11,7 @@ const variant = (status: HealthCheckResponse_ServingStatus) => {
     // unknown
     {
       style: "inline-block mr-3 w-3 h-3 bg-gray-200 rounded-full",
-      tooltip: "Disconected",
+      tooltip: "Disconnected",
     },
     // serving
     {
@@ -21,12 +21,10 @@ const variant = (status: HealthCheckResponse_ServingStatus) => {
     // not serving
     {
       style: "inline-block mr-3 w-3 h-3 bg-red-500 rounded-full",
-      tooltip: "Disconected",
+      tooltip: "Disconnected",
     },
   ][status];
 };
-
-const INITIAL_ERROR_TIMER_SECONDS = 10;
 
 export function HealthStatus() {
   const updateErrorHandler = () => {
@@ -47,7 +45,6 @@ export function HealthStatus() {
     /** cleanup possible connections */
     connectionStore.abortController.abort();
     reconnect();
-    // setTimeout(reconnect, INITIAL_ERROR_TIMER_SECONDS * 1000);
   };
 
   function reconnect() {

@@ -74,7 +74,6 @@ export default function TauriConfig() {
           </Collapsible.Trigger>
           <Collapsible.Content>
             <pre class="text-white">
-              {/* {JSON.stringify(tauriConfig()?.result.tauri, null, 2)} */}
               {JSON.stringify(monitorData.tauriConfig, null, 2)}
             </pre>
           </Collapsible.Content>
