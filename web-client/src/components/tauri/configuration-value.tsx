@@ -59,7 +59,7 @@ function Flags(props: { key: string; value: boolean | string }) {
     );
   };
 
-  /* TODO implement a check to see if the value is in the config */
+  /* TODO implement a check to see if the value is in the config ref: https://linear.app/crabnebula/issue/DR-639/improve-config-parameter-flags */
   const isInConfig = () => {
     return false;
   };
