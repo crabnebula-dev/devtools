@@ -47,11 +47,11 @@ export function SpanDetail() {
 
   const children = () => {
     if (span().kind === "ipc") {
-      formattedSpan().children.filter(
+      return formattedSpan().children.filter(
         (s) => s.name !== "ipc::request::response"
       );
-      return formattedSpan().children;
     }
+    return formattedSpan().children;
   };
 
   const valuesSectionTitle = () => {
