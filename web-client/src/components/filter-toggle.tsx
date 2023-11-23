@@ -14,7 +14,7 @@ export function FilterToggle(props: FilterToggleProps) {
     <ToggleButton.Root
       defaultPressed={props.defaultPressed}
       aria-label={props["aria-label"]}
-      class={`px-2 py-1 ${props.stylesOverride}`}
+      class={props.stylesOverride}
       onChange={props.changeHandler}
     >
       {(state) => (
