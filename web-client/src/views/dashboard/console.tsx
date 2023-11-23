@@ -11,6 +11,8 @@ import { LogFilterObject, filterLogs } from "~/lib/console/filter-logs";
 import { getLevelClasses } from "~/lib/console/get-level-classes";
 import { LogLevelFilter } from "~/components/console/log-level-filter";
 import { NoLogs } from "~/components/console/no-logs";
+import { getFileNameFromPath } from "~/lib/console/get-file-name-from-path";
+import { Link } from "@kobalte/core";
 
 export default function Console() {
   const { monitorData } = useMonitor();
@@ -64,15 +66,14 @@ export default function Console() {
             const { message, at } = logEvent;
             if (!at) return null;
 
+            const metadata = getLogMetadata(monitorData, logEvent);
             const timeDate = timestampToDate(at);
-            const levelStyle = getLevelClasses(
-              getLogMetadata(monitorData, logEvent)?.level
-            );
+            const levelStyle = getLevelClasses(metadata?.level);
 
             return (
               <li
                 class={clsx(
-                  "p-1 font-mono text-sm border-b items-center flex",
+                  "p-1 font-mono text-sm border-b items-center flex gap-4",
                   levelStyle ? levelStyle : "border-b-gray-800 text-white"
                 )}
               >
@@ -81,13 +82,30 @@ export default function Console() {
                     dateTime={timeDate.toISOString()}
                     class={clsx(
                       levelStyle ? levelStyle : "text-gray-600",
-                      "font-mono text-xs pr-4"
+                      "font-mono text-xs"
                     )}
                   >
                     {formatTimestamp(timeDate)}
                   </time>
                 </Show>
                 <span>{message}</span>
+                <span class="ml-auto flex gap-2 items-center text-xs">
+                  <Show when={metadata?.target}>
+                    <span class="text-gray-600">{metadata!.target}</span>
+                  </Show>
+                  <Show when={metadata?.location?.file}>
+                    <Link.Root
+                      href={
+                        /** @todo go to sources. Ref: https://linear.app/crabnebula/issue/DR-644/make-sources-context-aware */
+                        "#"
+                      }
+                      class="text-white underline"
+                    >
+                      {getFileNameFromPath(metadata!.location!.file!)}:
+                      {metadata!.location!.line}
+                    </Link.Root>
+                  </Show>
+                </span>
               </li>
             );
           }}
