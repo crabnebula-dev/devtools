@@ -5,7 +5,6 @@ import { defineConfig } from "vitest/config";
 import solidPlugin from "vite-plugin-solid";
 import path from "path";
 import wasm from "vite-plugin-wasm";
-import topLevelAwait from "vite-plugin-top-level-await";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import { normalizePath } from "vite";
 
@@ -13,10 +12,15 @@ export default defineConfig({
   server: {
     strictPort: true,
   },
+  build: {
+    // file-icons need top-level await
+    // this is as far back as we can go without needing top-level-await polyfills
+    // we can't use the polyfill because it breaks SolidJS router.
+    target: ["safari15", "chrome89", "firefox89"],
+  },
   plugins: [
-    wasm(),
-    topLevelAwait(),
     solidPlugin(),
+    wasm(),
     viteStaticCopy({
       targets: [
         {
