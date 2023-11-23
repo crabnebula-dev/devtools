@@ -13,8 +13,10 @@ export default defineConfig({
     strictPort: true,
   },
   build: {
+    // file-icons need top-level await
     // this is as far back as we can go without needing top-level-await polyfills
-    target: ['safari15', 'chrome89', 'firefox89']
+    // we can't use the polyfill because it breaks SolidJS router.
+    target: ["safari15", "chrome89", "firefox89"],
   },
   plugins: [
     solidPlugin(),
