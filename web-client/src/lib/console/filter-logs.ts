@@ -20,12 +20,15 @@ export const filterLogs = (
     const location = metadata?.location?.file;
 
     const matchesTextContent = filter.textContent
-      ? log.message.includes(filter.textContent) || target?.includes(filter.textContent) || location?.includes(filter.textContent)
+      ? log.message.includes(filter.textContent) ||
+        target?.includes(filter.textContent) ||
+        location?.includes(filter.textContent)
       : true;
 
-    const matchesLevel = filter.levels.length && typeof level !== 'undefined'
-      ? filter.levels.includes(level)
-      : true;
+    const matchesLevel =
+      filter.levels.length && typeof level !== "undefined"
+        ? filter.levels.includes(level)
+        : true;
 
     return matchesTextContent && matchesLevel;
   });

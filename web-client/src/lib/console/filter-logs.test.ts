@@ -7,7 +7,11 @@ describe("Log Filter Function", () => {
 
   // Test with no filters
   it("should return all logs when no filter is applied", () => {
-    const result = filterLogs(fakeMonitorData, { textContent: "", levels: [] }, logs);
+    const result = filterLogs(
+      fakeMonitorData,
+      { textContent: "", levels: [] },
+      logs
+    );
     expect(result).toEqual(logs);
   });
 
@@ -17,7 +21,11 @@ describe("Log Filter Function", () => {
       const expected = logs.filter(
         (log: any) => getLogMetadata(fakeMonitorData, log)?.level === level
       );
-      const result = filterLogs(fakeMonitorData, { textContent: "", levels: [level] }, logs);
+      const result = filterLogs(
+        fakeMonitorData,
+        { textContent: "", levels: [level] },
+        logs
+      );
       expect(result).toEqual(expected);
     });
   }
@@ -30,9 +38,15 @@ describe("Log Filter Function", () => {
         (log: any) =>
           log.message.includes(textContent) ||
           getLogMetadata(fakeMonitorData, log)?.target?.includes(textContent) ||
-          getLogMetadata(fakeMonitorData, log)?.location?.file?.includes(textContent)
+          getLogMetadata(fakeMonitorData, log)?.location?.file?.includes(
+            textContent
+          )
       );
-      const result = filterLogs(fakeMonitorData, { textContent, levels: [] }, logs);
+      const result = filterLogs(
+        fakeMonitorData,
+        { textContent, levels: [] },
+        logs
+      );
       expect(result).toEqual(expected);
     });
 
@@ -42,14 +56,21 @@ describe("Log Filter Function", () => {
         const expected = logs.filter(
           (log: any) =>
             (log.message.includes(textContent) ||
-              getLogMetadata(fakeMonitorData, log)?.target?.includes(textContent) ||
-              getLogMetadata(fakeMonitorData, log)?.location?.file?.includes(textContent)) &&
+              getLogMetadata(fakeMonitorData, log)?.target?.includes(
+                textContent
+              ) ||
+              getLogMetadata(fakeMonitorData, log)?.location?.file?.includes(
+                textContent
+              )) &&
             getLogMetadata(fakeMonitorData, log)?.level === level
         );
-        const result = filterLogs(fakeMonitorData, { textContent, levels: [level] }, logs);
+        const result = filterLogs(
+          fakeMonitorData,
+          { textContent, levels: [level] },
+          logs
+        );
         expect(result).toEqual(expected);
       });
     }
   });
-
 });
