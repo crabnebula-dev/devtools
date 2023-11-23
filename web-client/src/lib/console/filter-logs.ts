@@ -13,20 +13,19 @@ export const filterLogs = (
 ) =>
   logs.filter((log) => {
     if (!filter.textContent && !filter.levels.length) return true;
-    const level = getLogMetadata(monitorData, log)?.level;
-    if (
-      !filter.textContent &&
-      filter.levels.length &&
-      typeof level !== "undefined"
-    )
-      return filter.levels.includes(level);
-    if (filter.textContent && filter.levels.length)
-      return (
-        log.message.includes(filter.textContent) &&
-        typeof level !== "undefined" &&
-        filter.levels.includes(level)
-      );
-    if (filter.textContent && !filter.levels.length)
-      return log.message.includes(filter.textContent);
-    return false;
+
+    const metadata = getLogMetadata(monitorData, log);
+    const level = metadata?.level;
+    const target = metadata?.target;
+    const location = metadata?.location?.file;
+
+    const matchesTextContent = filter.textContent
+      ? log.message.includes(filter.textContent) || target?.includes(filter.textContent) || location?.includes(filter.textContent)
+      : true;
+
+    const matchesLevel = filter.levels.length && typeof level !== 'undefined'
+      ? filter.levels.includes(level)
+      : true;
+
+    return matchesTextContent && matchesLevel;
   });
