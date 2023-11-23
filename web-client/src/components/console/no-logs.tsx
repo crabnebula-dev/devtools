@@ -27,7 +27,7 @@ export function NoLogs(props: Props) {
           }
         >
           <div>
-            You've also got some logs configured.
+            You've also got some filters set.
             <br />
             Would you like to{" "}
             <Button.Root
