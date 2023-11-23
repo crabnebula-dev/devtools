@@ -97,7 +97,7 @@ export default function Console() {
                     <Link.Root
                       href={
                         /** @todo go to sources. Ref: https://linear.app/crabnebula/issue/DR-644/make-sources-context-aware */
-                        "#"
+                        "https://linear.app/crabnebula/issue/DR-644/make-sources-context-aware"
                       }
                       class="text-white underline"
                     >
