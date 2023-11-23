@@ -13,15 +13,12 @@ type Props = {
 export function LogLevelFilter(props: Props) {
   const toggleLogLevel = (level: Metadata_Level) => {
     if (props.filter.levels.includes(level)) {
-      props.setFilter(() => ({
-        ...props.filter,
-        levels: props.filter.levels.filter((l) => l !== level),
-      }));
+      props.setFilter(
+        "levels",
+        props.filter.levels.filter((l) => l !== level)
+      );
     } else {
-      props.setFilter(() => ({
-        ...props.filter,
-        levels: [...props.filter.levels, level],
-      }));
+      props.setFilter("levels", (levels) => [...levels, level]);
     }
   };
 
