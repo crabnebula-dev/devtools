@@ -1,9 +1,9 @@
 import { Span } from "../connection/monitor";
-import { Field } from "../proto/common";
+import { processFieldValue } from "./process-field-value";
 
 export function spanFieldsToObject(span: Span) {
   return (span.fields?.reduce(
-    (acc, field) => ({ ...acc, [field.name]: field.value }),
+    (acc, field) => ({ ...acc, [field.name]: processFieldValue(field.value) }),
     {}
-  ) ?? {}) as Record<string, Field["value"]>;
+  ) ?? {}) as Record<string, string>;
 }
