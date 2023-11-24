@@ -1,5 +1,5 @@
-import tauriConfigSchemaV1 from "./tauri-conf-schema-v1.json";
-import tauriConfigSchemaV2 from "./tauri-conf-schema-v2.json";
+import tauriConfigSchemaV1 from "./config/tauri-conf-schema-v1.json";
+import tauriConfigSchemaV2 from "./config/tauri-conf-schema-v2.json";
 import { Draft07, JsonSchema, JsonPointer } from "json-schema-library";
 import { createResource, Signal } from "solid-js";
 import { useLocation, useParams } from "@solidjs/router";
