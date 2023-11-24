@@ -1,6 +1,10 @@
 import { Span } from "../connection/monitor";
 
-export type SpanKind = "ipc" | "event";
+export type SpanKind =
+  | "ipc"
+  | "event"
+  | "updater-check"
+  | "updater-download-and-install";
 
 export type SpanWithChildren = Span & { children: Span[] };
 

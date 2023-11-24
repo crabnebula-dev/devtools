@@ -4,6 +4,7 @@ import { calculateSpanColorFromRelativeDuration } from "./calculate-span-color-f
 import { getEventName } from "./get-event-name";
 import { getIpcRequestName } from "./get-ipc-request-name";
 import { normalizeSpans } from "./normalize-spans";
+import { spanFieldsToObject } from "./span-fields-to-object";
 import { FilteredSpanWithChildren } from "./types";
 
 type Options = {
@@ -34,8 +35,21 @@ function getSpanName(
     return getIpcRequestName({ metadata, span });
   } else if (span.kind === "event") {
     return getEventName({ metadata, span });
+  } else if (span.kind === "updater-check") {
+    return "Checking for update";
+  } else if (span.kind === "updater-download-and-install") {
+    return "Downloading update";
   } else if (span.kind === undefined) {
-    return metadata.get(span.metadataId)?.name ?? null;
+    const name = metadata.get(span.metadataId)?.name ?? null;
+
+    if (name === "updater::check::fetch") {
+      const urlField = span.fields.find((f) => f.name === "url")?.value;
+      if (urlField?.oneofKind === "strVal") {
+        return `fetch ${urlField.strVal}`;
+      }
+    }
+
+    return name;
   } else {
     return "not implemented";
   }

@@ -1,4 +1,4 @@
-import { For, children, JSXElement } from "solid-js";
+import { For, children, JSXElement, Show } from "solid-js";
 import { UiSpan } from "~/lib/span/format-spans-for-ui";
 import { SpanDetailTrace } from "./span-detail-trace";
 import { SpanDetailArgs } from "./span-detail-args";
@@ -26,14 +26,16 @@ export function SpanDetailView(props: Props) {
           </For>
         </tbody>
       </table>
-      <div class="grid gap-2">
-        <h2 class="text-xl p-4">{props.valuesSectionTitle}</h2>
-        <table>
-          <tbody>
-            <SpanDetailArgs args={props.values} />
-          </tbody>
-        </table>
-      </div>
+      <Show when={props.values.length > 0}>
+        <div class="grid gap-2">
+          <h2 class="text-xl p-4">{props.valuesSectionTitle}</h2>
+          <table>
+            <tbody>
+              <SpanDetailArgs args={props.values} />
+            </tbody>
+          </table>
+        </div>
+      </Show>
       {c()}
     </div>
   );

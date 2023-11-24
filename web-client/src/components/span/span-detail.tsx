@@ -46,12 +46,21 @@ export function SpanDetail() {
     })[0];
 
   const children = () => {
-    if (span().kind === "ipc") {
-      return formattedSpan().children.filter(
-        (s) => s.name !== "ipc::request::response"
-      );
+    switch (span().kind) {
+      case "ipc":
+        return formattedSpan().children.filter(
+          (s) => s.name !== "ipc::request::response"
+        );
+
+      case "updater-download-and-install":
+        // filter the event emitting spans
+        return formattedSpan().children.filter(
+          (s) => s.name.startsWith("updater")
+        );
+
+      default:
+        return formattedSpan().children;
     }
-    return formattedSpan().children;
   };
 
   const valuesSectionTitle = () => {
@@ -76,8 +85,10 @@ export function SpanDetail() {
           []
         );
 
-      default:
-        return [spanFieldsToObject(span())];
+      default: {
+        const fields = spanFieldsToObject(span());
+        return Object.keys(fields).length ? [fields] : [];
+      }
     }
   };
 
@@ -89,6 +100,16 @@ export function SpanDetail() {
           rootSpan: span(),
         })("ipc::request::response")?.fields[0]?.response;
         return field ? processFieldValue(field) : null;
+      }
+
+      case "updater-check":
+      case "updater-download-and-install": {
+        const logs = monitorData.logs.filter((e) => e.parent === spanId());
+        const responseField = logs
+          .map((e) => e.fields)
+          .flat()
+          .find((f) => f.name === "error" || f.name === "return");
+        return responseField ? processFieldValue(responseField.value) : null;
       }
 
       default:

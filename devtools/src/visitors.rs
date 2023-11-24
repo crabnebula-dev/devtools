@@ -37,7 +37,7 @@ impl EventVisitor {
     }
     pub(crate) fn result(self) -> (String, Vec<Field>) {
         (
-            self.message.unwrap(), // TODO handle result here
+            self.message.unwrap_or_default(), // TODO handle result here
             self.field_visitor.result(),
         )
     }
