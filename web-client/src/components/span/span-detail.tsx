@@ -54,8 +54,8 @@ export function SpanDetail() {
 
       case "updater-download-and-install":
         // filter the event emitting spans
-        return formattedSpan().children.filter(
-          (s) => s.name.startsWith("updater")
+        return formattedSpan().children.filter((s) =>
+          s.name.startsWith("updater")
         );
 
       default:
