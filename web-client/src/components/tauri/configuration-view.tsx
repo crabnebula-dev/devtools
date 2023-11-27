@@ -13,8 +13,12 @@ export function ConfigurationView() {
     selected: "build" | "package" | "plugins" | "tauri";
   }>();
 
-  const tab = () =>
-    retrieveConfigurationByKey(params.config)?.data[params.selected] ?? {};
+  const tab = () => {
+    const config = retrieveConfigurationByKey(params.config);
+    if (config && config.data && config.data[params.selected])
+      return config.data[params.selected];
+    return {};
+  };
 
   createEffect(() => {
     const data = tab();
@@ -23,7 +27,7 @@ export function ConfigurationView() {
   });
 
   return (
-    <Show when={tab()}>
+    <Show when={Object.keys(tab()).length > 0}>
       <div class="p-4">
         <header>
           <h1 class="text-5xl pb-8 text-white">

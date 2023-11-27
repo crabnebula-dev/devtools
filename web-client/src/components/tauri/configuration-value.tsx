@@ -2,7 +2,13 @@ import { Show, For, Switch, Match } from "solid-js";
 import { ConfigurationTooltip } from "./configuration-tooltip";
 import { getDescriptionByKey } from "~/lib/tauri/tauri-conf-schema";
 
-type ConfigurationValue = ConfigurationRecord | string | [] | boolean;
+type ConfigurationValue =
+  | ConfigurationRecord
+  | string
+  | []
+  | boolean
+  | null
+  | undefined;
 
 /* eslint-disable-next-line @typescript-eslint/no-empty-interface */
 interface ConfigurationRecord extends Record<string, ConfigurationValue> {}
