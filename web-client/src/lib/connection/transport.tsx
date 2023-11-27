@@ -5,12 +5,47 @@ import { TauriClient } from "~/lib/proto/tauri.client";
 import { SourcesClient } from "~/lib/proto/sources.client.ts";
 import { MetadataClient } from "../proto/meta.client";
 import { SetStoreFunction, createStore, produce } from "solid-js/store";
-import { HealthCheckRequest } from "../proto/health";
+import {
+  HealthCheckRequest,
+  HealthCheckResponse_ServingStatus,
+} from "../proto/health";
 import { InstrumentRequest } from "../proto/instrument";
 import { updateSpanMetadata } from "../span/update-span-metadata";
 import { updatedSpans } from "../span/update-spans";
 import { MonitorData } from "./monitor";
-import { createResource } from "solid-js";
+
+export async function checkConnection(url: string) {
+  const abortController = new AbortController();
+  const transport = new GrpcWebFetchTransport({
+    format: "binary",
+    baseUrl: url,
+    abort: abortController.signal,
+  });
+
+  try {
+    const healthClient = new HealthClient(transport);
+    const healthCheck = await healthClient.check(
+      HealthCheckRequest.create({ service: "" })
+    );
+
+    const statusCode = healthCheck.response.status;
+    if (statusCode === 1) {
+      return {
+        status: "success",
+        message: `server status is: ${HealthCheckResponse_ServingStatus[statusCode]}`,
+      };
+    } else {
+      return {
+        status: "error",
+        message: `server status is: ${HealthCheckResponse_ServingStatus[statusCode]}. Try again...`,
+      };
+    }
+  } catch (e) {
+    return { status: "error", message: `failed to connect to ${url}` };
+  } finally {
+    abortController.abort();
+  }
+}
 
 export function connect(url: string) {
   const abortController = new AbortController();
