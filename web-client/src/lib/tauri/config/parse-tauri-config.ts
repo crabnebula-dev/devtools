@@ -18,7 +18,13 @@ interface PartialSafeParseSuccess extends SafeParseSuccess<TauriConfig> {
   error?: z.ZodError<TauriConfig>;
 }
 
-type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
+type JSONValue =
+  | string
+  | number
+  | boolean
+  | object
+  | JSONObject
+  | Array<JSONValue>;
 
 interface JSONObject {
   [key: string | number]: JSONValue;
@@ -31,6 +37,14 @@ function parseErrorConfig<T extends z.ZodTypeAny>(
 ) {
   /* Create a temporary object with the corrupt data */
   const errorData = structuredClone(configData);
+
+  if (!isJsonObject(errorData)) {
+    return {
+      success: false,
+      /* We return the original error */
+      error: parsed.error,
+    } satisfies SafeParseError<TauriConfig>;
+  }
 
   const fieldErrors = parsed.error.errors;
 
