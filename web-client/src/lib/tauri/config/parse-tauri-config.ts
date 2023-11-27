@@ -15,7 +15,7 @@ export function parseTauriConfig(
 }
 
 interface PartialSafeParseSuccess<T> extends SafeParseSuccess<T> {
-  error?: z.ZodError<T>;
+  error: z.ZodError<T>;
 }
 
 type JSONValue =
@@ -30,9 +30,9 @@ interface JSONObject {
   [key: string | number]: JSONValue;
 }
 
-function parseErrorConfig<T>(
+function parseErrorConfig(
   configData: JSONValue,
-  parsed: SafeParseError<T>,
+  parsed: SafeParseError<TauriConfig>,
   schema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>
 ):
   | z.SafeParseReturnType<TauriConfig, TauriConfig>
@@ -58,8 +58,9 @@ function parseErrorConfig<T>(
     deleteErrorKey(errorData, error);
   });
 
+  console.log("errorData", errorData);
   const strippedConfig = schema.safeParse(errorData);
-
+  console.log(strippedConfig);
   /* When our incoming data is empty after stripping invalid keys we invalidate the result */
   return Object.keys(errorData).length === 0 || !isValidConfig(strippedConfig)
     ? {
@@ -81,6 +82,12 @@ function isJsonObject(value: JSONValue): value is JSONObject {
   return !Array.isArray(value) && typeof value === "object";
 }
 
+function isJsonArray(value: JSONValue): value is Array<JSONValue> {
+  if (!value) return false;
+
+  return Array.isArray(value);
+}
+
 export function isValidConfig<T>(
   value: PartialSafeParseSuccess<T> | SafeParseSuccess<T> | SafeParseError<T>
 ): value is SafeParseSuccess<T> {
@@ -99,9 +106,10 @@ function deleteUnrecognizedKey(
   keys: string[]
 ) {
   path.forEach((path) => {
-    if (isJsonObject(object) && Object.hasOwn(object, path)) {
+    if (isJsonObject(object) && Object.hasOwn(object, path))
       object = object[path];
-    }
+
+    if (isJsonArray(object) && typeof path === "number") object = object[path];
   });
   keys.forEach((key) => {
     if (isJsonObject(object) && Object.hasOwn(object, key)) {
@@ -116,11 +124,22 @@ function deleteErrorKey(object: JSONValue, error: ZodIssue) {
     paths.forEach((path) => {
       if (isJsonObject(object) && Object.hasOwn(object, path))
         object = object[path];
+      if (isJsonArray(object) && typeof path === "number")
+        object = object[path];
+      console.log("hello", object, path);
     });
   }
 
-  const deleteKey = error.path.pop();
+  const deleteKey = error.path[error.path.length - 1];
 
   if (deleteKey && isJsonObject(object) && Object.hasOwn(object, deleteKey))
+    delete object[deleteKey];
+  console.log(deleteKey);
+  if (
+    deleteKey &&
+    isJsonArray(object) &&
+    typeof deleteKey === "number" &&
+    Array.length > deleteKey
+  )
     delete object[deleteKey];
 }

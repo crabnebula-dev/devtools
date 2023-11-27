@@ -174,7 +174,9 @@ async function readListOfConfigurations(
           isValidConfig(parsedConfig) || isPartiallyValidConfig(parsedConfig)
             ? parsedConfig.data
             : undefined,
-        error: !isValidConfig(parsedConfig) ? parsedConfig.error : undefined,
+        error: isPartiallyValidConfig(parsedConfig)
+          ? parsedConfig.error
+          : undefined,
         size: 0,
         raw: text,
       } satisfies ConfigurationObject;

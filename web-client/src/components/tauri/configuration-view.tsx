@@ -6,12 +6,20 @@ import {
   retrieveConfigurationByKey,
 } from "~/lib/tauri/tauri-conf-schema";
 import { useParams } from "@solidjs/router";
+import { ConfigurationErrors } from "./configuration-erros";
 
 export function ConfigurationView() {
   const params = useParams<{
-    config: string;
+    config:
+      | "loaded"
+      | "tauri.conf.json"
+      | "tauri.windows.conf"
+      | "tauri.linux.conf"
+      | "tauri.macos.conf";
     selected: "build" | "package" | "plugins" | "tauri";
   }>();
+
+  const config = () => retrieveConfigurationByKey(params.config);
 
   const tab = () => {
     const config = retrieveConfigurationByKey(params.config);
@@ -27,8 +35,12 @@ export function ConfigurationView() {
   });
 
   return (
-    <Show when={Object.keys(tab()).length > 0}>
-      <div class="p-4">
+    <div class="p-4">
+      <Show when={params.config && !params.selected && config()}>
+        <h1 class="text-3xl">{config()?.label}</h1>
+        <ConfigurationErrors error={config()!.error} />
+      </Show>
+      <Show when={Object.keys(tab()).length > 0}>
         <header>
           <h1 class="text-5xl pb-8 text-white">
             <ConfigurationTooltip parentKey="" key={params.selected} />
@@ -55,7 +67,7 @@ export function ConfigurationView() {
             </For>
           </Match>
         </Switch>
-      </div>
-    </Show>
+      </Show>
+    </div>
   );
 }
