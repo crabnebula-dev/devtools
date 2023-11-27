@@ -11,6 +11,7 @@ import type { Entry } from "../proto/sources";
 import type { SourcesClient } from "../proto/sources.client";
 import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
+import { safeStringifyJson, safeParseJson } from "../safe-json";
 
 export type ConfigurationStore = {
   configs?: ConfigurationObject[];
@@ -98,7 +99,7 @@ export function retrieveConfigurations() {
             tauri: {},
             plugins: {},
           },
-          raw: JSON.stringify(monitorData.tauriConfig ?? ""),
+          raw: safeStringifyJson(monitorData.tauriConfig ?? {}),
         },
         ...configurations,
       ];
@@ -118,7 +119,7 @@ async function readListOfConfigurations(
       const bytes = await getEntryBytes(client, e.path, Number(e.size));
 
       const text = bytesToText(bytes);
-      const data = JSON.parse(text);
+      const data = safeParseJson(text) ?? {};
       delete data["$schema"];
       return {
         label: "File: " + e.path,
