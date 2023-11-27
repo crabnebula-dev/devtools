@@ -58,9 +58,7 @@ function parseErrorConfig(
     deleteErrorKey(errorData, error);
   });
 
-  console.log("errorData", errorData);
   const strippedConfig = schema.safeParse(errorData);
-  console.log(strippedConfig);
   /* When our incoming data is empty after stripping invalid keys we invalidate the result */
   return Object.keys(errorData).length === 0 || !isValidConfig(strippedConfig)
     ? {
@@ -126,7 +124,6 @@ function deleteErrorKey(object: JSONValue, error: ZodIssue) {
         object = object[path];
       if (isJsonArray(object) && typeof path === "number")
         object = object[path];
-      console.log("hello", object, path);
     });
   }
 
@@ -134,7 +131,6 @@ function deleteErrorKey(object: JSONValue, error: ZodIssue) {
 
   if (deleteKey && isJsonObject(object) && Object.hasOwn(object, deleteKey))
     delete object[deleteKey];
-  console.log(deleteKey);
   if (
     deleteKey &&
     isJsonArray(object) &&
