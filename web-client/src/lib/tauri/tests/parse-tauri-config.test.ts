@@ -18,7 +18,7 @@ describe("parseTauriConfig", () => {
     ).toBe(true);
   });
 
-  it("should be able to reject a completly broken v1 tauri config", () => {
+  it("should be able to reject a completely broken v1 tauri config", () => {
     expect(
       parseTauriConfig(brokenConfiguration, tauriConfigSchemaV1).success
     ).toBe(false);
@@ -36,7 +36,7 @@ describe("parseTauriConfig", () => {
     ).toBe(true);
   });
 
-  it("should be able to reject a completly broken v2 tauri config", () => {
+  it("should be able to reject a completely broken v2 tauri config", () => {
     expect(
       parseTauriConfig(brokenConfiguration, tauriConfigSchemaV2).success
     ).toBe(false);

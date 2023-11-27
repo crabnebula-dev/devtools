@@ -6,7 +6,7 @@ import {
   retrieveConfigurationByKey,
 } from "~/lib/tauri/tauri-conf-schema";
 import { useParams } from "@solidjs/router";
-import { ConfigurationErrors } from "./configuration-erros";
+import { ConfigurationErrors } from "./configuration-errors";
 
 export function ConfigurationView() {
   const params = useParams<{
