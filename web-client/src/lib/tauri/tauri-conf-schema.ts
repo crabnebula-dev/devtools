@@ -11,6 +11,15 @@ import type { Entry } from "../proto/sources";
 import type { SourcesClient } from "../proto/sources.client";
 import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
+import { TauriConfig } from "./config/tauri-conf";
+import {
+  parseTauriConfig,
+  isValidConfig,
+  isPartiallyValidConfig,
+} from "./config/parse-tauri-config";
+import { zodSchemaForVersion } from "./config/zod-schema-for-version";
+import { getVersions } from "../connection/getters";
+import { z } from "zod";
 
 export type ConfigurationStore = {
   configs?: ConfigurationObject[];
@@ -20,15 +29,11 @@ export type ConfigurationObject = {
   label: string;
   key: string;
   path: string;
-  data: TauriConfiguration;
+  data?: TauriConfig;
+  error?: z.ZodError<TauriConfig>;
   size: number;
   raw: string;
 };
-
-export type TauriConfiguration = Record<
-  "build" | "package" | "plugins" | "tauri",
-  object
->;
 
 export function getTauriTabBasePath() {
   const { pathname } = useLocation();
@@ -75,16 +80,27 @@ export function retrieveConfigurations() {
 
   const { monitorData } = useMonitor();
 
+  const [tauriVersions] = getVersions(connectionStore.client.tauri);
+  const tauriVersion = tauriVersions()?.tauri ?? "1";
+  const zodSchema = zodSchemaForVersion(tauriVersion);
+
   return createResource(
     entries,
     async (entries) => {
-      const filteredEntries =
-        entries?.filter((e) => e.path.endsWith(".conf.json")) || [];
+      const filteredEntries = [
+        "tauri.conf.json",
+        "tauri.macos.conf.json",
+        "tauri.linux.conf.json",
+        "tauri.windows.conf.json",
+      ];
 
-      const configurations = await readListOfConfigurations(
-        filteredEntries,
-        connectionStore.client.sources
-      );
+      const configurations = (
+        await readListOfConfigurations(
+          filteredEntries,
+          connectionStore.client.sources,
+          zodSchema
+        )
+      ).filter((e) => e);
 
       return [
         {
@@ -92,14 +108,9 @@ export function retrieveConfigurations() {
           key: "loaded",
           path: "",
           size: 0,
-          data: monitorData.tauriConfig ?? {
-            build: {},
-            package: {},
-            tauri: {},
-            plugins: {},
-          },
-          raw: JSON.stringify(monitorData.tauriConfig ?? ""),
-        },
+          data: parseTauriConfig(monitorData.tauriConfig ?? {}, zodSchema).data,
+          raw: safeJsonStringify(monitorData.tauriConfig ?? {}),
+        } satisfies ConfigurationObject,
         ...configurations,
       ];
     },
@@ -109,27 +120,52 @@ export function retrieveConfigurations() {
   );
 }
 
-async function readListOfConfigurations(
-  entries: Entry[],
-  client: SourcesClient
+function safeParseJson(jsonString: string) {
+  try {
+    return JSON.parse(jsonString);
+  } catch (e) {
+    return null;
+  }
+}
+
+function safeJsonStringify(object: Record<string, unknown>) {
+  try {
+    return JSON.stringify(object);
+  } catch (e) {
+    return "";
+  }
+}
+
+async function readListOfConfigurations<Schema extends z.ZodTypeAny>(
+  entries: string[],
+  client: SourcesClient,
+  zodSchema: Schema
 ) {
   return await Promise.all(
-    entries.map(async (e): Promise<ConfigurationObject> => {
-      const bytes = await getEntryBytes(client, e.path, Number(e.size));
+    entries.map(async (entry): Promise<ConfigurationObject | null> => {
+      let bytes;
+      try {
+        bytes = await getEntryBytes(client, entry, 0);
+      } catch (e) {
+        return null;
+      }
 
       const text = bytesToText(bytes);
-      const data = JSON.parse(text);
-      delete data["$schema"];
+      const rawData = safeParseJson(text);
+      const parsedConfig = parseTauriConfig(rawData, zodSchema);
+
       return {
-        label: "File: " + e.path,
-        key: e.path,
-        path: e.path,
-        /*  TODO add validator type guard to make sure data we receive is actually a proper configuration ref: 
-            https://linear.app/crabnebula/issue/DR-428/tauri-tab-strong-type-tauriconfigjson-according-to-existing-schema */
-        data: (data as TauriConfiguration) ?? {},
-        size: Number(e.size),
+        label: "File: " + entry,
+        key: entry,
+        path: entry,
+        data:
+          isValidConfig(parsedConfig) || isPartiallyValidConfig(parsedConfig)
+            ? parsedConfig.data
+            : undefined,
+        error: !isValidConfig(parsedConfig) ? parsedConfig.error : undefined,
+        size: 0,
         raw: text,
-      };
+      } satisfies ConfigurationObject;
     })
   );
 }

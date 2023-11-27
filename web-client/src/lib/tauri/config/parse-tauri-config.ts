@@ -2,9 +2,9 @@ import { z } from "zod";
 import { SafeParseError, SafeParseSuccess, ZodIssue } from "zod";
 import type { TauriConfig } from "./tauri-conf";
 
-export function parseTauriConfig<T extends z.ZodTypeAny>(
+export function parseTauriConfig<Schema extends z.ZodTypeAny>(
   configData: JSONValue,
-  schema: T
+  schema: Schema
 ) {
   const config = schema.safeParse(configData);
 
@@ -12,6 +12,10 @@ export function parseTauriConfig<T extends z.ZodTypeAny>(
   if (!config.success) return parseErrorConfig(configData, config, schema);
 
   return config;
+}
+
+interface PartialSafeParseSuccess extends SafeParseSuccess<TauriConfig> {
+  error?: z.ZodError<TauriConfig>;
 }
 
 type JSONValue = string | number | boolean | JSONObject | Array<JSONValue>;
@@ -25,10 +29,12 @@ function parseErrorConfig<T extends z.ZodTypeAny>(
   parsed: SafeParseError<T>,
   schema: T
 ) {
+  /* Create a temporary object with the corrupt data */
   const errorData = structuredClone(configData);
 
   const fieldErrors = parsed.error.errors;
 
+  /* Remove all the fields with errors */
   fieldErrors.forEach((error) => {
     if (error.code === "unrecognized_keys")
       return deleteUnrecognizedKey(errorData, error.path, error.keys);
@@ -36,24 +42,39 @@ function parseErrorConfig<T extends z.ZodTypeAny>(
     deleteErrorKey(errorData, error);
   });
 
-  const defaultConfig = schema.parse({});
   const strippedConfig = schema.parse(errorData);
 
-  return JSON.stringify(defaultConfig) === JSON.stringify(strippedConfig)
+  /* When our incoming data is empty after stripping invalid keys we invalidate the result */
+  return Object.keys(errorData).length === 0
     ? ({
         success: false,
+        /* We return the original error */
         error: parsed.error,
       } satisfies SafeParseError<TauriConfig>)
     : ({
         success: true,
-        data: strippedConfig,
-      } satisfies SafeParseSuccess<TauriConfig>);
+        data: strippedConfig.data,
+        /* We return the original error's */
+        error: parsed.error,
+      } satisfies PartialSafeParseSuccess);
 }
 
 function isJsonObject(value: JSONValue): value is JSONObject {
   if (!value) return false;
 
   return !Array.isArray(value) && typeof value === "object";
+}
+
+export function isValidConfig<T>(
+  value: PartialSafeParseSuccess | SafeParseSuccess<T> | SafeParseError<T>
+): value is SafeParseSuccess<T> {
+  return "data" in value && !("error" in value);
+}
+
+export function isPartiallyValidConfig<T>(
+  value: PartialSafeParseSuccess | SafeParseSuccess<T> | SafeParseError<T>
+): value is PartialSafeParseSuccess {
+  return "data" in value && "error" in value;
 }
 
 function deleteUnrecognizedKey(
