@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { SafeParseError, SafeParseSuccess, ZodIssue } from "zod";
-import type { TauriConfig } from "./tauri-conf";
+import { TauriConfig } from "./tauri-conf";
 
-export function parseTauriConfig<Schema extends z.ZodTypeAny>(
+export function parseTauriConfig(
   configData: JSONValue,
-  schema: Schema
+  schema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>
 ) {
   const config = schema.safeParse(configData);
 
@@ -14,8 +14,8 @@ export function parseTauriConfig<Schema extends z.ZodTypeAny>(
   return config;
 }
 
-interface PartialSafeParseSuccess extends SafeParseSuccess<TauriConfig> {
-  error?: z.ZodError<TauriConfig>;
+interface PartialSafeParseSuccess<T> extends SafeParseSuccess<T> {
+  error?: z.ZodError<T>;
 }
 
 type JSONValue =
@@ -30,11 +30,13 @@ interface JSONObject {
   [key: string | number]: JSONValue;
 }
 
-function parseErrorConfig<T extends z.ZodTypeAny>(
+function parseErrorConfig<T>(
   configData: JSONValue,
   parsed: SafeParseError<T>,
-  schema: T
-) {
+  schema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>
+):
+  | z.SafeParseReturnType<TauriConfig, TauriConfig>
+  | PartialSafeParseSuccess<TauriConfig> {
   /* Create a temporary object with the corrupt data */
   const errorData = structuredClone(configData);
 
@@ -43,7 +45,7 @@ function parseErrorConfig<T extends z.ZodTypeAny>(
       success: false,
       /* We return the original error */
       error: parsed.error,
-    } satisfies SafeParseError<TauriConfig>;
+    };
   }
 
   const fieldErrors = parsed.error.errors;
@@ -56,21 +58,21 @@ function parseErrorConfig<T extends z.ZodTypeAny>(
     deleteErrorKey(errorData, error);
   });
 
-  const strippedConfig = schema.parse(errorData);
+  const strippedConfig = schema.safeParse(errorData);
 
   /* When our incoming data is empty after stripping invalid keys we invalidate the result */
-  return Object.keys(errorData).length === 0
-    ? ({
+  return Object.keys(errorData).length === 0 || !isValidConfig(strippedConfig)
+    ? {
         success: false,
         /* We return the original error */
         error: parsed.error,
-      } satisfies SafeParseError<TauriConfig>)
-    : ({
+      }
+    : {
         success: true,
         data: strippedConfig.data,
         /* We return the original error's */
         error: parsed.error,
-      } satisfies PartialSafeParseSuccess);
+      };
 }
 
 function isJsonObject(value: JSONValue): value is JSONObject {
@@ -80,14 +82,14 @@ function isJsonObject(value: JSONValue): value is JSONObject {
 }
 
 export function isValidConfig<T>(
-  value: PartialSafeParseSuccess | SafeParseSuccess<T> | SafeParseError<T>
+  value: PartialSafeParseSuccess<T> | SafeParseSuccess<T> | SafeParseError<T>
 ): value is SafeParseSuccess<T> {
   return "data" in value && !("error" in value);
 }
 
 export function isPartiallyValidConfig<T>(
-  value: PartialSafeParseSuccess | SafeParseSuccess<T> | SafeParseError<T>
-): value is PartialSafeParseSuccess {
+  value: PartialSafeParseSuccess<T> | SafeParseSuccess<T> | SafeParseError<T>
+): value is PartialSafeParseSuccess<T> {
   return "data" in value && "error" in value;
 }
 

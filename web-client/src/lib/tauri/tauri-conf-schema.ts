@@ -7,7 +7,6 @@ import { awaitEntries, getEntryBytes } from "~/lib/sources/file-entries";
 import { useConfiguration } from "~/components/tauri/configuration-context";
 import { unwrap, reconcile } from "solid-js/store";
 import { bytesToText } from "../code-highlight";
-import type { Entry } from "../proto/sources";
 import type { SourcesClient } from "../proto/sources.client";
 import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
@@ -100,7 +99,12 @@ export function retrieveConfigurations() {
           connectionStore.client.sources,
           zodSchema
         )
-      ).filter((e) => e);
+      ).filter(notEmpty);
+
+      const loadedConfiguration = parseTauriConfig(
+        monitorData.tauriConfig ?? {},
+        zodSchema
+      );
 
       return [
         {
@@ -108,7 +112,11 @@ export function retrieveConfigurations() {
           key: "loaded",
           path: "",
           size: 0,
-          data: parseTauriConfig(monitorData.tauriConfig ?? {}, zodSchema).data,
+          data:
+            isValidConfig(loadedConfiguration) ||
+            isPartiallyValidConfig(loadedConfiguration)
+              ? loadedConfiguration.data
+              : undefined,
           raw: safeJsonStringify(monitorData.tauriConfig ?? {}),
         } satisfies ConfigurationObject,
         ...configurations,
@@ -118,6 +126,10 @@ export function retrieveConfigurations() {
       storage: createDeepConfigurationStoreSignal,
     }
   );
+}
+
+function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+  return value !== null && value !== undefined;
 }
 
 function safeParseJson(jsonString: string) {
@@ -136,10 +148,10 @@ function safeJsonStringify(object: Record<string, unknown>) {
   }
 }
 
-async function readListOfConfigurations<Schema extends z.ZodTypeAny>(
+async function readListOfConfigurations(
   entries: string[],
   client: SourcesClient,
-  zodSchema: Schema
+  zodSchema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>
 ) {
   return await Promise.all(
     entries.map(async (entry): Promise<ConfigurationObject | null> => {
