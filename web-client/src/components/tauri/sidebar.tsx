@@ -2,7 +2,7 @@ import { For, Suspense } from "solid-js";
 import { FileIcon } from "~/components/icons/ide-icons";
 import { A } from "@solidjs/router";
 import {
-  configurationObject,
+  type ConfigurationObject,
   retrieveConfigurations,
   getTauriTabBasePath,
 } from "~/lib/tauri/tauri-conf-schema";
@@ -20,21 +20,19 @@ export function Sidebar() {
   );
 }
 
-function Config(props: { config: configurationObject }) {
+function Config(props: { config: ConfigurationObject }) {
   return (
     <section class="p-2">
-      <div class="flex text-xl items-center">
-        <div class="w-10 px-2">
-          <FileIcon path={props.config.path} />
-        </div>
-        {props.config.path}
+      <div class="grid gap-1.5 items-center text-left grid-cols-[1rem_1fr] text-xl">
+        <FileIcon path="tauri.conf.json" />
+        {props.config.label}
       </div>
       <nav class="flex flex-col pl-8">
         <For each={Object.entries(props.config.data ?? {})}>
           {([name]) => (
             <TabLink
               name={name}
-              path={props.config.path}
+              key={props.config.key}
               size={props.config.size}
             />
           )}
@@ -44,17 +42,15 @@ function Config(props: { config: configurationObject }) {
   );
 }
 
-function TabLink(props: { name: string; path: string; size: number }) {
+function TabLink(props: { name: string; key: string; size: number }) {
   const basePath = getTauriTabBasePath();
   return (
     <A
-      href={`${basePath}/${props.path}/${props.name}?size=${props.size}`}
+      href={`${basePath}/${props.key}/${props.name}?size=${props.size}`}
       activeClass="hover:bg-[#eaebeb] hover:border-[#2DCC9F] bg-[#00555A] border-[#2DCC9F] text-white"
-      class="text-lg border-b-2 hover:bg-[#00555A] hover:border-[#2DCC9F] p-1 border-neutral-800 text-neutral-400 hover:text-white"
+      class="text-lg border-b-2 hover:bg-[#00555A] hover:border-[#2DCC9F] p-1 border-neutral-800 text-neutral-400 hover:text-white grid gap-1.5 items-center text-left grid-cols-[1rem_1fr]"
     >
-      <div class="inline-block w-6 align-middle mx-2">
-        <FileIcon path={props.name} />
-      </div>
+      <FileIcon path={props.name} />
       {props.name}
     </A>
   );

@@ -6,10 +6,15 @@ import {
   useContext,
 } from "solid-js";
 import { SetStoreFunction, createStore } from "solid-js/store";
-import { getTauriConfig, getTauriMetrics } from "~/lib/connection/getters";
+import {
+  getTauriConfig,
+  getTauriMetrics,
+  getVersions,
+} from "~/lib/connection/getters";
 import { MonitorData, initialMonitorData } from "~/lib/connection/monitor";
 import { addStreamListneners } from "~/lib/connection/transport";
 import { useConnection } from "~/context/connection-provider";
+import { returnLatestSchemaForVersion } from "~/lib/tauri/tauri-conf-schema";
 
 type ProviderProps = {
   children: JSXElement;
@@ -32,9 +37,19 @@ export function MonitorProvider(props: ProviderProps) {
   const [monitorData, setMonitorData] = createStore(initialMonitorData);
   const [tauriMetrics] = getTauriMetrics(connectionStore.client.tauri);
   const [tauriConfig] = getTauriConfig(connectionStore.client.tauri);
+  const [tauriVersions] = getVersions(connectionStore.client.tauri);
 
   createEffect(() => {
     setMonitorData("tauriConfig", tauriConfig());
+  });
+
+  createEffect(() => {
+    const versions = tauriVersions();
+    if (versions) {
+      const schema = returnLatestSchemaForVersion(versions.tauri);
+      setMonitorData("schema", schema);
+    }
+    setMonitorData("tauriVersions", versions);
   });
 
   createEffect(() => {
