@@ -1,4 +1,4 @@
-import { Show, For, createEffect } from "solid-js";
+import { Show, For, createEffect, Switch, Match } from "solid-js";
 import { ConfigurationValue } from "./configuration-value";
 import { ConfigurationTooltip } from "./configuration-tooltip";
 import {
@@ -30,15 +30,27 @@ export function ConfigurationView() {
             <ConfigurationTooltip parentKey="" key={params.selected} />
           </h1>
         </header>
-        <For each={Object.entries(tab())}>
-          {([key, value]) => (
+        <Switch
+          fallback={
             <ConfigurationValue
-              parentKey={params.selected}
-              key={key}
-              value={value}
+              parentKey=""
+              key={params.selected}
+              value={tab()}
             />
-          )}
-        </For>
+          }
+        >
+          <Match when={typeof tab() === "object"}>
+            <For each={Object.entries(tab())}>
+              {([key, value]) => (
+                <ConfigurationValue
+                  parentKey={params.selected}
+                  key={key}
+                  value={value}
+                />
+              )}
+            </For>
+          </Match>
+        </Switch>
       </div>
     </Show>
   );
