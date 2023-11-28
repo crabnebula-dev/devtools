@@ -36,6 +36,13 @@ export type ConfigurationObject = {
   raw: string;
 };
 
+export const possibleConfigurationFiles = [
+  "tauri.conf.json",
+  "tauri.macos.conf.json",
+  "tauri.linux.conf.json",
+  "tauri.windows.conf.json",
+];
+
 export function getTauriTabBasePath() {
   const { pathname } = useLocation();
   return pathname
@@ -76,58 +83,46 @@ export function retrieveConfigurations() {
   if (configurations.configs)
     return createResource(() => configurations.configs);
 
+  return createResource(true, loadConfigurations, {
+    storage: createDeepConfigurationStoreSignal,
+  });
+}
+
+async function loadConfigurations() {
   const { connectionStore } = useConnection();
-  const [entries] = awaitEntries(connectionStore.client.sources, "");
-
   const { monitorData } = useMonitor();
-
   const [tauriVersions] = getVersions(connectionStore.client.tauri);
   const tauriVersion = tauriVersions()?.tauri ?? "1";
   const zodSchema = zodSchemaForVersion(tauriVersion);
 
-  return createResource(
-    entries,
-    async (entries) => {
-      const filteredEntries = [
-        "tauri.conf.json",
-        "tauri.macos.conf.json",
-        "tauri.linux.conf.json",
-        "tauri.windows.conf.json",
-      ];
+  const configurations = (
+    await readListOfConfigurations(
+      possibleConfigurationFiles,
+      connectionStore.client.sources,
+      zodSchema
+    )
+  ).filter(notEmpty);
 
-      const configurations = (
-        await readListOfConfigurations(
-          filteredEntries,
-          connectionStore.client.sources,
-          zodSchema
-        )
-      ).filter(notEmpty);
-
-      const loadedConfiguration = parseTauriConfig(
-        monitorData.tauriConfig ?? {},
-        zodSchema
-      );
-
-      return [
-        {
-          label: "Loaded configuration",
-          key: "loaded",
-          path: "",
-          size: 0,
-          data:
-            isValidConfig(loadedConfiguration) ||
-            isPartiallyValidConfig(loadedConfiguration)
-              ? loadedConfiguration.data
-              : undefined,
-          raw: safeStringifyJson(monitorData.tauriConfig ?? {}) ?? "",
-        } satisfies ConfigurationObject,
-        ...configurations,
-      ];
-    },
-    {
-      storage: createDeepConfigurationStoreSignal,
-    }
+  const loadedConfiguration = parseTauriConfig(
+    monitorData.tauriConfig ?? {},
+    zodSchema
   );
+  console.log(loadedConfiguration);
+  return [
+    {
+      label: "Loaded configuration",
+      key: "loaded",
+      path: "",
+      size: 0,
+      data:
+        isValidConfig(loadedConfiguration) ||
+        isPartiallyValidConfig(loadedConfiguration)
+          ? loadedConfiguration.data
+          : undefined,
+      raw: safeStringifyJson(monitorData.tauriConfig ?? {}) ?? "",
+    } satisfies ConfigurationObject,
+    ...configurations,
+  ];
 }
 
 function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {

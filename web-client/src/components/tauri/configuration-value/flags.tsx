@@ -11,7 +11,6 @@ export function Flags(props: {
 }) {
   const localSchema = () => getDescriptionByKey(props.key);
 
-  /* TODO implement a check to see if the value is in the config ref: https://linear.app/crabnebula/issue/DR-639/improve-config-parameter-flags */
   const isInConfig = () => {
     const lineNumber = findLineNumberByKey(props.key);
     return lineNumber > 0;
@@ -28,7 +27,7 @@ export function Flags(props: {
   );
 }
 
-function isDefaultValue(
+export function isDefaultValue(
   schema:
     | {
         default?: string;
