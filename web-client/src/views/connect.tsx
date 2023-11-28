@@ -28,10 +28,9 @@ export default function Connect() {
             const data = Object.fromEntries(new FormData(e.currentTarget));
             const url = `http://${data.host}:${data.port}`;
 
-            // const foo = await checkConnection(`http://${host()}:${port()}`);
-            const foo = await checkConnection(url);
+            const ping = await checkConnection(url);
 
-            if (foo.status === "bad") return;
+            if (ping.status === "bad") return;
 
             navigate(`/dash/${data.host}/${data.port}/`);
           }}

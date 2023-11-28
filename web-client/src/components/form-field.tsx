@@ -9,12 +9,6 @@ type Props = {
   required?: boolean;
   type: "text" | "number";
   pattern?: string;
-  // onInput: (
-  //   e: InputEvent & {
-  //     currentTarget: HTMLInputElement;
-  //     target: HTMLInputElement;
-  //   }
-  // ) => void;
 };
 
 export const FormField = (props: Props) => {
