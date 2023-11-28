@@ -24,7 +24,7 @@ export function SpanDetail() {
         ),
       };
     }
-    throw new Error("No Span");
+    console.error("No Span");
   };
 
   const formattedSpan = () =>
