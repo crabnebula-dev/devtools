@@ -48,6 +48,8 @@
     "@protobuf-ts/plugin": "^2.9.1",
     "@protobuf-ts/runtime": "^2.9.1",
     "@protobuf-ts/runtime-rpc": "^2.9.1",
+    "@sentry/browser": "^7.83.0",
+    "@sentry/vite-plugin": "^2.10.2",
     "@solidjs/router": "^0.8.4",
     "clsx": "^2.0.0",
     "csp_evaluator": "^1.1.1",
