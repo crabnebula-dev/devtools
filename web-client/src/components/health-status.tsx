@@ -103,7 +103,7 @@ export function HealthStatus() {
   function reconnect() {
     const newConnection = connect(connectionStore.serviceUrl);
     setConnection(reconcile(newConnection, { merge: false }));
-
+    setMonitorData("spans", []);
     addStreamListneners(connectionStore.stream.update, setMonitorData);
     connectionStore.stream.health.responses.onError(healthErrorHandler);
     connectionStore.stream.update.responses.onError(updateErrorHandler);
