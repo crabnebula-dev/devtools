@@ -244,8 +244,13 @@ export function findLineNumberByNestedKeyInSource(
       }
 
       // If the search property is a number we are in an array and assume that we are in the correct spot and only have to search for the correct index
-      if (Number.isInteger(parseInt(searchStack[searchLevel]))) {
-        if (arrayCounter === parseInt(searchStack[searchLevel])) {
+      const arrayPointer = parseInt(searchStack[searchLevel]);
+      const numberOfValues = line.split(",").length;
+      if (Number.isInteger(arrayPointer)) {
+        if (
+          arrayCounter === arrayPointer ||
+          (numberOfValues > 1 && arrayPointer <= numberOfValues)
+        ) {
           keyStack.push(searchStack[searchLevel]);
           searchLevel++;
           searchIndents.push(currentIndent);
