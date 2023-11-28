@@ -1,6 +1,7 @@
 import { Show, For, Switch, Match } from "solid-js";
 import { ConfigurationTooltip } from "./configuration-tooltip";
 import { getDescriptionByKey } from "~/lib/tauri/tauri-conf-schema";
+import { findLineNumberByKey } from "~/lib/tauri/tauri-conf-schema";
 
 type ConfigurationValue =
   | ConfigurationRecord
@@ -53,7 +54,11 @@ export function ConfigurationValue(props: ConfigurationValueProps) {
   );
 }
 
-function Flags(props: { key: string; value: boolean | string }) {
+function Flags(props: {
+  key: string;
+  value: boolean | string;
+  parentKey: string;
+}) {
   const localSchema = () => getDescriptionByKey(props.key);
 
   const isDefault = () => {
@@ -67,16 +72,17 @@ function Flags(props: { key: string; value: boolean | string }) {
 
   /* TODO implement a check to see if the value is in the config ref: https://linear.app/crabnebula/issue/DR-639/improve-config-parameter-flags */
   const isInConfig = () => {
-    return false;
+    const lineNumber = findLineNumberByKey(props.key);
+    console.log(lineNumber);
+    return lineNumber > 0;
   };
-
   return (
     <div>
       <Show when={isDefault()}>
         <span class="text-teal-800 pr-2">Default</span>
       </Show>
       <Show when={isInConfig()}>
-        <span class="text-teal-800 pr-2">Configured</span>
+        <span class="text-yellow-500 pr-2">Configured</span>
       </Show>
     </div>
   );
@@ -99,7 +105,7 @@ function TextValue(props: TextConfigurationValueProps) {
         <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
       </div>
       <div class="basis-3/5 border-l-2 border-[#4B4B4B] p-1 text-right flex justify-between">
-        <Flags key={key()} value={props.value} />
+        <Flags key={key()} value={props.value} parentKey={props.parentKey} />
         <span class="ml-auto">{value()}</span>
       </div>
     </div>

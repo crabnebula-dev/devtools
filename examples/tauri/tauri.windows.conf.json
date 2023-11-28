@@ -1,5 +1,4 @@
 {
-  "//broken": "haaha",
   "build": {
     "distDir": ["index.html", "test.html"],
     "devPath": ["index.html", "test.html"],
@@ -13,8 +12,7 @@
   "tauri": {
     "windows": [
       {
-        "fullscreen": "AWDAWD",
-        "deepError": true,
+        "fullscreen": true,
         "height": 700,
         "resizable": true,
         "title": "Tauri Windows App",

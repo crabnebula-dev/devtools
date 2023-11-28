@@ -2,6 +2,11 @@ import { ZodError, ZodIssueBase, ZodUnrecognizedKeysIssue } from "zod";
 import { TauriConfig } from "~/lib/tauri/config/tauri-conf";
 import { Show, For } from "solid-js";
 import { useConfiguration } from "./configuration-context";
+import {
+  UnrecognizedKeyIssue,
+  isUnrecognizedKeyIssue,
+} from "./errors/unrecognized-key-issue";
+import { findLineNumberByKey } from "~/lib/tauri/tauri-conf-schema";
 
 export function ConfigurationErrors(props: {
   error: ZodError<TauriConfig> | undefined;
@@ -17,41 +22,44 @@ export function ConfigurationErrors(props: {
     <Show
       when={props.error}
       fallback={
-        <h1 class="text-2xl text-lime-900">
-          ✅ This configuration does not have errors ✅
-        </h1>
+        <h2 class="text-2xl pt-2 text-lime-900">
+          ✅ This configuration is valid ✅
+        </h2>
       }
     >
-      <h1 class="text-2xl text-red-900">⚠ This configuration has errors ⚠</h1>
-      <For each={props.error!.errors}>
+      <h2 class="text-2xl pt-2 text-red-900">
+        ⚠ This configuration has errors ⚠
+      </h2>
+      <For each={props.error?.errors}>
         {(item) => (
-          <>
+          <section class="py-4">
+            <p class="text-red-500 text-2xl">Error: {item.message} :</p>
             <h2
               class="text-xl font-bold cursor-pointer"
-              onMouseOver={[updateHighlightKey, buildHighlightKey(item)]}
+              onMouseOver={[
+                updateHighlightKey,
+                buildHighlightKeyForIssue(item),
+              ]}
             >
-              <For each={item.path}>{(path) => <span>[{path}]</span>}</For>
-              <Show when={isUnrecognizedKeyIssue(item)}>
-                <For each={item.keys!}>{(key) => <span>[{key}]</span>}</For>
+              <Show
+                when={findLineNumberByKey(buildHighlightKeyForIssue(item)) > 0}
+              >
+                Line: {findLineNumberByKey(buildHighlightKeyForIssue(item))}
+                {" : "}
               </Show>
+              <For each={item.path}>{(path) => <span>[{path}]</span>}</For>
+              <UnrecognizedKeyIssue issue={item} />
             </h2>
-            <p>{item.message}</p>
-          </>
+          </section>
         )}
       </For>
     </Show>
   );
 }
 
-function buildHighlightKey(issue: ZodIssueBase) {
+function buildHighlightKeyForIssue(issue: ZodIssueBase) {
   let key = issue.path.join(".");
   if (isUnrecognizedKeyIssue(issue))
     key += key === "" ? issue.keys[0] : "." + issue.keys[0];
   return key;
-}
-
-function isUnrecognizedKeyIssue(
-  value: ZodIssueBase
-): value is ZodUnrecognizedKeysIssue {
-  return "keys" in value;
 }

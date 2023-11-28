@@ -26,7 +26,7 @@ function Config(props: { config: ConfigurationObject }) {
   return (
     <section class="p-2">
       <A
-        href={`${basePath}/${props.config.key}`}
+        href={`${basePath}/${props.config.key}/`}
         activeClass="hover:bg-[#eaebeb] hover:border-[#2DCC9F] bg-[#00555A] border-[#2DCC9F] text-white"
         class="grid gap-1.5 items-center text-left grid-cols-[1rem_1fr] text-xl"
       >
