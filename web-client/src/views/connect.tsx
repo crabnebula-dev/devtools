@@ -1,4 +1,3 @@
-import { Accessor, createSignal } from "solid-js";
 import { Button } from "@kobalte/core";
 import { useNavigate } from "@solidjs/router";
 import { Logo } from "~/components/crabnebula-logo";
