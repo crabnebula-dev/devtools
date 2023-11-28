@@ -2,6 +2,7 @@ import { type RouteDefinition, useNavigate, useRoutes } from "@solidjs/router";
 import { lazy, ErrorBoundary } from "solid-js";
 import { setCDN } from "@crabnebula/file-icons";
 import { ErrorRoot } from "./components/error-root.tsx";
+import * as Sentry from "@sentry/browser";
 
 const ROUTES: RouteDefinition[] = [
   {
@@ -46,7 +47,12 @@ export default function Entry() {
   setCDN("/icons");
 
   return (
-    <ErrorBoundary fallback={(e) => <ErrorRoot error={e} />}>
+    <ErrorBoundary
+      fallback={(error) => {
+        Sentry.captureException(error);
+        return <ErrorRoot error={error} />;
+      }}
+    >
       <Routes />
     </ErrorBoundary>
   );
