@@ -12,7 +12,7 @@ export default function Sources() {
     >
       <div class="overflow-hidden">
         <Directory
-          defaultPath=""
+          defaultPath="."
           defaultSize={0n}
           defaultFileType={FileType.DIR}
         />

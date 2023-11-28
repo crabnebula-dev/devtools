@@ -27,7 +27,6 @@ export function ConfigurationView() {
       return config.data[params.selected];
     return {};
   };
-
   createEffect(() => {
     const data = tab();
     if (!data) return;

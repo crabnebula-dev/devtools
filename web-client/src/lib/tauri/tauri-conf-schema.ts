@@ -10,6 +10,7 @@ import { bytesToText } from "../code-highlight";
 import type { SourcesClient } from "../proto/sources.client";
 import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
+import { safeStringifyJson, safeParseJson } from "../safe-json";
 import { TauriConfig } from "./config/tauri-conf";
 import {
   parseTauriConfig,
@@ -117,7 +118,7 @@ export function retrieveConfigurations() {
             isPartiallyValidConfig(loadedConfiguration)
               ? loadedConfiguration.data
               : undefined,
-          raw: safeJsonStringify(monitorData.tauriConfig ?? {}),
+          raw: safeStringifyJson(monitorData.tauriConfig ?? {}) ?? "",
         } satisfies ConfigurationObject,
         ...configurations,
       ];
@@ -130,22 +131,6 @@ export function retrieveConfigurations() {
 
 function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
   return value !== null && value !== undefined;
-}
-
-function safeParseJson(jsonString: string) {
-  try {
-    return JSON.parse(jsonString);
-  } catch (e) {
-    return null;
-  }
-}
-
-function safeJsonStringify(object: Record<string, unknown>) {
-  try {
-    return JSON.stringify(object);
-  } catch (e) {
-    return "";
-  }
 }
 
 async function readListOfConfigurations(

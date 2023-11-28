@@ -3,7 +3,7 @@ use async_stream::try_stream;
 use bytes::BytesMut;
 use futures::{FutureExt, Stream, TryStreamExt};
 use std::net::SocketAddr;
-use std::path::PathBuf;
+use std::path::{Component, PathBuf};
 use std::sync::Arc;
 use tauri::http::header::HeaderValue;
 use tauri::{AppHandle, Runtime};
@@ -218,11 +218,22 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         req: Request<EntryRequest>,
     ) -> Result<Response<Self::ListEntriesStream>, Status> {
         tracing::debug!("list entries");
-        let path = req.into_inner().path;
 
         if self.app_handle.asset_resolver().iter().count() == 0 {
+            let path = PathBuf::from(req.into_inner().path);
+
+            // deny requests that contain special path components, like root dir, parent dir,
+            // or weird windows ones. Only plain old regular, relative paths.
+            if !path
+                .components()
+                .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
+            {
+                return Err(Status::not_found("file with the specified path not found"));
+            }
+
             let mut cwd = std::env::current_dir()?;
             cwd.push(path);
+
             let stream = self.list_entries_from_dir(cwd).or_else(|err| async move {
                 tracing::error!("List Entries failed with error {err:?}");
                 // TODO set the health service status to NotServing here
@@ -230,6 +241,7 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
             });
             Ok(Response::new(Box::pin(stream)))
         } else {
+            let path = req.into_inner().path.trim_start_matches(".").to_string();
             let stream = self
                 .list_entries_from_assets(path)
                 .or_else(|err| async move {
@@ -248,7 +260,7 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         req: Request<EntryRequest>,
     ) -> Result<Response<Self::GetEntryBytesStream>, Status> {
         let entry_path = req.into_inner().path;
-        let asset_path = format!("/{entry_path}");
+        let asset_path = format!("{}", entry_path.trim_start_matches("."));
 
         if let Some(asset) = self
             .app_handle
@@ -270,6 +282,16 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
             let stream = futures::stream::iter(chunks);
             Ok(Response::new(Box::pin(stream)))
         } else {
+            let entry_path = PathBuf::from(entry_path);
+            // deny requests that contain special path components, like root dir, parent dir,
+            // or weird windows ones. Only plain old regular, relative paths.
+            if !entry_path
+                .components()
+                .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
+            {
+                return Err(Status::not_found("file with the specified path not found"));
+            }
+
             let mut path = std::env::current_dir()?;
             path.push(entry_path);
 
@@ -397,8 +419,10 @@ impl<R: Runtime> metadata_server::Metadata for MetaService<R> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use futures::StreamExt;
     use std::time::SystemTime;
     use tauri_devtools_wire_format::instrument::instrument_server::Instrument;
+    use tauri_devtools_wire_format::sources::sources_server::Sources;
     use tauri_devtools_wire_format::tauri::tauri_server::Tauri;
 
     #[tokio::test]
@@ -463,5 +487,158 @@ mod test {
         let cmd = cmd_rx.recv().await.unwrap();
 
         assert!(matches!(cmd, Command::Instrument(_)));
+    }
+
+    #[tokio::test]
+    async fn sources_list_entries() {
+        let app_handle = tauri::test::mock_app().handle();
+        let srv = SourcesService { app_handle };
+
+        let stream = srv
+            .list_entries(Request::new(EntryRequest {
+                path: ".".to_string(),
+            }))
+            .await
+            .unwrap();
+
+        // this will list this crates directory, so should produce a `Cargo.toml` and `src` entry
+        let entries: Vec<_> = stream.into_inner().collect().await;
+        assert_eq!(entries.len(), 2);
+
+        assert_eq!(entries[0].as_ref().unwrap().file_type, 1 << 1);
+        assert_eq!(entries[0].as_ref().unwrap().path, "Cargo.toml");
+
+        assert_eq!(entries[1].as_ref().unwrap().file_type, 1 << 0);
+        assert_eq!(entries[1].as_ref().unwrap().path, "src");
+    }
+
+    #[tokio::test]
+    async fn sources_list_entries_root() {
+        let app_handle = tauri::test::mock_app().handle();
+        let srv = SourcesService { app_handle };
+
+        let res = srv
+            .list_entries(Request::new(EntryRequest {
+                path: "/".to_string(),
+            }))
+            .await;
+
+        assert!(res.is_err(), "requesting the root path should fail");
+
+        let res = srv
+            .list_entries(Request::new(EntryRequest {
+                path: "/foo/bar/this".to_string(),
+            }))
+            .await;
+
+        assert!(res.is_err(), "requesting the root path should fail")
+    }
+
+    #[tokio::test]
+    async fn sources_list_entries_parent() {
+        let app_handle = tauri::test::mock_app().handle();
+        let srv = SourcesService { app_handle };
+
+        let res = srv
+            .list_entries(Request::new(EntryRequest {
+                path: "../".to_string(),
+            }))
+            .await;
+
+        assert!(res.is_err(), "requesting an absolute path should fail");
+
+        let res = srv
+            .list_entries(Request::new(EntryRequest {
+                path: "foo/bar/../this".to_string(),
+            }))
+            .await;
+
+        assert!(res.is_err(), "requesting an absolute path should fail");
+
+        let res = srv
+            .list_entries(Request::new(EntryRequest {
+                path: "..".to_string(),
+            }))
+            .await;
+
+        assert!(res.is_err(), "requesting an absolute path should fail")
+    }
+
+    #[tokio::test]
+    async fn sources_get_bytes() {
+        let app_handle = tauri::test::mock_app().handle();
+        let srv = SourcesService { app_handle };
+
+        let stream = srv
+            .get_entry_bytes(Request::new(EntryRequest {
+                path: "./Cargo.toml".to_string(),
+            }))
+            .await
+            .unwrap();
+
+        // this will list this crates directory, so should produce a `Cargo.toml` and `src` entry
+        let chunks: Vec<_> = stream.into_inner().collect().await;
+
+        let mut buf = Vec::new();
+
+        for chunk in chunks {
+            buf.extend_from_slice(&chunk.unwrap().bytes);
+        }
+
+        // we don't want to hard code the exact size of Cargo.toml, that would be flaky
+        // but it should definitely be larger than zero
+        assert!(buf.len() > 0);
+    }
+
+    #[tokio::test]
+    async fn sources_get_bytes_root() {
+        let app_handle = tauri::test::mock_app().handle();
+        let srv = SourcesService { app_handle };
+
+        let res = srv
+            .get_entry_bytes(Request::new(EntryRequest {
+                path: "/".to_string(),
+            }))
+            .await;
+
+        assert!(res.is_err(), "requesting the root path should fail");
+
+        let res = srv
+            .get_entry_bytes(Request::new(EntryRequest {
+                path: "/foo/bar/this".to_string(),
+            }))
+            .await;
+
+        assert!(res.is_err(), "requesting the root path should fail")
+    }
+
+    #[tokio::test]
+    async fn sources_get_bytes_parent() {
+        let app_handle = tauri::test::mock_app().handle();
+        let srv = SourcesService { app_handle };
+
+        let res = srv
+            .get_entry_bytes(Request::new(EntryRequest {
+                path: "../".to_string(),
+            }))
+            .await;
+
+        assert!(res.is_err(), "requesting an absolute path should fail");
+
+        let res = srv
+            .get_entry_bytes(Request::new(EntryRequest {
+                path: "foo/bar/../this".to_string(),
+            }))
+            .await;
+
+        assert!(res.is_err(), "requesting an absolute path should fail");
+
+        let res = srv
+            .get_entry_bytes(Request::new(EntryRequest {
+                path: "..".to_string(),
+            }))
+            .await;
+
+        assert!(res.is_err(), "requesting an absolute path should fail")
     }
 }
