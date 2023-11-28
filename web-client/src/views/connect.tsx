@@ -29,7 +29,7 @@ export default function Connect() {
 
             const ping = await checkConnection(url);
 
-            if (ping.status === "bad") return;
+            if (ping.status === "error") return;
 
             navigate(`/dash/${data.host}/${data.port}/`);
           }}
