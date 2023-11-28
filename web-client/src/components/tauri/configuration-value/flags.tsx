@@ -36,7 +36,6 @@ export function isDefaultValue(
 
   if (Object.hasOwn(schema, "default") && schema.default === value) return true;
 
-  console.log(schema, value);
   if ((!Object.hasOwn(schema, "default") && value === null) || value === "")
     return true;
 

@@ -107,7 +107,7 @@ async function loadConfigurations() {
     monitorData.tauriConfig ?? {},
     zodSchema
   );
-  console.log(loadedConfiguration);
+
   return [
     {
       label: "Loaded configuration",
