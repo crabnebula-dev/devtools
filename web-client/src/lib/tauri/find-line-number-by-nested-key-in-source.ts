@@ -1,5 +1,3 @@
-import { number } from "zod";
-
 export function findLineNumberByNestedKeyInSource(
   jsonString: string,
   nestedKeyPath: string
