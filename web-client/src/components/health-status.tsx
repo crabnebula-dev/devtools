@@ -1,10 +1,15 @@
 import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
 import { Show, createEffect, createSignal, onMount } from "solid-js";
 import { ErrorDialog } from "./error-dialog";
-import { addStreamListneners, connect } from "~/lib/connection/transport";
+import {
+  addStreamListneners,
+  connect,
+  checkConnection,
+} from "~/lib/connection/transport";
 import { reconcile } from "solid-js/store";
 import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
+import { ReconnectDisplay } from "./reconnect-display";
 
 const variant = (status: HealthCheckResponse_ServingStatus) => {
   return [
@@ -44,8 +49,56 @@ export function HealthStatus() {
 
     /** cleanup possible connections */
     connectionStore.abortController.abort();
-    reconnect();
+
+    reconnectInterval({
+      timeIncrease: 3,
+      attempts: 5,
+    });
   };
+
+  /*  undefined = failed to reconnect 
+      -1 = reconnecting
+      > 0 = time until reconnect 
+  */
+  const [reconnectTimer, setReconnectTimer] = createSignal<number | undefined>(
+    undefined
+  );
+
+  async function reconnectInterval(
+    steps: { timeIncrease: number; attempts: number },
+    initialTime = 1
+  ) {
+    setReconnectTimer(-1);
+    const ping = await checkConnection(connectionStore.serviceUrl);
+
+    // If the ping returns an error we queue the next reconnect
+    if (ping.status === "error") {
+      if (steps.attempts > 0) {
+        setReconnectTimer(initialTime);
+
+        const interval = setInterval(() => {
+          setReconnectTimer(reconnectTimer()! - 1);
+        }, 1000);
+
+        setTimeout(async () => {
+          await reconnectInterval(
+            { timeIncrease: steps.timeIncrease, attempts: steps.attempts - 1 },
+            initialTime + steps.timeIncrease
+          );
+          clearInterval(interval);
+        }, (initialTime + 1) * 1000);
+
+        return;
+      }
+
+      setReconnectTimer(undefined);
+      return;
+    }
+
+    // If the ping does not return an error we assume it is safe to reconnect
+    setReconnectTimer(undefined);
+    reconnect();
+  }
 
   function reconnect() {
     const newConnection = connect(connectionStore.serviceUrl);
@@ -79,6 +132,7 @@ export function HealthStatus() {
           <p class="text-red-300 text-xl">
             Waiting on new signal from your Tauri app.
           </p>
+          <ReconnectDisplay timer={reconnectTimer()} />
         </ErrorDialog>
       </Show>
       <span class={variant(monitorData.health).style} />
