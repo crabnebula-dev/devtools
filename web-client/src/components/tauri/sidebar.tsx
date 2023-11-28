@@ -22,7 +22,6 @@ export function Sidebar() {
 
 function Config(props: { config: ConfigurationObject }) {
   const basePath = getTauriTabBasePath();
-  console.log(props.config);
   return (
     <section class="p-2">
       <A

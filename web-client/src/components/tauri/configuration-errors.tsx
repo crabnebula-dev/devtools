@@ -1,4 +1,4 @@
-import { ZodError, ZodIssueBase, ZodUnrecognizedKeysIssue } from "zod";
+import { ZodError, ZodIssueBase } from "zod";
 import { TauriConfig } from "~/lib/tauri/config/tauri-conf";
 import { Show, For } from "solid-js";
 import { useConfiguration } from "./configuration-context";
@@ -15,7 +15,7 @@ export function ConfigurationErrors(props: {
     highlightKey: { setHighlightKey },
   } = useConfiguration();
 
-  const updateHighlightKey = (key: string, event: any) => {
+  const updateHighlightKey = (key: string) => {
     setHighlightKey(key);
   };
   return (

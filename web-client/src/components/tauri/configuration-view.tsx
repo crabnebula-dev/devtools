@@ -37,7 +37,7 @@ export function ConfigurationView() {
     <div class="p-4">
       <Show when={params.config && !params.selected && config()}>
         <h1 class="text-3xl">{config()?.label}</h1>
-        <ConfigurationErrors error={config()!.error} />
+        <ConfigurationErrors error={config()?.error} />
       </Show>
       <Show when={Object.keys(tab()).length > 0}>
         <header>
