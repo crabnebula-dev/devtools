@@ -4,11 +4,7 @@ import {
   findLineNumberByKey,
 } from "~/lib/tauri/tauri-conf-schema";
 
-export function Flags(props: {
-  key: string;
-  value: boolean | string;
-  parentKey: string;
-}) {
+export function Flags(props: { key: string; value: boolean | string }) {
   const localSchema = () => getDescriptionByKey(props.key);
 
   const isInConfig = () => {
