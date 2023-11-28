@@ -51,7 +51,7 @@ export function HealthStatus() {
     connectionStore.abortController.abort();
 
     reconnectInterval({
-      timeIncrease: 3,
+      timeIncrease: 2,
       attempts: 5,
     });
   };
