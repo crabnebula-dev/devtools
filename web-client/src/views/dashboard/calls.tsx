@@ -46,17 +46,23 @@ export default function Calls() {
         }),
       ].sort((a, b) => {
         const columnName = columnSort.name;
-        const lhs = a[columnName];
-        const rhs = b[columnName];
 
-        if (typeof lhs !== "number" || typeof rhs !== "number") {
-          throw new Error("Cannot sort non-numeric values");
+        let lhs, rhs;
+        if (columnSort.direction == "asc") {
+          lhs = a[columnName];
+          rhs = b[columnName];
+        } else {
+          lhs = b[columnName];
+          rhs = a[columnName];
         }
 
-        if (columnSort.direction === "asc") {
+        if (typeof lhs == "number" && typeof rhs == "number") {
           return lhs - rhs;
+        } else if (typeof lhs == "string" && typeof rhs == "string") {
+          return lhs.localeCompare(rhs);
+        } else {
+          return 0; // no sorting
         }
-        return rhs - lhs;
       });
 
     function animate() {

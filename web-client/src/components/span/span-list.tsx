@@ -21,10 +21,14 @@ type Props = {
 };
 
 export function SpanList(props: Props) {
-  const columns = () =>
-    [...Object.keys(props.spans?.[0] ?? {})].filter((k) =>
-      ["name", "initiated", "time", "waterfall"].includes(k)
-    );
+  const columns = () => {
+    return [...Object.keys(props.spans?.[0] ?? {})]
+      .filter((k) => ["name", "initiated", "time", "waterfall"].includes(k))
+      .map((name) => ({
+        name,
+        isSortable: ["name", "initiated", "time"].includes(name),
+      }));
+  };
   const [, setSearchParams] = useSearchParams();
 
   const sortColumn = (name: SortableColumn) => {
@@ -41,24 +45,27 @@ export function SpanList(props: Props) {
           <For each={columns()}>
             {(column) => {
               const resolvedColumn = resolveColumnAlias(
-                column as SortableColumn
+                column.name as SortableColumn
               );
               return (
                 <th
                   tabIndex={0}
                   onKeyDown={(e) => {
-                    if ([" ", "Enter"].includes(e.key)) {
+                    if ([" ", "Enter"].includes(e.key) && column.isSortable) {
                       sortColumn(resolvedColumn);
                     }
                   }}
-                  onClick={() => sortColumn(resolvedColumn)}
+                  onClick={() =>
+                    column.isSortable && sortColumn(resolvedColumn)
+                  }
                   class="p-1 cursor-pointer hover:bg-[#ffffff09]"
                 >
                   <div class="flex uppercase select-none items-center gap-2">
-                    {column}
-                    {props.columnSort.name === resolvedColumn && (
-                      <SortCaret direction={props.columnSort.direction} />
-                    )}
+                    {column.name}
+                    {props.columnSort.name === resolvedColumn &&
+                      column.isSortable && (
+                        <SortCaret direction={props.columnSort.direction} />
+                      )}
                   </div>
                 </th>
               );
