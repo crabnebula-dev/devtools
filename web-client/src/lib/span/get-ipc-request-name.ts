@@ -37,7 +37,10 @@ export function getIpcRequestName({ metadata, span }: Options) {
           [];
         try {
           const arg = args.length > 0 ? JSON.parse(args[0]) : {};
-          const cmd = arg.__tauriModule === 'Window' && arg.message.cmd === 'manage' ? arg.message.data.cmd.type : arg.message.cmd
+          const cmd =
+            arg.__tauriModule === "Window" && arg.message.cmd === "manage"
+              ? arg.message.data.cmd.type
+              : arg.message.cmd;
           return `${arg.__tauriModule}.${cmd}`;
         } catch {
           /* intentionally ignore */
