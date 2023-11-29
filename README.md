@@ -20,10 +20,9 @@ Since we're using recent additions to Tauri that haven't yet been published to c
 ```toml
 [dependencies]
 tauri-devtools = "0.1.0"
-tauri = { git = "https://github.com/tauri-apps/tauri" }
-
+tauri = { git = "https://github.com/tauri-apps/tauri", branch = "1.x", features = ["tracing"] }
 [build-dependencies]
-tauri-build = { git = "https://github.com/tauri-apps/tauri" }
+tauri-build = { git = "https://github.com/tauri-apps/tauri", branch = "1.x" }
 ```
 
 Then add the following snippet to your tauri initialization code:
