@@ -1,6 +1,6 @@
 use crate::aggregator::Aggregator;
 use crate::layer::Layer;
-use crate::{tauri_plugin, Shared};
+use crate::{tauri_plugin, Shared, EVENT_BUFFER_CAPACITY};
 use colored::Colorize;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::Arc;
@@ -100,7 +100,7 @@ impl Builder {
     pub fn try_init<R: Runtime>(self) -> crate::Result<tauri::plugin::TauriPlugin<R>> {
         // set up data channels & shared data
         let shared = Arc::new(Shared::default());
-        let (event_tx, event_rx) = mpsc::channel(512);
+        let (event_tx, event_rx) = mpsc::channel(EVENT_BUFFER_CAPACITY);
         let (cmd_tx, cmd_rx) = mpsc::channel(256);
 
         // set up components

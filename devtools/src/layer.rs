@@ -54,7 +54,7 @@ impl Layer {
 
         let capacity = self.tx.capacity();
         if capacity <= EVENT_BUFFER_CAPACITY / 2 {
-            self.shared.flush.notify_one();
+            self.shared.flush.trigger();
         }
     }
 }

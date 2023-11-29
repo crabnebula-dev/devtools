@@ -36,13 +36,13 @@ mod visitors;
 
 pub use builder::Builder;
 pub use error::Error;
-use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Instant;
 use tauri::Runtime;
 use tauri_devtools_wire_format::{instrument, Field};
 use tokio::sync::{mpsc, Notify};
 
-const EVENT_BUFFER_CAPACITY: usize = 512;
+const EVENT_BUFFER_CAPACITY: usize = 4096;
 
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 
@@ -75,7 +75,31 @@ pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
 pub(crate) struct Shared {
     dropped_log_events: AtomicUsize,
     dropped_span_events: AtomicUsize,
-    flush: Notify,
+    flush: Flush,
+}
+
+#[derive(Debug, Default)]
+struct Flush {
+    notify: Notify,
+    triggered: AtomicBool,
+}
+
+impl Flush {
+    pub fn trigger(&self) {
+        if self
+            .triggered
+            .compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
+            .is_ok()
+        {
+            self.notify.notify_one();
+        }
+    }
+
+    fn has_flushed(&self) {
+        let _ = self
+            .triggered
+            .compare_exchange(true, false, Ordering::AcqRel, Ordering::Acquire);
+    }
 }
 
 /// Data sent from the `Layer` to the `Aggregator`

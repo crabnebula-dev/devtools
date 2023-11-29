@@ -1,4 +1,5 @@
 use crate::{Command, Event, Shared, Watcher};
+use futures::sink::drain;
 use futures::FutureExt;
 use ringbuf::consumer::Consumer;
 use ringbuf::traits::{Observer, RingBuffer};
@@ -80,7 +81,7 @@ impl Aggregator {
         loop {
             let should_publish = tokio::select! {
                 _ = interval.tick() => true,
-                _ = self.shared.flush.notified() => {
+                _ = self.shared.flush.notify.notified() => {
                     tracing::debug!("event buffer approaching capacity, flushing...");
                     false
                 },
@@ -97,17 +98,26 @@ impl Aggregator {
                 }
             };
 
+            let mut drained = false;
+            let mut count = 0;
             while let Some(event) = self.events.recv().now_or_never() {
+                count += 1;
                 if let Some(event) = event {
                     self.update_state(event);
+                    drained = true;
                 } else {
                     tracing::debug!("event channel closed; terminating");
                     break;
                 }
             }
+            tracing::debug!("flushed {count} event, drained {drained}");
 
             if should_publish {
                 self.publish();
+            }
+
+            if drained {
+                self.shared.flush.has_flushed();
             }
         }
 
@@ -218,6 +228,8 @@ impl Aggregator {
             }
         };
 
+        tracing::debug!("dropped log events {dropped_events}");
+
         logs::Update {
             log_events,
             dropped_events,
@@ -236,6 +248,8 @@ impl Aggregator {
                 self.shared.dropped_span_events.swap(0, Ordering::AcqRel) as u64
             }
         };
+
+        tracing::debug!("dropped span events {dropped_events}");
 
         spans::Update {
             span_events,
