@@ -49,7 +49,8 @@ export default function Entry() {
   return (
     <ErrorBoundary
       fallback={(error) => {
-        Sentry.captureException(error);
+        const eventId = Sentry.captureException(error);
+        Sentry.showReportDialog({ eventId });
         return <ErrorRoot error={error} />;
       }}
     >
