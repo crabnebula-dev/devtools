@@ -35,7 +35,7 @@ export function SpanDetail() {
         children: getChildrenList(monitorData.spans, s, childrenFilter),
       };
     }
-    throw new Error("No Span");
+    console.error("No Span");
   };
 
   const formattedSpan = () =>
