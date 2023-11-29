@@ -70,7 +70,7 @@ The connection between the devtools instrumented local application and the web c
 This implicates that any software on the system and visited websites can potentially access the collected traces and system information.
 
 We currently reduce impact by setting CORS header checks to only allow requests from [devtools.crabnebula.dev](https://devtools.crabnebula.dev).
-This can be bypassed in scenarios where a man-in-the-middle adversary with either a trusted root CA in the systems browser, or the ability
+This can be bypassed in scenarios where a man-in-the-middle adversary with either a trusted root CA in the system, or the ability
 to manually spoof the origin header when sending a request from another application on the client system.
 
 We plan to implement mTLS for proper authentication to mitigate this type of attacks in a later stage.
