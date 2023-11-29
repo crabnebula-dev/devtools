@@ -3,28 +3,42 @@ import { AutoscrollPane } from "~/components/autoscroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { formatTimestamp, timestampToDate } from "~/lib/formatters";
 import { Toolbar } from "~/components/toolbar";
-import { Metadata_Level, MetaId } from "~/lib/proto/common";
 import { useMonitor } from "~/context/monitor-provider";
-
-const levelStyles = (level: Metadata_Level | undefined) => {
-  switch (level) {
-    case 0:
-      return "text-red-600 bg-red-300";
-    case 1:
-      return "text-yellow-800 bg-yellow-400";
-    default:
-      return "";
-  }
-};
+import clsx from "clsx";
+import { createStore } from "solid-js/store";
+import { getLogMetadata } from "~/lib/console/get-log-metadata";
+import { LogFilterObject, filterLogs } from "~/lib/console/filter-logs";
+import { getLevelClasses } from "~/lib/console/get-level-classes";
+import { LogLevelFilter } from "~/components/console/log-level-filter";
+import { NoLogs } from "~/components/console/no-logs";
+import { getFileNameFromPath } from "~/lib/console/get-file-name-from-path";
+import { Link } from "@kobalte/core";
 
 export default function Console() {
   const { monitorData } = useMonitor();
   const [showTimestamp, toggleTimeStamp] = createSignal(true);
   const [shouldAutoScroll, toggleAutoScroll] = createSignal<boolean>(true);
+  const initialFilters = () => ({
+    textContent: "",
+    levels: [0, 1, 2, 3, 4],
+  });
+  const [filter, setFilter] = createStore<LogFilterObject>(initialFilters());
+  const filteredLogs = () => filterLogs(monitorData, filter, monitorData.logs);
+  const resetFilter = () => setFilter(initialFilters);
 
   return (
     <>
       <Toolbar>
+        <input
+          value={filter.textContent}
+          onInput={(e) =>
+            setFilter(() => ({ ...filter, textContent: e.currentTarget.value }))
+          }
+          type="text"
+          placeholder="Filter..."
+          class="bg-gray-900 px-1 rounded text-white"
+        />
+        <LogLevelFilter filter={filter} setFilter={setFilter} />
         <FilterToggle
           defaultPressed
           aria-label="time stamps"
@@ -41,32 +55,57 @@ export default function Console() {
         </FilterToggle>
       </Toolbar>
       <AutoscrollPane
-        dataStream={monitorData.logs[0]}
+        dataStream={filteredLogs()[0]}
         shouldAutoScroll={shouldAutoScroll}
       >
-        <For each={monitorData.logs}>
-          {({ message, at, metadataId }) => {
+        <Show when={filteredLogs().length === 0}>
+          <NoLogs filter={filter} reset={resetFilter} />
+        </Show>
+        <For each={filteredLogs()}>
+          {(logEvent) => {
+            const { message, at } = logEvent;
             if (!at) return null;
 
+            const metadata = getLogMetadata(monitorData, logEvent);
             const timeDate = timestampToDate(at);
-            const level = (metaId: MetaId) =>
-              monitorData.metadata.get(metaId.id)?.level;
+            const levelStyle = getLevelClasses(metadata?.level);
 
             return (
               <li
-                class={`p-1 m-1 items-center rounded flex ${levelStyles(
-                  level(metadataId!)
-                )}`}
+                class={clsx(
+                  "p-1 font-mono text-sm border-b items-center flex gap-4",
+                  levelStyle ? levelStyle : "border-b-gray-800 text-white"
+                )}
               >
                 <Show when={showTimestamp()}>
                   <time
                     dateTime={timeDate.toISOString()}
-                    class="font-mono pr-4"
+                    class={clsx(
+                      levelStyle ? levelStyle : "text-gray-600",
+                      "font-mono text-xs"
+                    )}
                   >
                     {formatTimestamp(timeDate)}
                   </time>
                 </Show>
                 <span>{message}</span>
+                <span class="ml-auto flex gap-2 items-center text-xs">
+                  <Show when={metadata?.target}>
+                    <span class="text-gray-600">{metadata!.target}</span>
+                  </Show>
+                  <Show when={metadata?.location?.file}>
+                    <Link.Root
+                      href={
+                        /** @todo go to sources. Ref: https://linear.app/crabnebula/issue/DR-644/make-sources-context-aware */
+                        "https://linear.app/crabnebula/issue/DR-644/make-sources-context-aware"
+                      }
+                      class="text-white underline"
+                    >
+                      {getFileNameFromPath(metadata!.location!.file!)}:
+                      {metadata!.location!.line}
+                    </Link.Root>
+                  </Show>
+                </span>
               </li>
             );
           }}

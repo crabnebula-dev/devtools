@@ -2,26 +2,31 @@ import tauriConfigSchemaV1 from "./tauri-conf-schema-v1.json";
 import tauriConfigSchemaV2 from "./tauri-conf-schema-v2.json";
 import { Draft07, JsonSchema, JsonPointer } from "json-schema-library";
 import { createResource, Signal } from "solid-js";
-import { useRouteData, useLocation, useParams } from "@solidjs/router";
+import { useLocation, useParams } from "@solidjs/router";
 import { awaitEntries, getEntryBytes } from "~/lib/sources/file-entries";
 import { useConfiguration } from "~/components/tauri/configuration-context";
 import { unwrap, reconcile } from "solid-js/store";
 import { bytesToText } from "../code-highlight";
+import type { Entry } from "../proto/sources";
+import type { SourcesClient } from "../proto/sources.client";
 import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
+import { safeStringifyJson, safeParseJson } from "../safe-json";
 
-export type configurationStore = {
-  configs?: configurationObject[];
+export type ConfigurationStore = {
+  configs?: ConfigurationObject[];
 };
 
-export type configurationObject = {
+export type ConfigurationObject = {
+  label: string;
+  key: string;
   path: string;
-  data: tauriConfiguration;
+  data: TauriConfiguration;
   size: number;
   raw: string;
 };
 
-export type tauriConfiguration = Record<
+export type TauriConfiguration = Record<
   "build" | "package" | "plugins" | "tauri",
   object
 >;
@@ -47,23 +52,15 @@ function createDeepConfigurationStoreSignal<T>(): Signal<T> {
     (v: T) => {
       const unwrapped = unwrap(configurations.configs);
       typeof v === "function" && (v = v(unwrapped));
-      setConfigurations("configs", reconcile(v as configurationObject[]));
+      setConfigurations("configs", reconcile(v as ConfigurationObject[]));
       return configurations.configs;
     },
   ] as Signal<T>;
 }
 
-export function retrieveConfigurationByPathAndKey(
-  path: string,
-  key: "build" | "package" | "plugins" | "tauri"
-) {
+export function retrieveConfigurationByKey(key: string) {
   const [configs] = retrieveConfigurations();
-  return configs()?.find(
-    (config) =>
-      config?.path === path &&
-      config.data &&
-      Object.prototype.hasOwnProperty.call(config.data, key)
-  )?.data[key];
+  return configs()?.find((config) => config?.key === key);
 }
 
 export function retrieveConfigurations() {
@@ -77,34 +74,64 @@ export function retrieveConfigurations() {
   const { connectionStore } = useConnection();
   const [entries] = awaitEntries(connectionStore.client.sources, "");
 
+  const { monitorData } = useMonitor();
+
   return createResource(
     entries,
     async (entries) => {
       const filteredEntries =
         entries?.filter((e) => e.path.endsWith(".conf.json")) || [];
-      return await Promise.all(
-        filteredEntries.map(async (e): Promise<configurationObject> => {
-          const bytes = await getEntryBytes(
-            connectionStore.client.sources,
-            e.path,
-            Number(e.size)
-          );
 
-          const text = bytesToText(bytes);
-          const data = JSON.parse(text);
-          delete data["$schema"];
-          return {
-            path: e.path,
-            data: (data as tauriConfiguration) ?? {},
-            size: Number(e.size),
-            raw: text,
-          };
-        })
+      const configurations = await readListOfConfigurations(
+        filteredEntries,
+        connectionStore.client.sources
       );
+
+      return [
+        {
+          label: "Loaded configuration",
+          key: "loaded",
+          path: "",
+          size: 0,
+          data: monitorData.tauriConfig ?? {
+            build: {},
+            package: {},
+            tauri: {},
+            plugins: {},
+          },
+          raw: safeStringifyJson(monitorData.tauriConfig ?? {}),
+        },
+        ...configurations,
+      ];
     },
     {
       storage: createDeepConfigurationStoreSignal,
     }
+  );
+}
+
+async function readListOfConfigurations(
+  entries: Entry[],
+  client: SourcesClient
+) {
+  return await Promise.all(
+    entries.map(async (e): Promise<ConfigurationObject> => {
+      const bytes = await getEntryBytes(client, e.path, Number(e.size));
+
+      const text = bytesToText(bytes);
+      const data = safeParseJson(text) ?? {};
+      delete data["$schema"];
+      return {
+        label: "File: " + e.path,
+        key: e.path,
+        path: e.path,
+        /*  TODO add validator type guard to make sure data we receive is actually a proper configuration ref: 
+            https://linear.app/crabnebula/issue/DR-428/tauri-tab-strong-type-tauriconfigjson-according-to-existing-schema */
+        data: (data as TauriConfiguration) ?? {},
+        size: Number(e.size),
+        raw: text,
+      };
+    })
   );
 }
 
@@ -137,14 +164,8 @@ export function scrollToHighlighted() {
 }
 
 export function findLineNumberByKey(key: string) {
-  const {
-    configurations: { configurations },
-  } = useConfiguration();
-
   const params = useParams<{ config: string }>();
-
-  const config = configurations.configs?.find((x) => x.path === params.config);
-
+  const config = retrieveConfigurationByKey(params.config);
   return findLineNumberByNestedKeyInSource(config?.raw ?? "", key);
 }
 

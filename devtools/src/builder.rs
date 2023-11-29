@@ -11,10 +11,6 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::Layer as _;
 
-/// URL of the web-based devtool
-/// The server host is added automatically eg: `127.0.0.1:56609`.
-const DEVTOOL_URL: &str = "http://localhost:5173/dash/";
-
 pub struct Builder {
     host: IpAddr,
     port: u16,
@@ -127,7 +123,13 @@ impl Builder {
 
 // This is pretty ugly code I know, but it looks nice in the terminal soo ¯\_(ツ)_/¯
 fn print_link(addr: &SocketAddr) {
-    let url = format!("{DEVTOOL_URL}{}/{}", addr.ip(), addr.port());
+    let url = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
+        "http://localhost:5173/dash/"
+    } else {
+        "https://devtools.crabnebula.dev/dash/"
+    };
+
+    let url = format!("{url}{}/{}", addr.ip(), addr.port());
     println!(
         r#"
    {} {}{}
