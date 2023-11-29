@@ -5,3 +5,4 @@ todos
 - [ ] dropdowns
 - [ ] check all links
 - [ ] consider component boundaries
+- [ ] add logo
