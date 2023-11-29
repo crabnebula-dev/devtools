@@ -23,9 +23,12 @@ type Props = {
 export function SpanList(props: Props) {
   const columns = () => {
     return [...Object.keys(props.spans?.[0] ?? {})]
-        .filter((k) => ["name", "initiated", "time", "waterfall"].includes(k))
-        .map(name => ({ name, isSortable: ["name", "initiated", "time"].includes(name) }))
-  }
+      .filter((k) => ["name", "initiated", "time", "waterfall"].includes(k))
+      .map((name) => ({
+        name,
+        isSortable: ["name", "initiated", "time"].includes(name),
+      }));
+  };
   const [, setSearchParams] = useSearchParams();
 
   const sortColumn = (name: SortableColumn) => {
@@ -52,14 +55,17 @@ export function SpanList(props: Props) {
                       sortColumn(resolvedColumn);
                     }
                   }}
-                  onClick={() => column.isSortable && sortColumn(resolvedColumn)}
+                  onClick={() =>
+                    column.isSortable && sortColumn(resolvedColumn)
+                  }
                   class="p-1 cursor-pointer hover:bg-[#ffffff09]"
                 >
                   <div class="flex uppercase select-none items-center gap-2">
                     {column.name}
-                    {props.columnSort.name === resolvedColumn && column.isSortable && (
-                      <SortCaret direction={props.columnSort.direction} />
-                    )}
+                    {props.columnSort.name === resolvedColumn &&
+                      column.isSortable && (
+                        <SortCaret direction={props.columnSort.direction} />
+                      )}
                   </div>
                 </th>
               );

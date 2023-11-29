@@ -57,11 +57,11 @@ export default function Calls() {
         }
 
         if (typeof lhs == "number" && typeof rhs == "number") {
-            return lhs - rhs;
+          return lhs - rhs;
         } else if (typeof lhs == "string" && typeof rhs == "string") {
-            return lhs.localeCompare(rhs)
+          return lhs.localeCompare(rhs);
         } else {
-          return 0 // no sorting
+          return 0; // no sorting
         }
       });
 
