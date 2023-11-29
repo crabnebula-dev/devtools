@@ -1,56 +1,51 @@
-# Inspector Protocol Plugin
+# Tauri Devtools
 
 Inspect, monitor, and understand your [Tauri](https://tauri.app) application with ease.
 
-The Inspector Protocol Plugin offers a seamless integration to Tauri applications, giving developers an intuitive and efficient way to understand internal tracing events and extract valuable insights about their applications.
-
 ## Features
-- **Easy Integration:** With just a line of code, enable detailed event logging and metadata extraction for your application.
-- **Rich Insights:** Transform internal tracing events for further processing or storage.
-- **Extensible:** Built with flexibility in mind, allowing developers to customize and extend its capabilities.
 
-## Installation
+- **Easy Integration:** With just a few lines of code, enable detailed event logging and metadata extraction for your application.
+- **Rich Insights:** Get insight into what your app is doing, Performance, Errors, Warns, everything is available at a glance.
+- **And more:** This project is actively worked on, and we are open to hear your ideas, check out the [Upcoming Features]() issue for details.
 
-Ensure you have [Tauri](https://tauri.app) set up correctly. Then, add the following to your `Cargo.toml`:
+## Getting Started
 
-```toml
-[dependencies]
-inspector_protocol = "0.1.0" # use the latest version
+Ensure you have [Tauri](https://tauri.app/v1/guides/getting-started/setup/) set up correctly. Then install the Rust instrumentation from crates.io:
+
+```sh
+cargo add devtools
 ```
 
-## Usage
-
-Integrating the Inspector Protocol Plugin into your Tauri application is as simple as adding a plugin to the Tauri builder:
+Then add the following snippet to your tauri initialization code:
 
 ```rust
 fn main() {
-   let inspector = inspector_protocol::Builder::new();
-   tauri::Builder::default()
-      .plugin(inspector.build())
-      .run(tauri::generate_context!("./tauri.conf.json"))
-      .expect("error while running tauri application");
+    #[cfg(debug_assertions)] // only enable instrumentation in development builds
+    let devtools = tauri_devtools::init();
+
+    let builder = tauri::Builder::default();
+
+    #[cfg(debug_assertions)]
+    let builder = builder.plugin(devtools);
+
+    builder
+        .run(tauri::generate_context!("./tauri.conf.json"))
+        .expect("error while running tauri application");
 }
 ```
+ 
+And then run your app as usual, if everything is set up correctly devtools will print the following message:
 
-Take a look in the [examples](./examples) folder for more details.
+![Screenshot 2023-11-28 at 14.05.20.png](Screenshot.png)
 
-## Documentation
-
-Detailed comments have been embedded into the source code to provide insights about the different components and how they work. For more intricate details about specific functionalities, please refer to the codebase.
-
-```
-cargo doc --open
-```
-
-## Future Enhancements
-
-We are continually working on improving and expanding the capabilities of the Inspector Protocol Plugin. Any feedback or contributions are welcome!
+You can click or copy & paste the link into your browser to open up the UI. 
+Alternatively you can navigate to https://devtools.crabnebula.dev and connect from there.
 
 ## License
 
 <sup>
 
-The Instrumentation (i.e. the folders `/plugin`, `/primitives`, `/server` and `/subscriber`) is licensed under either
+The Instrumentation (i.e. the folders `/wire` and `/devtools`) is licensed under either
 of [Apache License, Version 2.0](./LICENSES/Apache-2.0.md) or [MIT license](./LICENSES/MIT.md)  at your option.
 
 All other code is licensed under the [PolyForm Noncommercial License 1.0.0](./LICENSES/Polyform-Noncommercial.md).
@@ -64,4 +59,3 @@ Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in this project by you, shall be licensed as above, without any 
 additional terms or conditions.
 </sub>
-
