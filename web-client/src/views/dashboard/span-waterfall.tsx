@@ -6,6 +6,8 @@ import { SplitPane } from "~/components/split-pane";
 import { SpanDetailPanel } from "~/components/span/span-detail-panel";
 import { ColumnSort, SpanList } from "~/components/span/span-list";
 import { SpanScaleSlider } from "~/components/span/span-scale-slider";
+import { FilteredSpan } from "~/lib/span/types";
+import { getSpanKind } from "~/lib/span/get-span-kind";
 import { useMonitor } from "~/context/monitor-provider";
 
 export default function SpanWaterfall() {
@@ -20,11 +22,18 @@ export default function SpanWaterfall() {
   });
 
   createEffect(() => {
-    const filteredSpans = () =>
-      [...monitorData.spans.values()].filter((s) => {
-        const metadata = monitorData.metadata.get(s.metadataId);
-        return metadata && metadata.name === "wry::ipc::handle" && s.closedAt;
-      });
+    const filteredSpans = () => {
+      const filtered: FilteredSpan[] = [];
+
+      for (const span of monitorData.spans) {
+        const kind = getSpanKind({ metadata: monitorData.metadata, span });
+        if (kind) {
+          filtered.push({ kind, ...span });
+        }
+      }
+
+      return filtered;
+    };
 
     const hasPendingWork = () => filteredSpans().find((s) => s.closedAt < 0);
     const spans = () =>

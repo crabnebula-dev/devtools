@@ -1,8 +1,10 @@
 import { Span } from "../connection/monitor";
 import { Metadata } from "../proto/common";
 import { calculateSpanColorFromRelativeDuration } from "./calculate-span-color-from-relative-duration";
+import { getEventName } from "./get-event-name";
 import { getIpcRequestName } from "./get-ipc-request-name";
 import { normalizeSpans } from "./normalize-spans";
+import { FilteredSpanWithChildren } from "./types";
 
 type Options = {
   allSpans: Span[];
@@ -24,6 +26,21 @@ export type UiSpan = {
   children: UiSpan[];
 };
 
+function getSpanName(
+  span: FilteredSpanWithChildren,
+  metadata: Map<bigint, Metadata>
+) {
+  if (span.kind === "ipc") {
+    return getIpcRequestName({ metadata, span });
+  } else if (span.kind === "event") {
+    return getEventName({ metadata, span });
+  } else if (span.kind === undefined) {
+    return metadata.get(span.metadataId)?.name ?? null;
+  } else {
+    return "not implemented";
+  }
+}
+
 export function formatSpansForUi({
   allSpans,
   spans,
@@ -35,7 +52,7 @@ export function formatSpansForUi({
     return {
       id: String(span.id),
       isProcessing,
-      name: getIpcRequestName({ metadata, span }) || "-",
+      name: getSpanName(span, metadata) || "-",
       initiated: span.createdAt / 1000000,
       time: !isProcessing
         ? (span.closedAt - span.createdAt) / 1e6

@@ -4,7 +4,8 @@
     "distDir": ["index.html", "test.html"],
     "devPath": "http://localhost:1420",
     "beforeDevCommand": "",
-    "beforeBuildCommand": ""
+    "beforeBuildCommand": "",
+    "withGlobalTauri": true
   },
   "package": {
     "productName": "Hello World",

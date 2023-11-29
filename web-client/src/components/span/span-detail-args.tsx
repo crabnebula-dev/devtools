@@ -1,7 +1,7 @@
 import { For, Show } from "solid-js";
 
 type Props = {
-  args: string[];
+  args: (string | object)[];
 };
 
 export function SpanDetailArgs(props: Props) {
@@ -9,7 +9,11 @@ export function SpanDetailArgs(props: Props) {
     <For each={props.args}>
       {(arg) => {
         return (
-          <For each={Object.entries(JSON.parse(arg))}>
+          <For
+            each={Object.entries(
+              typeof arg === "string" ? JSON.parse(arg) : arg
+            )}
+          >
             {([k, v]) => (
               <Show
                 when={

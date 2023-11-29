@@ -1,14 +1,16 @@
-import { For, createResource, Show } from "solid-js";
-import { formatSpansForUi } from "~/lib/span/format-spans-for-ui";
-import { getIpcRequestValues } from "~/lib/span/get-ipc-request-value";
-import { createHighlighter, getHighlightedCode } from "~/lib/code-highlight";
-import { useSearchParams } from "@solidjs/router";
-import { processFieldValue } from "~/lib/span/process-field-value";
-import { getChildrenList } from "~/lib/span/get-children-list";
-import { SpanDetailTrace } from "./span-detail-trace";
-import { SpanDetailArgs } from "./span-detail-args";
-import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
 import { useMonitor } from "~/context/monitor-provider";
+import { useSearchParams } from "@solidjs/router";
+import { getSpanKind } from "~/lib/span/get-span-kind";
+import { Show, createResource } from "solid-js";
+import { getChildrenList } from "~/lib/span/get-children-list";
+import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
+import { FilteredSpan } from "~/lib/span/types";
+import { formatSpansForUi } from "~/lib/span/format-spans-for-ui";
+import { SpanDetailView } from "./span-detail-view";
+import { getIpcRequestValues } from "~/lib/span/get-ipc-request-value";
+import { processFieldValue } from "~/lib/span/process-field-value";
+import { spanFieldsToObject } from "~/lib/span/span-fields-to-object";
+import { createHighlighter, getHighlightedCode } from "~/lib/code-highlight";
 
 export function SpanDetail() {
   const [searchParams] = useSearchParams();
@@ -17,11 +19,20 @@ export function SpanDetail() {
   const span = () => {
     const s = monitorData.spans.find((s) => s.id === spanId());
     if (s) {
+      const kind = getSpanKind({ metadata: monitorData.metadata, span: s });
+      const span = { ...s, kind };
+
+      const childrenFilter =
+        kind === "ipc"
+          ? (span: FilteredSpan) =>
+              isIpcSpanName(
+                monitorData.metadata.get(span.metadataId)?.name ?? ""
+              )
+          : undefined;
+
       return {
-        ...s,
-        children: getChildrenList(monitorData.spans, s, (span) =>
-          isIpcSpanName(monitorData.metadata.get(span.metadataId)?.name ?? "")
-        ),
+        ...span,
+        children: getChildrenList(monitorData.spans, s, childrenFilter),
       };
     }
     throw new Error("No Span");
@@ -33,26 +44,60 @@ export function SpanDetail() {
       spans: [span()],
       metadata: monitorData.metadata,
     })[0];
-  // filter child only used for metadata (response in this case)
-  const children = () =>
-    formattedSpan().children.filter((s) => s.name !== "ipc::request::response");
 
-  const responseCode = () => {
-    const field = getIpcRequestValues({
-      metadata: monitorData.metadata,
-      rootSpan: span(),
-    })("ipc::request::response")?.fields[0]?.response;
-    return field ? processFieldValue(field) : null;
+  const children = () => {
+    if (span().kind === "ipc") {
+      return formattedSpan().children.filter(
+        (s) => s.name !== "ipc::request::response"
+      );
+    }
+    return formattedSpan().children;
   };
 
-  const args = () =>
-    getIpcRequestValues({
-      metadata: monitorData.metadata,
-      rootSpan: span(),
-    })("ipc::request")?.fields.map((f) => processFieldValue(f.request)) ?? [];
+  const valuesSectionTitle = () => {
+    switch (span().kind) {
+      case "ipc":
+        return "Inputs";
+      case "event":
+        return "Args";
+      default:
+        return "Fields";
+    }
+  };
 
-  const [responseHtml] = createResource(
-    () => [responseCode(), createHighlighter()] as const,
+  const values = () => {
+    switch (span().kind) {
+      case "ipc":
+        return (
+          getIpcRequestValues({
+            metadata: monitorData.metadata,
+            rootSpan: span(),
+          })("ipc::request")?.fields.map((f) => processFieldValue(f.request)) ??
+          []
+        );
+
+      default:
+        return [spanFieldsToObject(span())];
+    }
+  };
+
+  const code = () => {
+    switch (span().kind) {
+      case "ipc": {
+        const field = getIpcRequestValues({
+          metadata: monitorData.metadata,
+          rootSpan: span(),
+        })("ipc::request::response")?.fields[0]?.response;
+        return field ? processFieldValue(field) : null;
+      }
+
+      default:
+        return null;
+    }
+  };
+
+  const [codeHtml] = createResource(
+    () => [code(), createHighlighter()] as const,
     async ([code, highlighter]) => {
       return code === null
         ? null
@@ -67,26 +112,13 @@ export function SpanDetail() {
   );
 
   return (
-    <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800">
-      <div class="pt-4 px-4">
-        <h2 class="text-2xl">{formattedSpan()?.name ?? "-"}</h2>
-      </div>
-      <table>
-        <tbody>
-          <For each={children()}>
-            {(span) => <SpanDetailTrace span={span} />}
-          </For>
-        </tbody>
-      </table>
-      <div class="grid gap-2">
-        <h2 class="text-xl p-4">Inputs</h2>
-        <table>
-          <tbody>
-            <SpanDetailArgs args={args()} />
-          </tbody>
-        </table>
-      </div>
-      <Show when={responseHtml()}>
+    <SpanDetailView
+      name={formattedSpan()?.name ?? "-"}
+      spanChildren={children() ?? []}
+      valuesSectionTitle={valuesSectionTitle()}
+      values={values() ?? []}
+    >
+      <Show when={codeHtml()}>
         {(html) => (
           <div class="grid gap-2">
             <h2 class="text-xl p-4">Response</h2>
@@ -99,6 +131,6 @@ export function SpanDetail() {
           </div>
         )}
       </Show>
-    </div>
+    </SpanDetailView>
   );
 }
