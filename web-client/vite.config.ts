@@ -1,3 +1,4 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 /**
  * Vitest extends Vite config.
  */
@@ -17,6 +18,8 @@ export default defineConfig({
     // this is as far back as we can go without needing top-level-await polyfills
     // we can't use the polyfill because it breaks SolidJS router.
     target: ["safari15", "chrome89", "firefox89"],
+
+    sourcemap: true,
   },
   plugins: [
     solidPlugin(),
@@ -54,6 +57,10 @@ export default defineConfig({
           dest: "./shiki/themes/",
         },
       ],
+    }),
+    sentryVitePlugin({
+      org: "crabnebula-ltd",
+      project: "devtools",
     }),
   ],
   resolve: {
