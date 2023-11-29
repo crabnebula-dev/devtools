@@ -79,11 +79,11 @@ impl Aggregator {
         let mut interval = tokio::time::interval(publish_interval);
 
         loop {
-            let should_publish = tokio::select! {
-                _ = interval.tick() => true,
+            let (should_publish, aggressive) = tokio::select! {
+                _ = interval.tick() => (true, false),
                 _ = self.shared.flush.notify.notified() => {
                     tracing::debug!("event buffer approaching capacity, flushing...");
-                    false
+                    (false, true)
                 },
                 cmd = self.cmds.recv() => {
                     if let Some(Command::Instrument(watcher)) = cmd {
@@ -94,22 +94,36 @@ impl Aggregator {
                         break;
                     }
 
-                    false
+                    (false, false)
                 }
             };
 
             let mut drained = false;
             let mut count = 0;
-            while let Some(event) = self.events.recv().now_or_never() {
-                count += 1;
-                if let Some(event) = event {
+
+            if aggressive {
+                tracing::debug!("agressive flushing");
+                while let Some(event) = tokio::select! {
+                    e = self.events.recv() => e,
+                    _ = interval.tick() => None,
+                } {
+                    count += 1;
                     self.update_state(event);
                     drained = true;
-                } else {
-                    tracing::debug!("event channel closed; terminating");
-                    break;
+                }
+            } else {
+                while let Some(event) = self.events.recv().now_or_never() {
+                    count += 1;
+                    if let Some(event) = event {
+                        self.update_state(event);
+                        drained = true;
+                    } else {
+                        tracing::debug!("event channel closed; terminating");
+                        break;
+                    }
                 }
             }
+
             tracing::debug!("flushed {count} event, drained {drained}");
 
             if should_publish {
