@@ -13,5 +13,11 @@ export function getSpanKind({ metadata, span }: Options) {
   }
 
   const spanMetadata = metadata.get(span.metadataId);
-  return spanMetadata?.name === "wry::ipc::handle" ? "ipc" : null;
+  return spanMetadata?.name === "wry::ipc::handle"
+    ? "ipc"
+    : spanMetadata?.name === "updater::check"
+    ? "updater-check"
+    : spanMetadata?.name === "updater::download_and_install"
+    ? "updater-download-and-install"
+    : null;
 }
