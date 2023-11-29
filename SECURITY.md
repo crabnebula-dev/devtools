@@ -38,16 +38,16 @@ It is not meant to be remotely (where the web client is used on another system a
 
 ### Considered Threats
 
-#### Fileystem Exposure
+#### Filesystem Exposure
 
 The client exposes a set of gRPC APIs which allow to preview sources from the local
-fileystem of the system to be inspected. The APIs only allow access to the files in
+filesystem of the system to be inspected. The APIs only allow access to the files in
 the application source code project directory. It has no access outside of this directory.
 
 #### Resource Exhaustion
 
 Generating traces creates additional resource consumption but the amount of additional
-resources allocated on the client system are negligable.
+resources allocated on the client system are negligible.
 The inspection view could allocate significant resources if events are spammed and could
 in worst case lead to blocking usage in the inspection client but it is considered more of
 an UX issue than a security impact issue.
