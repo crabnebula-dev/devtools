@@ -1,4 +1,4 @@
-import type { SortDirection } from "~/views/dashboard/span-waterfall";
+import type { SortDirection } from "~/views/dashboard/calls";
 
 export function SortCaret(props: { direction: SortDirection }) {
   return (
