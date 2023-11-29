@@ -2,7 +2,7 @@ import type {
   SortDirection,
   SortableColumn,
   ColumnSort,
-} from "~/views/dashboard/span-waterfall";
+} from "~/views/dashboard/calls";
 
 export function getColumnDirection(
   columnSort: ColumnSort,
