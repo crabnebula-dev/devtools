@@ -5,7 +5,7 @@ Inspect, monitor, and understand your [Tauri](https://tauri.app) application wit
 ## Features
 
 - **Easy Integration:** With just a few lines of code, enable detailed event logging and metadata extraction for your application.
-- **Rich Insights:** Get insight into what your app is doing, Performance, Errors, Warns, everything is available at a glance.
+- **Rich Insights:** Get insight into what your app is doing, Performance, Errors, Warnings, everything is available at a glance.
 - **And more:** This project is actively worked on, and we are open to hear your ideas, check out the [Upcoming Features]() issue for details.
 
 ## Getting Started
