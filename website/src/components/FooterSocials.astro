@@ -1,0 +1,26 @@
+---
+import GithubIcon from "../components/GithubIcon.astro";
+import LinkedinIcon from "../components/LinkedinIcon.astro";
+import MastodonIcon from "../components/MastodonIcon.astro";
+import TwitchIcon from "../components/TwitchIcon.astro";
+import XIcon from "../components/XIcon.astro";
+import YoutubeIcon from "../components/YoutubeIcon.astro";
+import clsx from "clsx";
+import ContactUsLink from "./ContactUsLink.astro";
+
+const { className } = Astro.props;
+---
+
+<div
+  class={clsx(className, "grid md:mx-0 mx-auto items-center gap-4 lg:gap-8")}
+>
+  <ul class="flex items-center gap-4 lg:gap-6">
+    <li><GithubIcon /></li>
+    <li><XIcon /></li>
+    <li><MastodonIcon /></li>
+    <li><LinkedinIcon /></li>
+    <li><YoutubeIcon /></li>
+    <li><TwitchIcon /></li>
+  </ul>
+  <ContactUsLink />
+</div>

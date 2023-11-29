@@ -1,0 +1,12 @@
+---
+const { type = "text", label, placeholder } = Astro.props;
+---
+
+<label class="grid gap-2">
+  <span class="pl-2">{label}</span>
+  <input
+    class="bg-white rounded-full px-4 py-2"
+    type={type}
+    placeholder={placeholder}
+  />
+</label>

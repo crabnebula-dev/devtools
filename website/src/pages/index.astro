@@ -1,0 +1,175 @@
+---
+import H1 from "../components/H1.astro";
+import LinkButton from "../components/LinkButton.astro";
+import Input from "../components/Input.astro";
+import Layout from "../layouts/Layout.astro";
+import IpcSpanIcon from "../components/IpcSpanIcon.astro";
+import ConsoleIcon from "../components/ConsoleIcon.astro";
+import ConfigInspectorIcon from "../components/ConfigInspectorIcon.astro";
+import SourcesIcon from "../components/SourcesIcon.astro";
+---
+
+<Layout title="Rust DevTools by CrabNebula">
+  <main class="grid py-12">
+    <section
+      class="px-8 pb-8 grid gap-10 justify-center text-center content-start"
+    >
+      <div
+        class="flex md:flex-row flex-col justify-center items-center md:gap-8"
+      >
+        <img
+          alt="Logo"
+          class="rounded-full"
+          src="https://picsum.photos/64/64"
+        />
+        <H1>DevTools</H1>
+      </div>
+      <h2 class="font-heading font-semibold text-2xl">
+        Tauri App Development Demystified
+      </h2>
+      <div class="flex justify-center gap-8 items-center">
+        <LinkButton href="/docs">Docs</LinkButton>
+        <LinkButton href="/app" type="primary">Get started now</LinkButton>
+      </div>
+    </section>
+    <section class="max-w-[1280px] mx-auto">
+      <picture class="max-w-full">
+        <source srcset="/images/screenshot.webp" type="image/webp" />
+        <source srcset="/images/screenshot.png" type="image/png" />
+        <img src="/images/screenshot.png" alt="DevTools Screenshot" />
+      </picture>
+    </section>
+    <section class="relative bg-black bg-opacity-20 overflow-hidden">
+      <picture
+        class="pointer-events-none -z-10 mix-blend-color-burn absolute top-0 left-0 w-full"
+      >
+        <source srcset="/images/insight-bg.webp" type="image/webp" />
+        <source srcset="/images/insight-bg.png" type="image/png" />
+        <img src="/images/insight-bg.png" alt="Background" />
+      </picture>
+      <div
+        class="md:flex md:gap-8 max-w-screen-xl px-8 py-16 mx-auto justify-between items-center"
+      >
+        <div class="md:max-w-[50%] grid gap-8">
+          <h1
+            class="leading-normal font-heading text-4xl md:text-6xl font-semibold"
+          >
+            Gain insight into your Tauri App.
+          </h1>
+          <p class="md:text-2xl text-lg font-medium text-gray-400">
+            The Devtool is not just about finding and fixing issues; it's about
+            understanding, optimizing, and perfecting the application
+            development process.
+          </p>
+          <div class="mr-auto">
+            <LinkButton href="#" type="secondary">Read More</LinkButton>
+          </div>
+        </div>
+        <div
+          class="p-8 grid grid-rows-2 grid-cols-2 lg:max-w-[30%] ml-auto gap-8"
+        >
+          <div
+            class="grid gap-2 content-start text-center items-center justify-center"
+          >
+            <span class="mx-auto"><IpcSpanIcon /></span>
+            <span class="text-lg">IPC Span</span>
+            <span class="leading-tight font-medium text-gray-400"
+              >Identify performance bottlenecks</span
+            >
+          </div>
+          <div class="grid gap-2 text-center content-start justify-center">
+            <span class="mx-auto"><ConsoleIcon /></span>
+            <span class="text-lg">Console</span>
+            <span class="leading-tight font-medium text-gray-400"
+              >Troubleshoot errors and warnings</span
+            >
+          </div>
+          <div class="grid gap-2 text-center content-start justify-center">
+            <span class="mx-auto"><ConfigInspectorIcon /></span>
+            <span class="text-lg">Config Inspector</span>
+            <span class="leading-tight font-medium text-gray-400"
+              >Review Tauri Config</span
+            >
+          </div>
+          <div class="grid gap-2 text-center content-start justify-center">
+            <span class="mx-auto"><SourcesIcon /></span>
+            <span class="text-lg">Sources</span>
+            <span class="leading-tight font-medium text-gray-400"
+              >View all assets</span
+            >
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="bg-navy py-20">
+      <div class="justify-center max-w-screen-xl mx-auto">
+        <div class="md:max-w-[60%] mx-auto grid p-8 gap-4">
+          <blockquote class="text-2xl font-heading font-medium">
+            <p>
+              “I was using Tauri to build apps and was frustrated it’s near
+              impossible to know what the IPC system is doing. It wasn’t
+              feasible for me to pull this off on my own, with CrabNebula I now
+              have the time, resources and team to bring this to fruition.”
+            </p>
+          </blockquote>
+          <div class="flex ml-auto items-center justify-end text-left gap-2">
+            <picture class="w-20">
+              <source type="image/webp" srcset="/images/jonas.webp" />
+              <source type="image/png" srcset="/images/jonas.png" />
+              <img alt="Jonas Kruckenberg" src="/images/jonas.png" />
+            </picture>
+            <div class="flex flex-col p-4">
+              <span>Jonas Kruckenberg</span>
+              <span>DevRel</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="relative py-20 bg-navy">
+      <div class="relative z-10 md:p-8 max-w-screen-xl mx-auto">
+        <div
+          class="grid bg-navy bg-opacity-90 p-8 gap-12 justify-start rounded-3xl md:max-w-[50%]"
+        >
+          <div class="grid gap-4">
+            <h3 class="font-heading text-3xl font-semibold">Newsletter</h3>
+            <p>
+              Be the first to receive updates and hear about CrabNebula news and
+              announcements!
+            </p>
+          </div>
+          <form class="grid gap-12">
+            <div class="grid gap-4">
+              <Input label="Name" placeholder="Jane Doe" />
+              <Input type="email" label="Email" placeholder="jane@doe.com" />
+            </div>
+            <div class="grid gap-4">
+              <button
+                class="mr-auto bg-brand-200 text-brand-900 rounded-full px-4 py-2"
+                type="submit">Subscribe</button
+              >
+              <p class="text-gray-400 text-xs">
+                By submitting your personal data you consent to CrabNebula
+                processing your personal data as detailed in our <a href="#"
+                  >Privacy Policy</a
+                >.
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div
+        class="hidden z-1 md:block absolute md:-top-[30%] lg:-top-[60%] right-0"
+      >
+        <picture>
+          <source srcset="/images/nova-newsletter.webp" type="image/webp" />
+          <source srcset="/images/nova-newsletter.png" type="image/png" />
+          <img
+            src="/images/nova-newsletter.png"
+            alt="Nova presenting a newsletter"
+          />
+        </picture>
+      </div>
+    </section>
+  </main>
+</Layout>

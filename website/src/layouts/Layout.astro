@@ -1,0 +1,67 @@
+---
+import FooterSocials from "../components/FooterSocials.astro";
+import Logo from "../components/Logo.astro";
+import { NavAccordion } from "../components/NavAccordion.tsx";
+import { MobileNav } from "../components/MobileNav";
+import "../main.css";
+import ChevronDownIcon from "../components/ChevronDownIcon.astro";
+import LinkButton from "../components/LinkButton.astro";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="bg-navy text-white bg-cover grid">
+    <header class="backdrop-blur-lg right-0 sticky top-0 z-20 left-0 p-8">
+      <div
+        class="max-w-screen-xl w-full mx-auto flex items-center justify-between"
+      >
+        <Logo className="max-w-[80%]" width={266} />
+        <MobileNav client:idle />
+        <nav class="hidden lg:flex items-center ml-auto gap-8">
+          <ul class="flex items-center gap-8">
+            <li class="flex items-center gap-4">
+              Products & Services <ChevronDownIcon />
+            </li>
+            <li>Blog</li>
+            <li class="flex items-center gap-4">Company <ChevronDownIcon /></li>
+          </ul>
+          <LinkButton href="/contact">Contact Us</LinkButton>
+        </nav>
+      </div>
+    </header>
+    <slot />
+    <footer class="grid max-w-screen-xl w-full mx-auto gap-8 p-4">
+      <div class="md:flex items-center justify-between">
+        <Logo width={266} />
+        <FooterSocials className="hidden md:flex" />
+      </div>
+      <NavAccordion client:idle />
+      <FooterSocials className="md:hidden" />
+      <div class="text-xs mx-auto">
+        Copyright © {new Date().getFullYear()} CrabNebula Ltd.
+      </div>
+    </footer>
+  </body>
+</html>
+<style is:global>
+  body {
+    background-image: image-set(
+      url("/images/bg.webp") type("image/webp"),
+      url("/images/bg.jpg") type("image/jpeg")
+    );
+  }
+</style>
