@@ -77,7 +77,8 @@ export function HealthStatus() {
         setReconnectTimer(initialTime);
 
         const interval = setInterval(() => {
-          const timer = typeof reconnectTimer() === "number" ? reconnectTimer() - 1 : 0
+          const currentTimer = reconnectTimer();
+          const timer = typeof currentTimer === "number" ? currentTimer - 1 : 0;
           setReconnectTimer(timer);
         }, 1000);
 
