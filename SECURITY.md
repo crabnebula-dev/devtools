@@ -60,17 +60,21 @@ These data is not visible remotely and only shown and processed client side and 
 #### Trace Hiding
 
 The tracing system collects events in a size bound FIFO queue, which is sent on regular intervals.
-It is theoretically possible that events are dropped and a potential attacker would need to be able
-to generate a _massive_ amount of traces. With this events could be dropped but the event log
+It is theoretically possible that events are dropped. A potential attacker would need to be able
+to generate a _massive_ amount of traces. With this, events could be dropped but the event log
 sent to the server component contains the number of dropped events, so it is possible to detect such behavior.
 
 #### Man in the Middle
 
-The connection between the devtools client and the server collecting the information is currently not protected against local man-in-the-middle attacks.
-This implicates that any software on the system and visited website can potentially access the collected traces and system information.
+The connection between the devtools instrumented local application and the web client collecting the information is currently not protected against local man-in-the-middle attacks.
+This implicates that any software on the system and visited websites can potentially access the collected traces and system information.
 
-We currently reduce impact by setting CORS header checks to only allow requests from [devtools.crabnebula.dev](https://devtools.crabnebula.dev) which can only
-be bypassed if there is a man-in-the-middle attacker with the trusted root CA in the systems browser and the site is able to impersonate the domain above.
+We currently reduce impact by setting CORS header checks to only allow requests from [devtools.crabnebula.dev](https://devtools.crabnebula.dev).
+This can be bypassed in scenarios where a man-in-the-middle adversary with either a trusted root CA in the systems browser, or the ability
+to manually spoof the origin header when sending a request from another application on the client system.
+
+We plan to implement mTLS for proper authentication to mitigate this type of attacks in a later stage.
+The current likelihood of the above mentioned adversaries is considered low and the endpoints are only exposed on localhost.
 
 ### Out of Scope
 
