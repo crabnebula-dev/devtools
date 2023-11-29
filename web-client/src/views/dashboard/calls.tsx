@@ -10,7 +10,7 @@ import { FilteredSpan } from "~/lib/span/types";
 import { getSpanKind } from "~/lib/span/get-span-kind";
 import { useMonitor } from "~/context/monitor-provider";
 
-export default function SpanWaterfall() {
+export default function Calls() {
   const { monitorData } = useMonitor();
   const [granularity, setGranularity] = createSignal(1);
   const [spans, setSpans] = createSignal<ReturnType<typeof formatSpansForUi>>(

@@ -9,7 +9,7 @@ const TABS = [
   },
   {
     url: (host: string, port: string) => `/dash/${host}/${port}/calls`,
-    title: "Call Stack",
+    title: "Calls",
   },
   {
     url: (host: string, port: string) => `/dash/${host}/${port}/sources`,

@@ -26,7 +26,7 @@ const ROUTES: RouteDefinition[] = [
       },
       {
         path: "/calls",
-        component: lazy(() => import("./views/dashboard/span-waterfall.tsx")),
+        component: lazy(() => import("./views/dashboard/calls.tsx")),
       },
       {
         path: "/tauri/:config?/:selected?",
