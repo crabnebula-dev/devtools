@@ -109,7 +109,7 @@ impl<R: Runtime> Server<R> {
             .allow_methods([Method::GET, Method::POST])
             .allow_headers(AllowHeaders::any());
 
-        let cors = if option_env!("UNSAFE_BYPASS_CLIENT_AUTH").is_some() {
+        let cors = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
             cors.allow_origin(tower_http::cors::Any)
         } else {
             cors.allow_origin(HeaderValue::from_str("https://devtools.crabnebula.dev").unwrap())
@@ -241,7 +241,7 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
             });
             Ok(Response::new(Box::pin(stream)))
         } else {
-            let path = req.into_inner().path.trim_start_matches(".").to_string();
+            let path = req.into_inner().path.trim_start_matches('.').to_string();
             let stream = self
                 .list_entries_from_assets(path)
                 .or_else(|err| async move {
@@ -260,7 +260,7 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
         req: Request<EntryRequest>,
     ) -> Result<Response<Self::GetEntryBytesStream>, Status> {
         let entry_path = req.into_inner().path;
-        let asset_path = format!("{}", entry_path.trim_start_matches("."));
+        let asset_path = entry_path.trim_start_matches('.');
 
         if let Some(asset) = self
             .app_handle

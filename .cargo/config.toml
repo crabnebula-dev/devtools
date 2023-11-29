@@ -1,2 +1,2 @@
 [env]
-UNSAFE_BYPASS_CLIENT_AUTH = "true" # disable gRPC client auth and CORS checking for local development
+__DEVTOOLS_LOCAL_DEVELOPMENT = "true" # disable gRPC CORS checking & point to the right URL for local development

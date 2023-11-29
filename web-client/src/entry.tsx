@@ -2,6 +2,7 @@ import { type RouteDefinition, useNavigate, useRoutes } from "@solidjs/router";
 import { lazy, ErrorBoundary } from "solid-js";
 import { setCDN } from "@crabnebula/file-icons";
 import { ErrorRoot } from "./components/error-root.tsx";
+import * as Sentry from "@sentry/browser";
 
 const ROUTES: RouteDefinition[] = [
   {
@@ -26,7 +27,7 @@ const ROUTES: RouteDefinition[] = [
       },
       {
         path: "/calls",
-        component: lazy(() => import("./views/dashboard/span-waterfall.tsx")),
+        component: lazy(() => import("./views/dashboard/calls.tsx")),
       },
       {
         path: "/tauri/:config?/:selected?",
@@ -46,7 +47,13 @@ export default function Entry() {
   setCDN("/icons");
 
   return (
-    <ErrorBoundary fallback={(e) => <ErrorRoot error={e} />}>
+    <ErrorBoundary
+      fallback={(error) => {
+        const eventId = Sentry.captureException(error);
+        Sentry.showReportDialog({ eventId });
+        return <ErrorRoot error={error} />;
+      }}
+    >
       <Routes />
     </ErrorBoundary>
   );

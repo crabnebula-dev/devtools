@@ -1,4 +1,12 @@
 [[redirects]]
+  from = "/sentry-tunnel/*"
+  to = "https://57614e75ac5f8c480aed3a2dd1528f13@o4506303762464768.ingest.sentry.io/api/4506303812272128/envelope/:splat"
+  status = 200
+  headers = { Content-Type = "application/x-sentry-envelope" }
+  
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+

@@ -1,6 +1,7 @@
 import { type Span } from "~/lib/connection/monitor";
 import { type SpanEvent } from "~/lib/proto/spans";
 import { convertTimestampToNanoseconds } from "../formatters";
+import { convertTimestampToNanoseconds } from "../formatters";
 
 export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
   for (const event of spanEvents) {

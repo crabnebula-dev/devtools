@@ -6,9 +6,11 @@ import { SplitPane } from "~/components/split-pane";
 import { SpanDetailPanel } from "~/components/span/span-detail-panel";
 import { ColumnSort, SpanList } from "~/components/span/span-list";
 import { SpanScaleSlider } from "~/components/span/span-scale-slider";
+import { FilteredSpan } from "~/lib/span/types";
+import { getSpanKind } from "~/lib/span/get-span-kind";
 import { useMonitor } from "~/context/monitor-provider";
 
-export default function SpanWaterfall() {
+export default function Calls() {
   const { monitorData } = useMonitor();
   const [granularity, setGranularity] = createSignal(1);
   const [spans, setSpans] = createSignal<ReturnType<typeof formatSpansForUi>>(
@@ -20,11 +22,18 @@ export default function SpanWaterfall() {
   });
 
   createEffect(() => {
-    const filteredSpans = () =>
-      [...monitorData.spans.values()].filter((s) => {
-        const metadata = monitorData.metadata.get(s.metadataId);
-        return metadata && metadata.name === "wry::ipc::handle" && s.closedAt;
-      });
+    const filteredSpans = () => {
+      const filtered: FilteredSpan[] = [];
+
+      for (const span of monitorData.spans) {
+        const kind = getSpanKind({ metadata: monitorData.metadata, span });
+        if (kind) {
+          filtered.push({ kind, ...span });
+        }
+      }
+
+      return filtered;
+    };
 
     const hasPendingWork = () => filteredSpans().find((s) => s.closedAt < 0);
     const spans = () =>
@@ -37,17 +46,23 @@ export default function SpanWaterfall() {
         }),
       ].sort((a, b) => {
         const columnName = columnSort.name;
-        const lhs = a[columnName];
-        const rhs = b[columnName];
 
-        if (typeof lhs !== "number" || typeof rhs !== "number") {
-          throw new Error("Cannot sort non-numeric values");
+        let lhs, rhs;
+        if (columnSort.direction == "asc") {
+          lhs = a[columnName];
+          rhs = b[columnName];
+        } else {
+          lhs = b[columnName];
+          rhs = a[columnName];
         }
 
-        if (columnSort.direction === "asc") {
+        if (typeof lhs == "number" && typeof rhs == "number") {
           return lhs - rhs;
+        } else if (typeof lhs == "string" && typeof rhs == "string") {
+          return lhs.localeCompare(rhs);
+        } else {
+          return 0; // no sorting
         }
-        return rhs - lhs;
       });
 
     function animate() {

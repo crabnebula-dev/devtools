@@ -1,17 +1,20 @@
 import { Span } from "../connection/monitor";
+import { FilteredSpan } from "./types";
 
 export function getChildrenList(
   spans: Span[],
-  span: Span,
-  filter?: (span: Span) => boolean
-): Span[] {
-  let children: Span[] = [];
+  span: FilteredSpan,
+  filter?: (span: FilteredSpan) => boolean
+): FilteredSpan[] {
+  let children: FilteredSpan[] = [];
   for (const s of spans) {
     if (s.parentId === span.id) {
-      if (filter === undefined || filter(s)) {
-        children.push(s);
+      const child = { ...s, kind: span.kind };
+
+      if (filter === undefined || filter(child)) {
+        children.push(child);
       }
-      children = children.concat(getChildrenList(spans, s, filter));
+      children = children.concat(getChildrenList(spans, child, filter));
     }
   }
 
