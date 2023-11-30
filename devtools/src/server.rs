@@ -109,11 +109,11 @@ impl<R: Runtime> Server<R> {
             .allow_methods([Method::GET, Method::POST])
             .allow_headers(AllowHeaders::any());
 
-        // let cors = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
-        let cors = cors.allow_origin(tower_http::cors::Any);
-        // } else {
-        //     cors.allow_origin(HeaderValue::from_str("https://devtools.crabnebula.dev").unwrap())
-        // };
+        let cors = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
+            cors.allow_origin(tower_http::cors::Any)
+        } else {
+            cors.allow_origin(HeaderValue::from_str("https://devtools.crabnebula.dev").unwrap())
+        };
 
         tonic::transport::Server::builder()
             .accept_http1(true)
