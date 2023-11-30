@@ -5,7 +5,7 @@ export default {
     extend: {
       backgroundImage: {
         section:
-          "image-set(url('/images/section-bg.png') type('image/png'), url('/images/section-bg.webp') type('image/webp'))",
+          "image-set(url('/images/section-bg.webp') type('image/webp'), url('/images/section-bg.png') type('image/png'))",
       },
       fontFamily: {
         heading: "cn",
