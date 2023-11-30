@@ -11,10 +11,10 @@
 //!
 //! ```ignore
 //! fn main() {
-//!     let devtools = tauri_devtools::init();
+//!     let devtools_plugin = devtools::init();
 //!
 //!     tauri::Builder::default()
-//!         .plugin(devtools)
+//!         .plugin(devtools_plugin)
 //!         .setup(|| {
 //!             // It is compatible with the `tracing` ecosystem!
 //!             tracing::info!("Hello World!");
