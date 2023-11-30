@@ -55,7 +55,7 @@ impl Builder {
     /// You can tweak this setting to reduce the time between updates, when for example your app
     /// is generating a lot of events, the buffer might fill up and cause some events to get lost.
     ///
-    /// **default:** 200ms
+    /// **default:** `200ms`
     pub fn publish_interval(&mut self, interval: Duration) -> &mut Self {
         self.publish_interval = interval;
         self
