@@ -12,7 +12,6 @@ import { getLevelClasses } from "~/lib/console/get-level-classes";
 import { LogLevelFilter } from "~/components/console/log-level-filter";
 import { NoLogs } from "~/components/console/no-logs";
 import { getFileNameFromPath } from "~/lib/console/get-file-name-from-path";
-import { Link } from "@kobalte/core";
 
 export default function Console() {
   const { monitorData } = useMonitor();
@@ -94,16 +93,8 @@ export default function Console() {
                     <span class="text-gray-600">{metadata!.target}</span>
                   </Show>
                   <Show when={metadata?.location?.file}>
-                    <Link.Root
-                      href={
-                        /** @todo go to sources. Ref: https://linear.app/crabnebula/issue/DR-644/make-sources-context-aware */
-                        "https://linear.app/crabnebula/issue/DR-644/make-sources-context-aware"
-                      }
-                      class="text-white underline"
-                    >
-                      {getFileNameFromPath(metadata!.location!.file!)}:
-                      {metadata!.location!.line}
-                    </Link.Root>
+                    {getFileNameFromPath(metadata!.location!.file!)}:
+                    {metadata!.location!.line}
                   </Show>
                 </span>
               </li>
