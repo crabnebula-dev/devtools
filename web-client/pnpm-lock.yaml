@@ -32,6 +32,9 @@ dependencies:
   '@sentry/vite-plugin':
     specifier: ^2.10.2
     version: 2.10.2
+  '@solid-primitives/map':
+    specifier: ^0.4.8
+    version: 0.4.8(solid-js@1.8.5)
   '@solidjs/router':
     specifier: ^0.8.4
     version: 0.8.4(solid-js@1.8.5)

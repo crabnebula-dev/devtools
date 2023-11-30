@@ -1,11 +1,11 @@
 import { Metadata } from "../proto/common";
 import { isEventSpan } from "./is-event-span";
 import { processFieldValue } from "./process-field-value";
-import { FilteredSpan } from "./types";
+import { UiSpan } from "./format-spans-for-ui";
 
 type Options = {
   metadata: Map<bigint, Metadata>;
-  span: FilteredSpan;
+  span: UiSpan;
 };
 
 export function getEventName({ metadata, span }: Options) {

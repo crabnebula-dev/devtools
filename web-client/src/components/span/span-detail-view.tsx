@@ -1,4 +1,4 @@
-import { For, children, JSXElement } from "solid-js";
+import { For, JSXElement } from "solid-js";
 import { UiSpan } from "~/lib/span/format-spans-for-ui";
 import { SpanDetailTrace } from "./span-detail-trace";
 import { SpanDetailArgs } from "./span-detail-args";
@@ -12,8 +12,6 @@ type Props = {
 };
 
 export function SpanDetailView(props: Props) {
-  const c = children(() => props.children);
-
   return (
     <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800">
       <div class="pt-4 px-4">
@@ -34,7 +32,7 @@ export function SpanDetailView(props: Props) {
           </tbody>
         </table>
       </div>
-      {c()}
+      {props.children}
     </div>
   );
 }

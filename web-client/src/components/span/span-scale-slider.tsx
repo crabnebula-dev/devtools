@@ -1,20 +1,16 @@
 import { Tooltip } from "@kobalte/core";
 import { Show } from "solid-js";
+import { useCalls } from "./calls-context";
 
-type Props = {
-  granularity: number;
-  setGranularity: (granularity: number) => void;
-  totalDuration: number;
-};
-
-export function SpanScaleSlider(props: Props) {
+export function SpanScaleSlider() {
+  const callsContext = useCalls();
   return (
     <div class="flex items-center gap-2">
       <Tooltip.Root>
         <Tooltip.Trigger>
           <span class="flex items-center gap-1">
             Scale Spans
-            <Show when={props.granularity > 1}>
+            <Show when={callsContext.granularity.granularity() > 1}>
               <span>ⓘ</span>
             </Show>
           </span>
@@ -28,9 +24,14 @@ export function SpanScaleSlider(props: Props) {
       <input
         type="range"
         min={1}
-        max={props.totalDuration}
-        value={props.granularity}
-        onInput={(e) => props.setGranularity(Number(e.currentTarget.value))}
+        max={
+          (callsContext.durations.durations.longestTime ?? 1) /
+          (callsContext.durations.durations.shortestTime ?? 1)
+        }
+        value={callsContext.granularity.granularity()}
+        onInput={(e) =>
+          callsContext.granularity.setGranularity(Number(e.currentTarget.value))
+        }
       />
     </div>
   );
