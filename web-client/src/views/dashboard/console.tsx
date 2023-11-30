@@ -94,16 +94,8 @@ export default function Console() {
                     <span class="text-gray-600">{metadata!.target}</span>
                   </Show>
                   <Show when={metadata?.location?.file}>
-                    <Link.Root
-                      href={
-                        /** @todo go to sources. Ref: https://linear.app/crabnebula/issue/DR-644/make-sources-context-aware */
-                        "https://linear.app/crabnebula/issue/DR-644/make-sources-context-aware"
-                      }
-                      class="text-white underline"
-                    >
                       {getFileNameFromPath(metadata!.location!.file!)}:
                       {metadata!.location!.line}
-                    </Link.Root>
                   </Show>
                 </span>
               </li>
