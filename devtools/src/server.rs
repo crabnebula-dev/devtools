@@ -1,24 +1,24 @@
 use crate::{Command, Watcher};
 use async_stream::try_stream;
 use bytes::BytesMut;
+use devtools_wire_format as wire;
+use devtools_wire_format::instrument;
+use devtools_wire_format::instrument::instrument_server::InstrumentServer;
+use devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
+use devtools_wire_format::meta::metadata_server::MetadataServer;
+use devtools_wire_format::meta::{metadata_server, AppMetadata, AppMetadataRequest};
+use devtools_wire_format::sources::sources_server::SourcesServer;
+use devtools_wire_format::sources::{Chunk, Entry, EntryRequest, FileType};
+use devtools_wire_format::tauri::tauri_server::TauriServer;
+use devtools_wire_format::tauri::{
+    tauri_server, Config, ConfigRequest, Metrics, MetricsRequest, Versions, VersionsRequest,
+};
 use futures::{FutureExt, Stream, TryStreamExt};
 use std::net::SocketAddr;
 use std::path::{Component, PathBuf};
 use std::sync::Arc;
 use tauri::http::header::HeaderValue;
 use tauri::{AppHandle, Runtime};
-use tauri_devtools_wire_format as wire;
-use tauri_devtools_wire_format::instrument;
-use tauri_devtools_wire_format::instrument::instrument_server::InstrumentServer;
-use tauri_devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
-use tauri_devtools_wire_format::meta::metadata_server::MetadataServer;
-use tauri_devtools_wire_format::meta::{metadata_server, AppMetadata, AppMetadataRequest};
-use tauri_devtools_wire_format::sources::sources_server::SourcesServer;
-use tauri_devtools_wire_format::sources::{Chunk, Entry, EntryRequest, FileType};
-use tauri_devtools_wire_format::tauri::tauri_server::TauriServer;
-use tauri_devtools_wire_format::tauri::{
-    tauri_server, Config, ConfigRequest, Metrics, MetricsRequest, Versions, VersionsRequest,
-};
 use tokio::sync::{mpsc, RwLock};
 use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
@@ -419,11 +419,11 @@ impl<R: Runtime> metadata_server::Metadata for MetaService<R> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use devtools_wire_format::instrument::instrument_server::Instrument;
+    use devtools_wire_format::sources::sources_server::Sources;
+    use devtools_wire_format::tauri::tauri_server::Tauri;
     use futures::StreamExt;
     use std::time::SystemTime;
-    use tauri_devtools_wire_format::instrument::instrument_server::Instrument;
-    use tauri_devtools_wire_format::sources::sources_server::Sources;
-    use tauri_devtools_wire_format::tauri::tauri_server::Tauri;
 
     #[tokio::test]
     async fn tauri_get_config() {
@@ -439,7 +439,7 @@ mod test {
 
         assert_eq!(
             cfg.into_inner(),
-            tauri_devtools_wire_format::tauri::Config::from(&*tauri.app_handle.config())
+            devtools_wire_format::tauri::Config::from(&*tauri.app_handle.config())
         );
     }
 

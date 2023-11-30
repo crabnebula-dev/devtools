@@ -39,7 +39,7 @@ pub use error::Error;
 use std::sync::atomic::AtomicUsize;
 use std::time::Instant;
 use tauri::Runtime;
-use tauri_devtools_wire_format::{instrument, Field};
+use devtools_wire_format::{instrument, Field};
 use tokio::sync::{mpsc, Notify};
 
 const EVENT_BUFFER_CAPACITY: usize = 512;

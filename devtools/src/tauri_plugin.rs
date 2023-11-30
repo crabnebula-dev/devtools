@@ -1,13 +1,13 @@
 use crate::aggregator::Aggregator;
 use crate::server::Server;
 use crate::Command;
+use devtools_wire_format::tauri::Metrics;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::thread;
 use std::time::SystemTime;
 use std::time::{Duration, Instant};
 use tauri::{RunEvent, Runtime};
-use tauri_devtools_wire_format::tauri::Metrics;
 use tokio::sync::{mpsc, RwLock};
 
 pub(crate) fn init<R: Runtime>(
