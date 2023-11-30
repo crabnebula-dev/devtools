@@ -39,27 +39,40 @@ const { title } = Astro.props;
         <nav class="hidden lg:flex items-center ml-auto gap-8">
           <HeaderMenuDropdown
             links={[
-              { href: "#", label: "DevTools" },
-              { href: "#", label: "Security" },
-              { href: "#", label: "Consulting" },
-              { href: "#", label: "Distribution" },
+              { href: "https://devtools.crabnebula.dev", label: "DevTools" },
+              {
+                href: "https://crabnebula.dev/security-auditing",
+                label: "Security",
+              },
+              {
+                href: "https://crabnebula.dev/consulting",
+                label: "Consulting",
+              },
+              {
+                href: "https://crabnebula.dev/distribution",
+                label: "Distribution",
+              },
             ]}
           >
             Products & Services
           </HeaderMenuDropdown>
-          <HeaderMenuLink href="/blog">Blog</HeaderMenuLink>
+          <HeaderMenuLink href="https://crabnebula.dev/blog">
+            Blog
+          </HeaderMenuLink>
           <HeaderMenuDropdown
             links={[
-              { href: "#", label: "About" },
-              { href: "#", label: "Blog" },
-              { href: "#", label: "Case Studies" },
-              { href: "#", label: "Partners" },
-              { href: "#", label: "Careers" },
+              { href: "https://crabnebula.dev/about", label: "About" },
+              { href: "https://crabnebula.dev/blog", label: "Blog" },
+              // { href: "#", label: "Case Studies" },
+              // { href: "#", label: "Partners" },
+              { href: "https://crabnebula.dev/careers", label: "Careers" },
             ]}
           >
             Company
           </HeaderMenuDropdown>
-          <LinkButton href="/contact">Contact Us</LinkButton>
+          <LinkButton href="https://q9r43wwq2bt.typeform.com/to/slZ5rWNB">
+            Contact Us
+          </LinkButton>
         </nav>
       </div>
     </header>

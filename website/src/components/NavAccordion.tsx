@@ -39,23 +39,25 @@ export const NavAccordion = () => {
         <Show when={!shouldBeAccordion() || activeSection() === "products"}>
           <ul class="text-[#D9D9D9] grid gap-2 content-start items-start">
             <li>
-              <a href="#">DevTools</a>
+              <a href="https://devtools.crabnebula.dev">DevTools</a>
             </li>
             <li>
-              <a href="#">Security Auditing</a>
+              <a href="https://crabnebula.dev/security-auditing">
+                Security Auditing
+              </a>
             </li>
             <li>
-              <a href="#">Consultation</a>
+              <a href="https://crabnebula.dev/consulting">Consultation</a>
             </li>
             <li>
-              <a href="#">Distribution</a>
+              <a href="https://crabnebula.dev/distribution">Distribution</a>
             </li>
           </ul>
         </Show>
       </div>
       <div>
         <h3>
-          <a href="#">Blog</a>
+          <a href="https://crabnebula.dev/blog">Blog</a>
         </h3>
       </div>
       <div class="grid gap-2 content-start items-start">
@@ -71,19 +73,19 @@ export const NavAccordion = () => {
         <Show when={!shouldBeAccordion() || activeSection() === "company"}>
           <ul class="text-[#D9D9D9] grid gap-2 content-start items-start">
             <li>
-              <a href="#">About</a>
+              <a href="https://crabnebula.dev/about">About</a>
             </li>
             <li>
-              <a href="#">Blog</a>
+              <a href="https://crabnebula.dev/blog">Blog</a>
             </li>
-            <li>
+            {/* <li>
               <a href="#">Case Studies</a>
-            </li>
-            <li>
+            </li> */}
+            {/* <li>
               <a href="#">Partners</a>
-            </li>
+            </li> */}
             <li>
-              <a href="#">Careers</a>
+              <a href="https://crabnebula.dev/careers">Careers</a>
             </li>
           </ul>
         </Show>
@@ -101,14 +103,14 @@ export const NavAccordion = () => {
         <Show when={!shouldBeAccordion() || activeSection() === "legal"}>
           <ul class="text-[#D9D9D9] grid gap-2 content-start items-start">
             <li>
-              <a href="#">Privacy Policy</a>
+              <a href="https://crabnebula.dev/privacy-policy">Privacy Policy</a>
             </li>
             <li>
-              <a href="#">Cookie Policy</a>
+              <a href="https://crabnebula.dev/cookie-policy">Cookie Policy</a>
             </li>
-            <li>
+            {/* <li>
               <a href="#">Terms of Service</a>
-            </li>
+            </li> */}
           </ul>
         </Show>
       </div>
