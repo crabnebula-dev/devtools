@@ -7,26 +7,31 @@
     font-family: cn;
     font-weight: 400;
     src: url(/fonts/cn.woff) format("woff");
+    font-display: swap;
   }
   @font-face {
     font-family: cn;
     font-weight: 700;
     src: url(/fonts/cn-bold.woff) format("woff");
+    font-display: swap;
   }
   @font-face {
     font-family: cn;
     font-weight: 600;
     src: url(/fonts/cn-semibold.woff) format("woff");
+    font-display: swap;
   }
   @font-face {
     font-family: cn;
     font-weight: 500;
     src: url(/fonts/cn-medium.woff) format("woff");
+    font-display: swap;
   }
   @font-face {
     font-family: cn;
     font-weight: 300;
     src: url(/fonts/cn-light.woff) format("woff");
+    font-display: swap;
   }
   html,
   body {
