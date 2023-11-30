@@ -12,7 +12,11 @@ export const MobileNav = () => {
 
   return (
     <>
-      <button class="lg:hidden" onClick={() => toggle()}>
+      <button
+        aria-label="Toggle mobile navigation"
+        class="lg:hidden"
+        onClick={() => toggle()}
+      >
         <Switch>
           <Match when={isActive()}>
             <CloseBurgerIcon />
