@@ -83,7 +83,7 @@ export function retrieveConfigurations() {
   if (configurations.configs)
     return createResource(() => configurations.configs);
 
-  return createResource(true, loadConfigurations, {
+  return createResource(loadConfigurations, {
     storage: createDeepConfigurationStoreSignal,
   });
 }

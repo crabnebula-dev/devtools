@@ -7,9 +7,9 @@ export function UnrecognizedKeyIssue(props: { issue: ZodIssueBase }) {
 
   return (
     <Show when={issue()}>
-      {(issue) => (
+      {(unrecognizedIssue) => (
         <ul class="pl-4 list-disc list-inside">
-          <For each={issue().keys}>{(key) => <li>[{key}]</li>}</For>
+          <For each={unrecognizedIssue().keys}>{(key) => <li>[{key}]</li>}</For>
         </ul>
       )}
     </Show>
