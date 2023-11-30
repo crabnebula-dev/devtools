@@ -94,8 +94,8 @@ export default function Console() {
                     <span class="text-gray-600">{metadata!.target}</span>
                   </Show>
                   <Show when={metadata?.location?.file}>
-                      {getFileNameFromPath(metadata!.location!.file!)}:
-                      {metadata!.location!.line}
+                    {getFileNameFromPath(metadata!.location!.file!)}:
+                    {metadata!.location!.line}
                   </Show>
                 </span>
               </li>
