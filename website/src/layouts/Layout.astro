@@ -4,8 +4,9 @@ import Logo from "../components/Logo.astro";
 import { NavAccordion } from "../components/NavAccordion.tsx";
 import { MobileNav } from "../components/MobileNav";
 import "../main.css";
-import ChevronDownIcon from "../components/ChevronDownIcon.astro";
 import LinkButton from "../components/LinkButton.astro";
+import HeaderMenuLink from "../components/HeaderMenuLink.astro";
+import HeaderMenuDropdown from "../components/HeaderMenuDropdown.astro";
 
 interface Props {
   title: string;
@@ -25,24 +26,44 @@ const { title } = Astro.props;
     <title>{title}</title>
   </head>
   <body class="bg-navy text-white bg-cover grid">
-    <header class="backdrop-blur-lg right-0 sticky top-0 z-20 left-0 p-8">
+    <header
+      class="backdrop-blur-lg bg-brand-50 bg-opacity-80 right-0 fixed top-0 z-20 left-0 p-8"
+    >
       <div
         class="max-w-screen-xl w-full mx-auto flex items-center justify-between"
       >
-        <Logo className="max-w-[80%]" width={266} />
+        <a href="https://crabnebula.dev">
+          <Logo className="max-w-[80%]" width={266} /></a
+        >
         <MobileNav client:idle />
         <nav class="hidden lg:flex items-center ml-auto gap-8">
-          <ul class="flex items-center gap-8">
-            <li class="flex items-center gap-4">
-              Products & Services <ChevronDownIcon />
-            </li>
-            <li>Blog</li>
-            <li class="flex items-center gap-4">Company <ChevronDownIcon /></li>
-          </ul>
+          <HeaderMenuDropdown
+            links={[
+              { href: "#", label: "DevTools" },
+              { href: "#", label: "Security" },
+              { href: "#", label: "Consulting" },
+              { href: "#", label: "Distribution" },
+            ]}
+          >
+            Products & Services
+          </HeaderMenuDropdown>
+          <HeaderMenuLink href="/blog">Blog</HeaderMenuLink>
+          <HeaderMenuDropdown
+            links={[
+              { href: "#", label: "About" },
+              { href: "#", label: "Blog" },
+              { href: "#", label: "Case Studies" },
+              { href: "#", label: "Partners" },
+              { href: "#", label: "Careers" },
+            ]}
+          >
+            Company
+          </HeaderMenuDropdown>
           <LinkButton href="/contact">Contact Us</LinkButton>
         </nav>
       </div>
     </header>
+    <div class="h-[104px]"></div>
     <slot />
     <footer class="grid max-w-screen-xl w-full mx-auto gap-8 p-4">
       <div class="md:flex items-center justify-between">
@@ -57,6 +78,7 @@ const { title } = Astro.props;
     </footer>
   </body>
 </html>
+
 <style is:global>
   body {
     background-image: image-set(

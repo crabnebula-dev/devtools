@@ -1,5 +1,4 @@
 ---
-import H1 from "../components/H1.astro";
 import LinkButton from "../components/LinkButton.astro";
 import Input from "../components/Input.astro";
 import Layout from "../layouts/Layout.astro";
@@ -7,6 +6,8 @@ import IpcSpanIcon from "../components/IpcSpanIcon.astro";
 import ConsoleIcon from "../components/ConsoleIcon.astro";
 import ConfigInspectorIcon from "../components/ConfigInspectorIcon.astro";
 import SourcesIcon from "../components/SourcesIcon.astro";
+import DevToolsLogo from "../components/DevToolsLogo.astro";
+import GithubIcon from "../components/GithubIcon.astro";
 ---
 
 <Layout title="Rust DevTools by CrabNebula">
@@ -17,18 +18,15 @@ import SourcesIcon from "../components/SourcesIcon.astro";
       <div
         class="flex md:flex-row flex-col justify-center items-center md:gap-8"
       >
-        <img
-          alt="Logo"
-          class="rounded-full"
-          src="https://picsum.photos/64/64"
-        />
-        <H1>DevTools</H1>
+        <DevToolsLogo />
       </div>
       <h2 class="font-heading font-semibold text-2xl">
         Tauri App Development Demystified
       </h2>
       <div class="flex justify-center gap-8 items-center">
-        <LinkButton href="/docs">Docs</LinkButton>
+        <LinkButton href="https://github.com/crabnebula-dev/devtools">
+          <GithubIcon /> GitHub
+        </LinkButton>
         <LinkButton href="/app" type="primary">Get started now</LinkButton>
       </div>
     </section>
@@ -41,14 +39,18 @@ import SourcesIcon from "../components/SourcesIcon.astro";
     </section>
     <section class="relative bg-black bg-opacity-20 overflow-hidden">
       <picture
-        class="pointer-events-none -z-10 mix-blend-color-burn absolute top-0 left-0 w-full"
+        class="pointer-events-none absolute top-0 left-0 right-0 mx-auto aspect-[1725/503] h-full mix-blend-color-burn justify-self-center self-center -z-10"
       >
         <source srcset="/images/insight-bg.webp" type="image/webp" />
         <source srcset="/images/insight-bg.png" type="image/png" />
-        <img src="/images/insight-bg.png" alt="Background" />
+        <img
+          class="mix-blend-color-burn aspect-[1725/503] h-full"
+          src="/images/insight-bg.png"
+          alt="Background"
+        />
       </picture>
       <div
-        class="md:flex md:gap-8 max-w-screen-xl px-8 py-16 mx-auto justify-between items-center"
+        class="md:flex md:gap-8 max-w-screen-xl px-8 py-16 lg:mx-auto justify-between items-center"
       >
         <div class="md:max-w-[50%] grid gap-8">
           <h1
@@ -66,7 +68,7 @@ import SourcesIcon from "../components/SourcesIcon.astro";
           </div>
         </div>
         <div
-          class="p-8 grid grid-rows-2 grid-cols-2 lg:max-w-[30%] ml-auto gap-8"
+          class="p-8 bg-section bg-center bg-contain bg-no-repeat md:bg-none grid grid-rows-2 grid-cols-2 lg:max-w-[30%] ml-auto gap-8"
         >
           <div
             class="grid gap-2 content-start text-center items-center justify-center"
@@ -129,9 +131,23 @@ import SourcesIcon from "../components/SourcesIcon.astro";
     <section class="relative py-20 bg-navy">
       <div class="relative z-10 md:p-8 max-w-screen-xl mx-auto">
         <div
-          class="grid bg-navy bg-opacity-90 p-8 gap-12 justify-start rounded-3xl md:max-w-[50%]"
+          class="grid md:bg-navy md:bg-none bg-section bg-cover bg-center bg-opacity-90 p-8 gap-12 justify-start rounded-3xl md:max-w-[50%]"
         >
           <div class="grid gap-4">
+            <picture class="block md:hidden mx-auto">
+              <source
+                srcset="/images/nova-newsletter-mobile.webp"
+                type="image/webp"
+              />
+              <source
+                srcset="/images/nova-newsletter-mobile.png"
+                type="image/png"
+              />
+              <img
+                src="/images/nova-newsletter-mobile.png"
+                alt="Nova presenting a newsletter"
+              />
+            </picture>
             <h3 class="font-heading text-3xl font-semibold">Newsletter</h3>
             <p>
               Be the first to receive updates and hear about CrabNebula news and

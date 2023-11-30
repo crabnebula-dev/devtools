@@ -23,7 +23,10 @@ export const MobileNav = () => {
         </Switch>
       </button>
       <Show when={isActive()}>
-        <div class="fixed z-10 px-4 py-8 top-[115px] left-0 w-full h-[calc(100vh-60px)] bg-black bg-opacity-90 backdrop-blur-lg">
+        <div
+          onclick={() => setIsActive(false)}
+          class="fixed z-10 px-4 py-8 top-[104px] left-0 w-full h-[calc(100vh-104px)] bg-black bg-opacity-90 backdrop-blur-xl"
+        >
           <NavAccordion />
         </div>
       </Show>
