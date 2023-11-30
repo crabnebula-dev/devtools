@@ -12,7 +12,6 @@ import { getLevelClasses } from "~/lib/console/get-level-classes";
 import { LogLevelFilter } from "~/components/console/log-level-filter";
 import { NoLogs } from "~/components/console/no-logs";
 import { getFileNameFromPath } from "~/lib/console/get-file-name-from-path";
-import { Link } from "@kobalte/core";
 
 export default function Console() {
   const { monitorData } = useMonitor();
