@@ -9,20 +9,23 @@
 //!
 //! # Example
 //!
-//! ```ignore
+//! Make sure to check out the `examples` sub folder for a fully working setup.
+//!
+//! ```no_run
 //! fn main() {
 //!     let devtools_plugin = devtools::init();
 //!
 //!     tauri::Builder::default()
 //!         .plugin(devtools_plugin)
-//!         .setup(|| {
+//!         .setup(|_| {
 //!             // It is compatible with the `tracing` ecosystem!
 //!             tracing::info!("Hello World!");
 //!
 //!             Ok(())
 //!         })
-//!         .run(tauri::generate_context!())
-//!         .expect("error while running tauri application");
+//!          // ... the rest of the tauri setup code
+//! #       .run(tauri::test::mock_context(tauri::test::noop_assets()))
+//! #       .expect("error while running tauri application");
 //! }
 //! ```
 
@@ -35,11 +38,11 @@ mod tauri_plugin;
 mod visitors;
 
 pub use builder::Builder;
+use devtools_wire_format::{instrument, Field};
 pub use error::Error;
 use std::sync::atomic::AtomicUsize;
 use std::time::Instant;
 use tauri::Runtime;
-use devtools_wire_format::{instrument, Field};
 use tokio::sync::{mpsc, Notify};
 
 const EVENT_BUFFER_CAPACITY: usize = 512;

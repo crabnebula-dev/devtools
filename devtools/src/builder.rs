@@ -71,14 +71,17 @@ impl Builder {
     ///
     /// # Example
     ///
-    /// ```ignore
+    /// Make sure to check out the `examples` sub folder for a fully working setup.
+    ///
+    /// ```no_run
     /// fn main() {
-    ///     let devtools = tauri_devtools::Builder::default().init();
+    ///     let devtools_plugin = devtools::Builder::default().init();
     ///
     ///     tauri::Builder::default()
-    ///         .plugin(devtools)
-    ///         .run(tauri::generate_context!())
-    ///         .expect("error while running tauri application");
+    ///         .plugin(devtools_plugin)
+    ///          // ... the rest of the tauri setup code
+    /// #       .run(tauri::test::mock_context(tauri::test::noop_assets()))
+    /// #       .expect("error while running tauri application");
     /// }
     /// ```
     ///
@@ -100,14 +103,19 @@ impl Builder {
     ///
     /// # Example
     ///
-    /// ```ignore
-    /// fn main() {
-    ///     let devtools = tauri_devtools::Builder::default().init();
+    /// Make sure to check out the `examples` sub folder for a fully working setup.
+    ///
+    /// ```no_run
+    /// fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let devtools_plugin = devtools::Builder::default().try_init()?;
     ///
     ///     tauri::Builder::default()
-    ///         .plugin(devtools)
-    ///         .run(tauri::generate_context!("../examples/tauri/tauri.conf.json"))
-    ///         .expect("error while running tauri application");
+    ///         .plugin(devtools_plugin)
+    ///          // ... the rest of the tauri setup code
+    /// #       .run(tauri::test::mock_context(tauri::test::noop_assets()))
+    /// #       .expect("error while running tauri application");
+    ///
+    ///     Ok(())
     /// }
     /// ```
     ///
