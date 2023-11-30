@@ -1,4 +1,4 @@
-import { For, Suspense } from "solid-js";
+import { For, Suspense, Show } from "solid-js";
 import { FileIcon } from "~/components/icons/ide-icons";
 import { A } from "@solidjs/router";
 import {
@@ -21,12 +21,18 @@ export function Sidebar() {
 }
 
 function Config(props: { config: ConfigurationObject }) {
+  const basePath = getTauriTabBasePath();
   return (
     <section class="p-2">
-      <div class="grid gap-1.5 items-center text-left grid-cols-[1rem_1fr] text-xl">
+      <A
+        href={`${basePath}/${props.config.key}/`}
+        activeClass="hover:bg-[#eaebeb] hover:border-[#2DCC9F] bg-[#00555A] border-[#2DCC9F] text-white"
+        class="grid gap-1.5 items-center text-left grid-cols-[1rem_1fr] text-xl"
+      >
         <FileIcon path="tauri.conf.json" />
         {props.config.label}
-      </div>
+        <Show when={props.config.error}>⚠</Show>
+      </A>
       <nav class="flex flex-col pl-8">
         <For each={Object.entries(props.config.data ?? {})}>
           {([name]) => (

@@ -1,8 +1,15 @@
 import { Show, For, Switch, Match } from "solid-js";
 import { ConfigurationTooltip } from "./configuration-tooltip";
-import { getDescriptionByKey } from "~/lib/tauri/tauri-conf-schema";
+import { Flags } from "./configuration-value/flags";
 
-type ConfigurationValue = ConfigurationRecord | string | [] | boolean;
+type ConfigurationValue =
+  | ConfigurationRecord
+  | string
+  | []
+  | boolean
+  | null
+  | undefined
+  | unknown;
 
 /* eslint-disable-next-line @typescript-eslint/no-empty-interface */
 interface ConfigurationRecord extends Record<string, ConfigurationValue> {}
@@ -44,35 +51,6 @@ export function ConfigurationValue(props: ConfigurationValueProps) {
         <ObjectValue {...(props as ObjectConfigurationValueProps)} />
       </Match>
     </Switch>
-  );
-}
-
-function Flags(props: { key: string; value: boolean | string }) {
-  const localSchema = () => getDescriptionByKey(props.key);
-
-  const isDefault = () => {
-    const schema = localSchema();
-    return (
-      schema &&
-      Object.hasOwn(schema, "default") &&
-      schema.default === props.value
-    );
-  };
-
-  /* TODO implement a check to see if the value is in the config ref: https://linear.app/crabnebula/issue/DR-639/improve-config-parameter-flags */
-  const isInConfig = () => {
-    return false;
-  };
-
-  return (
-    <div>
-      <Show when={isDefault()}>
-        <span class="text-teal-800 pr-2">Default</span>
-      </Show>
-      <Show when={isInConfig()}>
-        <span class="text-teal-800 pr-2">Configured</span>
-      </Show>
-    </div>
   );
 }
 

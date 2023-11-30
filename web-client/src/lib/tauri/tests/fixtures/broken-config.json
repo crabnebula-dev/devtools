@@ -1,0 +1,6 @@
+{
+  "//broken": "This config is utterly broken",
+  "//broken2": {
+    "//this is broken": "test"
+  }
+}
