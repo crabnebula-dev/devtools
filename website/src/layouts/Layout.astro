@@ -101,3 +101,13 @@ const { title } = Astro.props;
     );
   }
 </style>
+
+<script lang="js">
+  // Close all details elements when clicking outside of them
+  const details = [...document.querySelectorAll("details")];
+  document.addEventListener("click", function (e) {
+    if (details.some((f) => f.contains(e.target)).length != 0) {
+      details.forEach((f) => f.removeAttribute("open"));
+    }
+  });
+</script>
