@@ -15,7 +15,7 @@ export const FormField = (props: Props) => {
   const [value, setValue] = createSignal(props.defaultValue);
   return (
     <div class="group">
-      <label class=" grid gap-2 group-focus-within:text-cyan-300">
+      <label class=" grid  gap-2 group-focus-within:text-cyan-300 text-center">
         {props.label}
         <input
           name={props.name}
@@ -24,7 +24,7 @@ export const FormField = (props: Props) => {
           type={props.type}
           pattern={props.pattern}
           placeholder={props.placeholder}
-          class="text-2xl bg-transparent border-b border-white p-2 focus:border-cyan-300 transition-colors outline-none text-white"
+          class="text-2xl text-center bg-transparent border-b border-white p-2 focus:border-cyan-300 transition-colors outline-none text-white"
           value={value()}
           onInput={(e) => {
             setValue(e.currentTarget.value);

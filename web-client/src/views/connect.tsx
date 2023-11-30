@@ -80,7 +80,7 @@ export default function Connect() {
         />
         <FormField
           name="port"
-          type="number"
+          type="text"
           placeholder="3000"
           defaultValue="3000"
           label="Port"
