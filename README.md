@@ -1,4 +1,4 @@
-# Tauri Devtools
+# Devtools for Tauri
 
 Inspect, monitor, and understand your [Tauri](https://tauri.app) application with ease.
 
@@ -19,7 +19,7 @@ Since we're using recent additions to Tauri that haven't yet been published to c
 
 ```toml
 [dependencies]
-tauri-devtools = "0.1.0"
+devtools = "0.1.0"
 tauri = { git = "https://github.com/tauri-apps/tauri", branch = "1.x", features = ["tracing"] }
 [build-dependencies]
 tauri-build = { git = "https://github.com/tauri-apps/tauri", branch = "1.x" }
@@ -30,7 +30,7 @@ Then add the following snippet to your tauri initialization code:
 ```rust
 fn main() {
     #[cfg(debug_assertions)] // only enable instrumentation in development builds
-    let devtools = tauri_devtools::init();
+    let devtools = devtools::init();
 
     let builder = tauri::Builder::default();
 

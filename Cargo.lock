@@ -659,6 +659,45 @@ dependencies = [
 ]
 
 [[package]]
+name = "devtools"
+version = "0.1.0"
+dependencies = [
+ "async-stream",
+ "bytes",
+ "colored",
+ "devtools-wire-format",
+ "futures",
+ "prost-types",
+ "ringbuf",
+ "tauri",
+ "thiserror",
+ "tokio",
+ "tokio-stream",
+ "tonic",
+ "tonic-health",
+ "tonic-web",
+ "tower-http",
+ "tracing",
+ "tracing-core",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "devtools-wire-format"
+version = "0.1.0"
+dependencies = [
+ "bitflags 2.4.1",
+ "prost",
+ "prost-build",
+ "prost-types",
+ "serde_json",
+ "tauri",
+ "tonic",
+ "tonic-build",
+ "tracing-core",
+]
+
+[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -770,11 +809,11 @@ dependencies = [
 name = "example-tauri"
 version = "0.1.0"
 dependencies = [
+ "devtools",
  "reqwest",
  "serde",
  "tauri",
  "tauri-build",
- "tauri-devtools",
  "tiny_http",
  "tokio",
  "tracing",
@@ -3354,45 +3393,6 @@ dependencies = [
  "time",
  "uuid",
  "walkdir",
-]
-
-[[package]]
-name = "tauri-devtools"
-version = "0.1.0"
-dependencies = [
- "async-stream",
- "bytes",
- "colored",
- "futures",
- "prost-types",
- "ringbuf",
- "tauri",
- "tauri-devtools-wire-format",
- "thiserror",
- "tokio",
- "tokio-stream",
- "tonic",
- "tonic-health",
- "tonic-web",
- "tower-http",
- "tracing",
- "tracing-core",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "tauri-devtools-wire-format"
-version = "0.1.0"
-dependencies = [
- "bitflags 2.4.1",
- "prost",
- "prost-build",
- "prost-types",
- "serde_json",
- "tauri",
- "tonic",
- "tonic-build",
- "tracing-core",
 ]
 
 [[package]]
