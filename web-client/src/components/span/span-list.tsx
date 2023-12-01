@@ -1,5 +1,5 @@
 import { useSearchParams } from "@solidjs/router";
-import { For, createEffect } from "solid-js";
+import { For } from "solid-js";
 import { createStore } from "solid-js/store";
 import type { UiSpan } from "~/lib/span/format-spans-for-ui";
 import { getColumnDirection } from "~/lib/span/get-column-direction";
@@ -15,14 +15,14 @@ import clsx from "clsx";
 
 export type SortDirection = "asc" | "desc";
 
-export type SortableColumn = "name" | "initiated" | "time" | "waterfall";
+export type SortableColumn = "name" | "initiated" | "time";
 export type ColumnSort = {
   name: SortableColumn;
   direction: SortDirection;
 };
 
 type Column = {
-  name: SortableColumn;
+  name: SortableColumn | "waterfall";
   isSortable: boolean;
 };
 
@@ -51,26 +51,7 @@ export function SpanList() {
         filteredSpans.push(span);
       }
     });
-    return [...filteredSpans].sort((a, b) => {
-      const columnName = columnSort.name;
-
-      let lhs, rhs;
-      if (columnSort.direction == "asc") {
-        lhs = a[columnName];
-        rhs = b[columnName];
-      } else {
-        lhs = b[columnName];
-        rhs = a[columnName];
-      }
-
-      if (typeof lhs == "number" && typeof rhs == "number") {
-        return lhs - rhs;
-      } else if (typeof lhs == "string" && typeof rhs == "string") {
-        return lhs.localeCompare(rhs);
-      } else {
-        return 0; // no sorting
-      }
-    });
+    return [...filteredSpans].sort(spanSort);
   };
 
   const sortColumn = (name: SortableColumn) => {
@@ -78,6 +59,26 @@ export function SpanList() {
       name,
       direction: getColumnDirection(columnSort, name),
     });
+  };
+
+  const spanSort = (a: UiSpan, b: UiSpan) => {
+    const columnName = columnSort.name;
+    let lhs, rhs;
+    if (columnSort.direction == "asc") {
+      lhs = a[columnName];
+      rhs = b[columnName];
+    } else {
+      lhs = b[columnName];
+      rhs = a[columnName];
+    }
+
+    if (typeof lhs == "number" && typeof rhs == "number") {
+      return lhs - rhs;
+    } else if (typeof lhs == "string" && typeof rhs == "string") {
+      return lhs.localeCompare(rhs);
+    } else {
+      return 0; // no sorting
+    }
   };
 
   return (

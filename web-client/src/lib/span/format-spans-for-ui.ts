@@ -56,10 +56,15 @@ export function formatSpanForUiWithMetadata(
   const kind: SpanKind | undefined =
     getSpanKindByMetadata({ metadata, span }) ?? undefined;
 
-  const filteredSpan = {
+  const emptySpan = {
     ...span,
     kind,
     children: [],
+    isProcessing: true,
+    name: "",
+    initiated: 0,
+    time: 0,
+    original: span,
   };
 
   const newUiSpan = {
@@ -70,7 +75,7 @@ export function formatSpanForUiWithMetadata(
     isProcessing: isProcessing,
     duration:
       span.duration === -1 ? Date.now() - span.createdAt : span.duration,
-    name: getSpanNameByMetadata(filteredSpan, metadata) || "-",
+    name: getSpanNameByMetadata(emptySpan, metadata) || "-",
     parentId: span.parentId,
     kind: kind,
     initiated: span.createdAt / 1000000,

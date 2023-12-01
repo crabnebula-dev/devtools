@@ -581,7 +581,7 @@ export const spans: Span[] = [
     duration: 7600390656,
   },
   {
-    id: BigInt(9007199254741003),
+    id: BigInt("9007199254741003"),
     parentId: BigInt(9007199254741004),
     metadataId: BigInt(140699454590040),
     fields: [
@@ -599,7 +599,7 @@ export const spans: Span[] = [
   },
   {
     id: BigInt(4503599627370506),
-    parentId: BigInt(9007199254741003),
+    parentId: BigInt("9007199254741003"),
     metadataId: BigInt(140699453332336),
     fields: [
       {
@@ -636,7 +636,7 @@ export const spans: Span[] = [
   },
   {
     id: BigInt(6755399441055754),
-    parentId: BigInt(9007199254741003),
+    parentId: BigInt("9007199254741003"),
     metadataId: BigInt(140699453332480),
     fields: [],
     createdAt: 1701427187669383700,
@@ -659,7 +659,7 @@ export const spans: Span[] = [
   },
   {
     id: BigInt(4503599627370505),
-    parentId: BigInt(9007199254741003),
+    parentId: BigInt("9007199254741003"),
     metadataId: BigInt(140699454589248),
     fields: [],
     createdAt: 1701427187669390000,
