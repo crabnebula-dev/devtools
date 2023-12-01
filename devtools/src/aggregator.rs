@@ -1,4 +1,7 @@
 use crate::{Command, Event, Shared, Watcher};
+use devtools_wire_format::logs::LogEvent;
+use devtools_wire_format::spans::SpanEvent;
+use devtools_wire_format::{instrument, logs, spans, NewMetadata};
 use futures::FutureExt;
 use ringbuf::consumer::Consumer;
 use ringbuf::traits::{Observer, RingBuffer};
@@ -7,9 +10,6 @@ use std::mem;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
-use tauri_devtools_wire_format::logs::LogEvent;
-use tauri_devtools_wire_format::spans::SpanEvent;
-use tauri_devtools_wire_format::{instrument, logs, spans, NewMetadata};
 use tokio::sync::mpsc;
 
 /// The event aggregator
@@ -332,7 +332,7 @@ impl<T, const CAP: usize> EventBuf<T, CAP> {
 mod test {
     use super::*;
     use crate::layer::Layer;
-    use tauri_devtools_wire_format::instrument::Update;
+    use devtools_wire_format::instrument::Update;
     use tokio::sync::mpsc;
     use tracing_subscriber::prelude::*;
 

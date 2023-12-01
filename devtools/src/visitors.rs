@@ -1,5 +1,5 @@
+use devtools_wire_format::Field;
 use std::fmt::Debug;
-use tauri_devtools_wire_format::Field;
 use tracing_subscriber::field::Visit;
 
 /// A visitor that collects all fields from tracing events and spans.
@@ -44,14 +44,6 @@ impl EventVisitor {
 }
 
 impl Visit for FieldVisitor {
-    fn record_debug(&mut self, field: &tracing_core::Field, value: &dyn Debug) {
-        self.fields.push(Field {
-            metadata_id: self.meta_id,
-            name: field.name().into(),
-            value: Some(value.into()),
-        });
-    }
-
     /// Visit a double-precision floating point value.
     fn record_f64(&mut self, field: &tracing_core::Field, value: f64) {
         self.fields.push(Field {
@@ -90,6 +82,14 @@ impl Visit for FieldVisitor {
 
     /// Visit a string value.
     fn record_str(&mut self, field: &tracing_core::Field, value: &str) {
+        self.fields.push(Field {
+            metadata_id: self.meta_id,
+            name: field.name().into(),
+            value: Some(value.into()),
+        });
+    }
+
+    fn record_debug(&mut self, field: &tracing_core::Field, value: &dyn Debug) {
         self.fields.push(Field {
             metadata_id: self.meta_id,
             name: field.name().into(),

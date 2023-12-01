@@ -11,6 +11,7 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::Layer as _;
 
+/// The builder can be use to customize the instrumentation.
 pub struct Builder {
     host: IpAddr,
     port: u16,
@@ -28,16 +29,33 @@ impl Default for Builder {
 }
 
 impl Builder {
+    /// Specify which IP addresses the instrumentation server should listen on.
+    ///
+    /// You can set this to [`Ipv4Addr::UNSPECIFIED`] to listen on all addresses, including LAN and public ones.
+    ///
+    /// **default:** [`Ipv4Addr::LOCALHOST`]
     pub fn host(&mut self, host: IpAddr) -> &mut Self {
         self.host = host;
         self
     }
 
+    /// Specify the instrumentation server port.
+    ///
+    /// Currently `devtools` **does not** pick a random free port if the configured one
+    /// is already taken, so you will need to configure a different one manually.
+    ///
+    /// **default:** `3000`
     pub fn port(&mut self, port: u16) -> &mut Self {
         self.port = port;
         self
     }
 
+    /// The interval in which updates are sent to the connected UI.
+    ///
+    /// You can tweak this setting to reduce the time between updates, when for example your app
+    /// is generating a lot of events, the buffer might fill up and cause some events to get lost.
+    ///
+    /// **default:** `200ms`
     pub fn publish_interval(&mut self, interval: Duration) -> &mut Self {
         self.publish_interval = interval;
         self
@@ -53,14 +71,17 @@ impl Builder {
     ///
     /// # Example
     ///
-    /// ```ignore
+    /// Make sure to check out the `examples` sub folder for a fully working setup.
+    ///
+    /// ```no_run
     /// fn main() {
-    ///     let devtools = tauri_devtools::Builder::default().init();
+    ///     let devtools_plugin = devtools::Builder::default().init();
     ///
     ///     tauri::Builder::default()
-    ///         .plugin(devtools)
-    ///         .run(tauri::generate_context!())
-    ///         .expect("error while running tauri application");
+    ///         .plugin(devtools_plugin)
+    ///          // ... the rest of the tauri setup code
+    /// #       .run(tauri::test::mock_context(tauri::test::noop_assets()))
+    /// #       .expect("error while running tauri application");
     /// }
     /// ```
     ///
@@ -82,14 +103,19 @@ impl Builder {
     ///
     /// # Example
     ///
-    /// ```ignore
-    /// fn main() {
-    ///     let devtools = tauri_devtools::Builder::default().init();
+    /// Make sure to check out the `examples` sub folder for a fully working setup.
+    ///
+    /// ```no_run
+    /// fn main() -> Result<(), Box<dyn std::error::Error>> {
+    ///     let devtools_plugin = devtools::Builder::default().try_init()?;
     ///
     ///     tauri::Builder::default()
-    ///         .plugin(devtools)
-    ///         .run(tauri::generate_context!("../examples/tauri/tauri.conf.json"))
-    ///         .expect("error while running tauri application");
+    ///         .plugin(devtools_plugin)
+    ///          // ... the rest of the tauri setup code
+    /// #       .run(tauri::test::mock_context(tauri::test::noop_assets()))
+    /// #       .expect("error while running tauri application");
+    ///
+    ///     Ok(())
     /// }
     /// ```
     ///
@@ -109,6 +135,7 @@ impl Builder {
 
         // initialize early so we don't miss any spans
         tracing_subscriber::registry()
+            .with(tracing_subscriber::fmt::layer().with_file(true))
             .with(layer.with_filter(tracing_subscriber::filter::LevelFilter::TRACE))
             .try_init()?;
 

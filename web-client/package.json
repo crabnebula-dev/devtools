@@ -60,6 +60,7 @@
     "solid-js": "^1.8.5",
     "solid-markdown": "^1.2.2",
     "split.js": "^1.6.5",
-    "tailwind-scrollbar": "^3.0.5"
+    "tailwind-scrollbar": "^3.0.5",
+    "zod": "^3.22.4"
   }
 }

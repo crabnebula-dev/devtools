@@ -10,7 +10,7 @@ path = "main.rs"
 
 [dependencies]
 tauri.workspace = true
-tauri-devtools = { path = "../../devtools" }
+devtools = { path = "../../devtools" }
 tracing.workspace = true
 tokio = { workspace = true, features = ["time"] }
 reqwest = "0.11"
