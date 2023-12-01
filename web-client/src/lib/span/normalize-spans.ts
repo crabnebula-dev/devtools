@@ -1,5 +1,7 @@
 import { Span } from "../connection/monitor";
+import { UiSpan } from "./format-spans-for-ui";
 import { calculateSpanColorFromRelativeDuration } from "./calculate-span-color-from-relative-duration";
+import { useCalls } from "~/components/span/calls-context";
 
 function scaleNumbers(numbers: number[], min: number, max: number): number[] {
   const range = max - min;
@@ -21,13 +23,27 @@ export function computeColorClassName(
 }
 
 export function computeWaterfallStyle(
-  span: Span,
+  span: UiSpan,
   start: number,
   end: number,
-  granularity: number
+  shortest?: number,
+  longest?: number
 ) {
-  const offset = scaleNumbers([span.createdAt], start, end)[0];
+  const callsContext = useCalls();
+
+  const offset = scaleNumbers([span.original.createdAt], start, end)[0];
   const totalDuration = end - start;
+
+  const shortestSpanTime =
+    shortest ?? callsContext.durations.durations.shortestTime;
+
+  const longestSpanTime =
+    longest ?? callsContext.durations.durations.longestTime;
+
+  const granularity =
+    ((longestSpanTime ?? 1) / (shortestSpanTime ?? 1)) *
+    (callsContext.granularity.granularity() / 10000);
+
   const width = Math.min(
     scaleToMax([span.duration], totalDuration / granularity)[0],
     100 - offset

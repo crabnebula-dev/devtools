@@ -3,7 +3,7 @@ import { Metadata } from "../proto/common";
 import { getEventName } from "./get-event-name";
 import { getIpcRequestName } from "./get-ipc-request-name";
 import { SpanKind } from "./types";
-import { getSpanKind } from "./get-span-kind";
+import { getSpanKindByMetadata } from "./get-span-kind";
 import { useMonitor } from "~/context/monitor-provider";
 import { Field } from "../proto/common";
 
@@ -20,7 +20,10 @@ export type UiSpan = {
   metadataName?: string;
   fields: Field[];
   original: Span;
+  duration: number;
 };
+
+export type BaseSpan = { children: BaseSpan[] } & Span;
 
 export function getSpanName(span: UiSpan) {
   const { monitorData } = useMonitor();
@@ -41,11 +44,17 @@ function getSpanNameByMetadata(span: UiSpan, metadata: Map<bigint, Metadata>) {
 
 export function formatSpanForUi(span: Span) {
   const { monitorData } = useMonitor();
-  const metadata = monitorData.metadata;
+  return formatSpanForUiWithMetadata(span, monitorData.metadata);
+}
 
+export function formatSpanForUiWithMetadata(
+  span: Span,
+  metadata: Map<bigint, Metadata>
+) {
   const isProcessing = span.closedAt < 0;
 
-  const kind: SpanKind | undefined = getSpanKind(span) ?? undefined;
+  const kind: SpanKind | undefined =
+    getSpanKindByMetadata({ metadata, span }) ?? undefined;
 
   const filteredSpan = {
     ...span,
@@ -58,8 +67,10 @@ export function formatSpanForUi(span: Span) {
     metadataId: span.metadataId,
     metadataName: metadata.get(span.metadataId)?.name,
     fields: span.fields,
-    isProcessing,
-    name: getSpanName(filteredSpan) || "-",
+    isProcessing: isProcessing,
+    duration:
+      span.duration === -1 ? Date.now() - span.createdAt : span.duration,
+    name: getSpanNameByMetadata(filteredSpan, metadata) || "-",
     parentId: span.parentId,
     kind: kind,
     initiated: span.createdAt / 1000000,

@@ -7,13 +7,21 @@ import { processFieldValue } from "~/lib/span/process-field-value";
 import { spanFieldsToObject } from "~/lib/span/span-fields-to-object";
 import { createHighlighter, getHighlightedCode } from "~/lib/code-highlight";
 import { getUiSpanChildren } from "~/lib/span/get-ui-span-children";
+import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
 
 export function SpanDetail(props: { span: UiSpan }) {
   const { monitorData } = useMonitor();
 
   const children = () => {
     const allChildren = getUiSpanChildren(props.span);
-    return allChildren.filter((s) => s.name !== "ipc::request::response");
+    if (props.span.kind === "ipc") {
+      return allChildren.filter(
+        (s) =>
+          s.name !== "ipc::request::response" &&
+          isIpcSpanName(s.metadataName ?? "")
+      );
+    }
+    return allChildren;
   };
 
   const valuesSectionTitle = () => {

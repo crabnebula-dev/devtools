@@ -24,10 +24,7 @@ export function SpanScaleSlider() {
       <input
         type="range"
         min={1}
-        max={
-          (callsContext.durations.durations.longestTime ?? 1) /
-          (callsContext.durations.durations.shortestTime ?? 1)
-        }
+        max={10000}
         value={callsContext.granularity.granularity()}
         onInput={(e) =>
           callsContext.granularity.setGranularity(Number(e.currentTarget.value))

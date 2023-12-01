@@ -1,5 +1,5 @@
 import { useSearchParams } from "@solidjs/router";
-import { For } from "solid-js";
+import { For, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
 import type { UiSpan } from "~/lib/span/format-spans-for-ui";
 import { getColumnDirection } from "~/lib/span/get-column-direction";
@@ -132,10 +132,9 @@ export function SpanList() {
                         )
                       )}
                       style={computeWaterfallStyle(
-                        span.original,
+                        span,
                         callsContext.durations.durations.start,
-                        callsContext.durations.durations.end,
-                        callsContext.granularity.granularity()
+                        callsContext.durations.durations.end
                       )}
                     >
                       <For each={computeSlices(span.original)}>

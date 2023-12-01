@@ -12,6 +12,18 @@ type Props = {
 };
 
 export function SpanDetailView(props: Props) {
+  const closedSpans = () =>
+    props.spanChildren.filter((s) => s.original.closedAt > 0);
+
+  const durations = () => {
+    return {
+      start: Math.min(...closedSpans().map((s) => s.original.createdAt)),
+      end: Math.max(...closedSpans().map((s) => s.original.closedAt)),
+      shortest: Math.min(...closedSpans().map((s) => s.original.duration)),
+      longest: Math.max(...closedSpans().map((s) => s.original.duration)),
+    };
+  };
+
   return (
     <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800">
       <div class="pt-4 px-4">
@@ -20,7 +32,7 @@ export function SpanDetailView(props: Props) {
       <table>
         <tbody>
           <For each={props.spanChildren}>
-            {(span) => <SpanDetailTrace span={span} />}
+            {(span) => <SpanDetailTrace span={span} durations={durations()} />}
           </For>
         </tbody>
       </table>
