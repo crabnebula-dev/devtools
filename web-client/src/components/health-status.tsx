@@ -1,6 +1,6 @@
 import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
 import { Show, createEffect, createSignal, onMount } from "solid-js";
-import { ErrorDialog } from "./error-dialog";
+import { ErrorDialog } from "./dialogs/error-dialog";
 import {
   addStreamListneners,
   connect,
