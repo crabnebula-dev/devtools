@@ -37,7 +37,7 @@ const fathomId = process.env.FATHOM_ID;
         <a aria-label="Go home" href="https://crabnebula.dev">
           <Logo className="max-w-[80%]" width={266} /></a
         >
-        <MobileNav client:idle />
+        <MobileNav client:visible />
         <nav class="hidden lg:flex items-center ml-auto gap-8">
           <HeaderMenuDropdown
             links={[
@@ -85,7 +85,7 @@ const fathomId = process.env.FATHOM_ID;
         <Logo width={266} />
         <FooterSocials className="hidden md:flex" />
       </div>
-      <NavAccordion client:idle />
+      <NavAccordion client:visible />
       <FooterSocials className="md:hidden" />
       <div class="text-xs mx-auto">
         Copyright © {new Date().getFullYear()} CrabNebula Ltd.
