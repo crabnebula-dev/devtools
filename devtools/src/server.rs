@@ -506,6 +506,9 @@ mod test {
         assert_eq!(entries.len(), 3);
 
         assert_eq!(entries[0].as_ref().unwrap().file_type, 1 << 1);
+        assert_eq!(entries[0].as_ref().unwrap().path, "CHANGELOG.md");
+
+        assert_eq!(entries[0].as_ref().unwrap().file_type, 1 << 1);
         assert_eq!(entries[0].as_ref().unwrap().path, "Cargo.toml");
 
         assert_eq!(entries[1].as_ref().unwrap().file_type, 1 << 0);
