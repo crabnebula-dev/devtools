@@ -135,7 +135,6 @@ impl Builder {
 
         // initialize early so we don't miss any spans
         tracing_subscriber::registry()
-            .with(tracing_subscriber::fmt::layer().with_file(true))
             .with(layer.with_filter(tracing_subscriber::filter::LevelFilter::TRACE))
             .try_init()?;
 

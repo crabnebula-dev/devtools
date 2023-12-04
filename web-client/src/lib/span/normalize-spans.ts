@@ -1,6 +1,7 @@
 import { Span } from "../connection/monitor";
-import { getChildrenList } from "./get-children-list";
-import { SpanWithChildren } from "./types";
+import { UiSpan } from "./format-spans-for-ui";
+import { calculateSpanColorFromRelativeDuration } from "./calculate-span-color-from-relative-duration";
+import { useCalls } from "~/components/span/calls-context";
 
 function scaleNumbers(numbers: number[], min: number, max: number): number[] {
   const range = max - min;
@@ -13,61 +14,60 @@ function scaleToMax(numbers: number[], max: number): number[] {
   return numbers.map((num) => (num / max) * 100);
 }
 
-export function normalizeSpans(
-  allSpans: Span[],
-  spans: (Span | SpanWithChildren)[],
-  granularity = 1
+export function computeColorClassName(
+  duration: number,
+  averageSpanDuration: number
 ) {
-  const start = Math.min(...spans.map((span) => span.createdAt));
-  const end = spans.find((s) => s.closedAt < 0)
-    ? Date.now() * 1e6
-    : Math.max(
-        ...spans.filter((s) => s.closedAt > 0).map((span) => span.closedAt)
-      );
+  const relativeDuration = (duration / averageSpanDuration) * 100;
+  return calculateSpanColorFromRelativeDuration(relativeDuration);
+}
+
+export function computeWaterfallStyle(
+  span: UiSpan,
+  start: number,
+  end: number,
+  shortest?: number,
+  longest?: number
+) {
+  const callsContext = useCalls();
+
+  const offset = scaleNumbers([span.original.createdAt], start, end)[0];
   const totalDuration = end - start;
-  const completedSpans = spans.filter((s) => s.closedAt > 0);
-  const averageSpanDuration =
-    completedSpans.reduce((acc, span) => acc + span.duration, 0) /
-    completedSpans.length;
-  const relativeDurations = scaleToMax(
-    completedSpans.map((s) => s.duration),
-    averageSpanDuration
-  ).map(Math.ceil);
 
-  const result = spans.map((span, i) => {
-    const allExits = span.exits.reduce((acc, e) => acc + e, 0);
-    const allEnters = span.enters.reduce((acc, e) => acc + e, 0);
-    const relativeDuration = relativeDurations[i];
-    const offset = scaleNumbers([span.createdAt], start, end)[0];
-    const width = Math.min(
-      scaleToMax([span.duration], totalDuration / granularity)[0],
-      100 - offset
-    );
+  const shortestSpanTime =
+    shortest ?? callsContext.durations.durations.shortestTime;
+
+  const longestSpanTime =
+    longest ?? callsContext.durations.durations.longestTime;
+
+  const granularity =
+    ((longestSpanTime ?? 1) / (shortestSpanTime ?? 1)) *
+    (callsContext.granularity.granularity() / 10000);
+
+  const width = Math.min(
+    scaleToMax([span.duration], totalDuration / granularity)[0],
+    100 - offset
+  );
+  const marginLeft = offset - (offset * width) / 100;
+
+  return `width:${width}%;margin-left:${marginLeft}%;`;
+}
+
+export function computeSlices(span: Span) {
+  const allExits = span.exits.reduce((acc, e) => acc + e, 0);
+  const allEnters = span.enters.reduce((acc, e) => acc + e, 0);
+
+  const slices = span.enters.map((enter, i) => {
+    const width = scaleToMax([span.exits[i] - enter], allExits - allEnters)[0];
+    const offset = scaleNumbers([enter], span.createdAt, span.closedAt)[0];
     const marginLeft = offset - (offset * width) / 100;
-
     return {
-      marginLeft,
       width,
-      relativeDuration,
-      slices: span.enters.map((enter, i) => {
-        const width = scaleToMax(
-          [span.exits[i] - enter],
-          allExits - allEnters
-        )[0];
-        const offset = scaleNumbers([enter], span.createdAt, span.closedAt)[0];
-        const marginLeft = offset - (offset * width) / 100;
-        return {
-          width,
-          marginLeft,
-        };
-      }),
+      marginLeft,
     };
   });
 
-  const newSpans = spans.map((s, i) => ({
-    ...s,
-    ...result[i],
-    children: "children" in s ? s.children : getChildrenList(allSpans, s),
-  }));
-  return newSpans;
+  return slices.map(
+    (slice) => `width:${slice.width}%;margin-left:${slice.marginLeft}%;`
+  );
 }

@@ -1,5 +1,6 @@
 [package]
 name = "devtools-wire-format"
+description = "gRPC wire format for the CrabNebula devtools for Tauri"
 authors.workspace = true
 edition.workspace = true
 version.workspace = true
