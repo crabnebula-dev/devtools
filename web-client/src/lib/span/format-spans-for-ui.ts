@@ -1,35 +1,36 @@
 import { Span } from "../connection/monitor";
 import { Metadata } from "../proto/common";
-import { calculateSpanColorFromRelativeDuration } from "./calculate-span-color-from-relative-duration";
 import { getEventName } from "./get-event-name";
 import { getIpcRequestName } from "./get-ipc-request-name";
-import { normalizeSpans } from "./normalize-spans";
-import { FilteredSpanWithChildren } from "./types";
-
-type Options = {
-  allSpans: Span[];
-  spans: Span[];
-  metadata: Map<bigint, Metadata>;
-  granularity?: number;
-};
+import { SpanKind } from "./types";
+import { getSpanKindByMetadata } from "./get-span-kind";
+import { useMonitor } from "~/context/monitor-provider";
+import { Field } from "../proto/common";
 
 export type UiSpan = {
-  id: string;
+  id: bigint;
   isProcessing: boolean;
   name: string;
+  kind?: SpanKind;
+  parentId?: bigint;
   initiated: number;
   time: number;
-  waterfall: string;
-  start: number;
-  slices: string[];
-  colorClassName: string;
-  children: UiSpan[];
+  children: bigint[];
+  metadataId: bigint;
+  metadataName?: string;
+  fields: Field[];
+  original: Span;
+  duration: number;
 };
 
-function getSpanName(
-  span: FilteredSpanWithChildren,
-  metadata: Map<bigint, Metadata>
-) {
+export type BaseSpan = { children: BaseSpan[] } & Span;
+
+export function getSpanName(span: UiSpan) {
+  const { monitorData } = useMonitor();
+  return getSpanNameByMetadata(span, monitorData.metadata);
+}
+
+function getSpanNameByMetadata(span: UiSpan, metadata: Map<bigint, Metadata>) {
   if (span.kind === "ipc") {
     return getIpcRequestName({ metadata, span });
   } else if (span.kind === "event") {
@@ -41,37 +42,49 @@ function getSpanName(
   }
 }
 
-export function formatSpansForUi({
-  allSpans,
-  spans,
-  metadata,
-  granularity,
-}: Options): UiSpan[] {
-  const result = normalizeSpans(allSpans, spans, granularity).map((span) => {
-    const isProcessing = span.closedAt < 0;
-    return {
-      id: String(span.id),
-      isProcessing,
-      name: getSpanName(span, metadata) || "-",
-      initiated: span.createdAt / 1000000,
-      time: !isProcessing
-        ? (span.closedAt - span.createdAt) / 1e6
-        : Date.now() - span.createdAt / 1e6,
-      waterfall: `width:${span.width}%;margin-left:${span.marginLeft}%;`,
-      start: span.marginLeft,
-      slices: span.slices.map(
-        (slice) => `width:${slice.width}%;margin-left:${slice.marginLeft}%;`
-      ),
-      colorClassName: calculateSpanColorFromRelativeDuration(
-        span.relativeDuration
-      ),
-      children: formatSpansForUi({
-        allSpans,
-        spans: span.children,
-        metadata,
-      }),
-    };
-  });
+export function formatSpanForUi(span: Span) {
+  const { monitorData } = useMonitor();
+  return formatSpanForUiWithMetadata(span, monitorData.metadata);
+}
 
-  return result;
+export function formatSpanForUiWithMetadata(
+  span: Span,
+  metadata: Map<bigint, Metadata>
+) {
+  const isProcessing = span.closedAt < 0;
+
+  const kind: SpanKind | undefined =
+    getSpanKindByMetadata({ metadata, span }) ?? undefined;
+
+  const emptySpan = {
+    ...span,
+    kind,
+    children: [],
+    isProcessing: true,
+    name: "",
+    initiated: 0,
+    time: 0,
+    original: span,
+  };
+
+  const newUiSpan = {
+    id: span.id,
+    metadataId: span.metadataId,
+    metadataName: metadata.get(span.metadataId)?.name,
+    fields: span.fields,
+    isProcessing: isProcessing,
+    duration:
+      span.duration === -1 ? Date.now() - span.createdAt : span.duration,
+    name: getSpanNameByMetadata(emptySpan, metadata) || "-",
+    parentId: span.parentId,
+    kind: kind,
+    initiated: span.createdAt / 1000000,
+    time: !isProcessing
+      ? (span.closedAt - span.createdAt) / 1e6
+      : Date.now() - span.createdAt / 1e6,
+    children: [],
+    original: span,
+  } satisfies UiSpan;
+
+  return newUiSpan;
 }

@@ -14,15 +14,14 @@ Ensure you have [Tauri](https://tauri.app/v1/guides/getting-started/setup/) set 
 cargo add devtools
 ```
 
-Since we're using recent additions to Tauri that haven't yet been published to crates.io you will have adjust your 
-`Cargo.toml` file so that Tauri is downloaded from git:
+You also have to enable the `tracing` feature for Tauri, so your `Cargo.toml` file should look as follows:
 
 ```toml
 [dependencies]
 devtools = "0.1.0"
-tauri = { git = "https://github.com/tauri-apps/tauri", branch = "1.x", features = ["tracing"] }
+tauri = { version = "1.5.3", features = ["tracing"] }
 [build-dependencies]
-tauri-build = { git = "https://github.com/tauri-apps/tauri", branch = "1.x" }
+tauri-build = "1.5.0"
 ```
 
 Then add the following snippet to your tauri initialization code:
@@ -45,7 +44,7 @@ fn main() {
  
 And then run your app as usual, if everything is set up correctly devtools will print the following message:
 
-![Screenshot 2023-11-28 at 14.05.20.png](Screenshot.png)
+![Screenshot 2023-11-28 at 14.05.20.png](https://github.com/crabnebula-dev/devtools/blob/f9970a0daa40757256aa1b32c93d66039cbdd041/Screenshot.png)
 
 You can click or copy & paste the link into your browser to open up the UI. 
 Alternatively you can navigate to https://devtools.crabnebula.dev and connect from there.

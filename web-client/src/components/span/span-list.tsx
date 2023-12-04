@@ -1,71 +1,108 @@
 import { useSearchParams } from "@solidjs/router";
 import { For } from "solid-js";
-import type { UiSpan, formatSpansForUi } from "~/lib/span/format-spans-for-ui";
+import { createStore } from "solid-js/store";
+import type { UiSpan } from "~/lib/span/format-spans-for-ui";
 import { getColumnDirection } from "~/lib/span/get-column-direction";
-import { resolveColumnAlias } from "~/lib/span/resolve-column-alias";
 import { SortCaret } from "./sort-caret";
 import { getTime } from "~/lib/formatters";
+import { useCalls } from "./calls-context";
+import {
+  computeColorClassName,
+  computeSlices,
+  computeWaterfallStyle,
+} from "~/lib/span/normalize-spans";
 import clsx from "clsx";
 
 export type SortDirection = "asc" | "desc";
-export type SortableColumn = keyof ReturnType<typeof formatSpansForUi>[-1];
+
+export type SortableColumn = "name" | "initiated" | "time";
 export type ColumnSort = {
   name: SortableColumn;
   direction: SortDirection;
 };
 
-type Props = {
-  spans: UiSpan[];
-  columnSort: ColumnSort;
-  setColumnSort: (columnSort: ColumnSort) => void;
+type Column = {
+  name: SortableColumn | "waterfall";
+  isSortable: boolean;
 };
 
-export function SpanList(props: Props) {
-  const columns = () => {
-    return [...Object.keys(props.spans?.[0] ?? {})]
-      .filter((k) => ["name", "initiated", "time", "waterfall"].includes(k))
-      .map((name) => ({
-        name,
-        isSortable: ["name", "initiated", "time"].includes(name),
-      }));
-  };
+export function SpanList() {
+  const callsContext = useCalls();
+  const spans = callsContext.spans;
+
+  const [columnSort, setColumnSort] = createStore<ColumnSort>({
+    name: "initiated",
+    direction: "asc",
+  } satisfies ColumnSort);
+
+  const columns = [
+    { name: "name", isSortable: true },
+    { name: "initiated", isSortable: true },
+    { name: "time", isSortable: true },
+    { name: "waterfall", isSortable: false },
+  ] satisfies Column[];
+
   const [, setSearchParams] = useSearchParams();
 
-  const sortColumn = (name: SortableColumn) => {
-    props.setColumnSort({
-      name,
-      direction: getColumnDirection(props.columnSort, name),
+  const filteredSpans = () => {
+    const filteredSpans: UiSpan[] = [];
+    spans.forEach((span) => {
+      if (span.kind) {
+        filteredSpans.push(span);
+      }
     });
+    return [...filteredSpans].sort(spanSort);
+  };
+
+  const sortColumn = (name: SortableColumn) => {
+    setColumnSort({
+      name,
+      direction: getColumnDirection(columnSort, name),
+    });
+  };
+
+  const spanSort = (a: UiSpan, b: UiSpan) => {
+    const columnName = columnSort.name;
+    let lhs, rhs;
+    if (columnSort.direction == "asc") {
+      lhs = a[columnName];
+      rhs = b[columnName];
+    } else {
+      lhs = b[columnName];
+      rhs = a[columnName];
+    }
+
+    if (typeof lhs == "number" && typeof rhs == "number") {
+      return lhs - rhs;
+    } else if (typeof lhs == "string" && typeof rhs == "string") {
+      return lhs.localeCompare(rhs);
+    } else {
+      return 0; // no sorting
+    }
   };
 
   return (
     <table class="w-full table-fixed">
       <thead>
         <tr class="text-left">
-          <For each={columns()}>
+          <For each={columns}>
             {(column) => {
-              const resolvedColumn = resolveColumnAlias(
-                column.name as SortableColumn
-              );
               return (
                 <th
-                  tabIndex={0}
+                  tabIndex="0"
                   onKeyDown={(e) => {
                     if ([" ", "Enter"].includes(e.key) && column.isSortable) {
-                      sortColumn(resolvedColumn);
+                      sortColumn(column.name);
                     }
                   }}
-                  onClick={() =>
-                    column.isSortable && sortColumn(resolvedColumn)
-                  }
+                  onClick={() => column.isSortable && sortColumn(column.name)}
                   class="p-1 cursor-pointer hover:bg-[#ffffff09]"
                 >
                   <div class="flex uppercase select-none items-center gap-2">
                     {column.name}
-                    {props.columnSort.name === resolvedColumn &&
-                      column.isSortable && (
-                        <SortCaret direction={props.columnSort.direction} />
-                      )}
+                    {columnSort.name === column.name && column.isSortable && (
+                      <SortCaret direction={columnSort.direction} />
+                    )}
                   </div>
                 </th>
               );
@@ -74,11 +111,11 @@ export function SpanList(props: Props) {
         </tr>
       </thead>
       <tbody>
-        <For each={props.spans}>
+        <For each={filteredSpans()}>
           {(span) => {
             return (
               <tr
-                onClick={() => setSearchParams({ span: span.id })}
+                onClick={() => setSearchParams({ span: String(span.id) })}
                 class="even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]"
               >
                 <td class="p-1">{span.name}</td>
@@ -90,11 +127,18 @@ export function SpanList(props: Props) {
                     <div
                       class={clsx(
                         "relative rounded-sm h-2",
-                        span.colorClassName
+                        computeColorClassName(
+                          span.original.closedAt - span.original.createdAt,
+                          callsContext.durations.durations.average
+                        )
                       )}
-                      style={span.waterfall}
+                      style={computeWaterfallStyle(
+                        span,
+                        callsContext.durations.durations.start,
+                        callsContext.durations.durations.end
+                      )}
                     >
-                      <For each={span.slices}>
+                      <For each={computeSlices(span.original)}>
                         {(slice) => (
                           <div
                             class="absolute top-0 left-0 bg-black bg-opacity-10 h-full"

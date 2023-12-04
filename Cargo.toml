@@ -5,9 +5,9 @@ members = ["wire", "devtools", "examples/*"]
 [workspace.package]
 authors = ["CrabNebula <hello@crabnebula.dev>"]
 edition = "2021"
-version = "0.1.0"
+version = "0.2.1"
 rust-version = "1.70.0"
-license = "MIT or Apache-2.0"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/crabnebula-dev/devtools"
 
 [workspace.dependencies]
@@ -16,8 +16,8 @@ tracing-core = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 thiserror = "1.0"
 tokio-stream = "0.1"
-tauri = { git = "https://github.com/tauri-apps/tauri", branch = "1.x",  features = ["tracing"] }
-tauri-build = { git = "https://github.com/tauri-apps/tauri", branch = "1.x" }
+tauri = { version = "1.5.3", features = ["tracing"] }
+tauri-build = "1.5.0"
 tonic = "0.10"
 prost = "0.12"
 prost-types = "0.12"

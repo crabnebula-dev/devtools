@@ -1,0 +1,23 @@
+{
+  "name": "devtools.crabnebula.dev",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.3.1",
+    "@astrojs/netlify": "^3.0.4",
+    "@astrojs/sitemap": "^3.0.3",
+    "@astrojs/solid-js": "^3.0.2",
+    "@astrojs/tailwind": "^5.0.2",
+    "astro": "^3.6.1",
+    "solid-js": "^1.8.6",
+    "tailwindcss": "^3.3.5",
+    "typescript": "^5.3.2"
+  }
+}

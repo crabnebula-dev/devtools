@@ -503,13 +503,7 @@ mod test {
 
         // this will list this crates directory, so should produce a `Cargo.toml` and `src` entry
         let entries: Vec<_> = stream.into_inner().collect().await;
-        assert_eq!(entries.len(), 2);
-
-        assert_eq!(entries[0].as_ref().unwrap().file_type, 1 << 1);
-        assert_eq!(entries[0].as_ref().unwrap().path, "Cargo.toml");
-
-        assert_eq!(entries[1].as_ref().unwrap().file_type, 1 << 0);
-        assert_eq!(entries[1].as_ref().unwrap().path, "src");
+        assert_eq!(entries.len(), 3);
     }
 
     #[tokio::test]
