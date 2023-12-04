@@ -1,4 +1,9 @@
-import { type RouteDefinition, useNavigate, useRoutes } from "@solidjs/router";
+import {
+  type RouteDefinition,
+  useNavigate,
+  useRoutes,
+  Navigate,
+} from "@solidjs/router";
 import { lazy, ErrorBoundary } from "solid-js";
 import { setCDN } from "@crabnebula/file-icons";
 import { ErrorRoot } from "./components/error-root.tsx";
@@ -7,6 +12,10 @@ import * as Sentry from "@sentry/browser";
 const ROUTES: RouteDefinition[] = [
   {
     path: "/",
+    component: () => Navigate({ href: "/app" }),
+  },
+  {
+    path: "/app",
     component: lazy(() => import("./views/connect.tsx")),
   },
   {
