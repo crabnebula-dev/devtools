@@ -1,12 +1,12 @@
 import { Metadata } from "../proto/common";
 import { processFieldValue } from "./process-field-value";
-import { findSpansByName } from "./find-spans-by-name";
-import { SpanWithChildren } from "./types";
 import { getIpcRequestValues } from "./get-ipc-request-value";
+import { UiSpan } from "./format-spans-for-ui";
+import { getUiSpanChildren } from "./get-ui-span-children";
 
 type Options = {
   metadata: Map<bigint, Metadata>;
-  span: SpanWithChildren;
+  span: UiSpan;
 };
 
 const ipcSpanNameMap: Record<string, string> = {
@@ -20,7 +20,7 @@ export function getIpcRequestName({ metadata, span }: Options) {
   const meta = metadata.get(span.metadataId);
   if (meta?.name === "wry::ipc::handle") {
     const commandHandlerSpan =
-      findSpansByName({ span, metadata }, "ipc::request::handle")?.[0] ?? null;
+      getUiSpanChildren(span, "ipc::request::handle")?.[0] ?? null;
     if (commandHandlerSpan) {
       const val = commandHandlerSpan.fields.find(
         (f) => f.name === "cmd"

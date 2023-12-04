@@ -2,7 +2,7 @@ import type {
   SortDirection,
   SortableColumn,
   ColumnSort,
-} from "~/views/dashboard/calls";
+} from "~/components/span/span-list";
 
 export function getColumnDirection(
   columnSort: ColumnSort,

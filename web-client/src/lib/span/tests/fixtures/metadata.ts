@@ -1,880 +1,1114 @@
-export const metadata = new Map(
-  Object.entries({
-    "4394055800": {
+import { Metadata } from "~/lib/proto/common";
+
+export const metadata: Map<bigint, Metadata> = new Map([
+  [
+    BigInt(140699454588488),
+    {
       name: "app::build",
       target: "tauri::app",
       kind: 0,
       level: 2,
       fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri/src/app.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\app.rs",
         modulePath: "tauri::app",
-        line: 1549,
+        line: 1551,
       },
     },
-    "4394057784": {
+  ],
+  [
+    BigInt(140699454591704),
+    {
       name: "plugin::hooks::initialize",
       target: "tauri::plugin",
       kind: 0,
       level: 2,
       fieldNames: ["app", "config", "name"],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri/src/plugin.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\plugin.rs",
         modulePath: "tauri::plugin",
-        line: 664,
+        line: 667,
       },
     },
-    "4393682888": {
-      name: "event devtools/src/server.rs:106",
+  ],
+  [
+    BigInt(140699453455928),
+    {
+      name: "event devtools\\src\\server.rs:105",
       target: "tauri_devtools::server",
       kind: 1,
       level: 2,
       fieldNames: ["message"],
       location: {
-        file: "devtools/src/server.rs",
+        file: "devtools\\src\\server.rs",
         modulePath: "tauri_devtools::server",
-        line: 106,
+        line: 105,
       },
     },
-    "4394060360": {
+  ],
+  [
+    BigInt(140699454627256),
+    {
       name: "wry::webview::create",
       target: "tauri_runtime_wry",
       kind: 0,
       level: 3,
       fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri-runtime-wry/src/lib.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri-runtime-wry\\src\\lib.rs",
         modulePath: "tauri_runtime_wry",
-        line: 3167,
+        line: 3211,
       },
     },
-    "4394060480": {
+  ],
+  [
+    BigInt(140699454627400),
+    {
       name: "wry::window::draw",
       target: "tauri_runtime_wry",
       kind: 0,
       level: 3,
       fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri-runtime-wry/src/lib.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri-runtime-wry\\src\\lib.rs",
         modulePath: "tauri_runtime_wry",
-        line: 3168,
+        line: 3213,
       },
     },
-    "4394060600": {
+  ],
+  [
+    BigInt(140699454627544),
+    {
       name: "wry::window::create",
       target: "tauri_runtime_wry",
       kind: 0,
       level: 3,
       fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri-runtime-wry/src/lib.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri-runtime-wry\\src\\lib.rs",
         modulePath: "tauri_runtime_wry",
-        line: 3170,
+        line: 3216,
       },
     },
-    "4394057376": {
+  ],
+  [
+    BigInt(140699454591208),
+    {
       name: "plugin::hooks::created",
       target: "tauri::plugin",
       kind: 0,
       level: 4,
       fieldNames: ["name"],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri/src/plugin.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\plugin.rs",
         modulePath: "tauri::plugin",
-        line: 623,
+        line: 624,
       },
     },
-    "4393685240": {
-      name: "event devtools/src/tauri_plugin.rs:56",
+  ],
+  [
+    BigInt(140699453458352),
+    {
+      name: "event devtools\\src\\tauri_plugin.rs:59",
       target: "tauri_devtools::tauri_plugin",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "devtools/src/tauri_plugin.rs",
+        file: "devtools\\src\\tauri_plugin.rs",
         modulePath: "tauri_devtools::tauri_plugin",
-        line: 56,
+        line: 59,
       },
     },
-    "4394069280": {
+  ],
+  [
+    BigInt(140699454651968),
+    {
       name: "wry::custom_protocol::handle",
-      target: "wry::webview::wkwebview",
+      target: "wry::webview::webview2",
       kind: 0,
       level: 2,
       fieldNames: ["uri"],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/wry-dfd3fc8b4b5ea13d/52d3afb/src/webview/wkwebview/mod.rs",
-        modulePath: "wry::webview::wkwebview",
-        line: 116,
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\wry-0.24.6\\src\\webview\\webview2\\mod.rs",
+        modulePath: "wry::webview::webview2",
+        line: 521,
       },
     },
-    "4394069416": {
-      name: "event /Users/tejas/.cargo/git/checkouts/wry-dfd3fc8b4b5ea13d/52d3afb/src/webview/wkwebview/mod.rs:166",
-      target: "wry::webview::wkwebview",
-      kind: 1,
-      level: 3,
-      fieldNames: ["message"],
-      location: {
-        file: "/Users/tejas/.cargo/git/checkouts/wry-dfd3fc8b4b5ea13d/52d3afb/src/webview/wkwebview/mod.rs",
-        modulePath: "wry::webview::wkwebview",
-        line: 166,
-      },
-    },
-    "4394069536": {
+  ],
+  [
+    BigInt(140699454652128),
+    {
       name: "wry::custom_protocol::call_handler",
-      target: "wry::webview::wkwebview",
+      target: "wry::webview::webview2",
       kind: 0,
       level: 2,
       fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/wry-dfd3fc8b4b5ea13d/52d3afb/src/webview/wkwebview/mod.rs",
-        modulePath: "wry::webview::wkwebview",
-        line: 190,
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\wry-0.24.6\\src\\webview\\webview2\\mod.rs",
+        modulePath: "wry::webview::webview2",
+        line: 603,
       },
     },
-    "4394069144": {
+  ],
+  [
+    BigInt(140699454592640),
+    {
+      name: "window::emit",
+      target: "tauri::window",
+      kind: 0,
+      level: 2,
+      fieldNames: ["event"],
+      location: {
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\window.rs",
+        modulePath: "tauri::window",
+        line: 1842,
+      },
+    },
+  ],
+  [
+    BigInt(140699454590736),
+    {
+      name: "emit::run",
+      target: "tauri::manager",
+      kind: 0,
+      level: 3,
+      fieldNames: [],
+      location: {
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\manager.rs",
+        modulePath: "tauri::manager",
+        line: 1161,
+      },
+    },
+  ],
+  [
+    BigInt(140699454591952),
+    {
+      name: "window::emit::serialize",
+      target: "tauri::window",
+      kind: 0,
+      level: 3,
+      fieldNames: [],
+      location: {
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\window.rs",
+        modulePath: "tauri::window",
+        line: 72,
+      },
+    },
+  ],
+  [
+    BigInt(140699454651800),
+    {
       name: "wry::ipc::handle",
-      target: "wry::webview::wkwebview",
+      target: "wry::webview::webview2",
       kind: 0,
       level: 2,
       fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/wry-dfd3fc8b4b5ea13d/52d3afb/src/webview/wkwebview/mod.rs",
-        modulePath: "wry::webview::wkwebview",
-        line: 96,
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\wry-0.24.6\\src\\webview\\webview2\\mod.rs",
+        modulePath: "wry::webview::webview2",
+        line: 362,
       },
     },
-    "4394056856": {
+  ],
+  [
+    BigInt(140699454589880),
+    {
       name: "ipc::request",
       target: "tauri::manager",
       kind: 0,
       level: 4,
-      fieldNames: ["id", "kind", "request"],
+      fieldNames: ["kind", "request"],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri/src/manager.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\manager.rs",
         modulePath: "tauri::manager",
         line: 598,
       },
     },
-    "4394057008": {
+  ],
+  [
+    BigInt(140699454590040),
+    {
       name: "ipc::request::handle",
       target: "tauri::manager",
       kind: 0,
       level: 4,
-      fieldNames: ["id", "cmd"],
+      fieldNames: ["cmd"],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri/src/manager.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\manager.rs",
         modulePath: "tauri::manager",
-        line: 628,
+        line: 622,
       },
     },
-    "4394056176": {
+  ],
+  [
+    BigInt(140699454589128),
+    {
       name: "ipc::request::respond",
       target: "tauri::hooks",
       kind: 0,
       level: 4,
-      fieldNames: ["id"],
+      fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri/src/hooks.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\hooks.rs",
         modulePath: "tauri::hooks",
-        line: 204,
+        line: 191,
       },
     },
-    "4394056568": {
+  ],
+  [
+    BigInt(140699454589536),
+    {
       name: "ipc::request::response",
       target: "tauri::hooks",
       kind: 0,
       level: 4,
-      fieldNames: ["id", "response"],
+      fieldNames: ["response"],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri/src/hooks.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\hooks.rs",
         modulePath: "tauri::hooks",
-        line: 315,
+        line: 287,
       },
     },
-    "4394057496": {
-      name: "plugin::hooks::on_page_load",
-      target: "tauri::plugin",
-      kind: 0,
-      level: 4,
-      fieldNames: ["name"],
-      location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri/src/plugin.rs",
-        modulePath: "tauri::plugin",
-        line: 632,
-      },
-    },
-    "4394056688": {
+  ],
+  [
+    BigInt(140699454589688),
+    {
       name: "ipc::request::eval_response",
       target: "tauri::hooks",
       kind: 0,
       level: 4,
       fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri/src/hooks.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\hooks.rs",
         modulePath: "tauri::hooks",
-        line: 331,
+        line: 299,
       },
     },
-    "4394069656": {
+  ],
+  [
+    BigInt(140699454591360),
+    {
+      name: "plugin::hooks::on_page_load",
+      target: "tauri::plugin",
+      kind: 0,
+      level: 4,
+      fieldNames: ["name"],
+      location: {
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\plugin.rs",
+        modulePath: "tauri::plugin",
+        line: 634,
+      },
+    },
+  ],
+  [
+    BigInt(140699454652264),
+    {
       name: "wry::eval",
-      target: "wry::webview::wkwebview",
+      target: "wry::webview::webview2",
       kind: 0,
       level: 3,
       fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/wry-dfd3fc8b4b5ea13d/52d3afb/src/webview/wkwebview/mod.rs",
-        modulePath: "wry::webview::wkwebview",
-        line: 866,
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\wry-0.24.6\\src\\webview\\webview2\\mod.rs",
+        modulePath: "wry::webview::webview2",
+        line: 819,
       },
     },
-    "4393957752": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:191",
+  ],
+  [
+    BigInt(140699454345944),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs:191",
       target: "hyper::proto::h1::conn",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs",
         modulePath: "hyper::proto::h1::conn",
         line: 191,
       },
     },
-    "4393955592": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:732",
+  ],
+  [
+    BigInt(140699454341624),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs:732",
       target: "hyper::proto::h1::conn",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs",
         modulePath: "hyper::proto::h1::conn",
         line: 732,
       },
     },
-    "4393967704": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/io.rs:269",
+  ],
+  [
+    BigInt(140699454293904),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\io.rs:269",
       target: "hyper::proto::h1::io",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/io.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\io.rs",
         modulePath: "hyper::proto::h1::io",
         line: 269,
       },
     },
-    "4393945240": {
+  ],
+  [
+    BigInt(140699454364216),
+    {
       name: "parse_headers",
       target: "hyper::proto::h1::role",
       kind: 0,
       level: 4,
       fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs",
         modulePath: "hyper::proto::h1::role",
         line: 75,
       },
     },
-    "4393944760": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs:148",
+  ],
+  [
+    BigInt(140699454363480),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs:148",
       target: "hyper::proto::h1::role",
       kind: 1,
       level: 4,
       fieldNames: ["message", "bytes"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs",
         modulePath: "hyper::proto::h1::role",
         line: 148,
       },
     },
-    "4393944640": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs:153",
+  ],
+  [
+    BigInt(140699454363240),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs:153",
       target: "hyper::proto::h1::role",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs",
         modulePath: "hyper::proto::h1::role",
         line: 153,
       },
     },
-    "4393968064": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/io.rs:207",
+  ],
+  [
+    BigInt(140699454294600),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\io.rs:207",
       target: "hyper::proto::h1::io",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/io.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\io.rs",
         modulePath: "hyper::proto::h1::io",
         line: 207,
       },
     },
-    "4393957632": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:222",
+  ],
+  [
+    BigInt(140699454345704),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs:222",
       target: "hyper::proto::h1::conn",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs",
         modulePath: "hyper::proto::h1::conn",
         line: 222,
       },
     },
-    "4393944880": {
+  ],
+  [
+    BigInt(140699454363616),
+    {
       name: "encode_headers",
       target: "hyper::proto::h1::role",
       kind: 0,
       level: 4,
       fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs",
         modulePath: "hyper::proto::h1::role",
         line: 107,
       },
     },
-    "4393944040": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs:342",
+  ],
+  [
+    BigInt(140699454362280),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs:342",
       target: "hyper::proto::h1::role",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs",
         modulePath: "hyper::proto::h1::role",
         line: 342,
       },
     },
-    "4393967344": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/io.rs:342",
+  ],
+  [
+    BigInt(140699454293208),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\io.rs:342",
       target: "hyper::proto::h1::io",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/io.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\io.rs",
         modulePath: "hyper::proto::h1::io",
         line: 342,
       },
     },
-    "4393969144": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/decode.rs:106",
+  ],
+  [
+    BigInt(140699454296888),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\decode.rs:106",
       target: "hyper::proto::h1::decode",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/decode.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\decode.rs",
         modulePath: "hyper::proto::h1::decode",
         line: 106,
       },
     },
-    "4393957152": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:298",
+  ],
+  [
+    BigInt(140699454344744),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs:298",
       target: "hyper::proto::h1::conn",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs",
         modulePath: "hyper::proto::h1::conn",
         line: 298,
       },
     },
-    "4393687816": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tonic-web-0.10.2/src/service.rs:99",
+  ],
+  [
+    BigInt(140699453469872),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\tonic-web-0.10.2\\src\\service.rs:99",
       target: "tonic_web::service",
       kind: 1,
       level: 4,
       fieldNames: ["kind", "path", "encoding", "accept"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/tonic-web-0.10.2/src/service.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\tonic-web-0.10.2\\src\\service.rs",
         modulePath: "tonic_web::service",
         line: 99,
       },
     },
-    "4393943800": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs:392",
+  ],
+  [
+    BigInt(140699454361800),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs:392",
       target: "hyper::proto::h1::role",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs",
         modulePath: "hyper::proto::h1::role",
         line: 392,
       },
     },
-    "4393961016": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/encode.rs:114",
+  ],
+  [
+    BigInt(140699454326384),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\encode.rs:114",
       target: "hyper::proto::h1::encode",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/encode.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\encode.rs",
         modulePath: "hyper::proto::h1::encode",
         line: 114,
       },
     },
-    "4393967104": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/io.rs:577",
+  ],
+  [
+    BigInt(140699454292744),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\io.rs:577",
       target: "hyper::proto::h1::io",
       kind: 1,
       level: 4,
       fieldNames: ["message", "self.len", "buf.len"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/io.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\io.rs",
         modulePath: "hyper::proto::h1::io",
         line: 577,
       },
     },
-    "4393683072": {
-      name: "event devtools/src/server.rs:147",
+  ],
+  [
+    BigInt(140699453456160),
+    {
+      name: "event devtools\\src\\server.rs:150",
       target: "tauri_devtools::server",
       kind: 1,
       level: 3,
       fieldNames: ["message", "client.addr"],
       location: {
-        file: "devtools/src/server.rs",
+        file: "devtools\\src\\server.rs",
         modulePath: "tauri_devtools::server",
-        line: 147,
+        line: 150,
       },
     },
-    "4393683312": {
-      name: "event devtools/src/server.rs:165",
+  ],
+  [
+    BigInt(140699453456464),
+    {
+      name: "event devtools\\src\\server.rs:168",
       target: "tauri_devtools::server",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "devtools/src/server.rs",
+        file: "devtools\\src\\server.rs",
         modulePath: "tauri_devtools::server",
-        line: 165,
+        line: 168,
       },
     },
-    "4393956192": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:420",
+  ],
+  [
+    BigInt(140699454342824),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs:420",
       target: "hyper::proto::h1::conn",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs",
         modulePath: "hyper::proto::h1::conn",
         line: 420,
       },
     },
-    "4393954512": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:956",
+  ],
+  [
+    BigInt(140699454339464),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs:956",
       target: "hyper::proto::h1::conn",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs",
         modulePath: "hyper::proto::h1::conn",
         line: 956,
       },
     },
-    "4393971624": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/server/server.rs:765",
+  ],
+  [
+    BigInt(140699454307592),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\server\\server.rs:765",
       target: "hyper::server::server::new_svc",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/server/server.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\server\\server.rs",
         modulePath: "hyper::server::server::new_svc",
         line: 765,
       },
     },
-    "4393967824": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/io.rs:247",
-      target: "hyper::proto::h1::io",
-      kind: 1,
-      level: 4,
-      fieldNames: ["message"],
-      location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/io.rs",
-        modulePath: "hyper::proto::h1::io",
-        line: 247,
-      },
-    },
-    "4393957272": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:281",
-      target: "hyper::proto::h1::conn",
-      kind: 1,
-      level: 3,
-      fieldNames: ["message"],
-      location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
-        modulePath: "hyper::proto::h1::conn",
-        line: 281,
-      },
-    },
-    "4393954392": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:962",
+  ],
+  [
+    BigInt(140699454342584),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs:433",
       target: "hyper::proto::h1::conn",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs",
         modulePath: "hyper::proto::h1::conn",
-        line: 962,
+        line: 433,
       },
     },
-    "4393955472": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:739",
+  ],
+  [
+    BigInt(140699454339704),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs:949",
       target: "hyper::proto::h1::conn",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs",
         modulePath: "hyper::proto::h1::conn",
-        line: 739,
+        line: 949,
       },
     },
-    "4393657400": {
+  ],
+  [
+    BigInt(140699453332336),
+    {
       name: "ipc::request::handler",
       target: "tauri_example",
       kind: 0,
       level: 3,
-      fieldNames: ["id", "cmd", "kind", "loc.line", "loc.col", "is_internal"],
+      fieldNames: ["cmd", "kind", "loc.line", "loc.col", "is_internal"],
       location: {
-        file: "examples/tauri/main.rs",
+        file: "examples\\tauri\\main.rs",
         modulePath: "tauri_example",
-        line: 28,
+        line: 104,
       },
     },
-    "4393657536": {
+  ],
+  [
+    BigInt(140699453332480),
+    {
       name: "ipc::request::run",
       target: "tauri_example",
       kind: 0,
       level: 3,
-      fieldNames: ["id"],
+      fieldNames: [],
       location: {
-        file: "examples/tauri/main.rs",
+        file: "examples\\tauri\\main.rs",
         modulePath: "tauri_example",
-        line: 28,
+        line: 104,
       },
     },
-    "4394056296": {
+  ],
+  [
+    BigInt(140699454589248),
+    {
       name: "ipc::request::respond",
       target: "tauri::hooks",
       kind: 0,
       level: 4,
-      fieldNames: ["id"],
+      fieldNames: [],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri/src/hooks.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\hooks.rs",
         modulePath: "tauri::hooks",
-        line: 218,
+        line: 212,
       },
     },
-    "4394055952": {
+  ],
+  [
+    BigInt(140699454588768),
+    {
       name: "ipc::request::deserialize_arg",
       target: "tauri::command",
       kind: 0,
       level: 4,
-      fieldNames: ["id", "arg"],
+      fieldNames: ["arg"],
       location: {
-        file: "/Users/tejas/.cargo/git/checkouts/tauri-278f3df1a51deaec/08ffddc/core/tauri/src/command.rs",
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\command.rs",
         modulePath: "tauri::command",
-        line: 58,
+        line: 56,
       },
     },
-    "4393656704": {
-      name: "event examples/tauri/main.rs:8",
+  ],
+  [
+    BigInt(140699453331472),
+    {
+      name: "event examples\\tauri\\main.rs:21",
       target: "tauri_example",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "examples/tauri/main.rs",
+        file: "examples\\tauri\\main.rs",
         modulePath: "tauri_example",
-        line: 8,
+        line: 21,
       },
     },
-    "4393656824": {
-      name: "event examples/tauri/main.rs:9",
+  ],
+  [
+    BigInt(140699453331624),
+    {
+      name: "event examples\\tauri\\main.rs:22",
       target: "tauri_example",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "examples/tauri/main.rs",
+        file: "examples\\tauri\\main.rs",
         modulePath: "tauri_example",
-        line: 9,
+        line: 22,
       },
     },
-    "4393656944": {
-      name: "event examples/tauri/main.rs:10",
+  ],
+  [
+    BigInt(140699453331776),
+    {
+      name: "event examples\\tauri\\main.rs:23",
       target: "tauri_example",
       kind: 1,
       level: 2,
       fieldNames: ["message"],
       location: {
-        file: "examples/tauri/main.rs",
+        file: "examples\\tauri\\main.rs",
         modulePath: "tauri_example",
-        line: 10,
+        line: 23,
       },
     },
-    "4393657064": {
-      name: "event examples/tauri/main.rs:11",
+  ],
+  [
+    BigInt(140699453331928),
+    {
+      name: "event examples\\tauri\\main.rs:24",
       target: "tauri_example",
       kind: 1,
       level: 1,
       fieldNames: ["message"],
       location: {
-        file: "examples/tauri/main.rs",
+        file: "examples\\tauri\\main.rs",
         modulePath: "tauri_example",
-        line: 11,
+        line: 24,
       },
     },
-    "4393657184": {
-      name: "event examples/tauri/main.rs:12",
+  ],
+  [
+    BigInt(140699453332080),
+    {
+      name: "event examples\\tauri\\main.rs:25",
       target: "tauri_example",
       kind: 1,
       level: 0,
       fieldNames: ["message"],
       location: {
-        file: "examples/tauri/main.rs",
+        file: "examples\\tauri\\main.rs",
         modulePath: "tauri_example",
-        line: 12,
+        line: 25,
       },
     },
-    "4393972224": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/pool.rs:638",
+  ],
+  [
+    BigInt(140699454593160),
+    {
+      name: "app::emit::all",
+      target: "tauri",
+      kind: 0,
+      level: 2,
+      fieldNames: ["event"],
+      location: {
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\lib.rs",
+        modulePath: "tauri",
+        line: 631,
+      },
+    },
+  ],
+  [
+    BigInt(140699454592504),
+    {
+      name: "window::emit::eval",
+      target: "tauri::window",
+      kind: 0,
+      level: 2,
+      fieldNames: ["self", "event", "source_window", "payload"],
+      location: {
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\window.rs",
+        modulePath: "tauri::window",
+        line: 1805,
+      },
+    },
+  ],
+  [
+    BigInt(140699454593304),
+    {
+      name: "app::emit::filter",
+      target: "tauri",
+      kind: 0,
+      level: 2,
+      fieldNames: ["event"],
+      location: {
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\lib.rs",
+        modulePath: "tauri",
+        line: 651,
+      },
+    },
+  ],
+  [
+    BigInt(140699454592120),
+    {
+      name: "window::emit::to",
+      target: "tauri::window",
+      kind: 0,
+      level: 2,
+      fieldNames: ["label", "event"],
+      location: {
+        file: "C:\\Users\\User\\.cargo\\git\\checkouts\\tauri-9dcc2f9152472c1a\\977a39f\\core\\tauri\\src\\window.rs",
+        modulePath: "tauri::window",
+        line: 784,
+      },
+    },
+  ],
+  [
+    BigInt(140699454308880),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\pool.rs:638",
       target: "hyper::client::pool",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/pool.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\pool.rs",
         modulePath: "hyper::client::pool",
         line: 638,
       },
     },
-    "4393963816": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/connect/http.rs:278",
+  ],
+  [
+    BigInt(140699454286144),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\connect\\http.rs:278",
       target: "hyper::client::connect::http",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/connect/http.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\connect\\http.rs",
         modulePath: "hyper::client::connect::http",
         line: 278,
       },
     },
-    "4393952712": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/connect/dns.rs:122",
+  ],
+  [
+    BigInt(140699454335720),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\connect\\dns.rs:122",
       target: "hyper::client::connect::dns",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/connect/dns.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\connect\\dns.rs",
         modulePath: "hyper::client::connect::dns",
         line: 122,
       },
     },
-    "4393963576": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/connect/http.rs:537",
+  ],
+  [
+    BigInt(140699454285664),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\connect\\http.rs:537",
       target: "hyper::client::connect::http",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/connect/http.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\connect\\http.rs",
         modulePath: "hyper::client::connect::http",
         line: 537,
       },
     },
-    "4393963456": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/connect/http.rs:540",
+  ],
+  [
+    BigInt(140699454285424),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\connect\\http.rs:540",
       target: "hyper::client::connect::http",
       kind: 1,
       level: 3,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/connect/http.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\connect\\http.rs",
         modulePath: "hyper::client::connect::http",
         line: 540,
       },
     },
-    "4393951032": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/conn.rs:1009",
+  ],
+  [
+    BigInt(140699454332328),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\conn.rs:1009",
       target: "hyper::client::conn",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\conn.rs",
         modulePath: "hyper::client::conn",
         line: 1009,
       },
     },
-    "4393951992": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/client.rs:499",
+  ],
+  [
+    BigInt(140699454334248),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\client.rs:499",
       target: "hyper::client::client",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/client.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\client.rs",
         modulePath: "hyper::client::client",
         line: 499,
       },
     },
-    "4393972104": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/pool.rs:680",
+  ],
+  [
+    BigInt(140699454308648),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\pool.rs:680",
       target: "hyper::client::pool",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/pool.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\pool.rs",
         modulePath: "hyper::client::pool",
         line: 680,
       },
     },
-    "4393942328": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs:1110",
+  ],
+  [
+    BigInt(140699454359128),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs:1110",
       target: "hyper::proto::h1::role",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs",
         modulePath: "hyper::proto::h1::role",
         line: 1110,
       },
     },
-    "4393942840": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs:946",
+  ],
+  [
+    BigInt(140699454359880),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs:946",
       target: "hyper::proto::h1::role",
       kind: 1,
       level: 4,
       fieldNames: ["message", "bytes"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs",
         modulePath: "hyper::proto::h1::role",
         line: 946,
       },
     },
-    "4393942688": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs:955",
+  ],
+  [
+    BigInt(140699454359608),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs:955",
       target: "hyper::proto::h1::role",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/role.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\role.rs",
         modulePath: "hyper::proto::h1::role",
         line: 955,
       },
     },
-    "4393955832": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:472",
+  ],
+  [
+    BigInt(140699454342104),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs:472",
       target: "hyper::proto::h1::conn",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs",
         modulePath: "hyper::proto::h1::conn",
         line: 472,
       },
     },
-    "4393972464": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/pool.rs:540",
+  ],
+  [
+    BigInt(140699454309344),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\pool.rs:540",
       target: "hyper::client::pool",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/client/pool.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\client\\pool.rs",
         modulePath: "hyper::client::pool",
         line: 540,
       },
     },
-    "4393975592": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/dispatch.rs:599",
+  ],
+  [
+    BigInt(140699454315608),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\dispatch.rs:599",
       target: "hyper::proto::h1::dispatch",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/dispatch.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\dispatch.rs",
         modulePath: "hyper::proto::h1::dispatch",
         line: 599,
       },
     },
-    "4393955352": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:743",
-      target: "hyper::proto::h1::conn",
-      kind: 1,
-      level: 3,
-      fieldNames: ["message"],
-      location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
-        modulePath: "hyper::proto::h1::conn",
-        line: 743,
-      },
-    },
-    "4393683552": {
-      name: "event devtools/src/server.rs:217",
-      target: "tauri_devtools::server",
-      kind: 1,
-      level: 3,
-      fieldNames: ["message"],
-      location: {
-        file: "devtools/src/server.rs",
-        modulePath: "tauri_devtools::server",
-        line: 217,
-      },
-    },
-    "4393956072": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:433",
+  ],
+  [
+    BigInt(140699454339224),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs:962",
       target: "hyper::proto::h1::conn",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs",
         modulePath: "hyper::proto::h1::conn",
-        line: 433,
+        line: 962,
       },
     },
-    "4393954632": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs:949",
+  ],
+  [
+    BigInt(140699454341384),
+    {
+      name: "event C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs:739",
       target: "hyper::proto::h1::conn",
       kind: 1,
       level: 4,
       fieldNames: ["message"],
       location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/conn.rs",
+        file: "C:\\Users\\User\\.cargo\\registry\\src\\index.crates.io-6f17d22bba15001f\\hyper-0.14.27\\src\\proto\\h1\\conn.rs",
         modulePath: "hyper::proto::h1::conn",
-        line: 949,
+        line: 739,
       },
     },
-    "4393975952": {
-      name: "event /Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/dispatch.rs:387",
-      target: "hyper::proto::h1::dispatch",
-      kind: 1,
-      level: 3,
-      fieldNames: ["message"],
-      location: {
-        file: "/Users/tejas/.cargo/registry/src/index.crates.io-6f17d22bba15001f/hyper-0.14.27/src/proto/h1/dispatch.rs",
-        modulePath: "hyper::proto::h1::dispatch",
-        line: 387,
-      },
-    },
-  })
-);
+  ],
+]);
