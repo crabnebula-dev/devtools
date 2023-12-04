@@ -7,7 +7,7 @@ authors = ["CrabNebula <hello@crabnebula.dev>"]
 edition = "2021"
 version = "0.1.0"
 rust-version = "1.70.0"
-license = "MIT or Apache-2.0"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/crabnebula-dev/devtools"
 
 [workspace.dependencies]
