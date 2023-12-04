@@ -23,7 +23,6 @@ if (Astro.request.method === "POST") {
       return Astro.redirect(`${data.get("referer")}?newsletterSuccess=true`);
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       return Astro.redirect(
         `${data.get("referer")}?newsletterErrors=${Buffer.from(
           error.message
