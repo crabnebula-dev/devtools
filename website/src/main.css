@@ -39,4 +39,7 @@
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
+  a:hover {
+    @apply text-brand-300;
+  }
 }
