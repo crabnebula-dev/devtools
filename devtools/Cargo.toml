@@ -12,7 +12,7 @@ repository.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-devtools-wire-format = { path = "../wire" }
+devtools-wire-format = { path = "../wire", version.workspace = true }
 tracing.workspace = true
 tracing-core.workspace = true
 tracing-subscriber.workspace = true
