@@ -5,9 +5,44 @@ import { Logo as CrabNebula } from "~/components/crabnebula-logo";
 import { FormField } from "~/components/form-field";
 import { checkConnection } from "~/lib/connection/transport";
 import { GithubIcon } from "~/components/icons/github";
+import { ConnectionFailedDialog } from "~/components/dialogs/connection-failed-dialog";
+import { createStore } from "solid-js/store";
+import { createSignal } from "solid-js";
 
 export default function Connect() {
   const navigate = useNavigate();
+
+  const [connectionStore, setConnectionStore] = createStore({
+    host: "127.0.0.1",
+    port: "3000",
+  });
+
+  const [connectionFailed, setConnectionFailed] = createSignal(false);
+
+  const handleFormSubmit = async (e: SubmitEvent) => {
+    e.preventDefault();
+
+    if (!(e.currentTarget instanceof HTMLFormElement)) return;
+
+    const data = Object.fromEntries(new FormData(e.currentTarget));
+
+    tryToConnect(`${data.host}`, `${data.port}`);
+  };
+
+  const tryToConnect = async (host: string, port: string) => {
+    const url = `http://${host}:${port}`;
+    const ping = await checkConnection(url);
+
+    if (ping.status === "error") {
+      setConnectionFailed(true);
+      setConnectionStore({
+        host,
+        port,
+      });
+      return;
+    }
+    navigate(`/dash/${host}/${port}/`);
+  };
 
   return (
     <div class="w-full min-h-screen grid grid-rows-[auto_1fr_auto_1fr_auto] place-items-center">
@@ -55,18 +90,7 @@ export default function Connect() {
       </aside>
       <form
         class="max-w-screen-sm w-full grid grid-cols-2 gap-8 p-12 border-navy-900 border-px backdrop-blur-md bg-navy-800 bg-opacity-30 rounded-md place-items-center"
-        onSubmit={async (e) => {
-          e.preventDefault();
-
-          const data = Object.fromEntries(new FormData(e.currentTarget));
-          const url = `http://${data.host}:${data.port}`;
-
-          const ping = await checkConnection(url);
-
-          if (ping.status === "error") return;
-
-          navigate(`/dash/${data.host}/${data.port}/`);
-        }}
+        onSubmit={handleFormSubmit}
       >
         <FormField
           name="host"
@@ -104,6 +128,13 @@ export default function Connect() {
       <div class="surf-container">
         <img class="bg-surface static" src="/bg.jpeg" alt="" />
       </div>
+
+      <ConnectionFailedDialog
+        open={[connectionFailed, setConnectionFailed]}
+        host={connectionStore.host}
+        port={connectionStore.port}
+        retry={tryToConnect}
+      />
     </div>
   );
 }
