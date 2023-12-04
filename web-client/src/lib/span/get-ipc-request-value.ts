@@ -1,16 +1,16 @@
 import { Field, Metadata } from "../proto/common";
-import { findSpansByName } from "./find-spans-by-name";
+import { UiSpan } from "./format-spans-for-ui";
 import { IpcSpanName } from "./ipc-spans";
-import { SpanWithChildren } from "./types";
+import { getUiSpanChildren } from "./get-ui-span-children";
 
 type Options = {
   metadata: Map<bigint, Metadata>;
-  rootSpan: SpanWithChildren;
+  rootSpan: UiSpan;
 };
 
 export function getIpcRequestValues({ metadata, rootSpan }: Options) {
   return function (name: IpcSpanName) {
-    const spans = findSpansByName({ span: rootSpan, metadata }, name);
+    const spans = getUiSpanChildren(rootSpan, name);
 
     if (!spans) {
       return null;
