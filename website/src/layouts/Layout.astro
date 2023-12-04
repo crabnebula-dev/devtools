@@ -1,0 +1,122 @@
+---
+import FooterSocials from "../components/FooterSocials.astro";
+import Logo from "../components/Logo.astro";
+import { NavAccordion } from "../components/NavAccordion.tsx";
+import { MobileNav } from "../components/MobileNav";
+import "../main.css";
+import LinkButton from "../components/LinkButton.astro";
+import HeaderMenuLink from "../components/HeaderMenuLink.astro";
+import HeaderMenuDropdown from "../components/HeaderMenuDropdown.astro";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const fathomId = process.env.FATHOM_ID;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="bg-navy text-white bg-cover grid">
+    <header
+      class="backdrop-blur-lg bg-brand-50 bg-opacity-80 right-0 fixed top-0 z-20 left-0 p-8"
+    >
+      <div
+        class="max-w-screen-xl w-full mx-auto flex items-center justify-between"
+      >
+        <a aria-label="Go home" href="https://crabnebula.dev">
+          <Logo className="max-w-[80%]" width={266} /></a
+        >
+        <MobileNav client:idle />
+        <nav class="hidden lg:flex items-center ml-auto gap-8">
+          <HeaderMenuDropdown
+            links={[
+              { href: "https://devtools.crabnebula.dev", label: "DevTools" },
+              {
+                href: "https://crabnebula.dev/security-auditing",
+                label: "Security",
+              },
+              {
+                href: "https://crabnebula.dev/consulting",
+                label: "Consulting",
+              },
+              {
+                href: "https://crabnebula.dev/distribution",
+                label: "Distribution",
+              },
+            ]}
+          >
+            Products & Services
+          </HeaderMenuDropdown>
+          <HeaderMenuLink href="https://crabnebula.dev/blog">
+            Blog
+          </HeaderMenuLink>
+          <HeaderMenuDropdown
+            links={[
+              { href: "https://crabnebula.dev/about", label: "About" },
+              { href: "https://crabnebula.dev/blog", label: "Blog" },
+              // { href: "#", label: "Case Studies" },
+              // { href: "#", label: "Partners" },
+              { href: "https://crabnebula.dev/careers", label: "Careers" },
+            ]}
+          >
+            Company
+          </HeaderMenuDropdown>
+          <LinkButton href="https://q9r43wwq2bt.typeform.com/to/slZ5rWNB">
+            Contact Us
+          </LinkButton>
+        </nav>
+      </div>
+    </header>
+    <div class="h-[104px]"></div>
+    <slot />
+    <footer class="grid max-w-screen-xl w-full mx-auto gap-8 p-4">
+      <div class="md:flex items-center justify-between">
+        <Logo width={266} />
+        <FooterSocials className="hidden md:flex" />
+      </div>
+      <NavAccordion client:idle />
+      <FooterSocials className="md:hidden" />
+      <div class="text-xs mx-auto">
+        Copyright © {new Date().getFullYear()} CrabNebula Ltd.
+      </div>
+    </footer>
+  </body>
+  <style is:global>
+    body {
+      background-image: image-set(
+        url("/images/bg.webp") type("image/webp"),
+        url("/images/bg.jpg") type("image/jpeg")
+      );
+    }
+  </style>
+
+  <script lang="js">
+    // Close all details elements when clicking outside of them
+    const details = [...document.querySelectorAll("details")];
+    document.addEventListener("click", function (e) {
+      if (details.some((f) => f.contains(e.target)).length != 0) {
+        details.forEach((f) => f.removeAttribute("open"));
+      }
+    });
+  </script>
+  {
+    fathomId && (
+      <script
+        src="https://fine-active.crabnebula.dev/script.js"
+        data-site={fathomId}
+        defer
+      />
+    )
+  }
+</html>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://devtools.crabnebula.dev/sitemap-index.xml
