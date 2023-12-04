@@ -503,7 +503,7 @@ mod test {
 
         // this will list this crates directory, so should produce a `Cargo.toml` and `src` entry
         let entries: Vec<_> = stream.into_inner().collect().await;
-        assert_eq!(entries.len(), 3);
+        assert_eq!(entries.len(), 4);
     }
 
     #[tokio::test]
