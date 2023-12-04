@@ -1,13 +1,6 @@
 /*  This code is taken from: https://raqueebuddinaziz.com/blog/3-patterns-to-write-better-and-more-readable-solidjs-components 
     Written by: raqueebuddin aziz */
-import {
-  children,
-  Component,
-  createComputed,
-  JSXElement,
-  on,
-  ResolvedJSXElement,
-} from "solid-js";
+import { children, Component, createComputed, JSXElement, on } from "solid-js";
 import { createStore } from "solid-js/store";
 
 export const getSlots = (_children: JSXElement) => {
@@ -16,7 +9,7 @@ export const getSlots = (_children: JSXElement) => {
   createComputed(
     on(parts, () => {
       const defaultParts: JSXElement[] = [];
-      for (const part of parts.toArray() as unknown as Component<SlotProps>) {
+      for (const part of parts.toArray() as unknown as SlotProps[]) {
         if (!part.name) {
           defaultParts.push(part);
           continue;
