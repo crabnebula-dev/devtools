@@ -1,11 +1,6 @@
-type Props = {
-  className?: string;
-};
-
-export const BurgerIcon = (props: Props) => {
+export const BurgerIcon = () => {
   return (
     <svg
-      class={props.className}
       xmlns="http://www.w3.org/2000/svg"
       width="18"
       height="17"
