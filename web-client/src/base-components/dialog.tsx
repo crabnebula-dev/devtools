@@ -2,7 +2,7 @@ import { AlertDialog } from "@kobalte/core";
 import { JSXElement } from "solid-js";
 import { Slot, getSlots } from "./slot";
 import { mergeProps } from "solid-js";
-import { Signal, createSignal } from "solid-js";
+import { Signal, createSignal, untrack } from "solid-js";
 
 export { Title, Buttons, Root };
 
@@ -21,7 +21,7 @@ function Buttons(props: Props) {
 }
 
 function Content(props: Props) {
-  const slots = getSlots(props.children);
+  const slots = getSlots(untrack(() => props.children));
 
   return (
     <AlertDialog.Portal mount={document.getElementById("app") ?? undefined}>
@@ -43,10 +43,12 @@ function Content(props: Props) {
 
 function Root(p: Props) {
   const props = mergeProps({ defaultOpen: true }, p);
-  let [open, setOpen] = createSignal(props.defaultOpen);
-  if (props.open) {
-    [open, setOpen] = props.open;
-  }
+
+  const configuredOpen = untrack(() => props.open);
+  const [open, setOpen] = configuredOpen
+    ? configuredOpen
+    : /* eslint-disable-next-line solid/reactivity */
+      createSignal(props.defaultOpen);
 
   return (
     <AlertDialog.Root
