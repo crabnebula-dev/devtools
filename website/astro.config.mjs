@@ -8,9 +8,13 @@ import netlify from "@astrojs/netlify/functions";
 // https://astro.build/config
 export default defineConfig({
   site: "https://devtools.crabnebula.dev",
-  output: "hybrid",
-  integrations: [tailwind({
-    applyBaseStyles: false
-  }), solidJs(), sitemap()],
-  adapter: netlify()
+  output: "server",
+  integrations: [
+    tailwind({
+      applyBaseStyles: false,
+    }),
+    solidJs(),
+    sitemap(),
+  ],
+  adapter: netlify(),
 });
