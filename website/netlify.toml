@@ -1,0 +1,5 @@
+[[redirects]]
+  from = "/app/*"
+  to = "https://cn-devtools-app.netlify.app/:splat"
+  status = 200
+
