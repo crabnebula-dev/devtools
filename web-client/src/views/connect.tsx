@@ -15,8 +15,9 @@ export default function Connect() {
   const [connectionStore, setConnectionStore] = createStore({
     host: "127.0.0.1",
     port: "3000",
-    connectionFailed: createSignal(false),
   });
+
+  const [connectionFailed, setConnectionFailed] = createSignal(false);
 
   const handleFormSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
@@ -33,8 +34,7 @@ export default function Connect() {
     const ping = await checkConnection(url);
 
     if (ping.status === "error") {
-      const [, setOpen] = connectionStore.connectionFailed;
-      setOpen(true);
+      setConnectionFailed(true);
       setConnectionStore({
         host,
         port,
@@ -130,7 +130,7 @@ export default function Connect() {
       </div>
 
       <ConnectionFailedDialog
-        open={connectionStore.connectionFailed}
+        open={[connectionFailed, setConnectionFailed]}
         host={connectionStore.host}
         port={connectionStore.port}
         retry={tryToConnect}
