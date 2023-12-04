@@ -1,15 +1,8 @@
-todos
+# DevTools Website
 
-- [ ] newsletter logic
-- [x] rwd pass and figma diff
-- [ ] fix crab vertical placement
-- [x] dropdowns
-- [x] check all links
-- [x] consider component boundaries
-- [x] add logo
-- [ ] Terms of service
-- [ ] Privacy policy
-- [ ] Website meta information
-- [ ] Hero Image/Video
-- [ ] review and merge
-- [ ] dropdown toggle when [open]
+This directory contains the code for devtools.crabnebula.dev. It is fully powered by Astro with SolidJS islands.
+
+## Todos
+
+- [ ] Add meta information
+- [ ] Update Hero Image/Video
