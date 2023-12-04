@@ -1,5 +1,6 @@
 import { Show, createEffect, createSignal } from "solid-js";
 import { ChevronDownIcon } from "./ChevronDownIcon.tsx";
+import { MobileNavListItem } from "./MobileNavListItem.tsx";
 
 type Section = "products" | "blog" | "company" | "legal";
 
@@ -39,20 +40,20 @@ export const NavAccordion = () => {
         </button>
         <Show when={!shouldBeAccordion() || activeSection() === "products"}>
           <ul class="text-[#D9D9D9] grid gap-2 content-start items-start">
-            <li class="min-h-[48px] flex items-center">
+            <MobileNavListItem>
               <a href="https://devtools.crabnebula.dev">DevTools</a>
-            </li>
-            <li class="min-h-[48px] flex items-center">
+            </MobileNavListItem>
+            <MobileNavListItem>
               <a href="https://crabnebula.dev/security-auditing">
                 Security Auditing
               </a>
-            </li>
-            <li class="min-h-[48px] flex items-center">
+            </MobileNavListItem>
+            <MobileNavListItem>
               <a href="https://crabnebula.dev/consulting">Consultation</a>
-            </li>
-            <li class="min-h-[48px] flex items-center">
+            </MobileNavListItem>
+            <MobileNavListItem>
               <a href="https://crabnebula.dev/distribution">Distribution</a>
-            </li>
+            </MobileNavListItem>
           </ul>
         </Show>
       </div>
@@ -73,21 +74,21 @@ export const NavAccordion = () => {
         </button>
         <Show when={!shouldBeAccordion() || activeSection() === "company"}>
           <ul class="text-[#D9D9D9] grid gap-2 content-start items-start">
-            <li class="min-h-[48px] flex items-center">
+            <MobileNavListItem>
               <a href="https://crabnebula.dev/about">About</a>
-            </li>
-            <li class="min-h-[48px] flex items-center">
+            </MobileNavListItem>
+            <MobileNavListItem>
               <a href="https://crabnebula.dev/blog">Blog</a>
-            </li>
+            </MobileNavListItem>
             {/* <li>
               <a href="#">Case Studies</a>
             </li> */}
             {/* <li>
               <a href="#">Partners</a>
             </li> */}
-            <li class="min-h-[48px] flex items-center">
+            <MobileNavListItem>
               <a href="https://crabnebula.dev/careers">Careers</a>
-            </li>
+            </MobileNavListItem>
           </ul>
         </Show>
       </div>
@@ -103,17 +104,17 @@ export const NavAccordion = () => {
         </button>
         <Show when={!shouldBeAccordion() || activeSection() === "legal"}>
           <ul class="text-[#D9D9D9] grid gap-2 content-start items-start">
-            <li class="min-h-[48px] flex items-center">
+            <MobileNavListItem>
               <a href="https://crabnebula.dev/privacy-policy">Privacy Policy</a>
-            </li>
-            <li class="min-h-[48px] flex items-center">
+            </MobileNavListItem>
+            <MobileNavListItem>
               <a href="https://crabnebula.dev/cookie-policy">Cookie Policy</a>
-            </li>
-            <li class="min-h-[48px] flex items-center">
+            </MobileNavListItem>
+            <MobileNavListItem>
               <a href="https://crabnebula.dev/terms-of-service">
                 Terms of Service
               </a>
-            </li>
+            </MobileNavListItem>
           </ul>
         </Show>
       </div>
