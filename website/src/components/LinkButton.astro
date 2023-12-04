@@ -1,0 +1,42 @@
+---
+const { type, href } = Astro.props;
+
+let className: string;
+
+switch (type) {
+  case "primary":
+    className = "bg-white border-white text-gray-950";
+    break;
+  case "secondary":
+    className = "bg-brand-200 border-brand-200 text-brand-900";
+    break;
+  default:
+    className = "bg-transparent border-white text-white";
+    break;
+}
+---
+
+<a
+  class:list={[
+    className,
+    "relative flex items-center gap-2 text-sm md:text-base border-2 rounded-full py-2 px-2 md:px-4",
+  ]}
+  href={href}
+>
+  <slot /></a
+>
+<style>
+  a::after {
+    @apply block top-1/2 left-1/2 absolute w-[292px] h-[204px] -translate-x-1/2 -translate-y-1/2 z-[-1] m-auto opacity-0 transition-opacity duration-300 ease-in-out pointer-events-none;
+    content: "";
+    background-image: image-set(
+      url(/images/button-bg.webp) type("image/webp"),
+      url(/images/button-bg.png) type("image/png")
+    );
+    transform: translate(-50%, -50%);
+  }
+
+  a:hover::after {
+    @apply opacity-100;
+  }
+</style>
