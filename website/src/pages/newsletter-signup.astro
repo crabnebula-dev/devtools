@@ -1,0 +1,35 @@
+---
+if (Astro.request.method === "POST") {
+  const data = await Astro.request.formData();
+  try {
+    const response = await fetch(
+      "https://b6dd5cba.sibforms.com/serve/MUIFAMVb4Bl2YUBPwOBUHRNHdGbuVnF8HG-fKkq623KO1uEoNcfOKHx9ijOFha2i3cmB8y8uzTVBZt3mVUAPMh8ETLW_jxbWLuk5s34Eq5G71lOwi4b_lz5xSYZklB1mPBxGy7hVcGSnUZyKYOe23aaX8yYqtiZch-yjV5tEqrHs59N4YZ1DeKrxzxlPPSSvWu1j7ctcMIa6Kdhv?isAjax=1",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: data,
+      }
+    ).then(async (response) => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error(JSON.stringify(await response.json()));
+      }
+    });
+
+    if (response.success)
+      return Astro.redirect(`${data.get("referer")}?newsletterSuccess=true`);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      return Astro.redirect(
+        `${data.get("referer")}?newsletterErrors=${Buffer.from(
+          error.message
+        ).toString("base64")}`
+      );
+    }
+  }
+}
+---

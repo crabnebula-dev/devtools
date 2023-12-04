@@ -7,6 +7,7 @@ import sitemap from "@astrojs/sitemap";
 // https://astro.build/config
 export default defineConfig({
   site: "https://devtools.crabnebula.dev",
+  output: "hybrid",
   integrations: [
     tailwind({
       applyBaseStyles: false,

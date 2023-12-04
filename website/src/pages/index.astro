@@ -8,6 +8,37 @@ import ConfigInspectorIcon from "../components/ConfigInspectorIcon.astro";
 import SourcesIcon from "../components/SourcesIcon.astro";
 import DevToolsLogo from "../components/DevToolsLogo.astro";
 import GithubIcon from "../components/GithubIcon.astro";
+
+const newsletterTagIds = {
+  general: "6",
+  auditing: "7",
+  consulting: "8",
+  distribution: "9",
+  career: "10",
+  jsnation23: "11",
+  "jsnation23-booth": "12",
+  rustconf23: "13",
+  eurorust23: "14",
+  rustnation23: "15",
+  newsletter: "16",
+};
+
+let isSuccessfulNewsletterSignup = false;
+let newsletterErrors = null;
+
+try {
+  const newsletterSuccessParam =
+    Astro.url.searchParams.get("newsletterSuccess");
+  if (newsletterSuccessParam) {
+    isSuccessfulNewsletterSignup = JSON.parse(newsletterSuccessParam);
+  }
+  const newsletterErrorsParam = Astro.url.searchParams.get("newsletterErrors");
+  if (newsletterErrorsParam) {
+    newsletterErrors = JSON.parse(
+      Buffer.from(newsletterErrorsParam, "base64").toString("utf-8")
+    ).errors;
+  }
+} catch {}
 ---
 
 <Layout title="Rust DevTools by CrabNebula">
@@ -144,6 +175,7 @@ import GithubIcon from "../components/GithubIcon.astro";
       </div>
     </section>
     <section class="relative py-20 bg-navy">
+      <a class="scroll-mt-[108px]" id="newsletter"></a>
       <div class="relative z-10 md:p-8 max-w-screen-xl mx-auto">
         <div
           class="grid md:bg-navy md:bg-none bg-section bg-cover bg-center bg-opacity-90 p-8 gap-12 justify-start rounded-3xl md:max-w-[50%]"
@@ -169,14 +201,46 @@ import GithubIcon from "../components/GithubIcon.astro";
               announcements!
             </p>
           </div>
-          <form class="grid gap-12">
+          {
+            isSuccessfulNewsletterSignup && (
+              <p class="bg-success-900 border p-4 border-success-500 rounded-lg">
+                Thank you for signing up to our newsletter. Please check your
+                email for a confirmation.
+              </p>
+            )
+          }
+          <form class="grid gap-12" method="post" action="/newsletter-signup">
             <div class="grid gap-4">
-              <Input label="Name" placeholder="Jane Doe" />
-              <Input type="email" label="Email" placeholder="jane@doe.com" />
+              <Input
+                label="Name"
+                name="LASTNAME"
+                required
+                placeholder="Jane Doe"
+                disabled={isSuccessfulNewsletterSignup}
+                error={newsletterErrors?.LASTNAME}
+              />
+              <Input
+                type="email"
+                label="Email"
+                required
+                name="EMAIL"
+                placeholder="jane@doe.com"
+                disabled={isSuccessfulNewsletterSignup}
+                error={newsletterErrors?.EMAIL}
+              />
+              <input
+                type="hidden"
+                name="lists_28[]"
+                value={newsletterTagIds.general}
+              />
+              <input type="hidden" name="locale" value="en" />
+              <input type="hidden" name="referer" value={Astro.request.url} />
+              <input type="hidden" name="email_address_check" value="" />
             </div>
             <div class="grid gap-4">
               <button
-                class="mr-auto bg-brand-200 text-brand-900 rounded-full px-4 py-2"
+                disabled={isSuccessfulNewsletterSignup}
+                class="mr-auto disabled:bg-brand-800 bg-brand-200 text-brand-900 rounded-full px-4 py-2"
                 type="submit">Subscribe</button
               >
               <p class="text-gray-400 text-xs">
@@ -190,7 +254,7 @@ import GithubIcon from "../components/GithubIcon.astro";
         </div>
       </div>
       <div
-        class="hidden z-1 md:block absolute md:-top-[30%] lg:-top-[60%] right-0"
+        class="hidden z-1 md:block absolute md:-top-[30%] lg:-top-[30%] right-0"
       >
         <picture>
           <source srcset="/images/nova-newsletter.webp" type="image/webp" />
@@ -206,3 +270,11 @@ import GithubIcon from "../components/GithubIcon.astro";
     </section>
   </main>
 </Layout>
+<script>
+  const searchParams = new URLSearchParams(window.location.search);
+  const newsletterTag = searchParams.get("newsletterSuccess");
+  if (newsletterTag) {
+    const newsletterAnchor = document.getElementById("newsletter");
+    newsletterAnchor?.scrollIntoView();
+  }
+</script>
