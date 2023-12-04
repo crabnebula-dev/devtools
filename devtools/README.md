@@ -41,47 +41,10 @@ fn main() {
         .expect("error while running tauri application");
 }
 ```
- 
+
 And then run your app as usual, if everything is set up correctly devtools will print the following message:
 
 ![Screenshot 2023-11-28 at 14.05.20.png](https://github.com/crabnebula-dev/devtools/blob/f9970a0daa40757256aa1b32c93d66039cbdd041/Screenshot.png)
 
-You can click or copy & paste the link into your browser to open up the UI. 
+You can click or copy & paste the link into your browser to open up the UI.
 Alternatively you can navigate to https://devtools.crabnebula.dev and connect from there.
-
-## Features
-
-### Console
-
-The Console tab lets you quickly and conveniently see what your app is doing. 
-Any errors, warnings or other messages produced by your code, Tauri or your dependencies will show up here.
-
-### Calls
-
-Commands are at the core of your Tauri app, and the Calls tab is designed to let you debug and troubleshoot any 
-issues that you might have. It will display arguments and returns for each command as well as a detailed performance
-breakdown of exactly how much processing time your command spent on what.
-
-### Config Viewer
-
-The Config Viewer will present you with a detailed breakdown of your Tauri configuration and in the future also include 
-warnings, tips and hints.
-
-## License
-
-<sup>
-
-The Instrumentation (i.e. the folders `/wire` and `/devtools`) is licensed under either
-of [Apache License, Version 2.0](./LICENSES/Apache-2.0.md) or [MIT license](./LICENSES/MIT.md)  at your option.
-
-All other code is licensed under the [PolyForm Noncommercial License 1.0.0](./LICENSES/Polyform-Noncommercial.md).
-
-</sup>
-
-<br>
-
-<sub>
-Unless you explicitly state otherwise, any contribution intentionally submitted
-for inclusion in this project by you, shall be licensed as above, without any 
-additional terms or conditions.
-</sub>
