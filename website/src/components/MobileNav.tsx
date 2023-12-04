@@ -29,7 +29,7 @@ export const MobileNav = () => {
       <Show when={isActive()}>
         <div
           onclick={() => setIsActive(false)}
-          class="fixed z-10 px-4 py-8 top-[104px] left-0 w-full h-[calc(100vh-104px)] bg-black bg-opacity-90 backdrop-blur-xl"
+          class="fixed z-10 px-4 top-[100px] left-0 w-full overflow-auto h-[calc(100vh-100px)] bg-black bg-opacity-90 backdrop-blur-xl"
         >
           <NavAccordion />
         </div>
