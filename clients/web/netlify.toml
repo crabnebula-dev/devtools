@@ -19,3 +19,9 @@ to = "/:splat"
     base = "clients/web/"
     publish = "dist/"
     command = "pnpm build"
+
+[[headers]]
+  for = "/*"
+  [[headers.values]]
+    X-Frame-Options = "DENY"
+    Content-Security-Policy-Report-Only="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' 127.0.0.1 127.0.0.1:3000 ws://localhost:5173/; img-src 'self'; object-src 'none'; report-uri https://o4506303762464768.ingest.sentry.io/api/4506303812272128/security/?sentry_key=57614e75ac5f8c480aed3a2dd1528f13;"
