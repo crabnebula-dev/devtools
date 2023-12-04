@@ -3,6 +3,7 @@
 import { children, Component, createComputed, JSXElement, on } from "solid-js";
 import { createStore } from "solid-js/store";
 
+/* TODO: revisit the typing on this one */
 export const getSlots = (_children: JSXElement) => {
   const parts = children(() => _children);
   const [slots, setSlots] = createStore<Record<string, JSXElement>>({});
