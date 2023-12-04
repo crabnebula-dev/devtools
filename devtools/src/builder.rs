@@ -152,7 +152,7 @@ fn print_link(addr: &SocketAddr) {
     let url = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
         "http://localhost:5173/dash/"
     } else {
-        "https://devtools.crabnebula.dev/dash/"
+        "https://cn-devtools-app.netlify.app/dash"
     };
 
     let url = format!("{url}{}/{}", addr.ip(), addr.port());
