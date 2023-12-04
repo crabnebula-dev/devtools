@@ -1,5 +1,4 @@
 ---
-import clsx from "clsx";
 const {
   type = "text",
   name,
@@ -17,10 +16,10 @@ const {
     name={name}
     {required}
     {disabled}
-    class={clsx(
+    class:list={[
       error ? "border-red-500" : "border-white",
-      "bg-white border disabled:bg-gray-800 disabled:text-gray-800 text-brand-50 rounded-full px-4 py-2"
-    )}
+      "bg-white border disabled:bg-gray-800 disabled:text-gray-800 text-brand-50 rounded-full px-4 py-2",
+    ]}
     type={type}
     placeholder={placeholder}
   />

@@ -1,6 +1,4 @@
 ---
-import clsx from "clsx";
-
 const { type, href } = Astro.props;
 
 let className: string;
@@ -19,10 +17,10 @@ switch (type) {
 ---
 
 <a
-  class={clsx(
+  class:list={[
     className,
-    "relative flex items-center gap-2 text-sm md:text-base border-2 rounded-full py-2 px-4"
-  )}
+    "relative flex items-center gap-2 text-sm md:text-base border-2 rounded-full py-2 px-4",
+  ]}
   href={href}
 >
   <slot /></a

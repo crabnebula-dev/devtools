@@ -5,14 +5,13 @@ import MastodonIcon from "../components/MastodonIcon.astro";
 import TwitchIcon from "../components/TwitchIcon.astro";
 import XIcon from "../components/XIcon.astro";
 import YoutubeIcon from "../components/YoutubeIcon.astro";
-import clsx from "clsx";
 import ContactUsLink from "./ContactUsLink.astro";
 
 const { className } = Astro.props;
 ---
 
 <div
-  class={clsx(className, "grid md:mx-0 mx-auto items-center gap-4 lg:gap-8")}
+  class:list={[className, "grid md:mx-0 mx-auto items-center gap-4 lg:gap-8"]}
 >
   <ContactUsLink />
   <ul class="flex items-center gap-4 lg:gap-6">
