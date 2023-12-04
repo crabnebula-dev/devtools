@@ -13,6 +13,7 @@ interface Props {
 }
 
 const { title } = Astro.props;
+const fathomId = process.env.FATHOM_ID;
 ---
 
 <!doctype html>
@@ -109,4 +110,13 @@ const { title } = Astro.props;
       }
     });
   </script>
+  {
+    fathomId && (
+      <script
+        src="https://fine-active.crabnebula.dev/script.js"
+        data-site={fathomId}
+        defer
+      />
+    )
+  }
 </html>
