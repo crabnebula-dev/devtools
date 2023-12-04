@@ -108,9 +108,11 @@ export const NavAccordion = () => {
             <li>
               <a href="https://crabnebula.dev/cookie-policy">Cookie Policy</a>
             </li>
-            {/* <li>
-              <a href="#">Terms of Service</a>
-            </li> */}
+            <li>
+              <a href="https://crabnebula.dev/terms-of-service">
+                Terms of Service
+              </a>
+            </li>
           </ul>
         </Show>
       </div>
