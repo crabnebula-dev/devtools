@@ -1,4 +1,4 @@
-import { type JSXElement, mergeProps} from "solid-js";
+import { type JSXElement, mergeProps } from "solid-js";
 import { Dialog } from "~/base-components/dialog";
 import { AlertDialog } from "@kobalte/core";
 
