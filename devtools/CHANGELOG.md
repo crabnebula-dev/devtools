@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2](https://github.com/crabnebula-dev/devtools/compare/devtools-v0.2.1...devtools-v0.2.2) - 2023-12-04
+
+### Fixed
+- *(devtools)* point to correct URL
+
+### Other
+- Update server.rs
+
 ## [0.2.0](https://github.com/crabnebula-dev/devtools/compare/devtools-v0.1.0...devtools-v0.2.0) - 2023-12-04
 
 ### Added
