@@ -7,7 +7,7 @@
 
 [[redirects]]
   from = "/app/*"
-  to = "https://deploy-preview-134--cn-devtools-app.netlify.app/:splat"
+  to = "https://devtools.crabnebula.dev/:splat"
   status = 200
 
   [[redirects]]
