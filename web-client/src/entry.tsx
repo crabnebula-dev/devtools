@@ -51,7 +51,11 @@ const ROUTES: RouteDefinition[] = [
   {
     path: "*",
     component: () => {
-      return "kaputt";
+      /**
+       * momentary workaround
+       */
+      window.location.href = "https://crabnebula.dev/devtools-threw-404";
+      return null;
     },
   },
 ];
