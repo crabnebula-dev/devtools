@@ -6,7 +6,7 @@ import {
 } from "@solidjs/router";
 import { lazy, ErrorBoundary } from "solid-js";
 import { setCDN } from "@crabnebula/file-icons";
-import { ErrorRoot } from "./components/error-root.tsx";
+import { ErrorRoot } from "./components/errors/error-root.tsx";
 import * as Sentry from "@sentry/browser";
 
 const ROUTES: RouteDefinition[] = [
@@ -51,11 +51,7 @@ const ROUTES: RouteDefinition[] = [
   {
     path: "*",
     component: () => {
-      /**
-       * momentary workaround
-       */
-      window.location.href = "https://crabnebula.dev/devtools-threw-404";
-      return null;
+      throw new Error("404: The specified path was not found");
     },
   },
 ];
