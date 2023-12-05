@@ -53,7 +53,7 @@ const ROUTES: RouteDefinition[] = [
 export default function Entry() {
   const Routes = useRoutes(ROUTES);
 
-  setCDN("/icons");
+  setCDN("/app/icons");
 
   return (
     <ErrorBoundary
