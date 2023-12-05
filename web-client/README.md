@@ -67,7 +67,7 @@ We follow the flat File-System Architecture, route definitions currently live in
 
 #### Data
 
-Instrumentation data comes in the app through 4 different stream clients.
+Instrumentation data comes in the app through 5 different stream clients.
 
 - Instrumentation
 - Tauri
