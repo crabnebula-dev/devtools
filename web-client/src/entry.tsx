@@ -51,7 +51,7 @@ const ROUTES: RouteDefinition[] = [
   {
     path: "*",
     component: () => {
-      throw new Error("404: The specified path was not found");
+      throw new Error("404 - Not Found: The specified path was not found");
     },
   },
 ];
