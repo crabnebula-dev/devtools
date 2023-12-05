@@ -67,8 +67,8 @@ export function textToHtml(
 }
 
 export async function createHighlighter() {
-  setCDN("/shiki/");
-  const responseWasm = await fetch("/shiki/onig.wasm");
+  setCDN("/app/shiki/");
+  const responseWasm = await fetch("/app/shiki/onig.wasm");
   setWasm(responseWasm);
 
   return await getHighlighter({
