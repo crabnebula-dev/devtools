@@ -41,7 +41,7 @@ export default function Connect() {
       });
       return;
     }
-    navigate(`/dash/${host}/${port}/`);
+    navigate(`/app/dash/${host}/${port}/`);
   };
 
   return (

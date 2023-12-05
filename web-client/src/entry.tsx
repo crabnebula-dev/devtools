@@ -19,7 +19,7 @@ const ROUTES: RouteDefinition[] = [
     component: lazy(() => import("./views/connect.tsx")),
   },
   {
-    path: "/dash/:host/:port",
+    path: "/app/dash/:host/:port",
     component: lazy(() => import("./views/dashboard/layout.tsx")),
     children: [
       {
