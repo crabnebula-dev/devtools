@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/cn-logo.svg" />
+    <link rel="icon" type="image/svg+xml" href="/app/cn-logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tauri Devtools Web-Client</title>
   </head>
@@ -11,6 +11,7 @@
       id="app"
       class="grid bg-navy-700 bg-opacity-70 grid-rows-[var(--header-height),calc(100vh-calc(var(--header-height)+var(--footer-height))),var(--footer-height)] h-screen"
     ></div>
+    <!-- this one is handled by Vite. No need for subpath-->
     <script type="module" src="/src/render-client.tsx"></script>
   </body>
 </html>
