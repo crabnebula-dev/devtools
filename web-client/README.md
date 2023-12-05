@@ -1,10 +1,16 @@
-# Devtools Web Client
+![banner](/docs/gh-banner.webp)
 
-This is the Web-Client for the devtools app. It communicates with Rust instrumentation layer via WebSockets. It is a SolidJS Single-Page Application (SPA).
+# DevTools
+
+This is the Web-Client for the devtools app. It receives instrumentation data from the [devtools](https://docs.rs/devtools/latest/devtools) crate.
+
+The Web-Client is a solid Single-Page Application (SPA).
+
+Check it live: [devtools.crabnebula.dev](https://devtools.crabnebula.dev)
 
 ## Running Locally 💻
 
-Change directory into `web-client` and install dependencies.
+After cloning the repository, change directory into `web-client` and install dependencies.
 
 ```sh
 cd web-client && pnpm install
@@ -22,13 +28,25 @@ The client itself does very little without an app to receive data from, so at an
 cd examples/tauri
 ```
 
-And run the app with the `--inspect` flag:
+## Setup your Tauri App 🦀
 
-```sh
-cargo run -- --inspect
+```rs
+fn main() {
+    let devtools_plugin = devtools::init();
+
+    tauri::Builder::default()
+        .plugin(devtools_plugin)
+        .setup(|_| {
+            // It is compatible with the `tracing` ecosystem!
+            tracing::info!("Hello World!");
+
+            Ok(())
+        })
+         // ... the rest of the tauri setup code
+}
 ```
 
-Watch out for the terminal, the app will let you know the Web Sockets URL to listen to.
+With the plugin added, you can start serving your app. The instrumentation server is exposed in `127.0.0.1:3000` by default.
 
 ## Stack 📦
 
@@ -40,7 +58,6 @@ JSX based reactivity library for building user interfaces.
 
 - [Getting Started](https://www.solidjs.com/guides/getting-started)
 - [SolidJS and TypeScript](https://www.solidjs.com/guides/typescript)
-- [SolidJS Primitives: Useful Helper Packages](https://github.com/solidjs-community/solid-primitives/tree/main)
 
 #### Routing
 
@@ -50,24 +67,13 @@ We follow the flat File-System Architecture, route definitions currently live in
 
 #### Data
 
-Instrumentation data comes in the app through the Web Socket connection and is stored in a `ws/store.ts` before be made available via the `DataProvider` context.
+Instrumentation data comes in the app through 4 different stream clients.
 
-So, there are 2 contexts that are important:
-
-- `WSContext`: provides the WebSocket instance and the current connection state.
-- `DataProvider`: provides the data store to used.
-
-Both of them are made available to every child component via their custom hooks:
-
-- `useSocketData`: returns the data store.
-- `useWs`: returns the WebSocket and its connection state.
-
-#### Web Sockets
-
-Communication with the Rust instrumentation is done via Web Sockets and uses the SolidJS Web Sockets primitive, with SolidJS EventListeners primitive to convert DOM Events into signals.
-
-- [@solid-primitives/websocket](https://github.com/solidjs-community/solid-primitives/tree/main/packages/websocket)
-- [@solid-primitives/event-listener](https://github.com/solidjs-community/solid-primitives/blob/main/packages/event-listener/README.md)
+- Instrumentation
+- Tauri
+- Health
+- Sources
+- Meta
 
 ### Kobalte
 
