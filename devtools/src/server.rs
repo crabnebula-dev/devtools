@@ -241,7 +241,8 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
             });
             Ok(Response::new(Box::pin(stream)))
         } else {
-            let path = req.into_inner().path.trim_start_matches('.').to_string();
+            let inner = req.into_inner();
+            let path = inner.path.trim_end_matches('.');
             let stream = self
                 .list_entries_from_assets(path)
                 .or_else(|err| async move {
@@ -266,9 +267,9 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
             .app_handle
             .asset_resolver()
             .iter()
-            .find(|(path, _bytes)| path == &&asset_path)
+            .find(|(path, _bytes)| **path == asset_path)
             // decompress the asset
-            .and_then(|(path, _bytes)| self.app_handle.asset_resolver().get(path.to_string()))
+            .and_then(|(path, _bytes)| self.app_handle.asset_resolver().get((*path).to_string()))
         {
             let chunks = asset
                 .bytes
@@ -314,7 +315,7 @@ impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
 }
 
 impl<R: Runtime> SourcesService<R> {
-    fn list_entries_from_assets(&self, root: String) -> impl Stream<Item = crate::Result<Entry>> {
+    fn list_entries_from_assets(&self, root: &str) -> impl Stream<Item = crate::Result<Entry>> {
         let resolver = self.app_handle.asset_resolver();
 
         let mut entries: Vec<Entry> = Vec::new();
@@ -346,7 +347,7 @@ impl<R: Runtime> SourcesService<R> {
                 entries.push(Entry {
                     path: entry_path,
                     // we use resolver.get since it increases the size sometimes (e.g. injecting CSP on HTML files)
-                    size: resolver.get(asset_path.to_string()).unwrap().bytes.len() as u64,
+                    size: resolver.get((*asset_path).to_string()).unwrap().bytes.len() as u64,
                     file_type: (FileType::ASSET | entry_type).bits(),
                 });
             }
