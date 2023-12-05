@@ -14,7 +14,7 @@
   @font-face {
     font-family: "Euclid Circular B";
     font-style: normal;
-    src: url("/fonts/EuclidCircularB-Regular.woff") format("woff");
+    src: url("/app/fonts/EuclidCircularB-Regular.woff") format("woff");
     font-weight: 400;
     font-display: swap;
   }
@@ -22,7 +22,7 @@
   @font-face {
     font-family: "Euclid Circular B";
     font-style: normal;
-    src: url("/fonts/EuclidCircularB-Bold.woff") format("woff");
+    src: url("/app/fonts/EuclidCircularB-Bold.woff") format("woff");
     font-weight: 700;
     font-display: swap;
   }
@@ -30,7 +30,7 @@
   @font-face {
     font-family: "Euclid Circular B";
     font-style: normal;
-    src: url("/fonts/EuclidCircularB-Light.woff") format("woff");
+    src: url("/app/fonts/EuclidCircularB-Light.woff") format("woff");
     font-weight: 300;
     font-display: swap;
   }
@@ -38,7 +38,7 @@
   @font-face {
     font-family: "Euclid Circular B";
     font-style: normal;
-    src: url("/fonts/EuclidCircularB-Medium.woff") format("woff");
+    src: url("/app/fonts/EuclidCircularB-Medium.woff") format("woff");
     font-weight: 500;
     font-display: swap;
   }
@@ -46,7 +46,7 @@
   @font-face {
     font-family: "Euclid Circular B";
     font-style: normal;
-    src: url("/fonts/EuclidCircularB-Semibold.woff") format("woff");
+    src: url("/app/fonts/EuclidCircularB-Semibold.woff") format("woff");
     font-weight: 600;
     font-display: swap;
   }

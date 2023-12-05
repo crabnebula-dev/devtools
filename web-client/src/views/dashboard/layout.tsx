@@ -32,7 +32,7 @@ export default function Layout() {
         <div class="overflow-hidden absolute inset-0 w-full h-full -z-10">
           <img
             class="relative opacity-30 scale-110 bg-surface bg-surface"
-            src="/bg.jpeg"
+            src="/app/bg.jpeg"
             aria-hidden
           />
         </div>

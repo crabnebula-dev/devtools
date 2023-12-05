@@ -4,19 +4,19 @@ import clsx from "clsx";
 
 const TABS = [
   {
-    url: (host: string, port: string) => `/dash/${host}/${port}/console`,
+    url: (host: string, port: string) => `/app/dash/${host}/${port}/console`,
     title: "Console",
   },
   {
-    url: (host: string, port: string) => `/dash/${host}/${port}/calls`,
+    url: (host: string, port: string) => `/app/dash/${host}/${port}/calls`,
     title: "Calls",
   },
   {
-    url: (host: string, port: string) => `/dash/${host}/${port}/sources`,
+    url: (host: string, port: string) => `/app/dash/${host}/${port}/sources`,
     title: "Sources",
   },
   {
-    url: (host: string, port: string) => `/dash/${host}/${port}/tauri`,
+    url: (host: string, port: string) => `/app/dash/${host}/${port}/tauri`,
     title: "Tauri",
   },
 ];
