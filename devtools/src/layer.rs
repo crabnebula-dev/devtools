@@ -111,7 +111,7 @@ where
             Event::Event {
                 at,
                 metadata,
-                message,
+                message: message.unwrap_or_default(),
                 fields,
                 maybe_parent,
             }
