@@ -1,10 +1,14 @@
 import * as pkg from "~/../package.json";
+import { Switch, Match } from "solid-js";
+import { NotFoundError } from "./not-found-error";
+import { GeneralError } from "./general-error";
 
 type Props = {
   error: unknown;
 };
 
 export function ErrorRoot(props: Props) {
+  const errorMessage = () => props.error?.toString() || String(props.error);
   return (
     <>
       <div class="surf-container">
@@ -12,20 +16,16 @@ export function ErrorRoot(props: Props) {
       </div>
       <div class="p-28 grid grid-rows-[auto_1fr_auto] gap-5 h-screen text-neutral-400 ">
         <header>
-          <h1 class="text-red-400 font-semibold text-6xl">
-            Irrecoverable Error
-          </h1>
-          <div class="text-3xl pt-8">
-            <p>Something terrible happened.</p>
-            <p>The log is on the way and we'll work on it!</p>
-          </div>
+          <Switch fallback={<GeneralError />}>
+            <Match when={errorMessage().includes("404")}>
+              <NotFoundError />
+            </Match>
+          </Switch>
         </header>
         <article class="flex flex-col justify-evenly">
           <div class="p-5 border-2 border-slate-800 rounded-lg font-mono">
             <h2 class="text-4xl relative -top-12">System log</h2>
-            <pre class="text-2xl">
-              {props.error?.toString() || String(props.error)}
-            </pre>
+            <pre class="text-2xl">{errorMessage()}</pre>
             <ul class="pt-12">
               <li>App version: {pkg.version}</li>
               <li>Browser: {window.navigator.userAgent}</li>
