@@ -48,6 +48,12 @@ const ROUTES: RouteDefinition[] = [
       },
     ],
   },
+  {
+    path: "*",
+    component: () => {
+      return "kaputt";
+    },
+  },
 ];
 
 export default function Entry() {
