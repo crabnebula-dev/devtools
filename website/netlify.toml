@@ -10,3 +10,7 @@
   to = "https://deploy-preview-134--cn-devtools-app.netlify.app/:splat"
   status = 200
 
+  [[redirects]]
+  from = "/app/*"
+  to = "/app/index.html"
+  status = 200
