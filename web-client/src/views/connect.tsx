@@ -41,7 +41,7 @@ export default function Connect() {
       });
       return;
     }
-    navigate(`/dash/${host}/${port}/`);
+    navigate(`/app/dash/${host}/${port}/`);
   };
 
   return (
@@ -126,7 +126,7 @@ export default function Connect() {
       </footer>
 
       <div class="surf-container">
-        <img class="bg-surface static" src="/bg.jpeg" alt="" />
+        <img class="bg-surface static" src="/app/bg.jpeg" alt="" />
       </div>
 
       <ConnectionFailedDialog

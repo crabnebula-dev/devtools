@@ -5,13 +5,13 @@ let className: string;
 
 switch (type) {
   case "primary":
-    className = "bg-white border-white text-gray-950";
+    className = "bg-white border-white text-gray-950 hover:text-gray-950";
     break;
   case "secondary":
-    className = "bg-brand-200 border-brand-200 text-brand-900";
+    className = "bg-brand-200 border-brand-200 text-brand-900 hover:text-brand-900";
     break;
   default:
-    className = "bg-transparent border-white text-white";
+    className = "bg-transparent border-white text-white hover:text-white";
     break;
 }
 ---

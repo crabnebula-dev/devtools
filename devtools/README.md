@@ -18,7 +18,7 @@ You also have to enable the `tracing` feature for Tauri, so your `Cargo.toml` fi
 
 ```toml
 [dependencies]
-devtools = "0.1.0"
+devtools = "0.2.4" # replace with latest
 tauri = { version = "1.5.3", features = ["tracing"] }
 [build-dependencies]
 tauri-build = "1.5.0"
