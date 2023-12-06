@@ -27,7 +27,7 @@ export const NavAccordion = () => {
   });
 
   return (
-    <div class="grid md:grid-cols-[1fr,1fr,1fr,1fr] gap-4">
+    <div class="grid md:grid-cols-[1fr,1fr,1fr] gap-4">
       <div class="grid gap-2 content-start items-start">
         <button
           class="min-h-[48px] flex items-center text-left gap-2"
@@ -36,7 +36,7 @@ export const NavAccordion = () => {
             setActiveSection("products");
           }}
         >
-          Products & Services <ChevronDownIcon />
+          Products & Services <ChevronDownIcon className="block md:hidden" />
         </button>
         <Show when={!shouldBeAccordion() || activeSection() === "products"}>
           <ul class="text-[#D9D9D9] grid gap-2 content-start items-start">
@@ -57,11 +57,6 @@ export const NavAccordion = () => {
           </ul>
         </Show>
       </div>
-      <div class="min-h-[48px] flex items-center">
-        <h3>
-          <a href="https://crabnebula.dev/blog">Blog</a>
-        </h3>
-      </div>
       <div class="grid gap-2 content-start items-start">
         <button
           class="min-h-[48px] flex items-center text-left gap-2"
@@ -70,7 +65,7 @@ export const NavAccordion = () => {
             setActiveSection("company");
           }}
         >
-          Company <ChevronDownIcon />
+          Company <ChevronDownIcon className="block md:hidden" />
         </button>
         <Show when={!shouldBeAccordion() || activeSection() === "company"}>
           <ul class="text-[#D9D9D9] grid gap-2 content-start items-start">
@@ -100,7 +95,7 @@ export const NavAccordion = () => {
             setActiveSection("legal");
           }}
         >
-          Legal <ChevronDownIcon />
+          Legal <ChevronDownIcon className="block md:hidden" />
         </button>
         <Show when={!shouldBeAccordion() || activeSection() === "legal"}>
           <ul class="text-[#D9D9D9] grid gap-2 content-start items-start">

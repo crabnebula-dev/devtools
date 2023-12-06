@@ -1,9 +1,14 @@
-export const ChevronDownIcon = () => (
+type Props = {
+  className?: string;
+}
+
+export const ChevronDownIcon = (props: Props) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="15"
     height="10"
     viewBox="0 0 15 10"
+    class={props.className}
     fill="none"
   >
     <path

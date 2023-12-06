@@ -6,6 +6,7 @@ import { MobileNav } from "../components/MobileNav";
 import "../main.css";
 import LinkButton from "../components/LinkButton.astro";
 import HeaderMenuDropdown from "../components/HeaderMenuDropdown.astro";
+import HeaderMenuLink from "../components/HeaderMenuLink.astro";
 
 interface Props {
   title: string;
@@ -84,6 +85,9 @@ const fathomId = process.env.FATHOM_ID;
           >
             Products & Services
           </HeaderMenuDropdown>
+          <HeaderMenuLink href="https://crabnebula.dev/blog">
+            Blog
+          </HeaderMenuLink>
           <HeaderMenuDropdown
             links={[
               { href: "https://crabnebula.dev/about", label: "About" },
