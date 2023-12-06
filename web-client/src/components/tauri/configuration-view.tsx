@@ -30,6 +30,11 @@ export function ConfigurationView() {
     return undefined;
   };
 
+  const tabWithKeys = (currentTab: ReturnType<typeof tab>) => {
+    if (!currentTab || !(Object.keys(currentTab).length > 0)) return undefined;
+    return currentTab;
+  };
+
   createEffect(() => {
     const data = tab();
     if (!data) return;
@@ -42,33 +47,37 @@ export function ConfigurationView() {
         <h1 class="text-3xl">{config()?.label}</h1>
         <ConfigurationErrors error={config()?.error} />
       </Show>
-      <Show when={tab() && Object.keys(tab()!).length > 0}>
-        <header>
-          <h1 class="text-5xl pb-8 text-white">
-            <ConfigurationTooltip parentKey="" key={params.selected} />
-          </h1>
-        </header>
-        <Switch
-          fallback={
-            <ConfigurationValue
-              parentKey=""
-              key={params.selected}
-              value={tab()}
-            />
-          }
-        >
-          <Match when={typeof tab() === "object"}>
-            <For each={Object.entries(tab())}>
-              {([key, value]) => (
+      <Show when={tabWithKeys(tab())}>
+        {(tab) => (
+          <>
+            <header>
+              <h1 class="text-5xl pb-8 text-white">
+                <ConfigurationTooltip parentKey="" key={params.selected} />
+              </h1>
+            </header>
+            <Switch
+              fallback={
                 <ConfigurationValue
-                  parentKey={params.selected}
-                  key={key}
-                  value={value}
+                  parentKey=""
+                  key={params.selected}
+                  value={tab}
                 />
-              )}
-            </For>
-          </Match>
-        </Switch>
+              }
+            >
+              <Match when={typeof tab === "object"}>
+                <For each={Object.entries(tab)}>
+                  {([key, value]) => (
+                    <ConfigurationValue
+                      parentKey={params.selected}
+                      key={key}
+                      value={value}
+                    />
+                  )}
+                </For>
+              </Match>
+            </Switch>
+          </>
+        )}
       </Show>
 
       <Show when={params.config && !config()}>
