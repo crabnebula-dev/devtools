@@ -16,7 +16,8 @@ export default {
         toolbar: "var(--toolbar-height)",
       },
       fontFamily: {
-        sans: ["Euclid Circular B", "Inter", ...defaultTheme.fontFamily.sans],
+        title: ["Euclid Circular B", "Inter", ...defaultTheme.fontFamily.sans],
+        sans: ["Inter", ...defaultTheme.fontFamily.sans],
       },
       colors: {
         "nearly-invisible": "#ffffff09",

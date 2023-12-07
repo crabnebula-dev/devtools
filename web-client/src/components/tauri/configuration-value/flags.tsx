@@ -1,4 +1,4 @@
-import { Show } from "solid-js";
+import { Switch, Match } from "solid-js";
 import {
   getDescriptionByKey,
   findLineNumberByKey,
@@ -12,14 +12,17 @@ export function Flags(props: { key: string; value: boolean | string }) {
     return lineNumber > 0;
   };
   return (
-    <div>
-      <Show when={isDefaultValue(localSchema(), props.value)}>
-        <span class="text-teal-800 pr-2">Default</span>
-      </Show>
-      <Show when={isInConfig()}>
-        <span class="text-yellow-500 pr-2">In Config</span>
-      </Show>
-    </div>
+    <span class="text-neutral-400 pr-2 font-mono">
+      <Switch>
+        <Match when={isDefaultValue(localSchema(), props.value) && isInConfig}>
+          Set Default
+        </Match>
+
+        <Match when={isDefaultValue(localSchema(), props.value)}>Default</Match>
+
+        <Match when={isInConfig()}>User Set</Match>
+      </Switch>
+    </span>
   );
 }
 

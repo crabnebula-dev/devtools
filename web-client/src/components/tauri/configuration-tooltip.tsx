@@ -40,7 +40,7 @@ export function ConfigurationTooltip(props: {
             onMouseOver={updateHighlightKey}
           >
             {props.key}
-            <sup class="text-sm">❔</sup>
+            <sup class="text-sm text-neutral-400 pl-1">?</sup>
           </span>
         </Tooltip.Trigger>
         <Tooltip.Portal>
@@ -95,7 +95,9 @@ function ToolTipValue(props: ToolTipValueProps) {
         <StringValue value={props.value as string} />
       </Match>
       <Match when={typeof props.value === "boolean"}>
-        {(props.value as boolean) ? "✅" : "❌"}
+        <span class="font-mono">
+          {(props.value as boolean) ? "true" : "false"}
+        </span>
       </Match>
       <Match when={Array.isArray(props.value)}>
         <ArrayValue value={props.value as []} />
