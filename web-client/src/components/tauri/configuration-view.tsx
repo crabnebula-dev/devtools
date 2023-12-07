@@ -48,7 +48,7 @@ export function ConfigurationView() {
         <ConfigurationErrors error={config()?.error} />
       </Show>
       <Show when={tabWithKeys(tab())}>
-        {(tab) => (
+        {(t) => (
           <>
             <header>
               <h1 class="text-5xl pb-8 text-white">
@@ -60,12 +60,12 @@ export function ConfigurationView() {
                 <ConfigurationValue
                   parentKey=""
                   key={params.selected}
-                  value={tab}
+                  value={t()}
                 />
               }
             >
-              <Match when={typeof tab === "object"}>
-                <For each={Object.entries(tab)}>
+              <Match when={typeof tab() === "object"}>
+                <For each={Object.entries(t())}>
                   {([key, value]) => (
                     <ConfigurationValue
                       parentKey={params.selected}
