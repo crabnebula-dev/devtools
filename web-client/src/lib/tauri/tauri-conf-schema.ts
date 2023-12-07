@@ -148,7 +148,7 @@ async function readListOfConfigurations(
       const parsedConfig = parseTauriConfig(rawData, zodSchema);
 
       return {
-        label: "File: " + entry,
+        label: entry,
         key: entry,
         path: entry,
         data:

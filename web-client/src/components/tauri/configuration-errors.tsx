@@ -22,9 +22,7 @@ export function ConfigurationErrors(props: {
     <Show
       when={props.error}
       fallback={
-        <h2 class="text-2xl pt-2 text-lime-900">
-          ✅ This configuration is valid ✅
-        </h2>
+        <h2 class="text-2xl pt-2 text-teal-300">This configuration is valid</h2>
       }
     >
       <h2 class="text-2xl pt-2 text-red-900">

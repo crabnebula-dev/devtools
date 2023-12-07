@@ -6,6 +6,7 @@ import {
   retrieveConfigurations,
   getTauriTabBasePath,
 } from "~/lib/tauri/tauri-conf-schema";
+import { Loader } from "~/components/loader";
 
 export function Sidebar() {
   const [configEntries] = retrieveConfigurations();
@@ -13,7 +14,7 @@ export function Sidebar() {
   return (
     <>
       <h2 class="text-neutral-300 p-4 pb-2 text-2xl">Config</h2>
-      <Suspense fallback={<span>Loading...</span>}>
+      <Suspense fallback={<Loader />}>
         <For each={configEntries()}>{(child) => <Config config={child} />}</For>
       </Suspense>
     </>
@@ -26,7 +27,7 @@ function Config(props: { config: ConfigurationObject }) {
     <section class="p-2">
       <A
         href={`${basePath}/${props.config.key}/`}
-        activeClass="hover:bg-[#eaebeb] hover:border-[#2DCC9F] bg-[#00555A] border-[#2DCC9F] text-white"
+        activeClass="hover:bg-teal-700 hover:border-[#2DCC9F] bg-[#00555A] border-[#2DCC9F] text-white"
         class="grid gap-1.5 items-center text-left grid-cols-[1rem_1fr] text-xl"
       >
         <FileIcon path="tauri.conf.json" />
@@ -53,8 +54,8 @@ function TabLink(props: { name: string; key: string; size: number }) {
   return (
     <A
       href={`${basePath}/${props.key}/${props.name}?size=${props.size}`}
-      activeClass="hover:bg-[#eaebeb] hover:border-[#2DCC9F] bg-[#00555A] border-[#2DCC9F] text-white"
-      class="text-lg border-b-2 hover:bg-[#00555A] hover:border-[#2DCC9F] p-1 border-neutral-800 text-neutral-400 hover:text-white grid gap-1.5 items-center text-left grid-cols-[1rem_1fr]"
+      activeClass="hover:bg-teal-700 hover:border-[#2DCC9F] bg-[#00555A] border-[#2DCC9F] text-white"
+      class="text-lg  border-b-2 hover:bg-[#00555A] hover:border-[#2DCC9F] p-1 border-neutral-800 text-neutral-400 hover:text-white grid gap-1.5 items-center text-left grid-cols-[1rem_1fr]"
     >
       <FileIcon path={props.name} />
       {props.name}

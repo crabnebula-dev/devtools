@@ -59,11 +59,15 @@ function TextValue(props: TextConfigurationValueProps) {
     props.parentKey ? props.parentKey + "." + props.key : props.key;
 
   const value = () =>
-    typeof props.value === "boolean"
-      ? props.value
-        ? "✅"
-        : "❌"
-      : props.value;
+    typeof props.value === "boolean" ? (
+      props.value ? (
+        <span class="font-mono">true</span>
+      ) : (
+        <span class="font-mono">false</span>
+      )
+    ) : (
+      props.value
+    );
 
   return (
     <div class="flex text-xl border-1 border-[#4B4B4B] border-2 ">
@@ -108,10 +112,7 @@ function ArrayValue(props: ArrayConfigurationValueProps) {
         <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
       </h2>
       <ul class="flex flex-col">
-        <Show
-          when={props.value.length > 0}
-          fallback={<p class="text-2xl pl-4">- Empty</p>}
-        >
+        <Show when={props.value.length > 0}>
           <For each={props.value}>
             {(value, childKey) => (
               <li>
