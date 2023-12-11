@@ -1,6 +1,5 @@
 import { Outlet, useParams } from "@solidjs/router";
 import { Navigation } from "~/components/navigation";
-import { BootTime } from "~/components/boot-time";
 import { HealthStatus } from "~/components/health-status.tsx";
 import { Logo } from "~/components/crabnebula-logo";
 import { DisconnectButton } from "~/components/disconnect-button";
@@ -18,7 +17,6 @@ export default function Layout() {
         <header class="grid">
           <div class="border-b border-gray-800 flex px-2 py-1 items-center justify-between">
             <HealthStatus />
-            <BootTime />
             <DisconnectButton />
           </div>
           <Navigation />
