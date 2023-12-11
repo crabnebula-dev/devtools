@@ -1,4 +1,4 @@
-#![allow(clippy::doc_markdown)]
+#![allow(clippy::doc_markdown, clippy::needless_doctest_main)]
 
 //! Instrumentation code that will make your Tauri app compatible with CrabNebula Devtools.
 //!

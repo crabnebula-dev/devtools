@@ -80,7 +80,7 @@ impl Aggregator {
         loop {
             let should_publish = tokio::select! {
                 _ = interval.tick() => true,
-                _ = self.shared.flush.notified() => {
+                () = self.shared.flush.notified() => {
                     tracing::debug!("event buffer approaching capacity, flushing...");
                     false
                 },
