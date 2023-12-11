@@ -1,14 +1,11 @@
 use crate::aggregator::Aggregator;
 use crate::server::Server;
 use crate::Command;
-use devtools_wire_format::tauri::Metrics;
 use std::net::SocketAddr;
-use std::sync::Arc;
 use std::thread;
-use std::time::SystemTime;
-use std::time::{Duration, Instant};
-use tauri::{RunEvent, Runtime};
-use tokio::sync::{mpsc, RwLock};
+use std::time::Duration;
+use tauri::Runtime;
+use tokio::sync::mpsc;
 
 pub(crate) fn init<R: Runtime>(
     addr: SocketAddr,
@@ -16,16 +13,9 @@ pub(crate) fn init<R: Runtime>(
     aggregator: Aggregator,
     cmd_tx: mpsc::Sender<Command>,
 ) -> tauri::plugin::TauriPlugin<R> {
-    let now = Instant::now();
-    let metrics = Arc::new(RwLock::new(Metrics {
-        initialized_at: Some(aggregator.base_time.to_timestamp(now)), // TODO this is horrific
-        ready_at: None,
-    }));
-
-    let m = metrics.clone();
     tauri::plugin::Builder::new("probe")
         .setup(move |app_handle| {
-            let server = Server::new(cmd_tx, app_handle.clone(), m);
+            let server = Server::new(cmd_tx, app_handle.clone());
 
             // spawn the server and aggregator in a separate thread
             // so we don't interfere with the application we're trying to instrument
@@ -50,14 +40,6 @@ pub(crate) fn init<R: Runtime>(
             });
 
             Ok(())
-        })
-        .on_event(move |_, event| {
-            if let RunEvent::Ready = event {
-                let mut metrics = metrics.blocking_write();
-                metrics.ready_at = Some(SystemTime::now().into());
-
-                tracing::debug!("Application is ready");
-            }
         })
         .build()
 }

@@ -150,7 +150,7 @@ impl Builder {
 // This is pretty ugly code I know, but it looks nice in the terminal soo ¯\_(ツ)_/¯
 fn print_link(addr: &SocketAddr) {
     let url = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
-        "http://localhost:5173/dash/"
+        "http://localhost:5173/app/dash/"
     } else {
         "https://devtools.crabnebula.dev/app/dash/"
     };
