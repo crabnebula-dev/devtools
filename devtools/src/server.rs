@@ -16,10 +16,9 @@ use devtools_wire_format::tauri::{
 use futures::{FutureExt, Stream, TryStreamExt};
 use std::net::SocketAddr;
 use std::path::{Component, PathBuf};
-use std::sync::Arc;
 use tauri::http::header::HeaderValue;
 use tauri::{AppHandle, Runtime};
-use tokio::sync::{mpsc, RwLock};
+use tokio::sync::mpsc;
 use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
 use tonic::codegen::BoxStream;
@@ -56,7 +55,6 @@ struct InstrumentService {
 
 struct TauriService<R: Runtime> {
     app_handle: AppHandle<R>,
-    metrics: Arc<RwLock<Metrics>>,
 }
 
 struct SourcesService<R: Runtime> {
@@ -68,11 +66,7 @@ struct MetaService<R: Runtime> {
 }
 
 impl<R: Runtime> Server<R> {
-    pub fn new(
-        cmd_tx: mpsc::Sender<Command>,
-        app_handle: AppHandle<R>,
-        metrics: Arc<RwLock<Metrics>>,
-    ) -> Self {
+    pub fn new(cmd_tx: mpsc::Sender<Command>, app_handle: AppHandle<R>) -> Self {
         let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
 
         health_reporter
@@ -91,7 +85,6 @@ impl<R: Runtime> Server<R> {
             },
             tauri: TauriService {
                 app_handle: app_handle.clone(),
-                metrics,
             }, // the TauriServer doesn't need a health_reporter. It can never fail.
             meta: MetaService {
                 app_handle: app_handle.clone(),
@@ -203,9 +196,7 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
         &self,
         _req: Request<MetricsRequest>,
     ) -> Result<Response<Metrics>, Status> {
-        let metrics = self.metrics.read().await;
-
-        Ok(Response::new(metrics.clone()))
+        Ok(Response::new(Metrics::default()))
     }
 }
 
@@ -424,13 +415,11 @@ mod test {
     use devtools_wire_format::sources::sources_server::Sources;
     use devtools_wire_format::tauri::tauri_server::Tauri;
     use futures::StreamExt;
-    use std::time::SystemTime;
 
     #[tokio::test]
     async fn tauri_get_config() {
         let tauri = TauriService {
             app_handle: tauri::test::mock_app().handle(),
-            metrics: Default::default(),
         };
 
         let cfg = tauri
@@ -442,30 +431,6 @@ mod test {
             cfg.into_inner(),
             devtools_wire_format::tauri::Config::from(&*tauri.app_handle.config())
         );
-    }
-
-    #[tokio::test]
-    async fn tauri_get_metrics() {
-        let srv = TauriService {
-            app_handle: tauri::test::mock_app().handle(),
-            metrics: Default::default(),
-        };
-
-        let metrics = srv
-            .get_metrics(Request::new(MetricsRequest {}))
-            .await
-            .unwrap();
-        assert_eq!(metrics.into_inner(), *srv.metrics.read().await);
-
-        let mut m = srv.metrics.write().await;
-        m.initialized_at = Some(SystemTime::now().into());
-        drop(m);
-
-        let metrics = srv
-            .get_metrics(Request::new(MetricsRequest {}))
-            .await
-            .unwrap();
-        assert_eq!(metrics.into_inner(), *srv.metrics.read().await);
     }
 
     #[tokio::test]

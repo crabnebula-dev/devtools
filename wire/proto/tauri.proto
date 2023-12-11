@@ -9,7 +9,9 @@ service Tauri {
 
   rpc GetConfig(ConfigRequest) returns (Config) {}
 
-  rpc GetMetrics(MetricsRequest) returns (Metrics) {}
+  rpc GetMetrics(MetricsRequest) returns (Metrics) {
+    option deprecated = true;
+  }
 }
 
 message VersionsRequest {}
