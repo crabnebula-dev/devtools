@@ -90,11 +90,17 @@ export default function Console() {
                 <span>{message}</span>
                 <span class="ml-auto flex gap-2 items-center text-xs">
                   <Show when={metadata?.target}>
-                    <span class="text-gray-600">{metadata!.target}</span>
+                    {(logTarget) => (
+                      <span class="text-gray-600">{logTarget()}</span>
+                    )}
                   </Show>
                   <Show when={metadata?.location?.file}>
-                    {getFileNameFromPath(metadata!.location!.file!)}:
-                    {metadata!.location!.line}
+                    {(filePath) => (
+                      <>
+                        {getFileNameFromPath(filePath())}:
+                        {metadata?.location?.line ?? ""}
+                      </>
+                    )}
                   </Show>
                 </span>
               </li>
