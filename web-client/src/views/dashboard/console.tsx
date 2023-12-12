@@ -12,7 +12,7 @@ import { getLevelClasses } from "~/lib/console/get-level-classes";
 import { LogLevelFilter } from "~/components/console/log-level-filter";
 import { NoLogs } from "~/components/console/no-logs";
 import { getFileNameFromPath } from "~/lib/console/get-file-name-from-path";
-import {processFieldValue} from "~/lib/span/process-field-value.ts";
+import { processFieldValue } from "~/lib/span/process-field-value.ts";
 
 export default function Console() {
   const { monitorData } = useMonitor();
@@ -72,9 +72,11 @@ export default function Console() {
 
             let target = metadata?.target;
             if (target === "log") {
-              const field = logEvent.fields.find((field) => field.name === "log.target");
+              const field = logEvent.fields.find(
+                (field) => field.name === "log.target"
+              );
               if (field) {
-                target = processFieldValue(field.value)
+                target = processFieldValue(field.value);
               }
             }
 
