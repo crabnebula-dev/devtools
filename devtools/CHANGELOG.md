@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.5](https://github.com/crabnebula-dev/devtools/compare/devtools-v0.2.4...devtools-v0.2.5) - 2023-12-11
+
+### Other
+- Merge pull request [#156](https://github.com/crabnebula-dev/devtools/pull/156) from crabnebula-dev/jonas/refactor/metrics
+- Merge pull request [#138](https://github.com/crabnebula-dev/devtools/pull/138) from crabnebula-dev/jonas/clippy
+- Merge pull request [#139](https://github.com/crabnebula-dev/devtools/pull/139) from crabnebula-dev/jonas/fix/updater-span-crash
+
 ## [0.2.4](https://github.com/crabnebula-dev/devtools/compare/devtools-v0.2.3...devtools-v0.2.4) - 2023-12-05
 
 ### Fixed
