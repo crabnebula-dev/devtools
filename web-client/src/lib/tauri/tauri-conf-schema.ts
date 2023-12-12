@@ -3,7 +3,7 @@ import tauriConfigSchemaV2 from "./config/tauri-conf-schema-v2.json";
 import { Draft07, JsonSchema, JsonPointer } from "json-schema-library";
 import { createResource, Signal } from "solid-js";
 import { useLocation, useParams } from "@solidjs/router";
-import { awaitEntries, getEntryBytes } from "~/lib/sources/file-entries";
+import { getEntryBytes } from "~/lib/sources/file-entries";
 import { useConfiguration } from "~/components/tauri/configuration-context";
 import { unwrap, reconcile } from "solid-js/store";
 import { bytesToText } from "../code-highlight";

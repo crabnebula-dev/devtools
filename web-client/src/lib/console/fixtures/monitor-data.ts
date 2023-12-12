@@ -1,3 +1,7 @@
+/* Since this is fake monitor data for a test we don't care about linter warnings */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 export const fakeMonitorData: any = {
   health: 1,
   metadata: {
