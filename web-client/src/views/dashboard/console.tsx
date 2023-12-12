@@ -71,10 +71,32 @@ export default function Console() {
             const levelStyle = getLevelClasses(metadata?.level);
 
             let target = metadata?.target;
+            let location = metadata?.location;
             if (target === "log") {
               const field = logEvent.fields.find((field) => field.name === "log.target");
               if (field) {
                 target = processFieldValue(field.value)
+              }
+            }
+            if (target === "webview") {
+              const file = logEvent.fields.find((field) => field.name === "log.file");
+              const line = logEvent.fields.find((field) => field.name === "log.line");
+              const mod = logEvent.fields.find((field) => field.name === "log.module_path");
+
+
+              let mod_file, mod_line
+              if (mod) {
+                const str = processFieldValue(mod.value).replace('log@', '');
+                const [http, url, port, line, col] = str.split(':');
+
+                mod_file = http + url + port;
+                mod_line = parseInt(line)
+                console.log(http, url, port, line, col)
+              }
+
+              location = {
+                file: file ? processFieldValue(file.value) : mod_file,
+                line: line ? parseInt(processFieldValue(line.value)) : mod_line,
               }
             }
 
@@ -101,8 +123,12 @@ export default function Console() {
                   <Show when={target}>
                     <span class="text-gray-600">{target}</span>
                   </Show>
-                  <Show when={metadata?.location?.file}>
-                    {getFileNameFromPath(metadata!.location!.file!)}:
+                  <Show when={location?.file}>
+                    {getFileNameFromPath(location!.file!)}:
+                    {location!.line}
+                  </Show>
+                  <Show when={!metadata?.location?.file && metadata?.location?.modulePath}>
+                    {getFileNameFromPath(metadata!.location!.modulePath!)}:
                     {metadata!.location!.line}
                   </Show>
                 </span>
