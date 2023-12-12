@@ -15,21 +15,22 @@ struct Key {
     line: Option<u32>,
 }
 
+#[allow(clippy::needless_pass_by_value)]
 #[tauri::command]
 fn log(
     level: u16,
-    message: String,
+    message: &str,
     location: Option<&str>,
     file: Option<&str>,
     line: Option<u32>,
     _key_values: Option<HashMap<String, String>>,
-) -> Result<(), ()> {
+) {
     match level {
         1 => {
             tracing::trace!(target: "log", message, log.target = "webview", log.module_path = location, log.file = file, log.line = line);
         }
         2 => {
-            tracing::debug!(target: "log", message, log.target = "webview", log.module_path = location, log.file = file, log.line = line)
+            tracing::debug!(target: "log", message, log.target = "webview", log.module_path = location, log.file = file, log.line = line);
         }
         3 => {
             tracing::info!(target: "log", message, log.target = "webview", log.module_path = location, log.file = file, log.line = line);
@@ -42,8 +43,6 @@ fn log(
         }
         _ => {}
     }
-
-    Ok(())
 }
 
 pub(crate) fn init<R: Runtime>(
