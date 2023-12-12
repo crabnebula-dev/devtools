@@ -14,7 +14,9 @@ export function Flags(props: { key: string; value: boolean | string }) {
   return (
     <span class="text-neutral-400 pr-2 font-mono">
       <Switch>
-        <Match when={isDefaultValue(localSchema(), props.value) && isInConfig}>
+        <Match
+          when={isDefaultValue(localSchema(), props.value) && isInConfig()}
+        >
           Set Default
         </Match>
 
