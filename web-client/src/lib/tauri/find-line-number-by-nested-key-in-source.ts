@@ -14,9 +14,11 @@ export function findLineNumberByNestedKeyInSource(
   let searchLevel = 0;
 
   let arrayCounter = 0;
+  let skippedFirstArray = false;
 
   for (const line of lines) {
     const currentIndent = line.length - line.trimStart().length;
+
     // If a property is closed we move up a level
     if (keyStack.length > 0 && searchIndents[searchLevel] === currentIndent) {
       keyStack.pop();
@@ -28,11 +30,13 @@ export function findLineNumberByNestedKeyInSource(
     // We make sure we only move into nested properties if the indent is correct
     if (
       searchIndents[searchLevel] === 0 ||
-      searchIndents[searchLevel] + Indent === currentIndent ||
-      searchIndents[searchLevel] + Indent + Indent === currentIndent
+      searchIndents[searchLevel] + Indent === currentIndent
     ) {
       // If the search property matches we move down a level
-      if (line.includes('"' + searchStack[searchLevel] + '":')) {
+      if (
+        lineHasProperty(line, searchStack, searchLevel) ||
+        lineHasOneLineArray(line, searchStack, searchLevel)
+      ) {
         keyStack.push(searchStack[searchLevel]);
         searchLevel++;
         searchIndents.push(currentIndent);
@@ -40,17 +44,28 @@ export function findLineNumberByNestedKeyInSource(
 
       // If the search property is a number we are in an array and assume that we are in the correct spot and only have to search for the correct index
       const arrayPointer = parseInt(searchStack[searchLevel]);
-      const numberOfValues = line.split(",").length;
       if (Number.isInteger(arrayPointer)) {
+        const isOneLineArray = line.includes("[") && line.includes("]");
+        const isObjectClosing = line.includes("},");
+
         if (
-          arrayCounter === arrayPointer ||
-          (numberOfValues > 1 && arrayPointer <= numberOfValues)
+          (arrayCounter === arrayPointer &&
+            !isOneLineArray &&
+            skippedFirstArray &&
+            !isObjectClosing) ||
+          isOneLineArray
         ) {
           keyStack.push(searchStack[searchLevel]);
           searchLevel++;
           searchIndents.push(currentIndent);
         } else {
-          arrayCounter++;
+          if (arrayCounter === 0 && !skippedFirstArray) {
+            skippedFirstArray = true;
+          } else {
+            if (!isObjectClosing) {
+              arrayCounter++;
+            }
+          }
         }
       }
     }
@@ -62,4 +77,25 @@ export function findLineNumberByNestedKeyInSource(
   }
 
   return -1; // Return -1 if the nested key is not found in the JSON string.
+}
+
+function lineHasProperty(
+  line: string,
+  searchStack: string[],
+  searchLevel: number
+) {
+  return line.includes('"' + searchStack[searchLevel] + '":');
+}
+
+function lineHasOneLineArray(
+  line: string,
+  searchStack: string[],
+  searchLevel: number
+) {
+  // If the search property is a number we are in an array and assume that we are in the correct spot and only have to search for the correct index
+  const arrayPointer = parseInt(searchStack[searchLevel]);
+  if (Number.isInteger(arrayPointer)) {
+    return line.includes("[") && line.includes("]");
+  }
+  return false;
 }
