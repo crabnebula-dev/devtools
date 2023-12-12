@@ -1,5 +1,3 @@
-import tauriConfigSchemaV1 from "./config/tauri-conf-schema-v1.json";
-import tauriConfigSchemaV2 from "./config/tauri-conf-schema-v2.json";
 import { Draft07, JsonSchema, JsonPointer } from "json-schema-library";
 import { createResource, Signal } from "solid-js";
 import { useParams } from "@solidjs/router";
@@ -151,19 +149,6 @@ async function readListOfConfigurations(
       } satisfies ConfigurationObject;
     })
   );
-}
-
-// version: semver
-export function returnLatestSchemaForVersion(version: string) {
-  version = version.split(".")[0];
-  switch (version) {
-    case "1":
-      return tauriConfigSchemaV1;
-    case "2":
-      return tauriConfigSchemaV2;
-    default:
-      return tauriConfigSchemaV1;
-  }
 }
 
 export function getDescriptionByKey(key: string) {
