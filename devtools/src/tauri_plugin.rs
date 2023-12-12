@@ -1,11 +1,49 @@
 use crate::aggregator::Aggregator;
 use crate::server::Server;
 use crate::Command;
+use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::thread;
 use std::time::Duration;
 use tauri::Runtime;
 use tokio::sync::mpsc;
+
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+struct Key {
+    level: u16,
+    file: Option<String>,
+    line: Option<u32>,
+}
+
+#[allow(clippy::needless_pass_by_value)]
+#[tauri::command]
+fn log(
+    level: u16,
+    message: &str,
+    location: Option<&str>,
+    file: Option<&str>,
+    line: Option<u32>,
+    _key_values: Option<HashMap<String, String>>,
+) {
+    match level {
+        1 => {
+            tracing::trace!(target: "log", message, log.target = "webview", log.module_path = location, log.file = file, log.line = line);
+        }
+        2 => {
+            tracing::debug!(target: "log", message, log.target = "webview", log.module_path = location, log.file = file, log.line = line);
+        }
+        3 => {
+            tracing::info!(target: "log", message, log.target = "webview", log.module_path = location, log.file = file, log.line = line);
+        }
+        4 => {
+            tracing::warn!(target: "log", message, log.target = "webview", log.module_path = location, log.file = file, log.line = line);
+        }
+        5 => {
+            tracing::error!(target: "log", message, log.target = "webview", log.module_path = location, log.file = file, log.line = line);
+        }
+        _ => {}
+    }
+}
 
 pub(crate) fn init<R: Runtime>(
     addr: SocketAddr,
@@ -13,7 +51,10 @@ pub(crate) fn init<R: Runtime>(
     aggregator: Aggregator,
     cmd_tx: mpsc::Sender<Command>,
 ) -> tauri::plugin::TauriPlugin<R> {
-    tauri::plugin::Builder::new("probe")
+    // we pretend to be the log plugin so we can intercept the commands
+    // this plugin is incompatible with the log plugin anyway
+    tauri::plugin::Builder::new("log")
+        .invoke_handler(tauri::generate_handler![log])
         .setup(move |app_handle| {
             let server = Server::new(cmd_tx, app_handle.clone());
 

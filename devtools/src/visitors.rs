@@ -96,11 +96,54 @@ impl Visit for FieldVisitor {
 }
 
 impl Visit for EventVisitor {
-    /// Visit a value that implements `Debug`.
+    /// Visit a double-precision floating point value.
+    fn record_f64(&mut self, field: &tracing_core::Field, value: f64) {
+        match field.name() {
+            // skip fields that are `log` metadata that have already been handled
+            "message" if self.message.is_none() => self.message = Some(value.to_string()),
+            _ => self.field_visitor.record_f64(field, value),
+        }
+    }
+
+    /// Visit a signed 64-bit integer value.
+    fn record_i64(&mut self, field: &tracing_core::Field, value: i64) {
+        match field.name() {
+            // skip fields that are `log` metadata that have already been handled
+            "message" if self.message.is_none() => self.message = Some(value.to_string()),
+            _ => self.field_visitor.record_i64(field, value),
+        }
+    }
+
+    /// Visit an unsigned 64-bit integer value.
+    fn record_u64(&mut self, field: &tracing_core::Field, value: u64) {
+        match field.name() {
+            // skip fields that are `log` metadata that have already been handled
+            "message" if self.message.is_none() => self.message = Some(value.to_string()),
+            _ => self.field_visitor.record_u64(field, value),
+        }
+    }
+
+    /// Visit a boolean value.
+    fn record_bool(&mut self, field: &tracing_core::Field, value: bool) {
+        match field.name() {
+            // skip fields that are `log` metadata that have already been handled
+            "message" if self.message.is_none() => self.message = Some(value.to_string()),
+            _ => self.field_visitor.record_bool(field, value),
+        }
+    }
+
+    /// Visit a string value.
+    fn record_str(&mut self, field: &tracing_core::Field, value: &str) {
+        match field.name() {
+            // skip fields that are `log` metadata that have already been handled
+            "message" if self.message.is_none() => self.message = Some(value.to_string()),
+            _ => self.field_visitor.record_str(field, value),
+        }
+    }
+
     fn record_debug(&mut self, field: &tracing_core::Field, value: &dyn Debug) {
         match field.name() {
             // skip fields that are `log` metadata that have already been handled
-            name if name.starts_with("log.") => (),
             "message" if self.message.is_none() => self.message = Some(format!("{value:?}")),
             _ => self.field_visitor.record_debug(field, value),
         }
