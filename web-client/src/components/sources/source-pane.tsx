@@ -18,22 +18,31 @@ export function SourcePane() {
   return (
     <Show when={params.source} keyed>
       <Suspense fallback={<Loader />}>
-        <Switch fallback={<UnknownView path={filename()} />}>
-          <Match when={contentType()?.startsWith("code/")} keyed>
-            <CodeView
-              path={filename()}
-              size={sizeHint()}
-              lang={contentType()!.replace("code/", "") as HighlighterLang}
-            />
-          </Match>
-          <Match when={contentType()?.startsWith("image/")} keyed>
-            <ImageView
-              path={params.source}
-              size={sizeHint()}
-              type={contentType()!.replace("image/", "")}
-            />
-          </Match>
-        </Switch>
+        <Show when={contentType()}>
+          {(resolvedContentType) => (
+            <Switch fallback={<UnknownView path={filename()} />}>
+              <Match when={resolvedContentType().startsWith("code/")} keyed>
+                <CodeView
+                  path={filename()}
+                  size={sizeHint()}
+                  lang={
+                    resolvedContentType().replace(
+                      "code/",
+                      ""
+                    ) as HighlighterLang
+                  }
+                />
+              </Match>
+              <Match when={resolvedContentType().startsWith("image/")} keyed>
+                <ImageView
+                  path={params.source}
+                  size={sizeHint()}
+                  type={resolvedContentType().replace("image/", "")}
+                />
+              </Match>
+            </Switch>
+          )}
+        </Show>
       </Suspense>
     </Show>
   );
