@@ -26,7 +26,7 @@ export default function JsonView() {
   return (
     <Show when={params.config}>
       <Show
-        when={config()?.key !== "loaded"}
+        when={config() && config()?.key !== "loaded"}
         fallback={
           <p class="p-3">
             This configuration is parsed and merged, so there is no direct
