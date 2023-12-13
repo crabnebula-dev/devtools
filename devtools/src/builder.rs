@@ -2,7 +2,7 @@ use crate::aggregator::Aggregator;
 use crate::layer::Layer;
 use crate::{tauri_plugin, Shared};
 use colored::Colorize;
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::sync::Arc;
 use std::time::Duration;
 use tauri::Runtime;
@@ -16,6 +16,7 @@ pub struct Builder {
     host: IpAddr,
     port: u16,
     publish_interval: Duration,
+    strict_port: bool,
 }
 
 impl Default for Builder {
@@ -24,6 +25,7 @@ impl Default for Builder {
             host: IpAddr::V4(Ipv4Addr::LOCALHOST),
             port: 3000,
             publish_interval: Duration::from_millis(200),
+            strict_port: false,
         }
     }
 }
@@ -47,6 +49,16 @@ impl Builder {
     /// **default:** `3000`
     pub fn port(&mut self, port: u16) -> &mut Self {
         self.port = port;
+        self
+    }
+
+    /// By default the instrumentation will pick a free port if the default (or configured) one is
+    /// no available. By setting this to `true` you can disable this behaviour and cause
+    /// the server to abort instead.
+    ///
+    /// **default:** `false`
+    pub fn strict_port(&mut self, strict: bool) -> &mut Self {
+        self.strict_port = strict;
         self
     }
 
@@ -138,12 +150,26 @@ impl Builder {
             .with(layer.with_filter(tracing_subscriber::filter::LevelFilter::TRACE))
             .try_init()?;
 
-        let addr = SocketAddr::new(self.host, self.port);
+        let mut port = self.port;
+        if !port_is_available(port) && !self.strict_port {
+            port = (1025..65535)
+                .find(|port| port_is_available(*port))
+                .expect("no free port found");
+        }
+
+        let addr = SocketAddr::new(self.host, port);
 
         print_link(&addr);
 
         let plugin = tauri_plugin::init(addr, self.publish_interval, aggregator, cmd_tx);
         Ok(plugin)
+    }
+}
+
+fn port_is_available(port: u16) -> bool {
+    match TcpListener::bind(("127.0.0.1", port)) {
+        Ok(_) => true,
+        Err(_) => false,
     }
 }
 
