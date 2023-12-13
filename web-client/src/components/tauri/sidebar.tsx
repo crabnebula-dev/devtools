@@ -4,9 +4,9 @@ import { A } from "@solidjs/router";
 import {
   type ConfigurationObject,
   retrieveConfigurations,
-  getTauriTabBasePath,
 } from "~/lib/tauri/tauri-conf-schema";
 import { Loader } from "~/components/loader";
+import { getTauriTabBasePath } from "~/lib/tauri/get-tauri-tab-base-path";
 
 export function Sidebar() {
   const [configEntries] = retrieveConfigurations();
