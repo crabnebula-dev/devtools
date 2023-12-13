@@ -1,4 +1,4 @@
-import { createResource, Suspense } from "solid-js";
+import { createResource } from "solid-js";
 import {
   createHighlighter,
   type HighlighterLang,
