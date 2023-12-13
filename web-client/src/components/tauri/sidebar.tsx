@@ -4,7 +4,7 @@ import { A } from "@solidjs/router";
 import {
   type ConfigurationObject,
   retrieveConfigurations,
-} from "~/lib/tauri/tauri-conf-schema";
+} from "~/lib/tauri/config/retrieve-configurations";
 import { Loader } from "~/components/loader";
 import { getTauriTabBasePath } from "~/lib/tauri/get-tauri-tab-base-path";
 

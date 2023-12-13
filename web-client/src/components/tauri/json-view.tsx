@@ -1,12 +1,12 @@
 import {
   findLineNumberByKey,
   scrollToHighlighted,
-} from "~/lib/tauri/tauri-conf-schema";
+} from "~/lib/tauri/tauri-conf-lib";
 import { useConfiguration } from "./configuration-context";
 import { createEffect, Show } from "solid-js";
 import CodeView from "../sources/code-view";
 import { useParams, useSearchParams } from "@solidjs/router";
-import { retrieveConfigurationByKey } from "~/lib/tauri/tauri-conf-schema";
+import { retrieveConfigurationByKey } from "~/lib/tauri/config/retrieve-configurations";
 
 export default function JsonView() {
   const params = useParams<{ config: string }>();

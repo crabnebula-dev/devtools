@@ -1,10 +1,8 @@
 import { useLocation } from "@solidjs/router";
 
-const tauriTabUrlKey = "tauri";
-
 export function getTauriTabBasePath() {
   const { pathname } = useLocation();
-  return getRootPathByUrlSegment(pathname, tauriTabUrlKey);
+  return getRootPathByUrlSegment(pathname, "tauri");
 }
 
 export function getRootPathByUrlSegment(path: string, segment: string) {

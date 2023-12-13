@@ -4,7 +4,7 @@ import {
   useContext,
   type JSXElement,
 } from "solid-js";
-import { type ConfigurationStore } from "~/lib/tauri/tauri-conf-schema";
+import { type ConfigurationStore } from "~/lib/tauri/config/retrieve-configurations";
 import { createStore } from "solid-js/store";
 
 type ConfigurationContextType = ReturnType<typeof makeConfigurationContext>;

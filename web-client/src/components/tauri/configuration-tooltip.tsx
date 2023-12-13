@@ -2,7 +2,7 @@ import { Tooltip } from "@kobalte/core";
 import { useConfiguration } from "~/components/tauri/configuration-context";
 import SolidMarkdown from "solid-markdown";
 import { Show, For, Switch, Match } from "solid-js";
-import { getDescriptionByKey } from "~/lib/tauri/tauri-conf-schema";
+import { getDescriptionByKey } from "~/lib/tauri/tauri-conf-lib";
 
 export function ConfigurationTooltip(props: {
   key: string;

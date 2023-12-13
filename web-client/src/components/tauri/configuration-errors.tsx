@@ -6,7 +6,7 @@ import {
   UnrecognizedKeyIssue,
   isUnrecognizedKeyIssue,
 } from "./errors/unrecognized-key-issue";
-import { findLineNumberByKey } from "~/lib/tauri/tauri-conf-schema";
+import { findLineNumberByKey } from "~/lib/tauri/tauri-conf-lib";
 
 export function ConfigurationErrors(props: {
   error: ZodError<TauriConfig> | undefined;

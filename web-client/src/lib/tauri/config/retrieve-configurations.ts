@@ -1,24 +1,21 @@
-import { Draft07, JsonSchema, JsonPointer } from "json-schema-library";
 import { createResource, Signal } from "solid-js";
-import { useParams } from "@solidjs/router";
-import { getEntryBytes } from "~/lib/sources/file-entries";
-import { useConfiguration } from "~/components/tauri/configuration-context";
 import { unwrap, reconcile } from "solid-js/store";
-import { bytesToText } from "../code-highlight";
-import type { SourcesClient } from "../proto/sources.client";
+import { getEntryBytes } from "~/lib/sources/file-entries";
+import { bytesToText } from "../../code-highlight";
+import type { SourcesClient } from "../../proto/sources.client";
 import { useConnection } from "~/context/connection-provider";
+import { useConfiguration } from "~/components/tauri/configuration-context";
 import { useMonitor } from "~/context/monitor-provider";
-import { safeStringifyJson, safeParseJson } from "../safe-json";
-import { TauriConfig } from "./config/tauri-conf";
+import { TauriConfig } from "./tauri-conf";
 import {
   parseTauriConfig,
   isValidConfig,
   isPartiallyValidConfig,
-} from "./config/parse-tauri-config";
-import { zodSchemaForVersion } from "./config/zod-schema-for-version";
-import { getVersions } from "../connection/getters";
+} from "./parse-tauri-config";
+import { zodSchemaForVersion } from "./zod-schema-for-version";
+import { getVersions } from "../../connection/getters";
+import { safeStringifyJson, safeParseJson } from "../../safe-json";
 import { z } from "zod";
-import { findLineNumberByNestedKeyInSource } from "./find-line-number-by-nested-key-in-source";
 
 export type ConfigurationStore = {
   configs?: ConfigurationObject[];
@@ -40,21 +37,6 @@ export const possibleConfigurationFiles = [
   "tauri.linux.conf.json",
   "tauri.windows.conf.json",
 ];
-
-function createDeepConfigurationStoreSignal<T>(): Signal<T> {
-  const {
-    configurations: { configurations, setConfigurations },
-  } = useConfiguration();
-  return [
-    () => configurations.configs,
-    (v: T) => {
-      const unwrapped = unwrap(configurations.configs);
-      typeof v === "function" && (v = v(unwrapped));
-      setConfigurations("configs", reconcile(v as ConfigurationObject[]));
-      return configurations.configs;
-    },
-  ] as Signal<T>;
-}
 
 export function retrieveConfigurationByKey(key: string) {
   const [configs] = retrieveConfigurations();
@@ -151,56 +133,17 @@ async function readListOfConfigurations(
   );
 }
 
-export function getDescriptionByKey(key: string) {
+function createDeepConfigurationStoreSignal<T>(): Signal<T> {
   const {
-    descriptions: { descriptions },
+    configurations: { configurations, setConfigurations },
   } = useConfiguration();
-  return descriptions().has(key) ? descriptions().get(key) : undefined;
-}
-
-export function scrollToHighlighted() {
-  const highlightedLine = document.querySelector(".line.highlighted");
-
-  if (!highlightedLine) return;
-
-  highlightedLine.scrollIntoView({ behavior: "smooth", block: "center" });
-}
-
-export function findLineNumberByKey(key: string) {
-  const params = useParams<{ config: string }>();
-  const config = retrieveConfigurationByKey(params.config);
-  return findLineNumberByNestedKeyInSource(config?.raw ?? "", key);
-}
-
-export function generateDescriptions(key: string, data: object) {
-  const { monitorData } = useMonitor();
-
-  const {
-    descriptions: { setDescriptions },
-  } = useConfiguration();
-
-  setDescriptions(
-    buildSchemaMap(monitorData.schema ?? {}, {
-      [key]: data,
-    })
-  );
-}
-
-export function buildSchemaMap(baseSchema: JsonSchema, data: object) {
-  const jsonSchema = new Draft07(baseSchema);
-  const map = new Map();
-
-  const buildMap = (
-    schema: JsonSchema,
-    value: unknown,
-    pointer: JsonPointer
-  ) => {
-    //schema = jsonSchema.compileSchema(schema);
-    pointer = pointer.replace("#/", "").replace("#", "").replaceAll("/", ".");
-    map.set(pointer, schema);
-  };
-
-  jsonSchema.each(data, buildMap);
-
-  return map;
+  return [
+    () => configurations.configs,
+    (v: T) => {
+      const unwrapped = unwrap(configurations.configs);
+      typeof v === "function" && (v = v(unwrapped));
+      setConfigurations("configs", reconcile(v as ConfigurationObject[]));
+      return configurations.configs;
+    },
+  ] as Signal<T>;
 }
