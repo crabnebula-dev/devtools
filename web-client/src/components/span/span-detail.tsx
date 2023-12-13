@@ -81,10 +81,10 @@ export function SpanDetail(props: { span: UiSpan }) {
         );
 
         return sanitizeHtml(raw, {
-          allowedTags: [ 'pre', 'code', 'span' ],
+          allowedTags: ["pre", "code", "span"],
           allowedAttributes: {
-            'pre': ['class'],
-            'span': ['class', 'style']
+            pre: ["class"],
+            span: ["class", "style"],
           },
         });
       }
