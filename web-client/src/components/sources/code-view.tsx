@@ -8,6 +8,7 @@ import {
   getHighlightedCode,
   getText,
 } from "~/lib/code-highlight";
+import sanitizeHtml from 'sanitize-html'
 
 type CodeViewProps = {
   path: string;
@@ -34,7 +35,15 @@ export default function CodeView(props: CodeViewProps) {
     highlightedLine?: number
   ) => {
     if (!text || !highlighter) return undefined;
-    return getHighlightedCode([text, highlighter, lang, highlightedLine]);
+    const raw = getHighlightedCode([text, highlighter, lang, highlightedLine]);
+
+    return sanitizeHtml(raw, {
+      allowedTags: [ 'pre', 'code', 'span' ],
+      allowedAttributes: {
+        'pre': ['class'],
+        'span': ['class', 'style']
+      },
+    });
   };
 
   return (

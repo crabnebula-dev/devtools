@@ -8,6 +8,7 @@ import { spanFieldsToObject } from "~/lib/span/span-fields-to-object";
 import { createHighlighter, getHighlightedCode } from "~/lib/code-highlight";
 import { getUiSpanChildren } from "~/lib/span/get-ui-span-children";
 import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
+import sanitizeHtml from "sanitize-html";
 
 export function SpanDetail(props: { span: UiSpan }) {
   const { monitorData } = useMonitor();
@@ -70,15 +71,23 @@ export function SpanDetail(props: { span: UiSpan }) {
   const [codeHtml] = createResource(
     () => [code(), createHighlighter()] as const,
     async ([code, highlighter]) => {
-      return code === null
-        ? null
-        : getHighlightedCode({
-            lang: "rust",
-            highlighter: await highlighter,
-          })(code).replace(
-            /\\n/gim, // Turn escaped newlines into actual newlines
-            "\n"
-          );
+      if (code) {
+        const raw = getHighlightedCode({
+          lang: "rust",
+          highlighter: await highlighter,
+        })(code).replace(
+          /\\n/gim, // Turn escaped newlines into actual newlines
+          "\n"
+        );
+
+        return sanitizeHtml(raw, {
+          allowedTags: [ 'pre', 'code', 'span' ],
+          allowedAttributes: {
+            'pre': ['class'],
+            'span': ['class', 'style']
+          },
+        });
+      }
     }
   );
 
