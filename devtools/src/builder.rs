@@ -1,6 +1,6 @@
 use crate::aggregator::Aggregator;
 use crate::layer::Layer;
-use crate::{tauri_plugin, Shared};
+use crate::{tauri_plugin, Error, Shared};
 use colored::Colorize;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::sync::Arc;
@@ -154,7 +154,7 @@ impl Builder {
         if !port_is_available(port) && !self.strict_port {
             port = (1025..65535)
                 .find(|port| port_is_available(*port))
-                .expect("no free port found");
+                .ok_or(Error::NoFreePorts)?;
         }
 
         let addr = SocketAddr::new(self.host, port);
@@ -167,10 +167,7 @@ impl Builder {
 }
 
 fn port_is_available(port: u16) -> bool {
-    match TcpListener::bind(("127.0.0.1", port)) {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    TcpListener::bind(("127.0.0.1", port)).is_ok()
 }
 
 // This is pretty ugly code I know, but it looks nice in the terminal soo ¯\_(ツ)_/¯

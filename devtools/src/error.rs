@@ -11,4 +11,7 @@ pub enum Error {
 
     #[error(transparent)]
     RelativizePathError(#[from] std::path::StripPrefixError),
+
+    #[error("No free port found")]
+    NoFreePorts,
 }
