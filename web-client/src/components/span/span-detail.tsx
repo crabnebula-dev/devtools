@@ -1,14 +1,14 @@
 import { useMonitor } from "~/context/monitor-provider";
-import { Show, createResource } from "solid-js";
+import { Show, Suspense } from "solid-js";
+import { Loader } from "../loader";
 import { UiSpan } from "~/lib/span/format-spans-for-ui";
 import { SpanDetailView } from "./span-detail-view";
 import { getIpcRequestValues } from "~/lib/span/get-ipc-request-value";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { spanFieldsToObject } from "~/lib/span/span-fields-to-object";
-import { createHighlighter, getHighlightedCode } from "~/lib/code-highlight";
 import { getUiSpanChildren } from "~/lib/span/get-ui-span-children";
 import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
-import sanitizeHtml from "sanitize-html";
+import { CodeHighlighter } from "../code-higlighter";
 
 export function SpanDetail(props: { span: UiSpan }) {
   const { monitorData } = useMonitor();
@@ -68,29 +68,6 @@ export function SpanDetail(props: { span: UiSpan }) {
     }
   };
 
-  const [codeHtml] = createResource(
-    () => [code(), createHighlighter()] as const,
-    async ([code, highlighter]) => {
-      if (code) {
-        const raw = getHighlightedCode({
-          lang: "rust",
-          highlighter: await highlighter,
-        })(code).replace(
-          /\\n/gim, // Turn escaped newlines into actual newlines
-          "\n"
-        );
-
-        return sanitizeHtml(raw, {
-          allowedTags: ["pre", "code", "span"],
-          allowedAttributes: {
-            pre: ["class"],
-            span: ["class", "style"],
-          },
-        });
-      }
-    }
-  );
-
   return (
     <SpanDetailView
       name={props.span.name ?? "-"}
@@ -98,15 +75,14 @@ export function SpanDetail(props: { span: UiSpan }) {
       valuesSectionTitle={valuesSectionTitle()}
       values={values() ?? []}
     >
-      <Show when={codeHtml()}>
-        {(html) => (
+      <Show when={code()}>
+        {(raw) => (
           <div class="grid gap-2">
             <h2 class="text-xl p-4">Response</h2>
             <pre class="bg-black rounded max-w-full overflow-auto">
-              <code
-                // eslint-disable-next-line solid/no-innerhtml
-                innerHTML={html()}
-              />
+              <Suspense fallback={<Loader />}>
+                <CodeHighlighter text={raw()} lang="rust" />
+              </Suspense>
             </pre>
           </div>
         )}

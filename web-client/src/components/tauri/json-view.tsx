@@ -3,16 +3,15 @@ import {
   scrollToHighlighted,
 } from "~/lib/tauri/tauri-conf-schema";
 import { useConfiguration } from "./configuration-context";
-import { createEffect, Show } from "solid-js";
-import CodeView from "../sources/code-view";
-import { useParams, useSearchParams } from "@solidjs/router";
+import { createEffect, Show, Suspense } from "solid-js";
+import { Loader } from "../loader";
+import { useParams } from "@solidjs/router";
 import { retrieveConfigurationByKey } from "~/lib/tauri/tauri-conf-schema";
+import { CodeHighlighter } from "../code-higlighter";
 
 export default function JsonView() {
   const params = useParams<{ config: string }>();
-  const [searchParams] = useSearchParams<{ size: string }>();
-  const path = () =>
-    retrieveConfigurationByKey(params.config)?.path ?? undefined;
+  const config = () => retrieveConfigurationByKey(params.config);
   const {
     highlightKey: { highlightKey },
   } = useConfiguration();
@@ -27,7 +26,7 @@ export default function JsonView() {
   return (
     <Show when={params.config}>
       <Show
-        when={path()}
+        when={config()?.key !== "loaded"}
         fallback={
           <p class="p-3">
             This configuration is parsed and merged, so there is no direct
@@ -35,12 +34,13 @@ export default function JsonView() {
           </p>
         }
       >
-        <CodeView
-          path={path() ?? ""}
-          size={Number(searchParams.size)}
-          lang="json"
-          highlightedLine={lineNumber()}
-        />
+        <Suspense fallback={<Loader />}>
+          <CodeHighlighter
+            text={config()?.raw}
+            lang="json"
+            highlightedLine={lineNumber()}
+          />
+        </Suspense>
       </Show>
     </Show>
   );
