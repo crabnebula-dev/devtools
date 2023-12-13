@@ -151,7 +151,7 @@ impl Builder {
             .try_init()?;
 
         let mut port = self.port;
-        if !port_is_available(port) && !self.strict_port {
+        if !self.strict_port && !port_is_available(port)  {
             port = (1025..65535)
                 .find(|port| port_is_available(*port))
                 .ok_or(Error::NoFreePorts)?;
