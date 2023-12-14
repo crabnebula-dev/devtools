@@ -6,7 +6,7 @@
 
 **Please use the [Private Vulnerability Disclosure](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability#privately-reporting-a-security-vulnerability) feature of GitHub.**
 
-Alternatively, you can also send them by email to security@crabnebula.com.
+Alternatively, you can also send them by email to security@crabnebula.dev.
 You can encrypt your mail using GnuPG if you want. 
 
 See the [security.txt](https://crabnebula.dev/.well-known/security.txt) from CrabNebula
