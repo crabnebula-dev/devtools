@@ -31,7 +31,10 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
           ? convertTimestampToNanoseconds(event.event.enterSpan.at)
           : -1;
         if (span) {
-          span.enters.push({ timestamp: enteredAt, threadID: Number(event.event.enterSpan.threadId) });
+          span.enters.push({
+            timestamp: enteredAt,
+            threadID: Number(event.event.enterSpan.threadId),
+          });
         }
 
         break;
@@ -43,7 +46,10 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
           ? convertTimestampToNanoseconds(event.event.exitSpan.at)
           : -1;
         if (span) {
-          span.exits.push({ timestamp: exitedAt, threadID: Number(event.event.exitSpan.threadId) });
+          span.exits.push({
+            timestamp: exitedAt,
+            threadID: Number(event.event.exitSpan.threadId),
+          });
         }
         break;
       }

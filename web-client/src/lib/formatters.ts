@@ -38,11 +38,11 @@ export function getTime(date: Date) {
 }
 
 export function getDetailedTime(date: Date) {
-  return Intl.DateTimeFormat('en', {
+  return Intl.DateTimeFormat("en", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
     second: "2-digit",
-    fractionalSecondDigits: 3
+    fractionalSecondDigits: 3,
   }).format(date);
 }

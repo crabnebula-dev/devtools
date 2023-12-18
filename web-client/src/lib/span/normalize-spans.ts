@@ -60,17 +60,23 @@ export function computeSlices(span: Span) {
   return span.enters.map((entered, i) => {
     const exited = span.exits[i].timestamp;
 
-    const width = scaleToMax([exited - entered.timestamp], allExits - allEnters)[0];
-    const offset = scaleNumbers([entered.timestamp], span.createdAt, span.closedAt)[0];
+    const width = scaleToMax(
+      [exited - entered.timestamp],
+      allExits - allEnters
+    )[0];
+    const offset = scaleNumbers(
+      [entered.timestamp],
+      span.createdAt,
+      span.closedAt
+    )[0];
     const marginLeft = offset - (offset * width) / 100;
 
     return {
       entered: entered.timestamp,
       exited,
-      busy: width,
       threadID: entered.threadID,
       width,
-      marginLeft
-    }
-  })
+      marginLeft,
+    };
+  });
 }
