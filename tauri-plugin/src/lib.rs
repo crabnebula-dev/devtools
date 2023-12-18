@@ -1,9 +1,11 @@
 use colored::Colorize;
 use devtools::aggregator::Aggregator;
 use devtools::layer::Layer;
+use devtools::server::wire::tauri::tauri_server::TauriServer;
 use devtools::server::Server;
 use devtools::Command;
 use devtools::{Error, Result, Shared};
+use futures::FutureExt;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::sync::Arc;
 use std::thread;
@@ -24,8 +26,17 @@ fn init_plugin<R: Runtime>(
 ) -> tauri::plugin::TauriPlugin<R> {
     tauri::plugin::Builder::new("probe")
         .setup(move |app_handle| {
+            let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
+
+            health_reporter
+                .set_serving::<TauriServer<server::TauriService<R>>>()
+                .now_or_never()
+                .unwrap();
+
             let server = Server::new(
                 cmd_tx,
+                health_reporter,
+                health_service,
                 server::TauriService {
                     app_handle: app_handle.clone(),
                 },

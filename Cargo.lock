@@ -3424,6 +3424,7 @@ dependencies = [
  "tauri",
  "tokio",
  "tonic",
+ "tonic-health",
  "tracing",
  "tracing-subscriber",
 ]

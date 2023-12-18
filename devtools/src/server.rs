@@ -16,6 +16,7 @@ use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
 use tonic::codegen::BoxStream;
 use tonic::{Request, Response, Status};
+use tonic_health::pb::health_server::{Health, HealthServer};
 use tonic_health::server::HealthReporter;
 use tonic_health::ServingStatus;
 use tower_http::cors::{AllowHeaders, CorsLayer};
@@ -40,12 +41,12 @@ struct InstrumentService {
 impl Server {
     pub fn new(
         cmd_tx: mpsc::Sender<Command>,
+        mut health_reporter: HealthReporter,
+        health_service: HealthServer<impl Health>,
         tauri_server: impl tauri_server::Tauri,
         metadata_server: impl metadata_server::Metadata,
         sources_server: impl wire::sources::sources_server::Sources,
     ) -> Self {
-        let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
-
         health_reporter
             .set_serving::<InstrumentServer<InstrumentService>>()
             .now_or_never()
