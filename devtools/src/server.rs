@@ -39,6 +39,7 @@ struct InstrumentService {
 }
 
 impl Server {
+    #[allow(clippy::missing_panics_doc)]
     pub fn new(
         cmd_tx: mpsc::Sender<Command>,
         mut health_reporter: HealthReporter,
@@ -49,8 +50,7 @@ impl Server {
     ) -> Self {
         health_reporter
             .set_serving::<InstrumentServer<InstrumentService>>()
-            .now_or_never()
-            .unwrap();
+            .now_or_never();
 
         let cors = CorsLayer::new()
             // allow `GET` and `POST` when accessing the resource
@@ -80,6 +80,11 @@ impl Server {
         Self(router)
     }
 
+    /// Consumes this [`Server`] and returns a future that will execute the server.
+    ///
+    /// # Errors
+    ///
+    /// This function fails if the address is already in use or if we fail to start the server.
     pub async fn run(self, addr: SocketAddr) -> crate::Result<()> {
         tracing::info!("Listening on {}", addr);
 

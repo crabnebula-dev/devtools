@@ -275,6 +275,7 @@ impl Default for TimeAnchor {
 }
 
 impl TimeAnchor {
+    #[must_use]
     pub fn new() -> Self {
         Self {
             mono: Instant::now(),
@@ -282,6 +283,7 @@ impl TimeAnchor {
         }
     }
 
+    #[must_use]
     pub fn to_system_time(&self, t: Instant) -> SystemTime {
         let dur = t
             .checked_duration_since(self.mono)
@@ -289,6 +291,7 @@ impl TimeAnchor {
         self.sys + dur
     }
 
+    #[must_use]
     pub fn to_timestamp(&self, t: Instant) -> prost_types::Timestamp {
         self.to_system_time(t).into()
     }
