@@ -14,6 +14,8 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::Layer as _;
 
+mod server;
+
 fn init_plugin<R: Runtime>(
     addr: SocketAddr,
     publish_interval: Duration,
@@ -22,7 +24,18 @@ fn init_plugin<R: Runtime>(
 ) -> tauri::plugin::TauriPlugin<R> {
     tauri::plugin::Builder::new("probe")
         .setup(move |app_handle| {
-            let server = Server::new(cmd_tx, app_handle.clone());
+            let server = Server::new(
+                cmd_tx,
+                server::TauriService {
+                    app_handle: app_handle.clone(),
+                },
+                server::MetaService {
+                    app_handle: app_handle.clone(),
+                },
+                server::SourcesService {
+                    app_handle: app_handle.clone(),
+                },
+            );
 
             // spawn the server and aggregator in a separate thread
             // so we don't interfere with the application we're trying to instrument
@@ -150,7 +163,7 @@ impl Builder {
     /// Make sure to check out the `examples` sub folder for a fully working setup.
     ///
     /// ```no_run
-    /// let devtools_plugin = devtools::Builder::default().init();
+    /// let devtools_plugin = tauri_plugin_devtools::Builder::default().init();
     ///
     /// tauri::Builder::default()
     ///     .plugin(devtools_plugin)
@@ -181,7 +194,7 @@ impl Builder {
     ///
     /// ```no_run
     /// fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let devtools_plugin = devtools::Builder::default().try_init()?;
+    ///     let devtools_plugin = tauri_plugin_devtools::Builder::default().try_init()?;
     ///
     ///     tauri::Builder::default()
     ///         .plugin(devtools_plugin)

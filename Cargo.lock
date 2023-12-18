@@ -664,7 +664,6 @@ version = "0.2.5"
 dependencies = [
  "async-stream",
  "bytes",
- "colored",
  "devtools-wire-format",
  "futures",
  "http",
@@ -678,6 +677,7 @@ dependencies = [
  "tonic-health",
  "tonic-web",
  "tower-http",
+ "tower-layer",
  "tracing",
  "tracing-core",
  "tracing-subscriber",
@@ -691,8 +691,6 @@ dependencies = [
  "prost",
  "prost-build",
  "prost-types",
- "serde_json",
- "tauri",
  "tonic",
  "tonic-build",
  "tracing-core",
@@ -3417,10 +3415,15 @@ dependencies = [
 name = "tauri-plugin-devtools"
 version = "0.2.5"
 dependencies = [
+ "async-stream",
+ "bytes",
  "colored",
  "devtools",
+ "futures",
+ "serde_json",
  "tauri",
  "tokio",
+ "tonic",
  "tracing",
  "tracing-subscriber",
 ]
