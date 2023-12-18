@@ -32,7 +32,7 @@ cd examples/tauri
 
 ```rs
 fn main() {
-    let devtools_plugin = devtools::init();
+    let devtools_plugin = tauri_plugin_devtools::init();
 
     tauri::Builder::default()
         .plugin(devtools_plugin)
