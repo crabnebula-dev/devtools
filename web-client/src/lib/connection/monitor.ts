@@ -15,8 +15,8 @@ export type Span = {
   metadataId: bigint;
   fields: Field[];
   createdAt: number;
-  enters: number[];
-  exits: number[];
+  enters: { timestamp: number, threadID: number }[];
+  exits: { timestamp: number, threadID: number }[];
   closedAt: number;
   duration: number;
 };

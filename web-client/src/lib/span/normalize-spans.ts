@@ -54,20 +54,23 @@ export function computeWaterfallStyle(
 }
 
 export function computeSlices(span: Span) {
-  const allExits = span.exits.reduce((acc, e) => acc + e, 0);
-  const allEnters = span.enters.reduce((acc, e) => acc + e, 0);
+  const allExits = span.exits.reduce((acc, e) => acc + e.timestamp, 0);
+  const allEnters = span.enters.reduce((acc, e) => acc + e.timestamp, 0);
 
-  const slices = span.enters.map((enter, i) => {
-    const width = scaleToMax([span.exits[i] - enter], allExits - allEnters)[0];
-    const offset = scaleNumbers([enter], span.createdAt, span.closedAt)[0];
+  return span.enters.map((entered, i) => {
+    const exited = span.exits[i].timestamp;
+
+    const width = scaleToMax([exited - entered.timestamp], allExits - allEnters)[0];
+    const offset = scaleNumbers([entered.timestamp], span.createdAt, span.closedAt)[0];
     const marginLeft = offset - (offset * width) / 100;
-    return {
-      width,
-      marginLeft,
-    };
-  });
 
-  return slices.map(
-    (slice) => `width:${slice.width}%;margin-left:${slice.marginLeft}%;`
-  );
+    return {
+      entered: entered.timestamp,
+      exited,
+      busy: width,
+      threadID: entered.threadID,
+      width,
+      marginLeft
+    }
+  })
 }
