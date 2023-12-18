@@ -17,7 +17,7 @@ use tokio::sync::mpsc;
 /// This is the heart of the instrumentation, it receives events from the
 /// [`Layer`], does light pre-processing, buffers them up into `Update`s and
 /// send these to all subscribed clients.
-pub(crate) struct Aggregator {
+pub struct Aggregator {
     /// Data shared with the [`Layer`]
     shared: Arc<Shared>,
     /// Channel of events from the [`Layer`]
@@ -266,6 +266,12 @@ impl Aggregator {
 pub struct TimeAnchor {
     mono: Instant,
     sys: SystemTime,
+}
+
+impl Default for TimeAnchor {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl TimeAnchor {

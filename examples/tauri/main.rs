@@ -98,7 +98,7 @@ fn main() {
         });
     }
 
-    let devtools = devtools::init();
+    let devtools = tauri_plugin_devtools::init();
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![test1])

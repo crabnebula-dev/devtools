@@ -1,15 +1,79 @@
-use crate::aggregator::Aggregator;
-use crate::layer::Layer;
-use crate::{tauri_plugin, Error, Shared};
 use colored::Colorize;
+use devtools::aggregator::Aggregator;
+use devtools::layer::Layer;
+use devtools::server::Server;
+use devtools::Command;
+use devtools::{Error, Result, Shared};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::sync::Arc;
+use std::thread;
 use std::time::Duration;
 use tauri::Runtime;
 use tokio::sync::mpsc;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::Layer as _;
+
+fn init_plugin<R: Runtime>(
+    addr: SocketAddr,
+    publish_interval: Duration,
+    aggregator: Aggregator,
+    cmd_tx: mpsc::Sender<Command>,
+) -> tauri::plugin::TauriPlugin<R> {
+    tauri::plugin::Builder::new("probe")
+        .setup(move |app_handle| {
+            let server = Server::new(cmd_tx, app_handle.clone());
+
+            // spawn the server and aggregator in a separate thread
+            // so we don't interfere with the application we're trying to instrument
+            // TODO find a way to move this out of the tauri plugin
+            thread::spawn(move || {
+                use tracing_subscriber::EnvFilter;
+                let s = tracing_subscriber::fmt()
+                    .with_env_filter(EnvFilter::from_default_env())
+                    .finish();
+                let _subscriber_guard = tracing::subscriber::set_default(s);
+
+                let rt = tokio::runtime::Builder::new_current_thread()
+                    .enable_all()
+                    .build()
+                    .unwrap();
+
+                rt.block_on(async move {
+                    let aggregator = tokio::spawn(aggregator.run(publish_interval));
+                    server.run(addr).await.unwrap();
+                    aggregator.abort();
+                });
+            });
+
+            Ok(())
+        })
+        .build()
+}
+
+/// Initializes the global tracing subscriber.
+///
+/// See [`Builder::init`] for details and documentation.
+///
+/// # Panics
+///
+/// This function will panic if it is called more than once, or if another library has already initialized a global tracing subscriber.
+#[must_use = "This function returns a TauriPlugin that needs to be added to the Tauri app in order to properly instrument it."]
+pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
+    Builder::default().init()
+}
+
+/// Initializes the global tracing subscriber.
+///
+/// See [`Builder::try_init`] for details and documentation.
+///
+/// # Errors
+///
+/// This function will fail if it is called more than once, or if another library has already initialized a global tracing subscriber.
+#[must_use = "This function returns a TauriPlugin that needs to be added to the Tauri app in order to properly instrument it."]
+pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
+    Builder::default().try_init()
+}
 
 /// The builder can be use to customize the instrumentation.
 pub struct Builder {
@@ -86,15 +150,13 @@ impl Builder {
     /// Make sure to check out the `examples` sub folder for a fully working setup.
     ///
     /// ```no_run
-    /// fn main() {
-    ///     let devtools_plugin = devtools::Builder::default().init();
+    /// let devtools_plugin = devtools::Builder::default().init();
     ///
-    ///     tauri::Builder::default()
-    ///         .plugin(devtools_plugin)
-    ///          // ... the rest of the tauri setup code
-    /// #       .run(tauri::test::mock_context(tauri::test::noop_assets()))
-    /// #       .expect("error while running tauri application");
-    /// }
+    /// tauri::Builder::default()
+    ///     .plugin(devtools_plugin)
+    ///      // ... the rest of the tauri setup code
+    /// #   .run(tauri::test::mock_context(tauri::test::noop_assets()))
+    /// #   .expect("error while running tauri application");
     /// ```
     ///
     /// # Panics
@@ -135,7 +197,7 @@ impl Builder {
     ///
     /// This function will fail if it is called more than once, or if another library has already initialized a global tracing subscriber.
     #[must_use = "This function returns a TauriPlugin that needs to be added to the Tauri app in order to properly instrument it."]
-    pub fn try_init<R: Runtime>(self) -> crate::Result<tauri::plugin::TauriPlugin<R>> {
+    pub fn try_init<R: Runtime>(self) -> Result<tauri::plugin::TauriPlugin<R>> {
         // set up data channels & shared data
         let shared = Arc::new(Shared::default());
         let (event_tx, event_rx) = mpsc::channel(512);
@@ -161,7 +223,7 @@ impl Builder {
 
         print_link(&addr);
 
-        let plugin = tauri_plugin::init(addr, self.publish_interval, aggregator, cmd_tx);
+        let plugin = init_plugin(addr, self.publish_interval, aggregator, cmd_tx);
         Ok(plugin)
     }
 }

@@ -1,0 +1,18 @@
+[package]
+name = "tauri-plugin-devtools"
+authors.workspace = true
+edition.workspace = true
+version.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+devtools = { path = "../devtools/" }
+tauri.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tokio.workspace = true
+colored = "2.0"

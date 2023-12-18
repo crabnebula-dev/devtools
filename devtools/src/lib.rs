@@ -6,76 +6,26 @@
 //!
 //! The instrumentation is compatible with both the [`log`](https://docs.rs/log/latest/log/)
 //! and [`tracing`](https://docs.rs/tracing/latest/tracing/) ecosystems out-of-the-box.
-//!
-//! # Example
-//!
-//! Make sure to check out the `examples` sub folder for a fully working setup.
-//!
-//! ```no_run
-//! fn main() {
-//!     let devtools_plugin = devtools::init();
-//!
-//!     tauri::Builder::default()
-//!         .plugin(devtools_plugin)
-//!         .setup(|_| {
-//!             // It is compatible with the `tracing` ecosystem!
-//!             tracing::info!("Hello World!");
-//!
-//!             Ok(())
-//!         })
-//!          // ... the rest of the tauri setup code
-//! #       .run(tauri::test::mock_context(tauri::test::noop_assets()))
-//! #       .expect("error while running tauri application");
-//! }
-//! ```
 
-mod aggregator;
-mod builder;
+pub mod aggregator;
 mod error;
-mod layer;
-mod server;
-mod tauri_plugin;
+pub mod layer;
+pub mod server;
 mod visitors;
 
-pub use builder::Builder;
 use devtools_wire_format::{instrument, Field};
 pub use error::Error;
 use std::sync::atomic::AtomicUsize;
 use std::time::Instant;
-use tauri::Runtime;
 use tokio::sync::{mpsc, Notify};
 
 const EVENT_BUFFER_CAPACITY: usize = 512;
 
-pub(crate) type Result<T> = std::result::Result<T, Error>;
-
-/// Initializes the global tracing subscriber.
-///
-/// See [`Builder::init`] for details and documentation.
-///
-/// # Panics
-///
-/// This function will panic if it is called more than once, or if another library has already initialized a global tracing subscriber.
-#[must_use = "This function returns a TauriPlugin that needs to be added to the Tauri app in order to properly instrument it."]
-pub fn init<R: Runtime>() -> tauri::plugin::TauriPlugin<R> {
-    Builder::default().init()
-}
-
-/// Initializes the global tracing subscriber.
-///
-/// See [`Builder::try_init`] for details and documentation.
-///
-/// # Errors
-///
-/// This function will fail if it is called more than once, or if another library has already initialized a global tracing subscriber.
-#[must_use = "This function returns a TauriPlugin that needs to be added to the Tauri app in order to properly instrument it."]
-pub fn try_init<R: Runtime>() -> Result<tauri::plugin::TauriPlugin<R>> {
-    Builder::default().try_init()
-}
+pub type Result<T> = std::result::Result<T, Error>;
 
 /// Shared data between the [`Layer`] and the [`Aggregator`]
 #[derive(Debug, Default)]
-pub(crate) struct Shared {
+pub struct Shared {
     dropped_log_events: AtomicUsize,
     dropped_span_events: AtomicUsize,
     flush: Notify,
@@ -85,7 +35,7 @@ pub(crate) struct Shared {
 ///
 /// This is designed to be as cheap to create as possible so the `Layer` impl remains lightweight.
 #[derive(Debug)]
-pub(crate) enum Event {
+pub enum Event {
     /// The tracing system registered new span or event metadata
     /// Metadata is the portion of a data point that remains static.
     Metadata(&'static tracing_core::Metadata<'static>),
@@ -128,10 +78,10 @@ pub(crate) enum Event {
 }
 
 /// Commands send from the `Server` to the `Aggregator`
-pub(crate) enum Command {
+pub enum Command {
     Instrument(Watcher),
 }
 
-struct Watcher {
+pub struct Watcher {
     tx: mpsc::Sender<Result<instrument::Update>>,
 }

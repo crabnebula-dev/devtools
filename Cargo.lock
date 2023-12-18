@@ -667,6 +667,7 @@ dependencies = [
  "colored",
  "devtools-wire-format",
  "futures",
+ "http",
  "prost-types",
  "ringbuf",
  "tauri",
@@ -809,11 +810,11 @@ dependencies = [
 name = "example-tauri"
 version = "0.1.0"
 dependencies = [
- "devtools",
  "reqwest",
  "serde",
  "tauri",
  "tauri-build",
+ "tauri-plugin-devtools",
  "tiny_http",
  "tokio",
  "tracing",
@@ -3410,6 +3411,18 @@ dependencies = [
  "syn 1.0.109",
  "tauri-codegen",
  "tauri-utils",
+]
+
+[[package]]
+name = "tauri-plugin-devtools"
+version = "0.2.5"
+dependencies = [
+ "colored",
+ "devtools",
+ "tauri",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

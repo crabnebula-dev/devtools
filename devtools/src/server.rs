@@ -14,9 +14,9 @@ use devtools_wire_format::tauri::{
     tauri_server, Config, ConfigRequest, Metrics, MetricsRequest, Versions, VersionsRequest,
 };
 use futures::{FutureExt, Stream, TryStreamExt};
+use http::HeaderValue;
 use std::net::SocketAddr;
 use std::path::{Component, PathBuf};
-use tauri::http::header::HeaderValue;
 use tauri::{AppHandle, Runtime};
 use tokio::sync::mpsc;
 use tonic::codegen::http::Method;
@@ -40,7 +40,7 @@ const DEFAULT_CLIENT_BUFFER_CAPACITY: usize = 1024 * 4;
 /// - [`InstrumentService`]: Instrumentation related functionality, such as logs, spans etc.
 /// - [`TauriService`]: Tauri-specific functionality, such as config, assets, metrics etc.
 /// - [`HealthServer`]: `gRPC` health service for monitoring the health of the instrumenting API itself.
-pub(crate) struct Server<R: Runtime> {
+pub struct Server<R: Runtime> {
     instrument: InstrumentService,
     tauri: TauriService<R>,
     sources: SourcesService<R>,
