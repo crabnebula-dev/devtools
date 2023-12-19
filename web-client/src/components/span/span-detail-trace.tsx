@@ -1,4 +1,4 @@
-import { For } from "solid-js";
+import { For, JSXElement, Show } from "solid-js";
 import { UiSpan } from "~/lib/span/format-spans-for-ui";
 import { Span } from "~/lib/connection/monitor";
 import {
@@ -63,18 +63,18 @@ function SpanDetailPopOverContent(props: { span: UiSpan }) {
 
   return (
     <Popover.Content
-      class="z-50 bg-gray-700 rounded-sm drop-shadow-2xl px-2 py-1 focus:outline-none grid grid-cols-2"
+      class="z-50 bg-gray-700 rounded-sm drop-shadow-2xl px-2 py-1 focus:outline-none"
       style={{ "max-width": "min(calc(100vw - 16px), 380px)" }}
     >
-      <Popover.Arrow />
-      <span>{props.span.name}</span>
-      <span />
-      <span>Busy</span>
-      <span>{(busy(props.span.original) / 1e6).toFixed(3)}ms</span>
-      <span>Idle</span>
-      <span>
-        {(props.span.time - busy(props.span.original) / 1e6).toFixed(3)}ms
-      </span>
+      <ToolTipContent>
+        <ToolTipRow title={props.span.name} />
+        <ToolTipRow title="Busy">
+          {(busy(props.span.original) / 1e6).toFixed(3)}ms
+        </ToolTipRow>
+        <ToolTipRow title="Idle">
+          {(props.span.time - busy(props.span.original) / 1e6).toFixed(3)}ms
+        </ToolTipRow>
+      </ToolTipContent>
     </Popover.Content>
   );
 }
@@ -99,24 +99,46 @@ function SpanDetailSlice(props: {
       />
       <Popover.Portal>
         <Popover.Content
-          class="z-50 bg-gray-700 rounded-sm drop-shadow-2xl px-2 py-1 focus:outline-none grid grid-cols-2"
+          class="z-50 bg-gray-700 rounded-sm drop-shadow-2xl px-2 py-1 focus:outline-none"
           style={{
             "max-width": "min(calc(100vw - 16px), 380px)",
           }}
         >
-          <Popover.Arrow />
-          <span>Time</span>
-          <span>
-            {((props.slice.exited - props.slice.entered) / 1e6).toFixed(3)}ms
-          </span>
-          <span>Thread</span>
-          <span>{props.slice.threadID}</span>
-          <span>Start</span>
-          <span>{getDetailedTime(new Date(props.slice.entered / 1e6))}</span>
-          <span>End</span>
-          <span>{getDetailedTime(new Date(props.slice.exited / 1e6))}</span>
+          <ToolTipContent>
+            <ToolTipRow title="Time">
+              {((props.slice.exited - props.slice.entered) / 1e6).toFixed(3)}
+              ms
+            </ToolTipRow>
+            <ToolTipRow title="Thread">{props.slice.threadID}</ToolTipRow>
+            <ToolTipRow title="Start">
+              {getDetailedTime(new Date(props.slice.entered / 1e6))}
+            </ToolTipRow>
+            <ToolTipRow title="End">
+              {getDetailedTime(new Date(props.slice.exited / 1e6))}
+            </ToolTipRow>
+          </ToolTipContent>
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>
+  );
+}
+
+function ToolTipContent(props: { children: JSXElement }) {
+  return (
+    <>
+      <Popover.Arrow />
+      <table>{props.children}</table>
+    </>
+  );
+}
+
+function ToolTipRow(props: { title: string; children?: JSXElement }) {
+  return (
+    <tr class="grid grid-cols-2 text-left">
+      <th>{props.title}</th>
+      <Show when={props.children}>
+        <td>{props.children}</td>
+      </Show>
+    </tr>
   );
 }
