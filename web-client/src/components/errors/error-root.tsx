@@ -23,8 +23,8 @@ export function ErrorRoot(props: Props) {
           </Switch>
         </header>
         <article class="flex flex-col justify-evenly">
-          <div class="p-5 border-2 border-slate-800 rounded-lg font-mono">
-            <h2 class="text-4xl relative -top-12">System log</h2>
+          <div class="p-5 border-2 border-slate-800 rounded-lg font-mono overflow-y-visible overflow-x-auto max-w-lg">
+            <h2 class="text-4xl relative pb-5">System log</h2>
             <pre class="text-2xl">{errorMessage()}</pre>
             <ul class="pt-12">
               <li>App version: {pkg.version}</li>
