@@ -4,11 +4,11 @@ import {
 } from "~/lib/tauri/tauri-conf-lib";
 import { useConfiguration } from "./configuration-context";
 import { createEffect, Show } from "solid-js";
-import CodeView from "../sources/code-view";
+import { CodeView } from "~/components/sources/code-view";
 import { useParams, useSearchParams } from "@solidjs/router";
 import { retrieveConfigurationByKey } from "~/lib/tauri/config/retrieve-configurations";
 
-export default function JsonView() {
+export function JsonView() {
   const params = useParams<{ config: string }>();
   const [searchParams] = useSearchParams<{ size: string }>();
   const path = () =>

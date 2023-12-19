@@ -1,8 +1,8 @@
 import { createResource, Signal } from "solid-js";
 import { unwrap, reconcile } from "solid-js/store";
 import { getEntryBytes } from "~/lib/sources/file-entries";
-import { bytesToText } from "../../code-highlight";
-import type { SourcesClient } from "../../proto/sources.client";
+import { bytesToText } from "~/lib/code-highlight";
+import type { SourcesClient } from "~/lib/proto/sources.client";
 import { useConnection } from "~/context/connection-provider";
 import { useConfiguration } from "~/components/tauri/configuration-context";
 import { useMonitor } from "~/context/monitor-provider";
@@ -13,8 +13,8 @@ import {
   isPartiallyValidConfig,
 } from "./parse-tauri-config";
 import { zodSchemaForVersion } from "./zod-schema-for-version";
-import { getVersions } from "../../connection/getters";
-import { safeStringifyJson, safeParseJson } from "../../safe-json";
+import { getVersions } from "~/lib/connection/getters";
+import { safeStringifyJson, safeParseJson } from "~/lib/safe-json";
 import { z } from "zod";
 
 export type ConfigurationStore = {
