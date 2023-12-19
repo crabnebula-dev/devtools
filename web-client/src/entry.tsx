@@ -1,18 +1,14 @@
-import {
-  type RouteDefinition,
-  useNavigate,
-  useRoutes,
-  Navigate,
-} from "@solidjs/router";
+import { Navigate, Router, RouteDefinition } from "@solidjs/router";
 import { lazy, ErrorBoundary } from "solid-js";
 import { setCDN } from "@crabnebula/file-icons";
 import { ErrorRoot } from "./components/errors/error-root.tsx";
 import * as Sentry from "@sentry/browser";
+import Layout from "./views/dashboard/layout.tsx";
 
-const ROUTES: RouteDefinition[] = [
+const ROUTES = [
   {
     path: "/",
-    component: () => Navigate({ href: "/app" }),
+    component: () => <Navigate href="/app" />,
   },
   {
     path: "/app",
@@ -20,15 +16,11 @@ const ROUTES: RouteDefinition[] = [
   },
   {
     path: "/app/dash/:host/:port",
-    component: lazy(() => import("./views/dashboard/layout.tsx")),
+    component: (props) => <Layout>{props.children}</Layout>,
     children: [
       {
         path: "/",
-        component: () => {
-          useNavigate()("console");
-
-          return null;
-        },
+        component: () => <Navigate href="console" />,
       },
       {
         path: "/console",
@@ -54,11 +46,9 @@ const ROUTES: RouteDefinition[] = [
       throw new Error("404 - Not Found: The specified path was not found");
     },
   },
-];
+] satisfies RouteDefinition[];
 
 export default function Entry() {
-  const Routes = useRoutes(ROUTES);
-
   setCDN("/app/icons");
 
   return (
@@ -68,7 +58,7 @@ export default function Entry() {
         return <ErrorRoot error={error} />;
       }}
     >
-      <Routes />
+      <Router>{ROUTES}</Router>
     </ErrorBoundary>
   );
 }
