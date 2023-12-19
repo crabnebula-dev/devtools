@@ -12,6 +12,7 @@ import { getLevelClasses } from "~/lib/console/get-level-classes";
 import { LogLevelFilter } from "~/components/console/log-level-filter";
 import { NoLogs } from "~/components/console/no-logs";
 import { getFileNameFromPath } from "~/lib/console/get-file-name-from-path";
+import { processFieldValue } from "~/lib/span/process-field-value.ts";
 
 export default function Console() {
   const { monitorData } = useMonitor();
@@ -69,6 +70,16 @@ export default function Console() {
             const timeDate = timestampToDate(at);
             const levelStyle = getLevelClasses(metadata?.level);
 
+            let target = metadata?.target;
+            if (target === "log") {
+              const field = logEvent.fields.find(
+                (field) => field.name === "log.target"
+              );
+              if (field) {
+                target = processFieldValue(field.value);
+              }
+            }
+
             return (
               <li
                 class={clsx(
@@ -89,7 +100,7 @@ export default function Console() {
                 </Show>
                 <span>{message}</span>
                 <span class="ml-auto flex gap-2 items-center text-xs">
-                  <Show when={metadata?.target}>
+                  <Show when={target}>
                     {(logTarget) => (
                       <span class="text-gray-600">{logTarget()}</span>
                     )}

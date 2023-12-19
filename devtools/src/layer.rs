@@ -98,10 +98,13 @@ where
 
     fn on_event(&self, event: &tracing_core::Event<'_>, ctx: Context<'_, S>) {
         let at = Instant::now();
+        let metadata = event.metadata();
 
         self.send_event(&self.shared.dropped_log_events, || {
-            let metadata = event.metadata();
+            Event::Metadata(metadata)
+        });
 
+        self.send_event(&self.shared.dropped_log_events, || {
             let mut visitor = EventVisitor::new(metadata as *const _ as u64);
             event.record(&mut visitor);
             let (message, fields) = visitor.result();
