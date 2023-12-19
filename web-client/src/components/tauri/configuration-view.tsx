@@ -1,10 +1,8 @@
 import { Show, For, createEffect, Switch, Match } from "solid-js";
 import { ConfigurationValue } from "./configuration-value";
 import { ConfigurationTooltip } from "./configuration-tooltip";
-import {
-  generateDescriptions,
-  retrieveConfigurationByKey,
-} from "~/lib/tauri/tauri-conf-schema";
+import { generateDescriptions } from "~/lib/tauri/tauri-conf-lib";
+import { retrieveConfigurationByKey } from "~/lib/tauri/config/retrieve-configurations";
 import { useParams } from "@solidjs/router";
 import { ConfigurationErrors } from "./configuration-errors";
 import { MissingConfigurationParameterDialog } from "./dialogs/missing-configuration-parameter-dialog";
