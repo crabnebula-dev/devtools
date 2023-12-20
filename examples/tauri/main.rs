@@ -24,7 +24,7 @@ async fn test1(
     tracing::warn!("test warn event");
     tracing::error!("test error event");
 
-    app.emit_all("test1-event", "sleeping").unwrap();
+    app.emit("test1-event", "sleeping").unwrap();
 
     tokio::time::sleep(Duration::from_secs(timeout_seconds)).await;
 
