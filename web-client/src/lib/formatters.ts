@@ -36,3 +36,13 @@ export function getTime(date: Date) {
     second: "2-digit",
   }).format(date);
 }
+
+export function getDetailedTime(date: Date) {
+  return Intl.DateTimeFormat("en", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    second: "2-digit",
+    fractionalSecondDigits: 3,
+  }).format(date);
+}
