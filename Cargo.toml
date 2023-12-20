@@ -16,8 +16,8 @@ tracing-core = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 thiserror = "1.0"
 tokio-stream = "0.1"
-tauri = { version = "1.5.3", features = ["tracing"] }
-tauri-build = "1.5.0"
+tauri = { git = "https://github.com/crabnebula-dev/tauri", branch = "feat/core-tracing", features = ["tracing"] }
+tauri-build = { git = "https://github.com/crabnebula-dev/tauri", branch = "feat/core-tracing" }
 tonic = "0.10"
 prost = "0.12"
 prost-types = "0.12"

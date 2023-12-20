@@ -25,7 +25,7 @@ fn init_plugin<R: Runtime>(
     cmd_tx: mpsc::Sender<Command>,
 ) -> tauri::plugin::TauriPlugin<R> {
     tauri::plugin::Builder::new("probe")
-        .setup(move |app_handle| {
+        .setup(move |app_handle, _api| {
             let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
 
             health_reporter

@@ -42,7 +42,7 @@ export function SpanDetail(props: { span: UiSpan }) {
           getIpcRequestValues({
             metadata: monitorData.metadata,
             rootSpan: props.span,
-          })("ipc::request")?.fields.map((f) => processFieldValue(f.request)) ??
+          })("ipc::request")?.fields.map((f) => f.request ? processFieldValue(f.request) : null).filter(Boolean) ??
           [];
         return ipcValues;
       }

@@ -19,5 +19,11 @@ export function getSpanKindByMetadata({ metadata, span }: Options) {
   }
 
   const spanMetadata = metadata.get(span.metadataId);
+
+  if (spanMetadata?.name === "wry::custom_protocol::handle") {
+    // TODO: check if we actually have a child IPC span
+    return "ipc";
+  }
+
   return spanMetadata?.name === "wry::ipc::handle" ? "ipc" : null;
 }
