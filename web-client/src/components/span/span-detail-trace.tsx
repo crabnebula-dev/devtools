@@ -74,6 +74,7 @@ function SpanDetailPopOverContent(props: { span: UiSpan }) {
         <ToolTipRow title="Idle">
           {(props.span.time - busy(props.span.original) / 1e6).toFixed(3)}ms
         </ToolTipRow>
+        <ToolTipRow title="Total">{props.span.time.toFixed(3)}ms</ToolTipRow>
       </ToolTipContent>
     </Popover.Content>
   );
