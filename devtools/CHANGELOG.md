@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/crabnebula-dev/devtools/compare/devtools-v0.2.5...devtools-v0.3.0) - 2023-12-20
+
+### Fixed
+- pick free port
+
+### Other
+- Update error.rs
+- Merge pull request [#165](https://github.com/crabnebula-dev/devtools/pull/165) from crabnebula-dev/jonas/fix/pick-free-port
+- fmt
+- Update devtools/src/builder.rs
+- clippy & fmt
+
 ## [0.2.5](https://github.com/crabnebula-dev/devtools/compare/devtools-v0.2.4...devtools-v0.2.5) - 2023-12-11
 
 ### Other
