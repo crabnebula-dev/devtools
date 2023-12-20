@@ -5037,7 +5037,7 @@ dependencies = [
 [[package]]
 name = "wry"
 version = "0.35.1"
-source = "git+https://github.com/tauri-apps/wry/?branch=feat/tracing#5498ae5ead2dbb3f890c51a84c60290a6a736de8"
+source = "git+https://github.com/tauri-apps/wry/?branch=feat/tracing#d76d42af04976f568e240003d02aea71df9d3e4c"
 dependencies = [
  "base64",
  "block",
