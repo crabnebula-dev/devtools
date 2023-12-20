@@ -660,7 +660,7 @@ dependencies = [
 
 [[package]]
 name = "devtools"
-version = "0.2.5"
+version = "0.3.0"
 dependencies = [
  "async-stream",
  "bytes",
@@ -684,7 +684,7 @@ dependencies = [
 
 [[package]]
 name = "devtools-wire-format"
-version = "0.2.5"
+version = "0.3.0"
 dependencies = [
  "bitflags 2.4.1",
  "prost",
