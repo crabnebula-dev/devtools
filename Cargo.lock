@@ -1035,7 +1035,7 @@ dependencies = [
  "reqwest",
  "serde",
  "tauri",
- "tauri-build 2.0.0-alpha.13 (git+https://github.com/crabnebula-dev/tauri?branch=feat/core-tracing)",
+ "tauri-build",
  "tauri-plugin-devtools",
  "tiny_http",
  "tokio",
@@ -3696,6 +3696,7 @@ checksum = "14c39fd04924ca3a864207c66fc2cd7d22d7c016007f9ce846cbb9326331930a"
 [[package]]
 name = "tauri"
 version = "2.0.0-alpha.20"
+source = "git+https://github.com/crabnebula-dev/tauri?branch=feat/core-tracing#1264693323afae6dabf6904f581a678f53607f4e"
 dependencies = [
  "anyhow",
  "bytes",
@@ -3723,11 +3724,11 @@ dependencies = [
  "serialize-to-javascript",
  "state",
  "swift-rs",
- "tauri-build 2.0.0-alpha.13",
+ "tauri-build",
  "tauri-macros",
  "tauri-runtime",
  "tauri-runtime-wry",
- "tauri-utils 2.0.0-alpha.12",
+ "tauri-utils",
  "thiserror",
  "tokio",
  "tracing",
@@ -3742,6 +3743,7 @@ dependencies = [
 [[package]]
 name = "tauri-build"
 version = "2.0.0-alpha.13"
+source = "git+https://github.com/crabnebula-dev/tauri?branch=feat/core-tracing#1264693323afae6dabf6904f581a678f53607f4e"
 dependencies = [
  "anyhow",
  "cargo_toml",
@@ -3753,27 +3755,7 @@ dependencies = [
  "serde",
  "serde_json",
  "swift-rs",
- "tauri-utils 2.0.0-alpha.12",
- "tauri-winres",
- "walkdir",
-]
-
-[[package]]
-name = "tauri-build"
-version = "2.0.0-alpha.13"
-source = "git+https://github.com/crabnebula-dev/tauri?branch=feat/core-tracing#8aaa3ef1fcc6ecc529205dc7e04e1a55b17f7b38"
-dependencies = [
- "anyhow",
- "cargo_toml",
- "dirs-next",
- "heck",
- "json-patch",
- "plist",
- "semver",
- "serde",
- "serde_json",
- "swift-rs",
- "tauri-utils 2.0.0-alpha.12 (git+https://github.com/crabnebula-dev/tauri?branch=feat/core-tracing)",
+ "tauri-utils",
  "tauri-winres",
  "walkdir",
 ]
@@ -3781,6 +3763,7 @@ dependencies = [
 [[package]]
 name = "tauri-codegen"
 version = "2.0.0-alpha.12"
+source = "git+https://github.com/crabnebula-dev/tauri?branch=feat/core-tracing#1264693323afae6dabf6904f581a678f53607f4e"
 dependencies = [
  "base64",
  "brotli",
@@ -3794,7 +3777,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "tauri-utils 2.0.0-alpha.12",
+ "tauri-utils",
  "thiserror",
  "time",
  "url",
@@ -3805,13 +3788,14 @@ dependencies = [
 [[package]]
 name = "tauri-macros"
 version = "2.0.0-alpha.12"
+source = "git+https://github.com/crabnebula-dev/tauri?branch=feat/core-tracing#1264693323afae6dabf6904f581a678f53607f4e"
 dependencies = [
  "heck",
  "proc-macro2",
  "quote",
  "syn 2.0.39",
  "tauri-codegen",
- "tauri-utils 2.0.0-alpha.12",
+ "tauri-utils",
 ]
 
 [[package]]
@@ -3835,6 +3819,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime"
 version = "1.0.0-alpha.7"
+source = "git+https://github.com/crabnebula-dev/tauri?branch=feat/core-tracing#1264693323afae6dabf6904f581a678f53607f4e"
 dependencies = [
  "gtk",
  "http",
@@ -3842,7 +3827,7 @@ dependencies = [
  "raw-window-handle",
  "serde",
  "serde_json",
- "tauri-utils 2.0.0-alpha.12",
+ "tauri-utils",
  "thiserror",
  "url",
  "windows 0.52.0",
@@ -3851,6 +3836,7 @@ dependencies = [
 [[package]]
 name = "tauri-runtime-wry"
 version = "1.0.0-alpha.8"
+source = "git+https://github.com/crabnebula-dev/tauri?branch=feat/core-tracing#1264693323afae6dabf6904f581a678f53607f4e"
 dependencies = [
  "cocoa",
  "gtk",
@@ -3860,7 +3846,7 @@ dependencies = [
  "raw-window-handle",
  "tao",
  "tauri-runtime",
- "tauri-utils 2.0.0-alpha.12",
+ "tauri-utils",
  "tracing",
  "webkit2gtk",
  "webview2-com",
@@ -3871,35 +3857,9 @@ dependencies = [
 [[package]]
 name = "tauri-utils"
 version = "2.0.0-alpha.12"
+source = "git+https://github.com/crabnebula-dev/tauri?branch=feat/core-tracing#1264693323afae6dabf6904f581a678f53607f4e"
 dependencies = [
  "brotli",
- "ctor",
- "dunce",
- "glob",
- "heck",
- "html5ever",
- "infer",
- "json-patch",
- "kuchikiki",
- "log",
- "memchr",
- "phf 0.11.2",
- "proc-macro2",
- "quote",
- "semver",
- "serde",
- "serde_json",
- "serde_with",
- "thiserror",
- "url",
- "walkdir",
-]
-
-[[package]]
-name = "tauri-utils"
-version = "2.0.0-alpha.12"
-source = "git+https://github.com/crabnebula-dev/tauri?branch=feat/core-tracing#8aaa3ef1fcc6ecc529205dc7e04e1a55b17f7b38"
-dependencies = [
  "ctor",
  "dunce",
  "glob",
