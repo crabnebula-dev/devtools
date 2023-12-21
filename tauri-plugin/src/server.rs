@@ -274,7 +274,7 @@ mod tests {
     #[tokio::test]
     async fn tauri_get_config() {
         let tauri = TauriService {
-            app_handle: tauri::test::mock_app().handle(),
+            app_handle: tauri::test::mock_app().handle().clone(),
         };
 
         let cfg = tauri
@@ -292,7 +292,7 @@ mod tests {
 
     #[tokio::test]
     async fn sources_list_entries() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let stream = srv
@@ -309,7 +309,7 @@ mod tests {
 
     #[tokio::test]
     async fn sources_list_entries_root() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let res = srv
@@ -331,7 +331,7 @@ mod tests {
 
     #[tokio::test]
     async fn sources_list_entries_parent() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let res = srv
@@ -361,7 +361,7 @@ mod tests {
 
     #[tokio::test]
     async fn sources_get_bytes() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let stream = srv
@@ -387,7 +387,7 @@ mod tests {
 
     #[tokio::test]
     async fn sources_get_bytes_root() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let res = srv
@@ -409,7 +409,7 @@ mod tests {
 
     #[tokio::test]
     async fn sources_get_bytes_parent() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let res = srv

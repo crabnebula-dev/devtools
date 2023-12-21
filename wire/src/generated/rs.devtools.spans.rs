@@ -19,7 +19,7 @@ pub struct Update {
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SpanEvent {
-    #[prost(oneof = "span_event::Event", tags = "1, 2, 3, 4")]
+    #[prost(oneof = "span_event::Event", tags = "1, 2, 3, 4, 5")]
     pub event: ::core::option::Option<span_event::Event>,
 }
 /// Nested message and enum types in `SpanEvent`.
@@ -38,7 +38,7 @@ pub mod span_event {
         /// the names of its fields.
         #[prost(uint64, tag = "2")]
         pub metadata_id: u64,
-        /// User-defined key-value pairs of arbitrary data that describe the context the span represents,
+        /// User-defined key-value pairs of arbitrary data that describe the context the span represents.
         #[prost(message, repeated, tag = "3")]
         pub fields: ::prost::alloc::vec::Vec<super::super::common::Field>,
         #[prost(uint64, optional, tag = "4")]
@@ -75,6 +75,17 @@ pub mod span_event {
         #[prost(message, optional, tag = "3")]
         pub at: ::core::option::Option<::prost_types::Timestamp>,
     }
+    /// Span recorded values for a list of fields.
+    #[allow(clippy::derive_partial_eq_without_eq)]
+    #[derive(Clone, PartialEq, ::prost::Message)]
+    pub struct Recorded {
+        /// An Id that uniquely identifies it in relation to other spans.
+        #[prost(uint64, tag = "1")]
+        pub span_id: u64,
+        /// Data recorded by the span.
+        #[prost(message, repeated, tag = "2")]
+        pub fields: ::prost::alloc::vec::Vec<super::super::common::Field>,
+    }
     #[allow(clippy::derive_partial_eq_without_eq)]
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Event {
@@ -86,5 +97,7 @@ pub mod span_event {
         ExitSpan(Exit),
         #[prost(message, tag = "4")]
         CloseSpan(Close),
+        #[prost(message, tag = "5")]
+        Recorded(Recorded),
     }
 }

@@ -75,6 +75,11 @@ pub enum Event {
         at: Instant,
         span_id: tracing_core::span::Id,
     },
+    /// Span recorded a new value.
+    SpanRecorded {
+        span_id: tracing_core::span::Id,
+        fields: Vec<Field>,
+    },
 }
 
 /// Commands send from the `Server` to the `Aggregator`

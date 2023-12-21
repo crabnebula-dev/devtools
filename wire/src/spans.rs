@@ -67,4 +67,14 @@ impl SpanEvent {
             })),
         }
     }
+
+    #[must_use]
+    pub fn span_recorded(id: &tracing_core::span::Id, fields: Vec<common::Field>) -> Self {
+        Self {
+            event: Some(span_event::Event::Recorded(span_event::Recorded {
+                span_id: id.into_u64(),
+                fields,
+            })),
+        }
+    }
 }

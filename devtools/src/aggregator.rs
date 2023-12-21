@@ -202,6 +202,10 @@ impl Aggregator {
                     &span_id,
                 ));
             }
+            Event::SpanRecorded { span_id, fields } => {
+                self.spans
+                    .push_overwrite(SpanEvent::span_recorded(&span_id, fields));
+            }
         }
     }
 

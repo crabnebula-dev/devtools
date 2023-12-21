@@ -26,6 +26,7 @@ message SpanEvent {
     Enter enter_span = 2;
     Exit exit_span = 3;
     Close close_span = 4;
+    Recorded recorded = 5;
   }
 
   // Represents a period of time in which a program was executing in a particular context.
@@ -38,13 +39,12 @@ message SpanEvent {
     // from that call site, such as its name, source code location, verbosity level, and
     // the names of its fields.
     uint64 metadata_id = 2;
-    // User-defined key-value pairs of arbitrary data that describe the context the span represents,
+    // User-defined key-value pairs of arbitrary data that describe the context the span represents.
     repeated common.Field fields = 3;
     optional uint64 parent = 4;
     // Timestamp for the span.
     google.protobuf.Timestamp at = 5;
   }
-
 
   message Enter {
     uint64 span_id = 1;
@@ -61,5 +61,13 @@ message SpanEvent {
   message Close {
     uint64 span_id = 1;
     google.protobuf.Timestamp at = 3;
+  }
+
+  // Span recorded values for a list of fields.
+  message Recorded {
+    // An Id that uniquely identifies it in relation to other spans.
+    uint64 span_id = 1;
+    // Data recorded by the span.
+    repeated common.Field fields = 2;
   }
 }
