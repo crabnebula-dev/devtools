@@ -21,7 +21,7 @@ export function SpanDetailArgs(props: Props) {
                 }
               >
                 <tr class="even:bg-nearly-invisible">
-                  <td class="py-1 px-4 font-bold">{k}</td>
+                  <Show when={k}><td class="py-1 px-4 font-bold">{k}</td></Show>
                   <td class="py-1 px-4">
                     {typeof v === "object" ? JSON.stringify(v) : String(v)}
                   </td>

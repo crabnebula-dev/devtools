@@ -42,8 +42,17 @@ export function SpanDetail(props: { span: UiSpan }) {
           getIpcRequestValues({
             metadata: monitorData.metadata,
             rootSpan: props.span,
-          })("ipc::request")?.fields.map((f) => f.request ? processFieldValue(f.request) : null).filter(Boolean) ??
-          [];
+          })("ipc::request")
+            ?.fields.map((f) => {
+              if (f.request) {
+                if (f.request.oneofKind === "debugVal") {
+                  return { "": f.request.debugVal }
+                }
+                return processFieldValue(f.request)
+              }
+              return null
+            })
+            .filter(Boolean) ?? [];
         return ipcValues;
       }
 
