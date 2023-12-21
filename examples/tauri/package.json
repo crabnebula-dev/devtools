@@ -1,0 +1,14 @@
+{
+  "name": "example-tauri",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "http-server src/ --port 1430"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0-alpha.20",
+    "http-server": "^14.1.1"
+  }
+}
