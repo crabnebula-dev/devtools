@@ -110,6 +110,9 @@ pub struct Builder {
 impl Default for Builder {
     fn default() -> Self {
         Self {
+            #[cfg(any(target_os = "ios", target_os = "android"))]
+            host: IpAddr::V4(Ipv4Addr::UNSPECIFIED),
+            #[cfg(not(any(target_os = "ios", target_os = "android")))]
             host: IpAddr::V4(Ipv4Addr::LOCALHOST),
             port: 3000,
             publish_interval: Duration::from_millis(200),
@@ -123,7 +126,7 @@ impl Builder {
     ///
     /// You can set this to [`Ipv4Addr::UNSPECIFIED`] to listen on all addresses, including LAN and public ones.
     ///
-    /// **default:** [`Ipv4Addr::LOCALHOST`]
+    /// **default:** [`Ipv4Addr::LOCALHOST`] on desktop, [`Ipv4Addr::UNSPECIFIED`] on mobile.
     pub fn host(&mut self, host: IpAddr) -> &mut Self {
         self.host = host;
         self
@@ -237,9 +240,9 @@ impl Builder {
             .try_init()?;
 
         let mut port = self.port;
-        if !self.strict_port && !port_is_available(port) {
+        if !self.strict_port && !port_is_available(&self.host, port) {
             port = (1025..65535)
-                .find(|port| port_is_available(*port))
+                .find(|port| port_is_available(&self.host, *port))
                 .ok_or(Error::NoFreePorts)?;
         }
 
@@ -252,8 +255,8 @@ impl Builder {
     }
 }
 
-fn port_is_available(port: u16) -> bool {
-    TcpListener::bind(("127.0.0.1", port)).is_ok()
+fn port_is_available(host: &IpAddr, port: u16) -> bool {
+    TcpListener::bind(SocketAddr::new(host.clone(), port)).is_ok()
 }
 
 // This is pretty ugly code I know, but it looks nice in the terminal soo ¯\_(ツ)_/¯
@@ -264,7 +267,15 @@ fn print_link(addr: &SocketAddr) {
         "https://devtools.crabnebula.dev/app/dash/"
     };
 
-    let url = format!("{url}{}/{}", addr.ip(), addr.port());
+    let url = format!(
+        "{url}{}/{}",
+        if addr.ip() == Ipv4Addr::UNSPECIFIED {
+            local_ip_address::local_ip().unwrap_or_else(|_| addr.ip())
+        } else {
+            addr.ip()
+        },
+        addr.port()
+    );
     println!(
         r#"
    {} {}{}
