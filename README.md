@@ -51,6 +51,29 @@ And then run your app as usual, if everything is set up correctly devtools will 
 You can click or copy & paste the link into your browser to open up the UI.
 Alternatively you can navigate to https://devtools.crabnebula.dev and connect from there.
 
+### Android
+
+The Android emulator runs behind a virtual router that isolates it from the development machine network interfaces.
+To access the WebSocket server started by the Devtools on your machine, you must set up network redirection:
+
+- Via adb:
+
+```
+adb forward tcp:3000 tcp:3000
+```
+
+- Via the emulator console:
+
+```sh
+# first emulator launches on port 5554, you might need to find out the port via `$ adb devices`
+telnet localhost 5554
+auth <insert-auth-token-here> # insert token from `$HOME/.emulator_console_auth_token`
+# redirect host connections to 3000 to emulator port 3000
+redir add tcp:3000:3000
+```
+
+For more information, see the [official documentation](https://developer.android.com/studio/run/emulator-networking#redirection).
+
 ## Features
 
 ### Console
