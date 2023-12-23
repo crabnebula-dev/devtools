@@ -270,7 +270,26 @@ fn print_link(addr: &SocketAddr) {
     let url = format!(
         "{url}{}/{}",
         if addr.ip() == Ipv4Addr::UNSPECIFIED {
-            local_ip_address::local_ip().unwrap_or_else(|_| addr.ip())
+            #[cfg(target_os = "ios")]
+            {
+                local_ip_address::list_afinet_netifas()
+                    .and_then(|ifas| {
+                        ifas.into_iter()
+                            .find_map(|(name, addr)| {
+                                if name == "en0" && !addr.is_loopback() && addr.is_ipv4() {
+                                    Some(addr)
+                                } else {
+                                    None
+                                }
+                            })
+                            .ok_or(local_ip_address::Error::LocalIpAddressNotFound)
+                    })
+                    .unwrap_or_else(|_| local_ip_address::local_ip().unwrap_or_else(|_| addr.ip()))
+            }
+            #[cfg(not(target_os = "ios"))]
+            {
+                local_ip_address::local_ip().unwrap_or_else(|_| addr.ip())
+            }
         } else {
             addr.ip()
         },
