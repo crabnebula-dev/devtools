@@ -3,8 +3,7 @@ use devtools::aggregator::Aggregator;
 use devtools::layer::Layer;
 use devtools::server::wire::tauri::tauri_server::TauriServer;
 use devtools::server::Server;
-use devtools::Command;
-use devtools::{Error, Result, Shared};
+use devtools::{Command, Error, Result, Shared};
 use futures::FutureExt;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::sync::Arc;
@@ -17,6 +16,38 @@ use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::Layer as _;
 
 mod server;
+
+#[cfg(target_os = "ios")]
+mod ios {
+    use cocoa::base::id;
+    use objc::*;
+
+    const UTF8_ENCODING: usize = 4;
+    pub struct NSString(pub id);
+
+    impl NSString {
+        pub fn new(s: &str) -> Self {
+            // Safety: objc runtime calls are unsafe
+            NSString(unsafe {
+                let ns_string: id = msg_send![class!(NSString), alloc];
+                let ns_string: id = msg_send![ns_string,
+                                            initWithBytes:s.as_ptr()
+                                            length:s.len()
+                                            encoding:UTF8_ENCODING];
+
+                // The thing is allocated in rust, the thing must be set to autorelease in rust to relinquish control
+                // or it can not be released correctly in OC runtime
+                let _: () = msg_send![ns_string, autorelease];
+
+                ns_string
+            })
+        }
+    }
+
+    swift_rs::swift!(pub fn devtools_log(
+      level: u8, message: *const std::ffi::c_void
+    ));
+}
 
 fn init_plugin<R: Runtime>(
     addr: SocketAddr,
@@ -47,6 +78,18 @@ fn init_plugin<R: Runtime>(
                     app_handle: app_handle.clone(),
                 },
             );
+
+            #[cfg(not(target_os = "ios"))]
+            print_link(&addr);
+
+            #[cfg(target_os = "ios")]
+            {
+                let a = addr.clone();
+                std::thread::spawn(move || {
+                    std::thread::sleep(std::time::Duration::from_secs(3));
+                    print_link(&a);
+                });
+            }
 
             // spawn the server and aggregator in a separate thread
             // so we don't interfere with the application we're trying to instrument
@@ -248,18 +291,15 @@ impl Builder {
 
         let addr = SocketAddr::new(self.host, port);
 
-        print_link(&addr);
-
         let plugin = init_plugin(addr, self.publish_interval, aggregator, cmd_tx);
         Ok(plugin)
     }
 }
 
 fn port_is_available(host: &IpAddr, port: u16) -> bool {
-    TcpListener::bind(SocketAddr::new(host.clone(), port)).is_ok()
+    TcpListener::bind(SocketAddr::new(*host, port)).is_ok()
 }
 
-// This is pretty ugly code I know, but it looks nice in the terminal soo ¯\_(ツ)_/¯
 fn print_link(addr: &SocketAddr) {
     let url = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
         "http://localhost:5173/app/dash/"
@@ -295,6 +335,30 @@ fn print_link(addr: &SocketAddr) {
         },
         addr.port()
     );
+
+    #[cfg(target_os = "ios")]
+    unsafe {
+        ios::devtools_log(
+            3,
+            ios::NSString::new(
+                format!(
+                    r#"
+   {} {}{}
+   {}   Local:   {}
+"#,
+                    "Tauri Devtools",
+                    "v",
+                    env!("CARGO_PKG_VERSION"),
+                    "->",
+                    url
+                )
+                .as_str(),
+            )
+            .0 as _,
+        );
+    }
+
+    #[cfg(not(target_os = "ios"))]
     println!(
         r#"
    {} {}{}

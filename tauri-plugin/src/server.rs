@@ -42,7 +42,7 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
 
     async fn get_config(&self, _req: Request<ConfigRequest>) -> Result<Response<Config>, Status> {
         let config: Config = Config {
-            raw: serde_json::to_string(&*self.app_handle.config()).unwrap(),
+            raw: serde_json::to_string(self.app_handle.config()).unwrap(),
         };
 
         Ok(Response::new(config))
