@@ -14,7 +14,7 @@ import {
 import { MonitorData, initialMonitorData } from "~/lib/connection/monitor";
 import { addStreamListneners } from "~/lib/connection/transport";
 import { useConnection } from "~/context/connection-provider";
-import { returnLatestSchemaForVersion } from "~/lib/tauri/tauri-conf-schema";
+import { jsonSchemaForVersion } from "~/lib/tauri/config/json-schema-for-version";
 
 type ProviderProps = {
   children: JSXElement;
@@ -46,7 +46,7 @@ export function MonitorProvider(props: ProviderProps) {
   createEffect(() => {
     const versions = tauriVersions();
     if (versions) {
-      const schema = returnLatestSchemaForVersion(versions.tauri);
+      const schema = jsonSchemaForVersion(versions.tauri);
       setMonitorData("schema", schema);
     }
     setMonitorData("tauriVersions", versions);

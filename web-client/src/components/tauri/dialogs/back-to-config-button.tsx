@@ -1,4 +1,4 @@
-import { getTauriTabBasePath } from "~/lib/tauri/tauri-conf-schema";
+import { getTauriTabBasePath } from "~/lib/tauri/get-tauri-tab-base-path";
 import { A } from "@solidjs/router";
 
 type Props = {
