@@ -44,17 +44,22 @@ function getSpanNameByMetadata(span: UiSpan, metadata: Map<bigint, Metadata>) {
 
 export function formatSpanForUi(span: Span) {
   const { monitorData } = useMonitor();
-  return formatSpanForUiWithMetadata(span, monitorData.metadata);
+  return formatSpanForUiWithMetadata(
+    span,
+    monitorData.metadata,
+    monitorData.spans
+  );
 }
 
 export function formatSpanForUiWithMetadata(
   span: Span,
-  metadata: Map<bigint, Metadata>
+  metadata: Map<bigint, Metadata>,
+  spans: Span[]
 ) {
   const isProcessing = span.closedAt < 0;
 
   const kind: SpanKind | undefined =
-    getSpanKindByMetadata({ metadata, span }) ?? undefined;
+    getSpanKindByMetadata({ metadata, span, spans }) ?? undefined;
 
   const emptySpan = {
     ...span,

@@ -7,14 +7,19 @@ import { getSpanChildren } from "./get-span-children";
 type Options = {
   metadata: Map<bigint, Metadata>;
   span: Span;
+  spans: Span[];
 };
 
 export function getSpanKind(span: Span) {
   const { monitorData } = useMonitor();
-  return getSpanKindByMetadata({ metadata: monitorData.metadata, span });
+  return getSpanKindByMetadata({
+    metadata: monitorData.metadata,
+    span,
+    spans: monitorData.spans,
+  });
 }
 
-export function getSpanKindByMetadata({ metadata, span }: Options) {
+export function getSpanKindByMetadata({ metadata, span, spans }: Options) {
   if (isEventSpan({ metadata, span })) {
     return "event";
   }
@@ -22,14 +27,10 @@ export function getSpanKindByMetadata({ metadata, span }: Options) {
   const spanMetadata = metadata.get(span.metadataId);
 
   if (spanMetadata?.name === "wry::custom_protocol::handle") {
-    const { monitorData } = useMonitor();
-    const children = getSpanChildren(span, monitorData.spans);
+    const children = getSpanChildren(span, spans);
     if (
       children.some((s) => {
-        if (
-          monitorData.metadata.get(s.metadataId)?.name ===
-          "ipc::request::handle"
-        ) {
+        if (metadata.get(s.metadataId)?.name === "ipc::request::handle") {
           const cmdField = s.fields.find((f) => f.name === "cmd");
           return (
             cmdField &&

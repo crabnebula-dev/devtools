@@ -11,7 +11,7 @@ describe("formatSpansForUi", () => {
     const date = new Date(1701427195267 / 1000000);
     vi.setSystemTime(date);
     expect(
-      spans.map((span) => formatSpanForUiWithMetadata(span, metadata))
+      spans.map((span) => formatSpanForUiWithMetadata(span, metadata, spans))
     ).toMatchSnapshot();
   });
 });
