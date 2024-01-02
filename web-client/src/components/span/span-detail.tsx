@@ -15,9 +15,21 @@ export function SpanDetail(props: { span: UiSpan }) {
   const children = () => {
     const allChildren = getUiSpanChildren(props.span);
     if (props.span.kind === "ipc") {
+      // platforms that use webview's postMessage for IPC (such as iOS for remote URLs, Android and Linux)
+      // might send the response via an auxiliary custom protocol request, so we filter out those spans
+      const channelResponseSpans: bigint[] = [];
+      for (const child of allChildren) {
+        if (child.parentId && channelResponseSpans.includes(child.parentId)) {
+          channelResponseSpans.push(child.id);
+        }
+        if (child.name === "wry::custom_protocol::handle") {
+          channelResponseSpans.push(child.id);
+        }
+      }
       return allChildren.filter(
         (s) =>
           s.name !== "ipc::request::response" &&
+          !channelResponseSpans.includes(s.id) &&
           isIpcSpanName(s.metadataName ?? "")
       );
     }
