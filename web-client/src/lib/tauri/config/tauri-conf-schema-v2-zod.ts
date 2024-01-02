@@ -75,8 +75,8 @@ export const tauriConfigSchemaV2 = z
               (errors: z.ZodError[], schema) =>
                 ((result) =>
                   "error" in result ? [...errors, result.error] : errors)(
-                  schema.safeParse(x)
-                ),
+                    schema.safeParse(x)
+                  ),
               []
             );
             if (schemas.length - errors.length !== 1) {
@@ -655,6 +655,7 @@ export const tauriConfigSchemaV2 = z
                           z
                             .literal("deb")
                             .describe("The debian bundle (.deb)."),
+                          z.literal("rpm").describe("The RPM bundle (.rpm)."),
                           z
                             .literal("appimage")
                             .describe("The AppImage bundle (.appimage)."),
@@ -697,6 +698,7 @@ export const tauriConfigSchemaV2 = z
                   .superRefine((x, ctx) => {
                     const schemas = [
                       z.literal("deb").describe("The debian bundle (.deb)."),
+                      z.literal("rpm").describe("The RPM bundle (.rpm)."),
                       z
                         .literal("appimage")
                         .describe("The AppImage bundle (.appimage)."),
@@ -736,7 +738,7 @@ export const tauriConfigSchemaV2 = z
               ])
               .describe("Targets to bundle. Each value is case insensitive.")
               .describe(
-                'The bundle targets, currently supports ["deb", "appimage", "nsis", "msi", "app", "dmg", "updater"] or "all".'
+                'The bundle targets, currently supports ["deb", "rpm", "appimage", "nsis", "msi", "app", "dmg", "updater"] or "all".'
               )
               .default("all"),
             identifier: z
@@ -1022,6 +1024,156 @@ export const tauriConfigSchemaV2 = z
               )
               .describe("Configuration for the Debian bundle.")
               .default({ files: {} }),
+            rpm: z
+              .object({
+                license: z
+                  .union([
+                    z
+                      .string()
+                      .describe(
+                        "The package's license identifier. If not set, defaults to the license from the Cargo.toml file."
+                      ),
+                    z
+                      .null()
+                      .describe(
+                        "The package's license identifier. If not set, defaults to the license from the Cargo.toml file."
+                      ),
+                  ])
+                  .describe(
+                    "The package's license identifier. If not set, defaults to the license from the Cargo.toml file."
+                  )
+                  .optional(),
+                depends: z
+                  .union([
+                    z
+                      .array(z.string())
+                      .describe(
+                        "The list of RPM dependencies your application relies on."
+                      ),
+                    z
+                      .null()
+                      .describe(
+                        "The list of RPM dependencies your application relies on."
+                      ),
+                  ])
+                  .describe(
+                    "The list of RPM dependencies your application relies on."
+                  )
+                  .optional(),
+                release: z
+                  .string()
+                  .describe("The RPM release tag.")
+                  .default("1"),
+                epoch: z
+                  .number()
+                  .int()
+                  .gte(0)
+                  .describe("The RPM epoch.")
+                  .default(0),
+                files: z
+                  .record(z.string())
+                  .describe("The files to include on the package.")
+                  .default({}),
+                desktopTemplate: z
+                  .union([
+                    z
+                      .string()
+                      .describe(
+                        "Path to a custom desktop file Handlebars template.\n\nAvailable variables: `categories`, `comment` (optional), `exec`, `icon` and `name`."
+                      ),
+                    z
+                      .null()
+                      .describe(
+                        "Path to a custom desktop file Handlebars template.\n\nAvailable variables: `categories`, `comment` (optional), `exec`, `icon` and `name`."
+                      ),
+                  ])
+                  .describe(
+                    "Path to a custom desktop file Handlebars template.\n\nAvailable variables: `categories`, `comment` (optional), `exec`, `icon` and `name`."
+                  )
+                  .optional(),
+              })
+              .strict()
+              .describe("Configuration for RPM bundles.")
+              .describe("Configuration for the RPM bundle.")
+              .default({ epoch: 0, files: {}, release: "1" }),
+            dmg: z
+              .object({
+                background: z
+                  .union([
+                    z
+                      .string()
+                      .describe(
+                        "Image to use as the background in dmg file. Accepted formats: `png`/`jpg`/`gif`."
+                      ),
+                    z
+                      .null()
+                      .describe(
+                        "Image to use as the background in dmg file. Accepted formats: `png`/`jpg`/`gif`."
+                      ),
+                  ])
+                  .describe(
+                    "Image to use as the background in dmg file. Accepted formats: `png`/`jpg`/`gif`."
+                  )
+                  .optional(),
+                windowPosition: z
+                  .union([
+                    z
+                      .object({
+                        x: z.number().int().gte(0).describe("X coordinate."),
+                        y: z.number().int().gte(0).describe("Y coordinate."),
+                      })
+                      .strict()
+                      .describe("Position coordinates struct."),
+                    z.null(),
+                  ])
+                  .describe("Position of volume window on screen.")
+                  .optional(),
+                windowSize: z
+                  .object({
+                    width: z
+                      .number()
+                      .int()
+                      .gte(0)
+                      .describe("Width of the window."),
+                    height: z
+                      .number()
+                      .int()
+                      .gte(0)
+                      .describe("Height of the window."),
+                  })
+                  .strict()
+                  .describe("Size of the window.")
+                  .describe("Size of volume window.")
+                  .default({ height: 400, width: 660 }),
+                appPosition: z
+                  .object({
+                    x: z.number().int().gte(0).describe("X coordinate."),
+                    y: z.number().int().gte(0).describe("Y coordinate."),
+                  })
+                  .strict()
+                  .describe("Position coordinates struct.")
+                  .describe("Position of app file on window.")
+                  .default({ x: 180, y: 170 }),
+                applicationFolderPosition: z
+                  .object({
+                    x: z.number().int().gte(0).describe("X coordinate."),
+                    y: z.number().int().gte(0).describe("Y coordinate."),
+                  })
+                  .strict()
+                  .describe("Position coordinates struct.")
+                  .describe("Position of application folder on window.")
+                  .default({ x: 480, y: 170 }),
+              })
+              .strict()
+              .describe(
+                "Configuration for Apple Disk Image (.dmg) bundles.\n\nSee more: https://tauri.app/v1/api/config#dmgconfig"
+              )
+              .describe("DMG-specific settings.")
+              .default({
+                appPosition: { x: 180, y: 170 },
+                applicationFolderPosition: { x: 480, y: 170 },
+                windowSize: { height: 400, width: 660 },
+              }),
             macOS: z
               .object({
                 frameworks: z
@@ -1041,6 +1193,12 @@ export const tauriConfigSchemaV2 = z
                     'A list of strings indicating any macOS X frameworks that need to be bundled with the application.\n\nIf a name is used, ".framework" must be omitted and it will look for standard install locations. You may also use a path to a specific framework.'
                   )
                   .optional(),
+                files: z
+                  .record(z.string())
+                  .describe(
+                    "The files to include in the application relative to the Contents directory."
+                  )
+                  .default({}),
                 minimumSystemVersion: z
                   .union([
                     z
@@ -1123,7 +1281,7 @@ export const tauriConfigSchemaV2 = z
                 "Configuration for the macOS bundles.\n\nSee more: <https://tauri.app/v1/api/config#macconfig>"
               )
               .describe("Configuration for the macOS bundles.")
-              .default({ minimumSystemVersion: "10.13" }),
+              .default({ files: {}, minimumSystemVersion: "10.13" }),
             externalBin: z
               .union([
                 z
@@ -1836,10 +1994,16 @@ export const tauriConfigSchemaV2 = z
             android: { minSdkVersion: 24 },
             appimage: { bundleMediaFramework: false },
             deb: { files: {} },
+            dmg: {
+              appPosition: { x: 180, y: 170 },
+              applicationFolderPosition: { x: 480, y: 170 },
+              windowSize: { height: 400, width: 660 },
+            },
             iOS: {},
             icon: [],
             identifier: "",
-            macOS: { minimumSystemVersion: "10.13" },
+            macOS: { files: {}, minimumSystemVersion: "10.13" },
+            rpm: { epoch: 0, files: {}, release: "1" },
             targets: "all",
             updater: {
               active: false,
@@ -2164,10 +2328,16 @@ export const tauriConfigSchemaV2 = z
           android: { minSdkVersion: 24 },
           appimage: { bundleMediaFramework: false },
           deb: { files: {} },
+          dmg: {
+            appPosition: { x: 180, y: 170 },
+            applicationFolderPosition: { x: 480, y: 170 },
+            windowSize: { height: 400, width: 660 },
+          },
           iOS: {},
           icon: [],
           identifier: "",
-          macOS: { minimumSystemVersion: "10.13" },
+          macOS: { files: {}, minimumSystemVersion: "10.13" },
+          rpm: { epoch: 0, files: {}, release: "1" },
           targets: "all",
           updater: {
             active: false,
