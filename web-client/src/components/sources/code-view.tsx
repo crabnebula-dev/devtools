@@ -16,7 +16,7 @@ type CodeViewProps = {
   highlightedLine?: number;
 };
 
-export default function CodeView(props: CodeViewProps) {
+export function CodeView(props: CodeViewProps) {
   const { connectionStore } = useConnection();
 
   const [text] = createResource(

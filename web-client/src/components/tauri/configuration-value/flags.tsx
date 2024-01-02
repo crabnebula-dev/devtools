@@ -2,7 +2,7 @@ import { Switch, Match } from "solid-js";
 import {
   getDescriptionByKey,
   findLineNumberByKey,
-} from "~/lib/tauri/tauri-conf-schema";
+} from "~/lib/tauri/tauri-conf-lib";
 
 export function Flags(props: { key: string; value: boolean | string }) {
   const localSchema = () => getDescriptionByKey(props.key);
