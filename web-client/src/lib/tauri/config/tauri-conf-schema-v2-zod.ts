@@ -75,8 +75,8 @@ export const tauriConfigSchemaV2 = z
               (errors: z.ZodError[], schema) =>
                 ((result) =>
                   "error" in result ? [...errors, result.error] : errors)(
-                    schema.safeParse(x)
-                  ),
+                  schema.safeParse(x)
+                ),
               []
             );
             if (schemas.length - errors.length !== 1) {

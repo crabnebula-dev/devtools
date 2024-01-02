@@ -25,15 +25,20 @@ export function getSpanKindByMetadata({ metadata, span }: Options) {
     const { monitorData } = useMonitor();
     const children = getSpanChildren(span, monitorData.spans);
     if (
-      children.some(
-        (s) => {
-          if (monitorData.metadata.get(s.metadataId)?.name === "ipc::request::handle") {
-            const cmdField = s.fields.find((f) => f.name === "cmd");
-            return cmdField && cmdField.value.oneofKind === "strVal" && cmdField.value.strVal !== "plugin:__TAURI_CHANNEL__|fetch";
-          }
-          return false;
+      children.some((s) => {
+        if (
+          monitorData.metadata.get(s.metadataId)?.name ===
+          "ipc::request::handle"
+        ) {
+          const cmdField = s.fields.find((f) => f.name === "cmd");
+          return (
+            cmdField &&
+            cmdField.value.oneofKind === "strVal" &&
+            cmdField.value.strVal !== "plugin:__TAURI_CHANNEL__|fetch"
+          );
         }
-      )
+        return false;
+      })
     ) {
       return "ipc";
     }

@@ -58,11 +58,11 @@ export function SpanDetail(props: { span: UiSpan }) {
             ?.fields.map((f) => {
               if (f.request) {
                 if (f.request.oneofKind === "debugVal") {
-                  return { "": f.request.debugVal }
+                  return { "": f.request.debugVal };
                 }
-                return processFieldValue(f.request)
+                return processFieldValue(f.request);
               }
-              return null
+              return null;
             })
             .filter(Boolean) ?? [];
         return ipcValues;
