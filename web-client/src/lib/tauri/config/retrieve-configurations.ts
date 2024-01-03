@@ -13,7 +13,6 @@ import {
   isPartiallyValidConfig,
 } from "./parse-tauri-config";
 import { zodSchemaForVersion } from "./zod-schema-for-version";
-import { getVersions } from "~/lib/connection/getters";
 import { safeStringifyJson, safeParseJson } from "~/lib/safe-json";
 import { z } from "zod";
 
@@ -59,8 +58,7 @@ export function retrieveConfigurations() {
 async function loadConfigurations() {
   const { connectionStore } = useConnection();
   const { monitorData } = useMonitor();
-  const [tauriVersions] = getVersions(connectionStore.client.tauri);
-  const tauriVersion = tauriVersions()?.tauri ?? "1";
+  const tauriVersion = monitorData.tauriVersions?.tauri ?? "1";
   const zodSchema = zodSchemaForVersion(tauriVersion);
 
   const configurations = (
