@@ -118,10 +118,12 @@ export function SpanList() {
                 onClick={() => setSearchParams({ span: String(span.id) })}
                 class="even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]"
               >
-                <td class="p-1">{span.name}</td>
-                <td class="p-1">{getTime(new Date(span.initiated))}</td>
-                <td class="p-1">{span.time.toFixed(2)}ms</td>
-                <td class="p-1 relative">
+                <td class="p-1 overflow-x-auto">{span.name}</td>
+                <td class="p-1 overflow-hidden">
+                  {getTime(new Date(span.initiated))}
+                </td>
+                <td class="p-1 overflow-hidden">{span.time.toFixed(2)}ms</td>
+                <td class="p-1 relative overflow-hidden">
                   <div class="relative w-[90%]">
                     <div class="bg-gray-800 w-full absolute rounded-sm h-2" />
                     <div
