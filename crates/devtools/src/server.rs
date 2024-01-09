@@ -1,175 +1,29 @@
-use crate::{Command, Watcher};
+use std::path::{Component, PathBuf};
+
 use async_stream::try_stream;
 use bytes::BytesMut;
-use devtools_wire_format as wire;
-use devtools_wire_format::instrument;
-use devtools_wire_format::instrument::instrument_server::InstrumentServer;
-use devtools_wire_format::instrument::{instrument_server, InstrumentRequest};
-use devtools_wire_format::meta::metadata_server::MetadataServer;
-use devtools_wire_format::meta::{metadata_server, AppMetadata, AppMetadataRequest};
-use devtools_wire_format::sources::sources_server::SourcesServer;
-use devtools_wire_format::sources::{Chunk, Entry, EntryRequest, FileType};
-use devtools_wire_format::tauri::tauri_server::TauriServer;
-use devtools_wire_format::tauri::{
-    tauri_server, Config, ConfigRequest, Metrics, MetricsRequest, Versions, VersionsRequest,
+use devtools_core::server::wire::{
+    meta::{metadata_server, AppMetadata, AppMetadataRequest},
+    sources::{sources_server::Sources, Chunk, Entry, EntryRequest, FileType},
+    tauri::{
+        tauri_server, Config, ConfigRequest, Metrics, MetricsRequest, Versions, VersionsRequest,
+    },
 };
-use futures::{FutureExt, Stream, TryStreamExt};
-use std::net::SocketAddr;
-use std::path::{Component, PathBuf};
-use tauri::http::header::HeaderValue;
+use futures::{Stream, TryStreamExt};
 use tauri::{AppHandle, Runtime};
-use tokio::sync::mpsc;
-use tonic::codegen::http::Method;
-use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
 use tonic::codegen::BoxStream;
 use tonic::{Request, Response, Status};
-use tonic_health::pb::health_server::HealthServer;
-use tonic_health::server::HealthReporter;
-use tonic_health::ServingStatus;
-use tower_http::cors::{AllowHeaders, CorsLayer};
 
-/// Default maximum capacity for the channel of events sent from a
-/// [`Server`] to each subscribed client.
-///
-/// When this capacity is exhausted, the client is assumed to be inactive,
-/// and may be disconnected.
-const DEFAULT_CLIENT_BUFFER_CAPACITY: usize = 1024 * 4;
-
-/// The `gRPC` server that exposes the instrumenting API
-/// This is made up of 3 services:
-/// - [`InstrumentService`]: Instrumentation related functionality, such as logs, spans etc.
-/// - [`TauriService`]: Tauri-specific functionality, such as config, assets, metrics etc.
-/// - [`HealthServer`]: `gRPC` health service for monitoring the health of the instrumenting API itself.
-pub(crate) struct Server<R: Runtime> {
-    instrument: InstrumentService,
-    tauri: TauriService<R>,
-    sources: SourcesService<R>,
-    meta: MetaService<R>,
-    health: HealthServer<tonic_health::server::HealthService>,
+pub struct TauriService<R: Runtime> {
+    pub app_handle: AppHandle<R>,
 }
 
-struct InstrumentService {
-    tx: mpsc::Sender<Command>,
-    health_reporter: HealthReporter,
+pub struct SourcesService<R: Runtime> {
+    pub app_handle: AppHandle<R>,
 }
 
-struct TauriService<R: Runtime> {
-    app_handle: AppHandle<R>,
-}
-
-struct SourcesService<R: Runtime> {
-    app_handle: AppHandle<R>,
-}
-
-struct MetaService<R: Runtime> {
-    app_handle: AppHandle<R>,
-}
-
-impl<R: Runtime> Server<R> {
-    pub fn new(cmd_tx: mpsc::Sender<Command>, app_handle: AppHandle<R>) -> Self {
-        let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
-
-        health_reporter
-            .set_serving::<InstrumentServer<InstrumentService>>()
-            .now_or_never()
-            .unwrap();
-        health_reporter
-            .set_serving::<TauriServer<TauriService<R>>>()
-            .now_or_never()
-            .unwrap();
-
-        Self {
-            instrument: InstrumentService {
-                tx: cmd_tx,
-                health_reporter,
-            },
-            tauri: TauriService {
-                app_handle: app_handle.clone(),
-            }, // the TauriServer doesn't need a health_reporter. It can never fail.
-            meta: MetaService {
-                app_handle: app_handle.clone(),
-            },
-            sources: SourcesService { app_handle },
-            health: unsafe { std::mem::transmute(health_service) },
-        }
-    }
-
-    pub async fn run(self, addr: SocketAddr) -> crate::Result<()> {
-        tracing::info!("Listening on {}", addr);
-
-        let cors = CorsLayer::new()
-            // allow `GET` and `POST` when accessing the resource
-            .allow_methods([Method::GET, Method::POST])
-            .allow_headers(AllowHeaders::any());
-
-        let cors = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
-            cors.allow_origin(tower_http::cors::Any)
-        } else {
-            cors.allow_origin(HeaderValue::from_str("https://devtools.crabnebula.dev").unwrap())
-        };
-
-        tonic::transport::Server::builder()
-            .accept_http1(true)
-            .layer(cors)
-            .add_service(tonic_web::enable(InstrumentServer::new(self.instrument)))
-            .add_service(tonic_web::enable(TauriServer::new(self.tauri)))
-            .add_service(tonic_web::enable(SourcesServer::new(self.sources)))
-            .add_service(tonic_web::enable(MetadataServer::new(self.meta)))
-            .add_service(tonic_web::enable(self.health))
-            .serve(addr)
-            .await?;
-
-        Ok(())
-    }
-}
-
-impl InstrumentService {
-    async fn set_status(&self, status: ServingStatus) {
-        let mut r = self.health_reporter.clone();
-        r.set_service_status("rs.devtools.instrument.Instrument", status)
-            .await;
-    }
-}
-
-#[tonic::async_trait]
-impl instrument_server::Instrument for InstrumentService {
-    type WatchUpdatesStream = BoxStream<instrument::Update>;
-
-    async fn watch_updates(
-        &self,
-        req: Request<InstrumentRequest>,
-    ) -> Result<Response<Self::WatchUpdatesStream>, Status> {
-        if let Some(addr) = req.remote_addr() {
-            tracing::debug!(client.addr = %addr, "starting a new watch");
-        } else {
-            tracing::debug!(client.addr = %"<unknown>", "starting a new watch");
-        }
-
-        // reserve capacity to message the aggregator
-        let Ok(permit) = self.tx.reserve().await else {
-            self.set_status(ServingStatus::NotServing).await;
-            return Err(Status::internal(
-                "cannot start new watch, aggregation task is not running",
-            ));
-        };
-
-        // create output channel and send tx to the aggregator for tracking
-        let (tx, rx) = mpsc::channel(DEFAULT_CLIENT_BUFFER_CAPACITY);
-
-        permit.send(Command::Instrument(Watcher { tx }));
-
-        tracing::debug!("watch started");
-
-        let stream = ReceiverStream::new(rx).or_else(|err| async move {
-            tracing::error!("Aggregator failed with error {err:?}");
-
-            // TODO set the health service status to NotServing here
-
-            Err(Status::internal("boom"))
-        });
-
-        Ok(Response::new(Box::pin(stream)))
-    }
+pub struct MetaService<R: Runtime> {
+    pub app_handle: AppHandle<R>,
 }
 
 #[tonic::async_trait]
@@ -187,7 +41,9 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
     }
 
     async fn get_config(&self, _req: Request<ConfigRequest>) -> Result<Response<Config>, Status> {
-        let config: Config = (&*self.app_handle.config()).into();
+        let config: Config = Config {
+            raw: serde_json::to_string(&*self.app_handle.config()).unwrap(),
+        };
 
         Ok(Response::new(config))
     }
@@ -201,7 +57,7 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
 }
 
 #[tonic::async_trait]
-impl<R: Runtime> wire::sources::sources_server::Sources for SourcesService<R> {
+impl<R: Runtime> Sources for SourcesService<R> {
     type ListEntriesStream = BoxStream<Entry>;
 
     async fn list_entries(
@@ -409,12 +265,11 @@ impl<R: Runtime> metadata_server::Metadata for MetaService<R> {
 }
 
 #[cfg(test)]
-mod test {
-    use super::*;
-    use devtools_wire_format::instrument::instrument_server::Instrument;
-    use devtools_wire_format::sources::sources_server::Sources;
-    use devtools_wire_format::tauri::tauri_server::Tauri;
+mod tests {
+    use devtools_core::server::wire::tauri::tauri_server::Tauri;
     use futures::StreamExt;
+
+    use super::*;
 
     #[tokio::test]
     async fn tauri_get_config() {
@@ -429,30 +284,10 @@ mod test {
 
         assert_eq!(
             cfg.into_inner(),
-            devtools_wire_format::tauri::Config::from(&*tauri.app_handle.config())
+            devtools_core::server::wire::tauri::Config {
+                raw: serde_json::to_string(&*tauri.app_handle.config()).unwrap()
+            }
         );
-    }
-
-    #[tokio::test]
-    async fn subscription() {
-        let (health_reporter, _) = tonic_health::server::health_reporter();
-        let (cmd_tx, mut cmd_rx) = mpsc::channel(1);
-        let srv = InstrumentService {
-            tx: cmd_tx,
-            health_reporter,
-        };
-
-        let _stream = srv
-            .watch_updates(Request::new(InstrumentRequest {
-                log_filter: None,
-                span_filter: None,
-            }))
-            .await
-            .unwrap();
-
-        let cmd = cmd_rx.recv().await.unwrap();
-
-        assert!(matches!(cmd, Command::Instrument(_)));
     }
 
     #[tokio::test]
@@ -469,7 +304,7 @@ mod test {
 
         // this will list this crates directory, so should produce a `Cargo.toml` and `src` entry
         let entries: Vec<_> = stream.into_inner().collect().await;
-        assert_eq!(entries.len(), 4);
+        assert_eq!(entries.len(), 2);
     }
 
     #[tokio::test]

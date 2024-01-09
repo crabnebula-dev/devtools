@@ -10,7 +10,7 @@ path = "main.rs"
 
 [dependencies]
 tauri.workspace = true
-devtools = { path = "../../devtools" }
+devtools = { path = "../../crates/devtools" }
 tracing.workspace = true
 tokio = { workspace = true, features = ["time"] }
 reqwest = "0.11"
@@ -21,4 +21,4 @@ serde = "1"
 tauri-build.workspace = true
 
 [features]
-custom-protocol = [ "tauri/custom-protocol" ]
+custom-protocol = ["tauri/custom-protocol"]

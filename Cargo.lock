@@ -665,8 +665,26 @@ dependencies = [
  "async-stream",
  "bytes",
  "colored",
+ "devtools-core",
+ "futures",
+ "serde_json",
+ "tauri",
+ "tokio",
+ "tonic",
+ "tonic-health",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "devtools-core"
+version = "0.3.0"
+dependencies = [
+ "async-stream",
+ "bytes",
  "devtools-wire-format",
  "futures",
+ "http",
  "prost-types",
  "ringbuf",
  "tauri",
@@ -677,6 +695,7 @@ dependencies = [
  "tonic-health",
  "tonic-web",
  "tower-http",
+ "tower-layer",
  "tracing",
  "tracing-core",
  "tracing-subscriber",
@@ -690,8 +709,6 @@ dependencies = [
  "prost",
  "prost-build",
  "prost-types",
- "serde_json",
- "tauri",
  "tonic",
  "tonic-build",
  "tracing-core",
