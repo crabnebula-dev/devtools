@@ -664,6 +664,24 @@ version = "0.3.0"
 dependencies = [
  "async-stream",
  "bytes",
+ "colored",
+ "devtools-core",
+ "futures",
+ "serde_json",
+ "tauri",
+ "tokio",
+ "tonic",
+ "tonic-health",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "devtools-core"
+version = "0.3.0"
+dependencies = [
+ "async-stream",
+ "bytes",
  "devtools-wire-format",
  "futures",
  "http",
@@ -808,11 +826,11 @@ dependencies = [
 name = "example-tauri"
 version = "0.1.0"
 dependencies = [
+ "devtools",
  "reqwest",
  "serde",
  "tauri",
  "tauri-build",
- "tauri-plugin-devtools",
  "tiny_http",
  "tokio",
  "tracing",
@@ -3409,24 +3427,6 @@ dependencies = [
  "syn 1.0.109",
  "tauri-codegen",
  "tauri-utils",
-]
-
-[[package]]
-name = "tauri-plugin-devtools"
-version = "0.3.0"
-dependencies = [
- "async-stream",
- "bytes",
- "colored",
- "devtools",
- "futures",
- "serde_json",
- "tauri",
- "tokio",
- "tonic",
- "tonic-health",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]

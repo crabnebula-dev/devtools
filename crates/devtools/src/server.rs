@@ -2,7 +2,7 @@ use std::path::{Component, PathBuf};
 
 use async_stream::try_stream;
 use bytes::BytesMut;
-use devtools::server::wire::{
+use devtools_core::server::wire::{
     meta::{metadata_server, AppMetadata, AppMetadataRequest},
     sources::{sources_server::Sources, Chunk, Entry, EntryRequest, FileType},
     tauri::{
