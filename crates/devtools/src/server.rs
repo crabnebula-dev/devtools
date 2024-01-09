@@ -2,7 +2,7 @@ use std::path::{Component, PathBuf};
 
 use async_stream::try_stream;
 use bytes::BytesMut;
-use devtools::server::wire::{
+use devtools_core::server::wire::{
     meta::{metadata_server, AppMetadata, AppMetadataRequest},
     sources::{sources_server::Sources, Chunk, Entry, EntryRequest, FileType},
     tauri::{
@@ -266,7 +266,7 @@ impl<R: Runtime> metadata_server::Metadata for MetaService<R> {
 
 #[cfg(test)]
 mod tests {
-    use devtools::server::wire::tauri::tauri_server::Tauri;
+    use devtools_core::server::wire::tauri::tauri_server::Tauri;
     use futures::StreamExt;
 
     use super::*;
@@ -284,7 +284,7 @@ mod tests {
 
         assert_eq!(
             cfg.into_inner(),
-            devtools::server::wire::tauri::Config {
+            devtools_core::server::wire::tauri::Config {
                 raw: serde_json::to_string(&*tauri.app_handle.config()).unwrap()
             }
         );

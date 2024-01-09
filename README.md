@@ -20,7 +20,7 @@ You also have to use Tauri **1.5.3** (or later) and enable the `tracing` feature
 
 ```toml
 [dependencies]
-tauri-plugin-devtools = "0.1.0"
+devtools = "0.3.0"
 tauri = { version = "1.5.3", features = ["tracing"] }
 [build-dependencies]
 tauri-build = "1.5.0"
@@ -30,8 +30,9 @@ Then add the following snippet to your tauri initialization code:
 
 ```rust
 fn main() {
+    // This should be called as early in the execution of the app as possible
     #[cfg(debug_assertions)] // only enable instrumentation in development builds
-    let devtools = tauri_plugin_devtools::init();
+    let devtools = devtools::init();
 
     let builder = tauri::Builder::default();
 

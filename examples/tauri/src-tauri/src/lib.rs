@@ -57,7 +57,7 @@ async fn test1(
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let devtools = tauri_plugin_devtools::init();
+    let devtools = devtools::init();
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![test1])

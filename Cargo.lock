@@ -79,7 +79,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ca33f4bc4ed1babef42cad36cc1f51fa88be00420404e5b1e80ab1b18f7678c"
 dependencies = [
  "concurrent-queue",
- "event-listener 4.0.1",
+ "event-listener 4.0.3",
  "event-listener-strategy",
  "futures-core",
  "pin-project-lite",
@@ -165,7 +165,7 @@ version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7125e42787d53db9dd54261812ef17e937c95a51e4d291373b670342fa44310c"
 dependencies = [
- "event-listener 4.0.1",
+ "event-listener 4.0.3",
  "event-listener-strategy",
  "pin-project-lite",
 ]
@@ -846,6 +846,30 @@ version = "0.3.0"
 dependencies = [
  "async-stream",
  "bytes",
+ "cocoa 0.24.1",
+ "colored",
+ "devtools-core",
+ "futures",
+ "local-ip-address",
+ "objc",
+ "serde",
+ "serde_json",
+ "swift-rs",
+ "tauri",
+ "tauri-build",
+ "tokio",
+ "tonic",
+ "tonic-health",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "devtools-core"
+version = "0.3.0"
+dependencies = [
+ "async-stream",
+ "bytes",
  "devtools-wire-format",
  "futures",
  "http",
@@ -1026,9 +1050,9 @@ dependencies = [
 
 [[package]]
 name = "event-listener"
-version = "4.0.1"
+version = "4.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84f2cdcf274580f2d63697192d744727b3198894b1bf02923643bf59e2c26712"
+checksum = "67b215c49b2b248c855fb73579eb1f4f26c38ffdc12973e20e07b91d78d5646e"
 dependencies = [
  "concurrent-queue",
  "parking",
@@ -1041,7 +1065,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "958e4d70b6d5e81971bebec42271ec641e7ff4e170a6fa605f2b8a8b65cb97d3"
 dependencies = [
- "event-listener 4.0.1",
+ "event-listener 4.0.3",
  "pin-project-lite",
 ]
 
@@ -3799,11 +3823,11 @@ dependencies = [
 name = "tauri-example"
 version = "0.0.0"
 dependencies = [
+ "devtools",
  "reqwest",
  "serde",
  "tauri",
  "tauri-build",
- "tauri-plugin-devtools",
  "tokio",
  "tracing",
 ]
@@ -3819,30 +3843,6 @@ dependencies = [
  "syn 2.0.39",
  "tauri-codegen",
  "tauri-utils",
-]
-
-[[package]]
-name = "tauri-plugin-devtools"
-version = "0.3.0"
-dependencies = [
- "async-stream",
- "bytes",
- "cocoa 0.24.1",
- "colored",
- "devtools",
- "futures",
- "local-ip-address",
- "objc",
- "serde",
- "serde_json",
- "swift-rs",
- "tauri",
- "tauri-build",
- "tokio",
- "tonic",
- "tonic-health",
- "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]

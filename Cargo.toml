@@ -1,6 +1,11 @@
 [workspace]
 resolver = "2"
-members = ["wire", "devtools", "tauri-plugin", "examples/*/src-tauri"]
+members = [
+  "crates/wire",
+  "crates/devtools-core",
+  "crates/devtools",
+  "examples/*/src-tauri",
+]
 
 [workspace.package]
 authors = ["CrabNebula <hello@crabnebula.dev>"]
@@ -16,7 +21,9 @@ tracing-core = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 thiserror = "1.0"
 tokio-stream = "0.1"
-tauri = { git = "https://github.com/crabnebula-dev/tauri", branch = "feat/core-tracing", features = ["tracing"] }
+tauri = { git = "https://github.com/crabnebula-dev/tauri", branch = "feat/core-tracing", features = [
+  "tracing",
+] }
 tauri-build = { git = "https://github.com/crabnebula-dev/tauri", branch = "feat/core-tracing" }
 tonic = "0.10"
 prost = "0.12"

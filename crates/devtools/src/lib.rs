@@ -1,9 +1,10 @@
 use colored::Colorize;
-use devtools::aggregator::Aggregator;
-use devtools::layer::Layer;
-use devtools::server::wire::tauri::tauri_server::TauriServer;
-use devtools::server::Server;
-use devtools::{Command, Error, Result, Shared};
+use devtools_core::aggregator::Aggregator;
+use devtools_core::layer::Layer;
+use devtools_core::server::wire::tauri::tauri_server::TauriServer;
+use devtools_core::server::Server;
+use devtools_core::Command;
+use devtools_core::{Error, Result, Shared};
 use futures::FutureExt;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::sync::Arc;
@@ -220,7 +221,7 @@ impl Builder {
     /// Make sure to check out the `examples` sub folder for a fully working setup.
     ///
     /// ```no_run
-    /// let devtools_plugin = tauri_plugin_devtools::Builder::default().init();
+    /// let devtools_plugin = devtools::Builder::default().init();
     ///
     /// tauri::Builder::default()
     ///     .plugin(devtools_plugin)
@@ -251,7 +252,7 @@ impl Builder {
     ///
     /// ```no_run
     /// fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let devtools_plugin = tauri_plugin_devtools::Builder::default().try_init()?;
+    ///     let devtools_plugin = devtools::Builder::default().try_init()?;
     ///
     ///     tauri::Builder::default()
     ///         .plugin(devtools_plugin)
