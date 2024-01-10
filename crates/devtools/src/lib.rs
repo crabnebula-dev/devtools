@@ -1,10 +1,13 @@
+mod server;
+
 use colored::Colorize;
 use devtools_core::aggregator::Aggregator;
 use devtools_core::layer::Layer;
 use devtools_core::server::wire::tauri::tauri_server::TauriServer;
 use devtools_core::server::Server;
 use devtools_core::Command;
-use devtools_core::{Error, Result, Shared};
+pub use devtools_core::Error;
+use devtools_core::{Result, Shared};
 use futures::FutureExt;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::sync::Arc;
@@ -15,8 +18,6 @@ use tokio::sync::mpsc;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::Layer as _;
-
-mod server;
 
 fn init_plugin<R: Runtime>(
     addr: SocketAddr,
