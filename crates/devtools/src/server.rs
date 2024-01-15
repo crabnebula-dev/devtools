@@ -67,26 +67,35 @@ impl<R: Runtime> Sources for SourcesService<R> {
         tracing::debug!("list entries");
 
         if self.app_handle.asset_resolver().iter().count() == 0 {
-            let path = PathBuf::from(req.into_inner().path);
-
-            // deny requests that contain special path components, like root dir, parent dir,
-            // or weird windows ones. Only plain old regular, relative paths.
-            if !path
-                .components()
-                .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
+            #[cfg(any(target_os = "android", target_os = "ios"))]
             {
-                return Err(Status::not_found("file with the specified path not found"));
+                return Err(Status::unavailable(
+                    "listing entries on mobile is not supported on development",
+                ));
             }
+            #[cfg(not(any(target_os = "android", target_os = "ios")))]
+            {
+                let path = PathBuf::from(req.into_inner().path);
 
-            let mut cwd = std::env::current_dir()?;
-            cwd.push(path);
+                // deny requests that contain special path components, like root dir, parent dir,
+                // or weird windows ones. Only plain old regular, relative paths.
+                if !path
+                    .components()
+                    .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
+                {
+                    return Err(Status::not_found("file with the specified path not found"));
+                }
 
-            let stream = self.list_entries_from_dir(cwd).or_else(|err| async move {
-                tracing::error!("List Entries failed with error {err:?}");
-                // TODO set the health service status to NotServing here
-                Err(Status::internal("boom"))
-            });
-            Ok(Response::new(Box::pin(stream)))
+                let mut cwd = std::env::current_dir()?;
+                cwd.push(path);
+
+                let stream = self.list_entries_from_dir(cwd).or_else(|err| async move {
+                    tracing::error!("List Entries failed with error {err:?}");
+                    // TODO set the health service status to NotServing here
+                    Err(Status::internal("boom"))
+                });
+                Ok(Response::new(Box::pin(stream)))
+            }
         } else {
             let inner = req.into_inner();
             let path = inner.path.trim_end_matches('.');
@@ -203,6 +212,7 @@ impl<R: Runtime> SourcesService<R> {
         futures::stream::iter(entries.into_iter().map(Ok))
     }
 
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
     fn list_entries_from_dir(&self, root: PathBuf) -> impl Stream<Item = crate::Result<Entry>> {
         let app_handle = self.app_handle.clone();
 
