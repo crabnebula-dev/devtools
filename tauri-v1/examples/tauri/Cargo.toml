@@ -1,0 +1,26 @@
+workspace = {}
+
+[package]
+name = "example-tauri"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "tauri-example"
+path = "main.rs"
+
+[dependencies]
+tauri = "1"
+devtools = { path = "../../devtools/" }
+tracing = "0.1"
+tokio = { version = "1.33", features = ["time"] }
+reqwest = "0.11"
+tiny_http = "0.11"
+serde = "1"
+
+[build-dependencies]
+tauri-build = "1"
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]
