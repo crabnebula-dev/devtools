@@ -268,6 +268,7 @@ impl<R: Runtime> metadata_server::Metadata for MetaService<R> {
             os: std::env::consts::OS.to_string(),
             arch: std::env::consts::ARCH.to_string(),
             debug_assertions: cfg!(debug_assertions),
+            has_embedded_assets: self.app_handle.asset_resolver().iter().count() > 0,
         };
 
         Ok(Response::new(meta))

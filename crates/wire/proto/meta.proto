@@ -36,4 +36,6 @@ message AppMetadata {
     string arch = 6;
     /// Whether the app was compiled with debug assertions enabled.
     bool debug_assertions = 7;
+    /// Whether the app has embedded assets or not.
+    bool has_embedded_assets = 8;
 }
