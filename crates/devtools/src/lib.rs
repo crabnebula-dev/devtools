@@ -1,6 +1,5 @@
 mod server;
 
-use colored::Colorize;
 use devtools_core::aggregator::Aggregator;
 use devtools_core::layer::Layer;
 use devtools_core::server::wire::tauri::tauri_server::TauriServer;
@@ -86,10 +85,9 @@ fn init_plugin<R: Runtime>(
 
             #[cfg(target_os = "ios")]
             {
-                let a = addr.clone();
                 std::thread::spawn(move || {
                     std::thread::sleep(std::time::Duration::from_secs(3));
-                    print_link(&a);
+                    print_link(&addr);
                 });
             }
 
@@ -361,15 +359,18 @@ fn print_link(addr: &SocketAddr) {
     }
 
     #[cfg(not(target_os = "ios"))]
-    println!(
-        r#"
+    {
+        use colored::Colorize;
+        println!(
+            r#"
    {} {}{}
    {}   Local:   {}
 "#,
-        "Tauri Devtools".bright_purple(),
-        "v".purple(),
-        env!("CARGO_PKG_VERSION").purple(),
-        "→".bright_purple(),
-        url.underline().blue()
-    );
+            "Tauri Devtools".bright_purple(),
+            "v".purple(),
+            env!("CARGO_PKG_VERSION").purple(),
+            "→".bright_purple(),
+            url.underline().blue()
+        );
+    }
 }
