@@ -1,16 +1,20 @@
-name: CI
+name: CI (v1)
 
 on:
   push:
     paths:
       - ".github/workflows/ci.yml"
       - "crates/**/*.rs"
+      - "!crates/devtools/**/*.rs"
+      - "tauri-v1/**/*.rs"
       - "crates/wire/proto/*.proto"
       - "**/Cargo.toml"
   pull_request:
     paths:
       - ".github/workflows/ci.yml"
       - "crates/**/*.rs"
+      - "!crates/devtools/**/*.rs"
+      - "tauri-v1/**/*.rs"
       - "crates/wire/proto/*.proto"
       - "**/Cargo.toml"
 
@@ -43,12 +47,12 @@ jobs:
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y webkit2gtk-4.1 protobuf-compiler
+          sudo apt-get install -y libwebkit2gtk-4.0-dev protobuf-compiler
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{matrix.rust}}
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --workspace
+      - run: cargo test --manifest-path tauri-v1/devtools/Cargo.toml
         env:
           RUSTFLAGS: ${{matrix.rustflags}} ${{env.RUSTFLAGS}}
 
@@ -63,12 +67,12 @@ jobs:
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y webkit2gtk-4.1 protobuf-compiler
+          sudo apt-get install -y libwebkit2gtk-4.0-dev protobuf-compiler
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: 1.70.0 # MSRV
       - uses: Swatinem/rust-cache@v2
-      - run: cargo check --workspace --tests
+      - run: cargo check --manifest-path tauri-v1/devtools/Cargo.toml --tests
 
   clippy:
     name: Clippy
@@ -80,12 +84,12 @@ jobs:
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y webkit2gtk-4.1
+          sudo apt-get install -y libwebkit2gtk-4.0-dev
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
-      - run: cargo clippy --workspace -- -Dclippy::all -Dclippy::pedantic
+      - run: cargo clippy --manifest-path tauri-v1/devtools/Cargo.toml -- -Dclippy::all -Dclippy::pedantic
 
   rustfmt:
     name: Rustfmt
@@ -98,28 +102,16 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt
-      - run: cargo fmt --all -- --check
+      - run: cargo fmt --manifest-path tauri-v1/devtools/Cargo.toml -- --check
 
   check-licenses:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - name: Use Node.js 20
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-          cache: 'pnpm'
-          cache-dependency-path: 'web-client/pnpm-lock.yaml'
-      - name: Install dependencies
-        run: pnpm install -g license-checker
-      - name: Check JavaScript Licenses
-        working-directory: web-client
-        run:  license-checker --summary --onlyAllow="MIT;Apache-2.0;BSD-2-Clause" --excludePackages="spa-client@0.0.0"
       - name: Check Rust Licenses
         uses: EmbarkStudios/cargo-deny-action@v1
+        with:
+          arguments: --manifest-path tauri-v1/devtools/Cargo.toml
 
 #  outdated:
 #     name: Outdated
