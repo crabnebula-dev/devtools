@@ -18,7 +18,7 @@ export function SourcePane() {
   return (
     <Show when={params.source} keyed>
       <Suspense fallback={<Loader />}>
-        <Show when={contentType()}>
+        <Show when={contentType()} fallback={<UnknownView path={filePath()} />}>
           {(resolvedContentType) => (
             <Switch fallback={<UnknownView path={filename()} />}>
               <Match when={resolvedContentType().startsWith("code/")} keyed>
