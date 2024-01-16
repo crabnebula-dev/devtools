@@ -9,10 +9,10 @@ import { HighlighterLang } from "~/lib/code-highlight";
 
 export function SourcePane() {
   const params = useParams<Record<"source", string>>();
-  const filename = () => decodeFileName(params.source);
+  const filePath = () => decodeFileName(params.source);
   const [searchParams] = useSearchParams();
 
-  const contentType = () => guessContentType(filename());
+  const contentType = () => guessContentType(filePath());
   const sizeHint = () => parseInt(searchParams.sizeHint);
 
   return (
@@ -20,10 +20,10 @@ export function SourcePane() {
       <Suspense fallback={<Loader />}>
         <Show when={contentType()} fallback={<UnknownView path={filePath()} />}>
           {(resolvedContentType) => (
-            <Switch fallback={<UnknownView path={filename()} />}>
+            <Switch fallback={<UnknownView path={filePath()} />}>
               <Match when={resolvedContentType().startsWith("code/")} keyed>
                 <CodeView
-                  path={filename()}
+                  path={filePath()}
                   size={sizeHint()}
                   lang={
                     resolvedContentType().replace(
@@ -35,7 +35,7 @@ export function SourcePane() {
               </Match>
               <Match when={resolvedContentType().startsWith("image/")} keyed>
                 <ImageView
-                  path={params.source}
+                  path={filePath()}
                   size={sizeHint()}
                   type={resolvedContentType().replace("image/", "")}
                 />
