@@ -4,12 +4,14 @@ import { Entry } from "~/lib/proto/sources.ts";
 import { RpcOutputStream } from "@protobuf-ts/runtime-rpc";
 import { Chunk } from "~/lib/proto/sources.ts";
 
+// In the following we "invented" the escape code %DDD to properly escape dots
+
 export function encodeFileName(path: string) {
-  return path.replaceAll(".", "-");
+  return encodeURIComponent(path.replaceAll(".", "%DDD"));
 }
 
 export function decodeFileName(path: string) {
-  return path.replaceAll("-", ".");
+  return decodeURIComponent(path).replaceAll("%DDD", ".");
 }
 
 export function awaitEntries(client: SourcesClient, path: string) {
