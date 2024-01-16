@@ -11,7 +11,7 @@ name = "tauri-example"
 path = "main.rs"
 
 [dependencies]
-tauri = "1"
+tauri = "1.5.3"
 devtools = { path = "../../devtools/" }
 tracing = "0.1"
 tokio = { version = "1.33", features = ["time"] }

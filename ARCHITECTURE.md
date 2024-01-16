@@ -66,25 +66,25 @@ and the `Layer` implementation is kept as lightweight as possible as to not dist
 layer of isolation from the rest of the app.
 This also means that a crash in the instrumentation will not bring down the app with it.
 
-The above is exposed through the [`Instrumentation`](./wire/proto/instrument.proto) gRPC service, but there are a couple more:
+The above is exposed through the [`Instrumentation`](./crates/wire/proto/instrument.proto) gRPC service, but there are a couple more:
 
 #### `Metadata`
 
 This exposes metadata about the Tauri such as the apps name, version, description, but also information
 about the Operating System such as Architecture.
-For details see the [`Metadata` service definition](./wire/proto/meta.proto).
+For details see the [`Metadata` service definition](./crates/wire/proto/meta.proto).
 
 #### `Sources`
 
 This service lets the UI display a tree-view of the working directory by enumerating files recursively and 
 querying bytes of a file.
-For details see the [`Sources` service definition](./wire/proto/sources.proto).
+For details see the [`Sources` service definition](./crates/wire/proto/sources.proto).
 
 #### `Tauri`
 
 This service lets the UI access the tauri configuration, tauri and webview versions and tauri-specific performance 
 metrics that are not yet exposed through the `Instrumentation`.
-For details see the [`Tauri` service definition](./wire/proto/tauri.proto).
+For details see the [`Tauri` service definition](./crates/wire/proto/tauri.proto).
 
 #### `Health`
 
