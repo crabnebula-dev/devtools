@@ -29,6 +29,3 @@ bytes = "1.5.0"
 ringbuf = "0.4.0-rc.2"
 async-stream = "0.3.5"
 http = "0.2"
-
-[dev-dependencies]
-tauri = { workspace = true, features = ["test"] }

@@ -875,7 +875,6 @@ dependencies = [
  "http",
  "prost-types",
  "ringbuf",
- "tauri",
  "thiserror",
  "tokio",
  "tokio-stream",

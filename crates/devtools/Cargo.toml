@@ -12,6 +12,9 @@ repository.workspace = true
 [build-dependencies]
 tauri-build.workspace = true
 
+[dev-dependencies]
+tauri = { workspace = true, features = ["test"] }
+
 [dependencies]
 devtools-core = { path = "../devtools-core/" }
 tauri.workspace = true
