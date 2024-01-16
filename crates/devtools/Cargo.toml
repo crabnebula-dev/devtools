@@ -1,8 +1,8 @@
 [package]
 name = "devtools"
+version = "2.0.0-alpha.0"
 authors.workspace = true
 edition.workspace = true
-version.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
