@@ -55,6 +55,11 @@ async fn test1(
         .expect("valid text")
 }
 
+/// Run the application.
+///
+/// # Panics
+///
+/// Panics if the application cannot be built.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let devtools = devtools::init();
