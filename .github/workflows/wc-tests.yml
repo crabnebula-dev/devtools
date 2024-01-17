@@ -6,11 +6,11 @@ on:
       - main
     paths:
       - ".github/workflows/ci.yml"
-      - "web-client/**"
+      - "clients/web/**"
   pull_request:
     paths:
       - ".github/workflows/ci.yml"
-      - "web-client/**"
+      - "clients/web/**"
 
 jobs:
   test:
@@ -25,20 +25,20 @@ jobs:
         with:
           node-version: 20
           cache: "pnpm"
-          cache-dependency-path: "web-client/pnpm-lock.yaml"
+          cache-dependency-path: "clients/web/pnpm-lock.yaml"
 
       - name: Install dependencies
-        working-directory: web-client
+        working-directory: clients/web
         run: pnpm install install
 
       - name: Format
-        working-directory: web-client
+        working-directory: clients/web
         run: pnpm prettier --check '**/*.{ts,tsx,js,jsx,json}'
 
       - name: Linting
-        working-directory: web-client
+        working-directory: clients/web
         run: pnpm lint
 
       - name: Unit tests
-        working-directory: web-client
+        working-directory: clients/web
         run: pnpm test -- --run
