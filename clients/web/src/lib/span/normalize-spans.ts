@@ -58,7 +58,7 @@ export function computeSlices(span: Span) {
   const allEnters = span.enters.reduce((acc, e) => acc + e.timestamp, 0);
 
   return span.enters.map((entered, i) => {
-    const exited = span.exits[i].timestamp;
+    const exited = span.exits[i]?.timestamp;
 
     const width = scaleToMax(
       [exited - entered.timestamp],
