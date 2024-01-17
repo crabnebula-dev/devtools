@@ -66,6 +66,15 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
         break;
       }
 
+      case "recorded": {
+        const spanId = event.event.recorded.spanId;
+        const span = currentSpans.find((s) => s.id === spanId);
+        if (span) {
+          span.fields = [...span.fields, ...event.event.recorded.fields];
+        }
+        break;
+      }
+
       /**
        * @todo
        * we need to handle this more.

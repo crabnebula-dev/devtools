@@ -1,0 +1,29 @@
+workspace = {}
+
+[package]
+name = "devtools"
+authors = ["CrabNebula <hello@crabnebula.dev>"]
+edition = "2021"
+version = "0.3.0"
+rust-version = "1.70.0"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/crabnebula-dev/devtools"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+devtools-core = { path = "../../crates/devtools-core/" }
+tauri = { version = "1.5.3", features = ["tracing"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tonic = "0.10"
+tokio = "1.33.0"
+tonic-health = "0.10"
+colored = "2.0"
+serde_json = "1"
+futures = "0.3.28"
+bytes = "1.5.0"
+async-stream = "0.3.5"
+
+[dev-dependencies]
+tauri = { version = "1.5.3", features = ["test"] }

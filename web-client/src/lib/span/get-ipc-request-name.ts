@@ -18,7 +18,11 @@ const ipcSpanNameMap: Record<string, string> = {
 
 export function getIpcRequestName({ metadata, span }: Options) {
   const meta = metadata.get(span.metadataId);
-  if (meta?.name === "wry::ipc::handle") {
+  if (
+    ["wry::custom_protocol::handle", "wry::ipc::handle"].includes(
+      meta?.name ?? ""
+    )
+  ) {
     const commandHandlerSpan =
       getUiSpanChildren(span, "ipc::request::handle")?.[0] ?? null;
     if (commandHandlerSpan) {

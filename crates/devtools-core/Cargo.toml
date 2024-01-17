@@ -1,9 +1,9 @@
 [package]
 name = "devtools-core"
+version = "0.3.0"
 description = "CrabNebula devtools for Tauri: Inspect, monitor, and understand your application with ease."
 authors.workspace = true
 edition.workspace = true
-version.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
@@ -29,6 +29,3 @@ bytes = "1.5.0"
 ringbuf = "0.4.0-rc.2"
 async-stream = "0.3.5"
 http = "0.2"
-
-[dev-dependencies]
-tauri = { workspace = true, features = ["test"] }

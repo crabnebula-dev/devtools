@@ -7,6 +7,7 @@ import {
 } from "solid-js";
 import { SetStoreFunction, createStore } from "solid-js/store";
 import {
+  getMetadata,
   getTauriConfig,
   getTauriMetrics,
   getVersions,
@@ -38,9 +39,14 @@ export function MonitorProvider(props: ProviderProps) {
   const [tauriMetrics] = getTauriMetrics(connectionStore.client.tauri);
   const [tauriConfig] = getTauriConfig(connectionStore.client.tauri);
   const [tauriVersions] = getVersions(connectionStore.client.tauri);
+  const [appMetadata] = getMetadata(connectionStore.client.meta);
 
   createEffect(() => {
     setMonitorData("tauriConfig", tauriConfig());
+  });
+
+  createEffect(() => {
+    setMonitorData("appMetadata", appMetadata());
   });
 
   createEffect(() => {

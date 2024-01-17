@@ -4,15 +4,15 @@ on:
   push:
     paths:
       - ".github/workflows/ci.yml"
-      - "**/*.rs"
-      - "**/*.proto"
+      - "crates/**/*.rs"
+      - "crates/wire/proto/*.proto"
       - "**/Cargo.toml"
   pull_request:
     paths:
       - ".github/workflows/ci.yml"
-      - "**/*.rs"
+      - "crates/**/*.rs"
+      - "crates/wire/proto/*.proto"
       - "**/Cargo.toml"
-      - "**/*.proto"
 
 permissions:
   contents: read
@@ -43,7 +43,7 @@ jobs:
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev protobuf-compiler
+          sudo apt-get install -y webkit2gtk-4.1 protobuf-compiler
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{matrix.rust}}
@@ -63,7 +63,7 @@ jobs:
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev protobuf-compiler
+          sudo apt-get install -y webkit2gtk-4.1 protobuf-compiler
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: 1.70.0 # MSRV
@@ -80,7 +80,7 @@ jobs:
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev
+          sudo apt-get install -y webkit2gtk-4.1
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy

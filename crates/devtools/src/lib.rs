@@ -1,6 +1,5 @@
 mod server;
 
-use colored::Colorize;
 use devtools_core::aggregator::Aggregator;
 use devtools_core::layer::Layer;
 use devtools_core::server::wire::tauri::tauri_server::TauriServer;
@@ -19,6 +18,38 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::Layer as _;
 
+#[cfg(target_os = "ios")]
+mod ios {
+    use cocoa::base::id;
+    use objc::*;
+
+    const UTF8_ENCODING: usize = 4;
+    pub struct NSString(pub id);
+
+    impl NSString {
+        pub fn new(s: &str) -> Self {
+            // Safety: objc runtime calls are unsafe
+            NSString(unsafe {
+                let ns_string: id = msg_send![class!(NSString), alloc];
+                let ns_string: id = msg_send![ns_string,
+                                            initWithBytes:s.as_ptr()
+                                            length:s.len()
+                                            encoding:UTF8_ENCODING];
+
+                // The thing is allocated in rust, the thing must be set to autorelease in rust to relinquish control
+                // or it can not be released correctly in OC runtime
+                let _: () = msg_send![ns_string, autorelease];
+
+                ns_string
+            })
+        }
+    }
+
+    swift_rs::swift!(pub fn devtools_log(
+      level: u8, message: *const std::ffi::c_void
+    ));
+}
+
 fn init_plugin<R: Runtime>(
     addr: SocketAddr,
     publish_interval: Duration,
@@ -26,7 +57,7 @@ fn init_plugin<R: Runtime>(
     cmd_tx: mpsc::Sender<Command>,
 ) -> tauri::plugin::TauriPlugin<R> {
     tauri::plugin::Builder::new("probe")
-        .setup(move |app_handle| {
+        .setup(move |app_handle, _api| {
             let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
 
             health_reporter
@@ -48,6 +79,17 @@ fn init_plugin<R: Runtime>(
                     app_handle: app_handle.clone(),
                 },
             );
+
+            #[cfg(not(target_os = "ios"))]
+            print_link(&addr);
+
+            #[cfg(target_os = "ios")]
+            {
+                std::thread::spawn(move || {
+                    std::thread::sleep(std::time::Duration::from_secs(3));
+                    print_link(&addr);
+                });
+            }
 
             // spawn the server and aggregator in a separate thread
             // so we don't interfere with the application we're trying to instrument
@@ -111,6 +153,9 @@ pub struct Builder {
 impl Default for Builder {
     fn default() -> Self {
         Self {
+            #[cfg(any(target_os = "ios", target_os = "android"))]
+            host: IpAddr::V4(Ipv4Addr::UNSPECIFIED),
+            #[cfg(not(any(target_os = "ios", target_os = "android")))]
             host: IpAddr::V4(Ipv4Addr::LOCALHOST),
             port: 3000,
             publish_interval: Duration::from_millis(200),
@@ -124,7 +169,7 @@ impl Builder {
     ///
     /// You can set this to [`Ipv4Addr::UNSPECIFIED`] to listen on all addresses, including LAN and public ones.
     ///
-    /// **default:** [`Ipv4Addr::LOCALHOST`]
+    /// **default:** [`Ipv4Addr::LOCALHOST`] on desktop, [`Ipv4Addr::UNSPECIFIED`] on mobile.
     pub fn host(&mut self, host: IpAddr) -> &mut Self {
         self.host = host;
         self
@@ -238,26 +283,23 @@ impl Builder {
             .try_init()?;
 
         let mut port = self.port;
-        if !self.strict_port && !port_is_available(port) {
+        if !self.strict_port && !port_is_available(&self.host, port) {
             port = (1025..65535)
-                .find(|port| port_is_available(*port))
+                .find(|port| port_is_available(&self.host, *port))
                 .ok_or(Error::NoFreePorts)?;
         }
 
         let addr = SocketAddr::new(self.host, port);
-
-        print_link(&addr);
 
         let plugin = init_plugin(addr, self.publish_interval, aggregator, cmd_tx);
         Ok(plugin)
     }
 }
 
-fn port_is_available(port: u16) -> bool {
-    TcpListener::bind(("127.0.0.1", port)).is_ok()
+fn port_is_available(host: &IpAddr, port: u16) -> bool {
+    TcpListener::bind(SocketAddr::new(*host, port)).is_ok()
 }
 
-// This is pretty ugly code I know, but it looks nice in the terminal soo ¯\_(ツ)_/¯
 fn print_link(addr: &SocketAddr) {
     let url = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
         "http://localhost:5173/app/dash/"
@@ -265,16 +307,70 @@ fn print_link(addr: &SocketAddr) {
         "https://devtools.crabnebula.dev/app/dash/"
     };
 
-    let url = format!("{url}{}/{}", addr.ip(), addr.port());
-    println!(
-        r#"
+    let url = format!(
+        "{url}{}/{}",
+        if addr.ip() == Ipv4Addr::UNSPECIFIED {
+            #[cfg(target_os = "ios")]
+            {
+                local_ip_address::list_afinet_netifas()
+                    .and_then(|ifas| {
+                        ifas.into_iter()
+                            .find_map(|(name, addr)| {
+                                if name == "en0" && !addr.is_loopback() && addr.is_ipv4() {
+                                    Some(addr)
+                                } else {
+                                    None
+                                }
+                            })
+                            .ok_or(local_ip_address::Error::LocalIpAddressNotFound)
+                    })
+                    .unwrap_or_else(|_| local_ip_address::local_ip().unwrap_or_else(|_| addr.ip()))
+            }
+            #[cfg(not(target_os = "ios"))]
+            {
+                local_ip_address::local_ip().unwrap_or_else(|_| addr.ip())
+            }
+        } else {
+            addr.ip()
+        },
+        addr.port()
+    );
+
+    #[cfg(target_os = "ios")]
+    unsafe {
+        ios::devtools_log(
+            3,
+            ios::NSString::new(
+                format!(
+                    r#"
    {} {}{}
    {}   Local:   {}
 "#,
-        "Tauri Devtools".bright_purple(),
-        "v".purple(),
-        env!("CARGO_PKG_VERSION").purple(),
-        "→".bright_purple(),
-        url.underline().blue()
-    );
+                    "Tauri Devtools",
+                    "v",
+                    env!("CARGO_PKG_VERSION"),
+                    "->",
+                    url
+                )
+                .as_str(),
+            )
+            .0 as _,
+        );
+    }
+
+    #[cfg(not(target_os = "ios"))]
+    {
+        use colored::Colorize;
+        println!(
+            r#"
+   {} {}{}
+   {}   Local:   {}
+"#,
+            "Tauri Devtools".bright_purple(),
+            "v".purple(),
+            env!("CARGO_PKG_VERSION").purple(),
+            "→".bright_purple(),
+            url.underline().blue()
+        );
+    }
 }

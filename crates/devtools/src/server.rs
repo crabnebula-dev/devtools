@@ -42,7 +42,7 @@ impl<R: Runtime> tauri_server::Tauri for TauriService<R> {
 
     async fn get_config(&self, _req: Request<ConfigRequest>) -> Result<Response<Config>, Status> {
         let config: Config = Config {
-            raw: serde_json::to_string(&*self.app_handle.config()).unwrap(),
+            raw: serde_json::to_string(self.app_handle.config()).unwrap(),
         };
 
         Ok(Response::new(config))
@@ -67,26 +67,35 @@ impl<R: Runtime> Sources for SourcesService<R> {
         tracing::debug!("list entries");
 
         if self.app_handle.asset_resolver().iter().count() == 0 {
-            let path = PathBuf::from(req.into_inner().path);
-
-            // deny requests that contain special path components, like root dir, parent dir,
-            // or weird windows ones. Only plain old regular, relative paths.
-            if !path
-                .components()
-                .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
+            #[cfg(any(target_os = "android", target_os = "ios"))]
             {
-                return Err(Status::not_found("file with the specified path not found"));
+                return Err(Status::unavailable(
+                    "listing entries on mobile is not supported on development",
+                ));
             }
+            #[cfg(not(any(target_os = "android", target_os = "ios")))]
+            {
+                let path = PathBuf::from(req.into_inner().path);
 
-            let mut cwd = std::env::current_dir()?;
-            cwd.push(path);
+                // deny requests that contain special path components, like root dir, parent dir,
+                // or weird windows ones. Only plain old regular, relative paths.
+                if !path
+                    .components()
+                    .all(|c| matches!(c, Component::Normal(_) | Component::CurDir))
+                {
+                    return Err(Status::not_found("file with the specified path not found"));
+                }
 
-            let stream = self.list_entries_from_dir(cwd).or_else(|err| async move {
-                tracing::error!("List Entries failed with error {err:?}");
-                // TODO set the health service status to NotServing here
-                Err(Status::internal("boom"))
-            });
-            Ok(Response::new(Box::pin(stream)))
+                let mut cwd = std::env::current_dir()?;
+                cwd.push(path);
+
+                let stream = self.list_entries_from_dir(cwd).or_else(|err| async move {
+                    tracing::error!("List Entries failed with error {err:?}");
+                    // TODO set the health service status to NotServing here
+                    Err(Status::internal("boom"))
+                });
+                Ok(Response::new(Box::pin(stream)))
+            }
         } else {
             let inner = req.into_inner();
             let path = inner.path.trim_end_matches('.');
@@ -203,6 +212,7 @@ impl<R: Runtime> SourcesService<R> {
         futures::stream::iter(entries.into_iter().map(Ok))
     }
 
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
     fn list_entries_from_dir(&self, root: PathBuf) -> impl Stream<Item = crate::Result<Entry>> {
         let app_handle = self.app_handle.clone();
 
@@ -258,6 +268,7 @@ impl<R: Runtime> metadata_server::Metadata for MetaService<R> {
             os: std::env::consts::OS.to_string(),
             arch: std::env::consts::ARCH.to_string(),
             debug_assertions: cfg!(debug_assertions),
+            has_embedded_assets: self.app_handle.asset_resolver().iter().count() > 0,
         };
 
         Ok(Response::new(meta))
@@ -274,7 +285,7 @@ mod tests {
     #[tokio::test]
     async fn tauri_get_config() {
         let tauri = TauriService {
-            app_handle: tauri::test::mock_app().handle(),
+            app_handle: tauri::test::mock_app().handle().clone(),
         };
 
         let cfg = tauri
@@ -292,7 +303,7 @@ mod tests {
 
     #[tokio::test]
     async fn sources_list_entries() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let stream = srv
@@ -302,14 +313,14 @@ mod tests {
             .await
             .unwrap();
 
-        // this will list this crates directory, so should produce a `Cargo.toml` and `src` entry
+        // this will list this crates directory, so should produce the `Cargo.toml`, `build.rs`, `.gitignore`, `ios` and `src` entry
         let entries: Vec<_> = stream.into_inner().collect().await;
-        assert_eq!(entries.len(), 2);
+        assert_eq!(entries.len(), 5);
     }
 
     #[tokio::test]
     async fn sources_list_entries_root() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let res = srv
@@ -331,7 +342,7 @@ mod tests {
 
     #[tokio::test]
     async fn sources_list_entries_parent() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let res = srv
@@ -361,7 +372,7 @@ mod tests {
 
     #[tokio::test]
     async fn sources_get_bytes() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let stream = srv
@@ -387,7 +398,7 @@ mod tests {
 
     #[tokio::test]
     async fn sources_get_bytes_root() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let res = srv
@@ -409,7 +420,7 @@ mod tests {
 
     #[tokio::test]
     async fn sources_get_bytes_parent() {
-        let app_handle = tauri::test::mock_app().handle();
+        let app_handle = tauri::test::mock_app().handle().clone();
         let srv = SourcesService { app_handle };
 
         let res = srv

@@ -74,6 +74,26 @@ where
         Interest::always()
     }
 
+    fn on_record(
+        &self,
+        id: &tracing_core::span::Id,
+        values: &tracing_core::span::Record<'_>,
+        ctx: Context<'_, S>,
+    ) {
+        let span = ctx.span(id).expect("Span not in context, probably a bug");
+        let metadata = span.metadata();
+        let mut visitor = FieldVisitor::new(metadata as *const _ as u64);
+        values.record(&mut visitor);
+        let fields = visitor.result();
+
+        self.send_event(&self.shared.dropped_span_events, move || {
+            Event::SpanRecorded {
+                span_id: id.clone(),
+                fields,
+            }
+        });
+    }
+
     fn on_new_span(&self, attrs: &Attributes<'_>, id: &Id, ctx: Context<'_, S>) {
         let at = Instant::now();
 

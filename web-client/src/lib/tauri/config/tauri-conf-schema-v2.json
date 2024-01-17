@@ -34,11 +34,31 @@
           "deb": {
             "files": {}
           },
+          "dmg": {
+            "appPosition": {
+              "x": 180,
+              "y": 170
+            },
+            "applicationFolderPosition": {
+              "x": 480,
+              "y": 170
+            },
+            "windowSize": {
+              "height": 400,
+              "width": 660
+            }
+          },
           "iOS": {},
           "icon": [],
           "identifier": "",
           "macOS": {
+            "files": {},
             "minimumSystemVersion": "10.13"
+          },
+          "rpm": {
+            "epoch": 0,
+            "files": {},
+            "release": "1"
           },
           "targets": "all",
           "updater": {
@@ -162,11 +182,31 @@
             "deb": {
               "files": {}
             },
+            "dmg": {
+              "appPosition": {
+                "x": 180,
+                "y": 170
+              },
+              "applicationFolderPosition": {
+                "x": 480,
+                "y": 170
+              },
+              "windowSize": {
+                "height": 400,
+                "width": 660
+              }
+            },
             "iOS": {},
             "icon": [],
             "identifier": "",
             "macOS": {
+              "files": {},
               "minimumSystemVersion": "10.13"
+            },
+            "rpm": {
+              "epoch": 0,
+              "files": {},
+              "release": "1"
             },
             "targets": "all",
             "updater": {
@@ -314,13 +354,13 @@
         },
         "width": {
           "description": "The window width.",
-          "default": 800,
+          "default": 800.0,
           "type": "number",
           "format": "double"
         },
         "height": {
           "description": "The window height.",
-          "default": 600,
+          "default": 600.0,
           "type": "number",
           "format": "double"
         },
@@ -749,22 +789,22 @@
         {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0
+          "minimum": 0.0
         },
         {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0
+          "minimum": 0.0
         },
         {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0
+          "minimum": 0.0
         },
         {
           "type": "integer",
           "format": "uint8",
-          "minimum": 0
+          "minimum": 0.0
         }
       ],
       "maxItems": 4,
@@ -781,7 +821,7 @@
           "type": "boolean"
         },
         "targets": {
-          "description": "The bundle targets, currently supports [\"deb\", \"appimage\", \"nsis\", \"msi\", \"app\", \"dmg\", \"updater\"] or \"all\".",
+          "description": "The bundle targets, currently supports [\"deb\", \"rpm\", \"appimage\", \"nsis\", \"msi\", \"app\", \"dmg\", \"updater\"] or \"all\".",
           "default": "all",
           "allOf": [
             {
@@ -861,9 +901,45 @@
             }
           ]
         },
+        "rpm": {
+          "description": "Configuration for the RPM bundle.",
+          "default": {
+            "epoch": 0,
+            "files": {},
+            "release": "1"
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/RpmConfig"
+            }
+          ]
+        },
+        "dmg": {
+          "description": "DMG-specific settings.",
+          "default": {
+            "appPosition": {
+              "x": 180,
+              "y": 170
+            },
+            "applicationFolderPosition": {
+              "x": 480,
+              "y": 170
+            },
+            "windowSize": {
+              "height": 400,
+              "width": 660
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/DmgConfig"
+            }
+          ]
+        },
         "macOS": {
           "description": "Configuration for the macOS bundles.",
           "default": {
+            "files": {},
             "minimumSystemVersion": "10.13"
           },
           "allOf": [
@@ -970,6 +1046,11 @@
           "description": "The debian bundle (.deb).",
           "type": "string",
           "enum": ["deb"]
+        },
+        {
+          "description": "The RPM bundle (.rpm).",
+          "type": "string",
+          "enum": ["rpm"]
         },
         {
           "description": "The AppImage bundle (.appimage).",
@@ -1130,6 +1211,146 @@
       },
       "additionalProperties": false
     },
+    "RpmConfig": {
+      "description": "Configuration for RPM bundles.",
+      "type": "object",
+      "properties": {
+        "license": {
+          "description": "The package's license identifier. If not set, defaults to the license from the Cargo.toml file.",
+          "type": ["string", "null"]
+        },
+        "depends": {
+          "description": "The list of RPM dependencies your application relies on.",
+          "type": ["array", "null"],
+          "items": {
+            "type": "string"
+          }
+        },
+        "release": {
+          "description": "The RPM release tag.",
+          "default": "1",
+          "type": "string"
+        },
+        "epoch": {
+          "description": "The RPM epoch.",
+          "default": 0,
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "files": {
+          "description": "The files to include on the package.",
+          "default": {},
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "desktopTemplate": {
+          "description": "Path to a custom desktop file Handlebars template.\n\nAvailable variables: `categories`, `comment` (optional), `exec`, `icon` and `name`.",
+          "type": ["string", "null"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "DmgConfig": {
+      "description": "Configuration for Apple Disk Image (.dmg) bundles.\n\nSee more: https://tauri.app/v1/api/config#dmgconfig",
+      "type": "object",
+      "properties": {
+        "background": {
+          "description": "Image to use as the background in dmg file. Accepted formats: `png`/`jpg`/`gif`.",
+          "type": ["string", "null"]
+        },
+        "windowPosition": {
+          "description": "Position of volume window on screen.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Position"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "windowSize": {
+          "description": "Size of volume window.",
+          "default": {
+            "height": 400,
+            "width": 660
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/Size"
+            }
+          ]
+        },
+        "appPosition": {
+          "description": "Position of app file on window.",
+          "default": {
+            "x": 180,
+            "y": 170
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/Position"
+            }
+          ]
+        },
+        "applicationFolderPosition": {
+          "description": "Position of application folder on window.",
+          "default": {
+            "x": 480,
+            "y": 170
+          },
+          "allOf": [
+            {
+              "$ref": "#/definitions/Position"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Position": {
+      "description": "Position coordinates struct.",
+      "type": "object",
+      "required": ["x", "y"],
+      "properties": {
+        "x": {
+          "description": "X coordinate.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "y": {
+          "description": "Y coordinate.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "Size": {
+      "description": "Size of the window.",
+      "type": "object",
+      "required": ["height", "width"],
+      "properties": {
+        "width": {
+          "description": "Width of the window.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "height": {
+          "description": "Height of the window.",
+          "type": "integer",
+          "format": "uint32",
+          "minimum": 0.0
+        }
+      },
+      "additionalProperties": false
+    },
     "MacConfig": {
       "description": "Configuration for the macOS bundles.\n\nSee more: <https://tauri.app/v1/api/config#macconfig>",
       "type": "object",
@@ -1138,6 +1359,14 @@
           "description": "A list of strings indicating any macOS X frameworks that need to be bundled with the application.\n\nIf a name is used, \".framework\" must be omitted and it will look for standard install locations. You may also use a path to a specific framework.",
           "type": ["array", "null"],
           "items": {
+            "type": "string"
+          }
+        },
+        "files": {
+          "description": "The files to include in the application relative to the Contents directory.",
+          "default": {},
+          "type": "object",
+          "additionalProperties": {
             "type": "string"
           }
         },
@@ -1570,7 +1799,7 @@
           "default": 24,
           "type": "integer",
           "format": "uint32",
-          "minimum": 0
+          "minimum": 0.0
         }
       },
       "additionalProperties": false

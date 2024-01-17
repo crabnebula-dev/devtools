@@ -38,6 +38,9 @@ pub struct AppMetadata {
     /// / Whether the app was compiled with debug assertions enabled.
     #[prost(bool, tag = "7")]
     pub debug_assertions: bool,
+    /// / Whether the app has embedded assets or not.
+    #[prost(bool, tag = "8")]
+    pub has_embedded_assets: bool,
 }
 /// Generated server implementations.
 #[allow(clippy::all)]
