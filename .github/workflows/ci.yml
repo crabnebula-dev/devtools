@@ -112,7 +112,7 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
-          cache-dependency-path: 'web-client/pnpm-lock.yaml'
+          cache-dependency-path: 'clients/web/pnpm-lock.yaml'
       - name: Install dependencies
         run: pnpm install -g license-checker
       - name: Check JavaScript Licenses
