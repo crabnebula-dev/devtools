@@ -13,7 +13,7 @@ repository = "https://github.com/crabnebula-dev/devtools"
 
 [dependencies]
 devtools-core = { path = "../../crates/devtools-core/" }
-tauri = { version = "1.5.3", features = ["tracing"] }
+tauri = { version = "1.5.4", features = ["tracing"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tonic = "0.10"
@@ -26,4 +26,4 @@ bytes = "1.5.0"
 async-stream = "0.3.5"
 
 [dev-dependencies]
-tauri = { version = "1.5.3", features = ["test"] }
+tauri = { version = "1.5.4", features = ["test"] }
