@@ -116,7 +116,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install -g license-checker
       - name: Check JavaScript Licenses
-        working-directory: web-client
+        working-directory: clients/web
         run:  license-checker --summary --onlyAllow="MIT;Apache-2.0;BSD-2-Clause" --excludePackages="spa-client@0.0.0"
       - name: Check Rust Licenses
         uses: EmbarkStudios/cargo-deny-action@v1
