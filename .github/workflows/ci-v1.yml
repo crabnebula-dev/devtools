@@ -6,7 +6,7 @@ on:
       - ".github/workflows/ci.yml"
       - "crates/**/*.rs"
       - "!crates/devtools/**/*.rs"
-      - "tauri-v1/**/*.rs"
+      - "crates/devtools-v1/**/*.rs"
       - "crates/wire/proto/*.proto"
       - "**/Cargo.toml"
   pull_request:
@@ -14,7 +14,7 @@ on:
       - ".github/workflows/ci.yml"
       - "crates/**/*.rs"
       - "!crates/devtools/**/*.rs"
-      - "tauri-v1/**/*.rs"
+      - "crates/devtools-v1/**/*.rs"
       - "crates/wire/proto/*.proto"
       - "**/Cargo.toml"
 
@@ -52,7 +52,7 @@ jobs:
         with:
           toolchain: ${{matrix.rust}}
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --manifest-path tauri-v1/devtools/Cargo.toml
+      - run: cargo test --manifest-path crates/devtools-v1/Cargo.toml
         env:
           RUSTFLAGS: ${{matrix.rustflags}} ${{env.RUSTFLAGS}}
 
@@ -72,7 +72,7 @@ jobs:
         with:
           toolchain: 1.70.0 # MSRV
       - uses: Swatinem/rust-cache@v2
-      - run: cargo check --manifest-path tauri-v1/devtools/Cargo.toml --tests
+      - run: cargo check --manifest-path crates/devtools-v1/Cargo.toml --tests
 
   clippy:
     name: Clippy
@@ -89,7 +89,7 @@ jobs:
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
-      - run: cargo clippy --manifest-path tauri-v1/devtools/Cargo.toml -- -Dclippy::all -Dclippy::pedantic
+      - run: cargo clippy --manifest-path crates/devtools-v1/Cargo.toml -- -Dclippy::all -Dclippy::pedantic
 
   rustfmt:
     name: Rustfmt
@@ -102,7 +102,7 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt
-      - run: cargo fmt --manifest-path tauri-v1/devtools/Cargo.toml -- --check
+      - run: cargo fmt --manifest-path crates/devtools-v1/Cargo.toml -- --check
 
   check-licenses:
     runs-on: ubuntu-latest
@@ -111,7 +111,7 @@ jobs:
       - name: Check Rust Licenses
         uses: EmbarkStudios/cargo-deny-action@v1
         with:
-          arguments: --manifest-path tauri-v1/devtools/Cargo.toml
+          arguments: --manifest-path crates/devtools-v1/Cargo.toml
 
 #  outdated:
 #     name: Outdated
