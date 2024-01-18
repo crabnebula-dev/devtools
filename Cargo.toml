@@ -25,7 +25,7 @@ tauri-build = "2.0.0-alpha.14"
 tonic = "0.10"
 prost = "0.12"
 prost-types = "0.12"
-tokio = "1.33.0"
+tokio = "1.35.1"
 
 [profile.release]
 panic = "abort"
