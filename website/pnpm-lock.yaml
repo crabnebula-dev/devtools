@@ -9,8 +9,8 @@ dependencies:
     specifier: ^0.4.0
     version: 0.4.1(typescript@5.3.2)
   '@astrojs/netlify':
-    specifier: ^3.0.4
-    version: 3.0.4(astro@3.6.3)
+    specifier: ^4.0.0
+    version: 4.1.1(astro@3.6.3)
   '@astrojs/sitemap':
     specifier: ^3.0.3
     version: 3.0.3
@@ -135,10 +135,10 @@ packages:
       - supports-color
     dev: false
 
-  /@astrojs/netlify@3.0.4(astro@3.6.3):
-    resolution: {integrity: sha512-zVDr53WEAyrsAIvKNgi1DfER5Vq83/z8rT71r2Id/4ygw5dH04fPGjBroovJYMDXSip/rZQIvNa52A0iMFs7Ng==}
+  /@astrojs/netlify@4.1.1(astro@3.6.3):
+    resolution: {integrity: sha512-ynCldf0BafT0s/E6hOed8YqrxyD48iukxtPBTatQytg/XsSr16cQ6em8HbMMV3pe4sE5xImdXtQcI1Xg01rUHw==}
     peerDependencies:
-      astro: ^3.3.0
+      astro: ^3.0.0 || ^4.0.0
     dependencies:
       '@astrojs/underscore-redirects': 0.3.3
       '@netlify/functions': 2.4.0
