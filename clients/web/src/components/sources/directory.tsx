@@ -1,4 +1,6 @@
 import {
+  createEffect,
+  createResource,
   createSignal,
   For,
   JSXElement,
@@ -22,6 +24,7 @@ import {
 } from "~/lib/sources/file-entries";
 import { Loader } from "~/components/loader";
 import { useConnection } from "~/context/connection-provider";
+import { useMonitor } from "~/context/monitor-provider";
 
 type DirectoryProps = {
   parent?: Entry["path"];
@@ -42,10 +45,21 @@ const liStyles = "hover:bg-gray-800 hover:text-white focus:bg-gray-800";
 
 export function Directory(props: DirectoryProps) {
   const { connectionStore } = useConnection();
+  const { monitorData } = useMonitor();
   const path = untrack(() =>
     props.parent ? `${props.parent}/${props.defaultPath}` : props.defaultPath
   );
-  const [entries] = awaitEntries(connectionStore.client.sources, path);
+  const [entries, { refetch }] = awaitEntries(
+    connectionStore.client.sources,
+    path
+  );
+
+  createEffect(() => {
+    if (monitorData.health === 1) {
+      refetch(connectionStore.client.sources);
+    }
+  });
+
   const sortedEntries = () => entries()?.sort(sortByPath);
 
   return (

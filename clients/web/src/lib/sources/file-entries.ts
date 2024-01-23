@@ -3,6 +3,7 @@ import { createResource } from "solid-js";
 import { Entry } from "~/lib/proto/sources.ts";
 import { RpcOutputStream } from "@protobuf-ts/runtime-rpc";
 import { Chunk } from "~/lib/proto/sources.ts";
+import { useMonitor } from "~/context/monitor-provider";
 
 /**
  * Browsers and Routers decode URLs. Since a filename is a piece of a URL, this is breaking our decoding.
@@ -17,9 +18,19 @@ export function decodeFileName(path: string) {
   return decodeURIComponent(path).replaceAll("%DDD", ".");
 }
 
+type EntriesFetcher = [client: SourcesClient, health: number];
+
+function entriesFetcher(client: SourcesClient): EntriesFetcher {
+  const { monitorData } = useMonitor();
+  return [client, monitorData.health];
+}
+
 export function awaitEntries(client: SourcesClient, path: string) {
-  return createResource(client, async (client) => {
-    const entries = [];
+  return createResource(entriesFetcher(client), async (fetchResult) => {
+    const [client, health] = fetchResult;
+    const entries: Entry[] = [];
+    if (health === 0) return entries;
+
     try {
       const call = client.listEntries({ path });
 
