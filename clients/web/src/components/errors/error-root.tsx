@@ -2,9 +2,13 @@ import * as pkg from "~/../package.json";
 import { Switch, Match } from "solid-js";
 import { NotFoundError } from "./not-found-error";
 import { GeneralError } from "./general-error";
+import { ConnectionFailedError } from "./connection-failed-error";
+
+type ErrorTypes = "connectionFailedError";
 
 type Props = {
   error: unknown;
+  type?: ErrorTypes;
 };
 
 export function ErrorRoot(props: Props) {
@@ -19,6 +23,9 @@ export function ErrorRoot(props: Props) {
           <Switch fallback={<GeneralError />}>
             <Match when={errorMessage().includes("404")}>
               <NotFoundError />
+            </Match>
+            <Match when={props.type === "connectionFailedError"}>
+              <ConnectionFailedError />
             </Match>
           </Switch>
         </header>
