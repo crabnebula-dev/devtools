@@ -34,6 +34,7 @@ function makeCallsContext() {
     average: 0,
     counted: 0,
   });
+  const intervals: NodeJS.Timeout[] = [];
 
   return {
     spans: new ReactiveMap<bigint, UiSpan>(),
@@ -46,6 +47,17 @@ function makeCallsContext() {
       setDurations,
     },
     spanPointer: 0,
+    runningIntervals: intervals,
+    resetCalls: function () {
+      this.spans.clear();
+      this.durations.setDurations(durations);
+      this.spanPointer = 0;
+      this.clearIntervals();
+    },
+    clearIntervals: function () {
+      this.runningIntervals.forEach((e) => clearInterval(e));
+      this.runningIntervals = [];
+    },
   };
 }
 

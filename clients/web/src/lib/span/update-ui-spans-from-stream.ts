@@ -32,7 +32,12 @@ export function updateUiSpansFromStream(incomingSpans: Span[]) {
     }
 
     if (newUiSpan.isProcessing) {
-      attachUpdateInterval(newUiSpan.id, uiSpansMap, callsContext.durations);
+      attachUpdateInterval(
+        newUiSpan.id,
+        uiSpansMap,
+        callsContext.durations,
+        callsContext.runningIntervals
+      );
     }
     updateDurations(spanPointer, newUiSpan, callsContext.durations);
   }
@@ -124,7 +129,8 @@ function attachUpdateInterval(
   durationsStore: {
     durations: Durations;
     setDurations: SetStoreFunction<Durations>;
-  }
+  },
+  intervals: NodeJS.Timeout[]
 ) {
   const { durations, setDurations } = durationsStore;
   const interval = setInterval(() => {
@@ -163,4 +169,5 @@ function attachUpdateInterval(
       clearInterval(interval);
     }
   }, 10);
+  intervals.push(interval);
 }
