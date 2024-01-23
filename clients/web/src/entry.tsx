@@ -8,14 +8,10 @@ import Layout from "./views/dashboard/layout.tsx";
 const ROUTES = [
   {
     path: "/",
-    component: () => <Navigate href="/app" />,
-  },
-  {
-    path: "/app",
     component: lazy(() => import("./views/connect.tsx")),
   },
   {
-    path: "/app/dash/:host/:port",
+    path: "/dash/:host/:port",
     component: (props) => <Layout>{props.children}</Layout>,
     children: [
       {
@@ -49,7 +45,7 @@ const ROUTES = [
 ] satisfies RouteDefinition[];
 
 export default function Entry() {
-  setCDN("/app/icons");
+  setCDN("/icons");
 
   return (
     <ErrorBoundary

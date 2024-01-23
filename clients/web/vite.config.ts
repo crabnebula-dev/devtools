@@ -13,7 +13,6 @@ export default defineConfig({
   server: {
     strictPort: true,
   },
-  base: "/app",
   build: {
     // file-icons need top-level await
     // this is as far back as we can go without needing top-level-await polyfills

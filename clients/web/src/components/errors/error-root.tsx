@@ -12,7 +12,7 @@ export function ErrorRoot(props: Props) {
   return (
     <>
       <div class="surf-container">
-        <img class="bg-surface static" src="/app/bg.jpeg" aria-hidden />
+        <img class="bg-surface static" src="/bg.jpeg" aria-hidden />
       </div>
       <div class="p-28 grid grid-rows-[auto_1fr_auto] gap-5 h-screen text-neutral-400 ">
         <header>
