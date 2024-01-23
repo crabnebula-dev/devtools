@@ -50,7 +50,7 @@ export function SplitPane(props: WrapperProps) {
         {(pane, idx) => (
           <section
             id={paneNames[idx()]}
-            class="border-neutral-800 border-x-2 overflow-auto"
+            class="border-slate-800 border-x-2 overflow-auto"
           >
             {pane}
           </section>
