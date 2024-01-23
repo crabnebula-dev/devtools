@@ -10,6 +10,7 @@ import { reconcile } from "solid-js/store";
 import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
 import { ReconnectDisplay } from "./reconnect-display";
+import { ReconnectButton } from "./reconnect-button";
 
 const variant = (status: HealthCheckResponse_ServingStatus) => {
   return [
@@ -50,10 +51,11 @@ export function HealthStatus() {
     /** cleanup possible connections */
     connectionStore.abortController.abort();
 
-    reconnectInterval({
-      timeIncrease: 2,
-      attempts: 5,
-    });
+    if (reconnectTimer() === undefined)
+      reconnectInterval({
+        timeIncrease: 2,
+        attempts: 5,
+      });
   };
 
   /*  undefined = failed to reconnect 
@@ -102,6 +104,14 @@ export function HealthStatus() {
     reconnect();
   }
 
+  async function attemptReconnect() {
+    setConnectionDead(false);
+    setConnectionDead(true);
+    console.log(connectionStore.serviceUrl);
+    const ping = await checkConnection(connectionStore.serviceUrl);
+    if (ping.status === "success") reconnect();
+  }
+
   function reconnect() {
     setMonitorData("spans", reconcile([]));
     const newConnection = connect(connectionStore.serviceUrl);
@@ -139,6 +149,9 @@ export function HealthStatus() {
       </Show>
       <span class={variant(monitorData.health).style} />
       <span>{variant(monitorData.health).tooltip}</span>
+      <Show when={monitorData.health === 0}>
+        <ReconnectButton retry={attemptReconnect} />
+      </Show>
     </section>
   );
 }
