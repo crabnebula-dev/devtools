@@ -4,7 +4,10 @@ import { Entry } from "~/lib/proto/sources.ts";
 import { RpcOutputStream } from "@protobuf-ts/runtime-rpc";
 import { Chunk } from "~/lib/proto/sources.ts";
 
-// In the following we "invented" the escape code %DDD to properly escape dots
+/**
+ * Browsers and Routers decode URLs. Since a filename is a piece of a URL, this is breaking our decoding.
+ * So we come up with a stamp (`%DDD`) to allow our sanitization to work without getting confused
+ **/
 
 export function encodeFileName(path: string) {
   return encodeURIComponent(path.replaceAll(".", "%DDD"));
