@@ -23,7 +23,6 @@ import {
   encodeFileName,
 } from "~/lib/sources/file-entries";
 import { Loader } from "~/components/loader";
-import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
 
 type DirectoryProps = {
@@ -44,22 +43,18 @@ type TreeEntryProps = {
 const liStyles = "hover:bg-gray-800 hover:text-white focus:bg-gray-800";
 
 export function Directory(props: DirectoryProps) {
-  const { connectionStore } = useConnection();
   const { monitorData } = useMonitor();
   const path = untrack(() =>
     props.parent ? `${props.parent}/${props.defaultPath}` : props.defaultPath
   );
-  const [entries, { refetch }] = awaitEntries(
-    connectionStore.client.sources,
-    path
-  );
-
-  createEffect(() => {
-    if (monitorData.health === 1) {
-      refetch(connectionStore.client.sources);
+  const [entries, { refetch }] = awaitEntries(path);
+  createEffect((prevHealth) => {
+    const currentHealth = monitorData.health;
+    if (prevHealth === 0 && currentHealth === 1) {
+      refetch();
     }
+    return currentHealth;
   });
-
   const sortedEntries = () => entries()?.sort(sortByPath);
 
   return (

@@ -4,6 +4,7 @@ import { Entry } from "~/lib/proto/sources.ts";
 import { RpcOutputStream } from "@protobuf-ts/runtime-rpc";
 import { Chunk } from "~/lib/proto/sources.ts";
 import { useMonitor } from "~/context/monitor-provider";
+import { useConnection } from "~/context/connection-provider";
 
 /**
  * Browsers and Routers decode URLs. Since a filename is a piece of a URL, this is breaking our decoding.
@@ -18,16 +19,14 @@ export function decodeFileName(path: string) {
   return decodeURIComponent(path).replaceAll("%DDD", ".");
 }
 
-type EntriesFetcher = [client: SourcesClient, health: number];
+export function awaitEntries(path: string) {
+  return createResource(async () => {
+    const { monitorData } = useMonitor();
+    const { connectionStore } = useConnection();
 
-function entriesFetcher(client: SourcesClient): EntriesFetcher {
-  const { monitorData } = useMonitor();
-  return [client, monitorData.health];
-}
+    const client = connectionStore.client.sources;
+    const health = monitorData.health;
 
-export function awaitEntries(client: SourcesClient, path: string) {
-  return createResource(entriesFetcher(client), async (fetchResult) => {
-    const [client, health] = fetchResult;
     const entries: Entry[] = [];
     if (health === 0) return entries;
 
