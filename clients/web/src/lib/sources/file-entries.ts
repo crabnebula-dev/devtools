@@ -4,12 +4,17 @@ import { Entry } from "~/lib/proto/sources.ts";
 import { RpcOutputStream } from "@protobuf-ts/runtime-rpc";
 import { Chunk } from "~/lib/proto/sources.ts";
 
+/**
+ * Browsers and Routers decode URLs. Since a filename is a piece of a URL, this is breaking our decoding.
+ * So we come up with a stamp (`%DDD`) to allow our sanitization to work without getting confused
+ **/
+
 export function encodeFileName(path: string) {
-  return path.replaceAll(".", "-");
+  return encodeURIComponent(path.replaceAll(".", "%DDD"));
 }
 
 export function decodeFileName(path: string) {
-  return path.replaceAll("-", ".");
+  return decodeURIComponent(path).replaceAll("%DDD", ".");
 }
 
 export function awaitEntries(client: SourcesClient, path: string) {
