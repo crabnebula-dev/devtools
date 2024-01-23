@@ -3,8 +3,10 @@ import { ReactiveMap } from "@solid-primitives/map";
 import { Span } from "../connection/monitor";
 import { useCalls, Durations } from "~/components/span/calls-context";
 import { SetStoreFunction } from "solid-js/store";
+import { useMonitor } from "~/context/monitor-provider";
 
 export function updateUiSpansFromStream(incomingSpans: Span[]) {
+  const { monitorData } = useMonitor();
   const callsContext = useCalls();
   const uiSpansMap = callsContext.spans;
 
@@ -31,7 +33,8 @@ export function updateUiSpansFromStream(incomingSpans: Span[]) {
       triggerRenameOnRoot(newUiSpan, uiSpansMap);
     }
 
-    if (newUiSpan.isProcessing) {
+    // Make sure to only attach intervals if we are still connected to the stream
+    if (newUiSpan.isProcessing && monitorData.health === 1) {
       attachUpdateInterval(
         newUiSpan.id,
         uiSpansMap,
