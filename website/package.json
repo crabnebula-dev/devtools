@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.4.0",
-    "@astrojs/netlify": "^4.0.0",
+    "@astrojs/netlify": "^5.0.0",
     "@astrojs/sitemap": "^3.0.3",
     "@astrojs/solid-js": "^4.0.0",
     "@astrojs/tailwind": "^5.0.2",
