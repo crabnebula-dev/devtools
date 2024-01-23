@@ -6,22 +6,22 @@ import { useMonitor } from "~/context/monitor-provider";
 const TABS = [
   {
     id: "console",
-    url: (host: string, port: string) => `/app/dash/${host}/${port}/console`,
+    url: (host: string, port: string) => `/dash/${host}/${port}/console`,
     title: "Console",
   },
   {
     id: "calls",
-    url: (host: string, port: string) => `/app/dash/${host}/${port}/calls`,
+    url: (host: string, port: string) => `/dash/${host}/${port}/calls`,
     title: "Calls",
   },
   {
     id: "sources",
-    url: (host: string, port: string) => `/app/dash/${host}/${port}/sources`,
+    url: (host: string, port: string) => `/dash/${host}/${port}/sources`,
     title: "Sources",
   },
   {
     id: "tauri",
-    url: (host: string, port: string) => `/app/dash/${host}/${port}/tauri`,
+    url: (host: string, port: string) => `/dash/${host}/${port}/tauri`,
     title: "Tauri",
   },
 ];

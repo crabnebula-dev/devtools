@@ -3,3 +3,8 @@
   to = "/index.html"
   status = 200
 
+  [build]
+  base = "clients/web/"
+  publish = "dist/"
+  command = "pnpm build"
+

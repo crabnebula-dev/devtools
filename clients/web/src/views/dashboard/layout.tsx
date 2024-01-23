@@ -33,7 +33,7 @@ export default function Layout(props: Props) {
         <div class="overflow-hidden absolute inset-0 w-full h-full -z-10">
           <img
             class="relative opacity-30 scale-110 bg-surface bg-surface"
-            src="/app/bg.jpeg"
+            src="/bg.jpeg"
             aria-hidden
           />
         </div>
