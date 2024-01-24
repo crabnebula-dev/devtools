@@ -1,6 +1,5 @@
 import { For, Show } from "solid-js";
-import { A, useParams, useLocation } from "@solidjs/router";
-import clsx from "clsx";
+import { A, useParams } from "@solidjs/router";
 import { useMonitor } from "~/context/monitor-provider";
 
 const TABS = [
@@ -28,7 +27,6 @@ const TABS = [
 
 export function Navigation() {
   const { host, port } = useParams();
-  const location = useLocation();
   const { monitorData } = useMonitor();
   return (
     <nav>

@@ -1,6 +1,5 @@
 import {
   createEffect,
-  createResource,
   createSignal,
   For,
   JSXElement,
