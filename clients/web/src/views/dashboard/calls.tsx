@@ -13,9 +13,14 @@ function Calls() {
   const { monitorData } = useMonitor();
   const callsContext = useCalls();
 
-  createEffect(() => {
+  createEffect((prevHealth) => {
     // If the connection goes bad we make sure to remove the unclosed spans from their pending state
     if (monitorData.health === 0) callsContext.clearIntervals();
+
+    // If the connection comes back we have to clear the old calls
+    if (prevHealth === 0 && monitorData.health === 1) callsContext.resetCalls();
+
+    return monitorData.health;
   });
 
   createEffect(() => {
