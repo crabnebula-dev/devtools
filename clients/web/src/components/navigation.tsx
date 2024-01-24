@@ -59,14 +59,9 @@ export function Navigation() {
                     e.currentTarget.click();
                   }}
                   href={tab.url(host, port)}
-                  class={clsx(
-                    location.pathname === tab.url(host, port)
-                      ? "border-b-gray-500 hover:border-b-gray-400"
-                      : "border-b-gray-800 hover:border-b-gray-600",
-
-                    // The rest
-                    "flex -mb-[1px] items-center justify-center leading-none border-b py-2 px-4 hover:bg-gray-800 hover:border-gray-800"
-                  )}
+                  activeClass="border-b-gray-500 hover:border-b-gray-400"
+                  inactiveClass="border-b-gray-800 hover:border-b-gray-600"
+                  class="flex -mb-[1px] items-center justify-center leading-none border-b py-2 px-4 hover:bg-gray-800 hover:border-gray-800"
                 >
                   {tab.title}
                 </A>
