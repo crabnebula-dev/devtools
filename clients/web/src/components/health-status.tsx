@@ -107,7 +107,6 @@ export function HealthStatus() {
   async function attemptReconnect() {
     setConnectionDead(false);
     setConnectionDead(true);
-    console.log(connectionStore.serviceUrl);
     const ping = await checkConnection(connectionStore.serviceUrl);
     if (ping.status === "success") reconnect();
   }
