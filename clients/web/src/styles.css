@@ -71,7 +71,12 @@
   **/
   .gutter,
   .gutter:hover {
-    @apply cursor-col-resize;
+    border: 0;
+    @apply cursor-col-resize  bg-slate-800;
+  }
+
+  .gutter:active {
+    @apply bg-slate-400;
   }
   /**
    * /SplitPane specific CSS (split.js)

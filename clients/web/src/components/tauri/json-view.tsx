@@ -24,6 +24,10 @@ export function JsonView() {
     scrollToHighlighted();
   });
 
+  createEffect(() => {
+    console.log(path());
+  });
+
   return (
     <Show when={params.config}>
       <Show
