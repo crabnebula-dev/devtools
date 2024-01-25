@@ -57,8 +57,8 @@ export function Navigation() {
                     e.currentTarget.click();
                   }}
                   href={tab.url(host, port)}
+                  activeClass="!border-b-slate-300 bg-slate-800"
                   inactiveClass="border-b-gray-800 hover:border-b-gray-600"
-                  activeClass="border-b-slate-600 hover:border-b-slate-400"
                   class="border-b-transparent hover:border-b-slate-600 flex -mb-[1px] items-center justify-center leading-none border-b py-2 px-4 hover:bg-slate-800 hover:border-slate-800"
                 >
                   {tab.title}
