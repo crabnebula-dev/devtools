@@ -65,13 +65,13 @@ function TextValue(props: TextConfigurationValueProps) {
       props.value
     );
   return (
-    <div class="flex text-xl">
+    <div class="flex text-xl hover:bg-slate-800">
       <div class="basis-2/5 p-1">
         <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
       </div>
       <div class="basis-3/5 p-1 text-right flex justify-between">
-        <Flags key={key()} value={props.value} />
         <span class="ml-auto">{value()}</span>
+        <Flags key={key()} value={props.value} />
       </div>
     </div>
   );
@@ -110,10 +110,10 @@ function ArrayValue(props: ArrayConfigurationValueProps) {
         <Show when={props.value.length > 0}>
           <For each={props.value}>
             {(value, childKey) => (
-              <li class="odd:bg-cyan-800">
+              <li>
                 <ConfigurationValue
+                  key={String(childKey())}
                   parentKey={props.parentKey + "." + props.key}
-                  key={childKey().toString()}
                   value={value}
                 />
               </li>
