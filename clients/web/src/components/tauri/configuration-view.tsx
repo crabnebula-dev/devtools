@@ -7,6 +7,7 @@ import { useParams } from "@solidjs/router";
 import { ConfigurationErrors } from "./configuration-errors";
 import { MissingConfigurationParameterDialog } from "./dialogs/missing-configuration-parameter-dialog";
 import { MissingConfigurationDialog } from "./dialogs/missing-configuration-dialog";
+import { Heading } from "../heading";
 
 export function ConfigurationView() {
   const params = useParams<{
@@ -40,12 +41,20 @@ export function ConfigurationView() {
   });
 
   return (
-    <div class="p-4">
+    <div class="p-4 h-full">
       <Show when={params.config && !params.selected && config()}>
         <h1 class="text-3xl">{config()?.label}</h1>
         <ConfigurationErrors error={config()?.error} />
       </Show>
-      <Show when={tabWithKeys(tab())}>
+      <Show
+        when={tabWithKeys(tab())}
+        fallback={
+          <div class="h-full grid gap-4 text-center content-center justify-center items-center border-l p-4 border-gray-800">
+            <Heading>No File Selected</Heading>
+            &larr; Use the sidebar to get started.
+          </div>
+        }
+      >
         {(t) => (
           <>
             <header>

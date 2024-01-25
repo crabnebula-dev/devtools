@@ -126,7 +126,7 @@ export default function Connect() {
       </footer>
 
       <div class="surf-container">
-        <img class="bg-surface static" src="/app/bg.webp" aria-hidden />
+        <img class="bg-surface static" src="/bg.webp" aria-hidden />
       </div>
 
       <ConnectionFailedDialog
