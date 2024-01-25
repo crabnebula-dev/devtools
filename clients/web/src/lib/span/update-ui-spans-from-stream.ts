@@ -3,8 +3,10 @@ import { ReactiveMap } from "@solid-primitives/map";
 import { Span } from "../connection/monitor";
 import { useCalls, Durations } from "~/components/span/calls-context";
 import { SetStoreFunction } from "solid-js/store";
+import { useMonitor } from "~/context/monitor-provider";
 
 export function updateUiSpansFromStream(incomingSpans: Span[]) {
+  const { monitorData } = useMonitor();
   const callsContext = useCalls();
   const uiSpansMap = callsContext.spans;
 
@@ -31,8 +33,14 @@ export function updateUiSpansFromStream(incomingSpans: Span[]) {
       triggerRenameOnRoot(newUiSpan, uiSpansMap);
     }
 
-    if (newUiSpan.isProcessing) {
-      attachUpdateInterval(newUiSpan.id, uiSpansMap, callsContext.durations);
+    // Make sure to only attach intervals if we are still connected to the stream
+    if (newUiSpan.isProcessing && monitorData.health === 1) {
+      attachUpdateInterval(
+        newUiSpan.id,
+        uiSpansMap,
+        callsContext.durations,
+        callsContext.runningIntervals
+      );
     }
     updateDurations(spanPointer, newUiSpan, callsContext.durations);
   }
@@ -124,7 +132,8 @@ function attachUpdateInterval(
   durationsStore: {
     durations: Durations;
     setDurations: SetStoreFunction<Durations>;
-  }
+  },
+  intervals: NodeJS.Timeout[]
 ) {
   const { durations, setDurations } = durationsStore;
   const interval = setInterval(() => {
@@ -163,4 +172,5 @@ function attachUpdateInterval(
       clearInterval(interval);
     }
   }, 10);
+  intervals.push(interval);
 }
