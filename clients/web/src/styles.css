@@ -6,7 +6,7 @@
 @layer base {
   /** fonts */
   :root {
-    --header-height: 69px;
+    --header-height: 90px;
     --toolbar-height: 28px;
     --footer-height: 32px;
   }

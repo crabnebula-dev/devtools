@@ -49,7 +49,7 @@ export function ConfigurationView() {
         {(t) => (
           <>
             <header>
-              <h1 class="text-5xl pb-8 text-white">
+              <h1 class="text-3xl pb-8 text-white">
                 <ConfigurationTooltip parentKey="" key={params.selected} />
               </h1>
             </header>
