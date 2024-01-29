@@ -50,7 +50,7 @@ export function ConfigurationView() {
         when={tabWithKeys(tab())}
         fallback={
           <div class="h-full grid gap-4 text-center content-center justify-center items-center p-4">
-            <Heading>No File Selected</Heading>
+            <Heading>No Configuration Selected</Heading>
             &larr; Use the sidebar to get started.
           </div>
         }
