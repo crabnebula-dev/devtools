@@ -41,7 +41,14 @@ export function ConfigurationView() {
 
   return (
     <div class="p-4 h-full">
-      <Switch>
+      <Switch
+        fallback={
+          <div class="h-full grid gap-4 text-center content-center justify-center items-center p-4">
+            <Heading>No Configuration Selected</Heading>
+            &larr; Use the sidebar to get started.
+          </div>
+        }
+      >
         <Match when={params.config && !params.selected && config()}>
           <h1 class="text-3xl">{config()?.label}</h1>
           <ConfigurationErrors error={config()?.error} />
