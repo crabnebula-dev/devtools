@@ -49,7 +49,7 @@ export function ConfigurationView() {
       <Show
         when={tabWithKeys(tab())}
         fallback={
-          <div class="h-full grid gap-4 text-center content-center justify-center items-center border-l p-4 border-gray-800">
+          <div class="h-full grid gap-4 text-center content-center justify-center items-center p-4">
             <Heading>No File Selected</Heading>
             &larr; Use the sidebar to get started.
           </div>
