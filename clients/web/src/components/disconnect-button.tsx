@@ -9,7 +9,7 @@ export function DisconnectButton() {
     <Button.Root
       type="button"
       id="close"
-      class="border-slate-800 border w-6 hover:w-[8em] focus:w-[8em] transition-all duration-500 ease-in-out  rounded-md p-1 inline-flex items-center justify-end text-slate-200  focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 group relative overflow-x-hidden"
+      class="border-slate-800 border w-6 hover:w-[7.5em] focus:w-[7.5em] transition-all duration-500 ease-in-out  rounded-md p-1 inline-flex items-center justify-end text-slate-200  focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 group relative overflow-x-hidden"
       onClick={() => {
         connectionStore.abortController.abort();
         goto("/");
