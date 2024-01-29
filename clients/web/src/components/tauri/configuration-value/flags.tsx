@@ -17,7 +17,7 @@ export function Flags(props: { key: string; value: boolean | string }) {
         <Match
           when={isDefaultValue(localSchema(), props.value) && isInConfig()}
         >
-          Set Default
+          (set default)
         </Match>
 
         <Match when={isDefaultValue(localSchema(), props.value)}>
