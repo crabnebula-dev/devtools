@@ -7,6 +7,7 @@ import { useParams } from "@solidjs/router";
 import { ConfigurationErrors } from "./configuration-errors";
 import { MissingConfigurationParameterDialog } from "./dialogs/missing-configuration-parameter-dialog";
 import { MissingConfigurationDialog } from "./dialogs/missing-configuration-dialog";
+import { Heading } from "../heading";
 
 export function ConfigurationView() {
   const params = useParams<{

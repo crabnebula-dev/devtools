@@ -30,7 +30,7 @@ export function Navigation() {
   const { monitorData } = useMonitor();
   return (
     <nav>
-      <ul class="flex border-b flex-start border-b-slate-900">
+      <ul class="flex flex-start">
         <For each={TABS}>
           {(tab) => (
             <Show

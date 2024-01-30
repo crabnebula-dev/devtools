@@ -1,5 +1,5 @@
 import { render } from "solid-js/web";
-import "./styles.css";
+import "~/css/global.css";
 import Entry from "./entry";
 import * as Sentry from "@sentry/browser";
 import { DEV } from "solid-js";
