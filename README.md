@@ -18,7 +18,7 @@ Ensure you have [Tauri](https://tauri.app/v1/guides/getting-started/setup/) set 
 cargo add devtools
 ```
 
-You also have to use Tauri **1.5.3** (or later) so your `Cargo.toml` file should look as follows::
+You also have to use Tauri **1.5.3** (or later) so your `Cargo.toml` file should look as follows:
 
 ```toml
 [dependencies]
