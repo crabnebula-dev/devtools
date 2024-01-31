@@ -36,8 +36,11 @@ dependencies:
     specifier: ^0.4.8
     version: 0.4.8(solid-js@1.8.7)
   '@solidjs/router':
-    specifier: ^0.11.0
-    version: 0.11.0(solid-js@1.8.7)
+    specifier: ^0.10.5
+    version: 0.10.5(solid-js@1.8.7)
+  '@tanstack/solid-virtual':
+    specifier: ^3.0.2
+    version: 3.0.2(solid-js@1.8.7)
   clsx:
     specifier: ^2.0.0
     version: 2.0.0
@@ -75,7 +78,7 @@ devDependencies:
     version: 1.1.1
   '@solidjs/testing-library':
     specifier: ^0.8.0
-    version: 0.8.5(@solidjs/router@0.11.0)(solid-js@1.8.7)
+    version: 0.8.5(@solidjs/router@0.10.5)(solid-js@1.8.7)
   '@testing-library/jest-dom':
     specifier: ^6.0.0
     version: 6.2.0(vitest@0.34.6)
@@ -1236,21 +1239,21 @@ packages:
       solid-js: 1.8.7
     dev: false
 
-  /@solidjs/router@0.11.0(solid-js@1.8.7):
-    resolution: {integrity: sha512-UWCzTdjE06K4jfx7I1BEkPUOelM4bK0X54lLGd2OyVvqSktpsnOy5hwtn1PeLLmBev9NOsmiLv1kp/y9eMgztA==}
+  /@solidjs/router@0.10.5(solid-js@1.8.7):
+    resolution: {integrity: sha512-gxDeiyc97j8/UqzuuasZsQYA7jpmlwjkfpcay11Q2xfzoKR50eBM1AaxAPtf0MlBAdPsdPV3h/k8t5/XQCuebA==}
     peerDependencies:
       solid-js: ^1.8.6
     dependencies:
       solid-js: 1.8.7
 
-  /@solidjs/testing-library@0.8.5(@solidjs/router@0.11.0)(solid-js@1.8.7):
+  /@solidjs/testing-library@0.8.5(@solidjs/router@0.10.5)(solid-js@1.8.7):
     resolution: {integrity: sha512-L9TowCoqdRQGB8ikODh9uHXrYTjCUZseVUG0tIVa836//qeSqXP4m0BKG66v9Zp1y1wRxok5qUW97GwrtEBMcw==}
     engines: {node: '>= 14'}
     peerDependencies:
       '@solidjs/router': '>=0.6.0'
       solid-js: '>=1.0.0'
     dependencies:
-      '@solidjs/router': 0.11.0(solid-js@1.8.7)
+      '@solidjs/router': 0.10.5(solid-js@1.8.7)
       '@testing-library/dom': 9.3.3
       solid-js: 1.8.7
     dev: true
@@ -1259,6 +1262,19 @@ packages:
     resolution: {integrity: sha512-FaruWX6KdudYloq1AHD/4nU+UsMTdNE8CKyrseXWEcgjDAbvkwJg2QGPAnfIJLIWsjZOSPLOAykK6fuYp4vp4A==}
     dependencies:
       tslib: 2.6.2
+    dev: false
+
+  /@tanstack/solid-virtual@3.0.2(solid-js@1.8.7):
+    resolution: {integrity: sha512-bfg5IXRRNNAUa/uRPljTnLNtaWSyzERi92K5L5TCicMl+g/EWwgBwJPtzpyp1fTZ58Cl3Fea/zJGFXkA1Cy72A==}
+    peerDependencies:
+      solid-js: ^1.3.0
+    dependencies:
+      '@tanstack/virtual-core': 3.0.0
+      solid-js: 1.8.7
+    dev: false
+
+  /@tanstack/virtual-core@3.0.0:
+    resolution: {integrity: sha512-SYXOBTjJb05rXa2vl55TTwO40A6wKu0R5i1qQwhJYNDIqaIGF7D0HsLw+pJAyi2OvntlEIVusx3xtbbgSUi6zg==}
     dev: false
 
   /@testing-library/dom@9.3.3:
