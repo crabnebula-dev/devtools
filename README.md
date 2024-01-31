@@ -2,7 +2,7 @@
 
 # Devtools for Tauri
 
-Inspect, monitor, and understand your [Tauri](https://tauri.app) application with ease..
+Inspect, monitor, and understand your [Tauri](https://tauri.app) application with ease.
 
 - **Easy Integration:** With just a few lines of code, enable detailed event logging and metadata extraction for your application.
 - **Rich Insights:** Get insight into what your app is doing, Performance, Errors, Warnings, everything is available at a glance.
