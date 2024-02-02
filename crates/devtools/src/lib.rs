@@ -302,9 +302,9 @@ fn port_is_available(host: &IpAddr, port: u16) -> bool {
 
 fn print_link(addr: &SocketAddr) {
     let url = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
-        "http://localhost:5173/app/dash/"
+        "http://localhost:5173/dash/"
     } else {
-        "https://devtools.crabnebula.dev/app/dash/"
+        "https://devtools.crabnebula.dev/dash/"
     };
 
     let url = format!(
