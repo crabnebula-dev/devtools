@@ -3,10 +3,7 @@
   "productName": "Hello World",
   "version": "0.1.0",
   "build": {
-    "frontendDist": [
-      "index.html",
-      "test.html"
-    ],
+    "frontendDist": ["index.html", "test.html"],
     "devUrl": "http://localhost:1420",
     "beforeDevCommand": "",
     "beforeBuildCommand": ""
