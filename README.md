@@ -33,17 +33,17 @@ tauri-build = "1.5.0"
 Ensure you have [Tauri](https://beta.tauri.app/guides/create/) set up correctly. Then install the Rust instrumentation from crates.io:
 
 ```sh
-cargo add devtools@2.0.0-alpha
+cargo add tauri-plugin-devtools@2.0.0-beta
 ```
 
-You also have to use Tauri **2.0.0-alpha.21** (or later) so your `Cargo.toml` file should look as follows:
+You also have to use Tauri **2.0.0-beta.1** (or later) so your `Cargo.toml` file should look as follows:
 
 ```toml
 [dependencies]
-devtools = "2.0.0-alpha"
-tauri = "2.0.0-alpha.21"
+tauri-plugin-devtools = "2.0.0-beta"
+tauri = "2.0.0-beta.1"
 [build-dependencies]
-tauri-build = "2.0.0-alpha"
+tauri-build = "2.0.0-beta"
 ```
 
 ### Plugin Initialization
@@ -54,7 +54,7 @@ Then add the following snippet to your tauri initialization code:
 fn main() {
     // This should be called as early in the execution of the app as possible
     #[cfg(debug_assertions)] // only enable instrumentation in development builds
-    let devtools = devtools::init();
+    let devtools = tauri_plugin_devtools::init();
 
     let builder = tauri::Builder::default();
 

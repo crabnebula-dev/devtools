@@ -3,7 +3,7 @@
 
 use std::time::Duration;
 
-use tauri::Manager;
+use tauri::{EventTarget, Manager};
 
 #[derive(serde::Serialize)]
 struct EventPayload {
@@ -29,7 +29,11 @@ async fn test1(
     tokio::time::sleep(Duration::from_secs(timeout_seconds)).await;
 
     app.emit_filter("ping-filter-main", "making get request", |w| {
-        w.label() == "main"
+        matches!(
+            w,
+            EventTarget::Webview { label } |
+            EventTarget::Window { label } |
+            EventTarget::WebviewWindow { label } if label == "main")
     })
     .unwrap();
 
@@ -62,7 +66,7 @@ async fn test1(
 /// Panics if the application cannot be built.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let devtools = devtools::init();
+    let devtools = tauri_plugin_devtools::init();
 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![test1])

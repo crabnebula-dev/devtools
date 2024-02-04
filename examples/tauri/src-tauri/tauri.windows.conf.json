@@ -1,9 +1,7 @@
 {
-  "package": {
-    "productName": "Windows Build",
-    "version": "0.1.0"
-  },
-  "tauri": {
+  "productName": "Windows Build",
+  "version": "0.1.0",
+  "app": {
     "windows": [
       {
         "fullscreen": false,

@@ -6,3 +6,5 @@
 /gen
 
 .cargo
+
+/capabilities/schemas

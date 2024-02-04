@@ -1,31 +1,15 @@
 {
+  "identifier": "dev.crabnebula.devtools",
+  "productName": "Hello World",
+  "version": "0.1.0",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "",
-    "devPath": "http://localhost:1430",
-    "distDir": "../src",
-    "withGlobalTauri": true
+    "devUrl": "http://localhost:1430",
+    "frontendDist": "../src"
   },
-  "package": {
-    "productName": "Hello World",
-    "version": "0.1.0"
-  },
-  "tauri": {
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "dev.crabnebula.devtools",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ]
-    },
-    "security": {
-      "csp": null
-    },
+  "app": {
+    "withGlobalTauri": true,
     "windows": [
       {
         "fullscreen": false,
@@ -34,6 +18,17 @@
         "width": 800,
         "height": 600
       }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
     ]
   }
 }
