@@ -12,7 +12,7 @@ repository = "https://github.com/crabnebula-dev/devtools"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-devtools-core = { path = "../../crates/devtools-core/" }
+devtools-core = { path = "../../crates/devtools-core", version = "0.3.0" }
 tauri = { version = "1.5.4", features = ["tracing"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

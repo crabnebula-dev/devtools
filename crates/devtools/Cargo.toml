@@ -17,7 +17,7 @@ tauri-plugin = { workspace = true, features = ["build"] }
 tauri = { workspace = true, features = ["test"] }
 
 [dependencies]
-devtools-core = { path = "../devtools-core/" }
+devtools-core.workspace = true
 tauri.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
