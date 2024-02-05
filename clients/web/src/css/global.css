@@ -1,4 +1,4 @@
-@import "./css/slider.css";
+@import "./slider.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,8 +6,8 @@
 @layer base {
   /** fonts */
   :root {
-    --header-height: 69px;
-    --toolbar-height: 28px;
+    --header-height: 90px;
+    --toolbar-height: 36px;
     --footer-height: 32px;
   }
 
@@ -16,7 +16,7 @@
     font-style: normal;
     src: url("/fonts/EuclidCircularB-Regular.woff") format("woff");
     font-weight: 400;
-    font-display: swap;
+    font-display: optional;
   }
 
   @font-face {
@@ -24,7 +24,7 @@
     font-style: normal;
     src: url("/fonts/EuclidCircularB-Bold.woff") format("woff");
     font-weight: 700;
-    font-display: swap;
+    font-display: optional;
   }
 
   @font-face {
@@ -32,7 +32,7 @@
     font-style: normal;
     src: url("/fonts/EuclidCircularB-Light.woff") format("woff");
     font-weight: 300;
-    font-display: swap;
+    font-display: optional;
   }
 
   @font-face {
@@ -40,7 +40,7 @@
     font-style: normal;
     src: url("/fonts/EuclidCircularB-Medium.woff") format("woff");
     font-weight: 500;
-    font-display: swap;
+    font-display: optional;
   }
 
   @font-face {
@@ -48,7 +48,7 @@
     font-style: normal;
     src: url("/fonts/EuclidCircularB-Semibold.woff") format("woff");
     font-weight: 600;
-    font-display: swap;
+    font-display: optional;
   }
 
   * {
@@ -71,7 +71,12 @@
   **/
   .gutter,
   .gutter:hover {
-    @apply cursor-col-resize;
+    border: 0;
+    @apply cursor-col-resize  bg-slate-800;
+  }
+
+  .gutter:active {
+    @apply bg-slate-400;
   }
   /**
    * /SplitPane specific CSS (split.js)
@@ -82,7 +87,6 @@
   **/
   .surf-container {
     @apply overflow-hidden absolute inset-0 w-full h-full -z-10;
-    animation: 3s cubic-bezier(0.165, 0.84, 0.44, 1) 0s 1 fadein;
   }
 
   .bg-surface {

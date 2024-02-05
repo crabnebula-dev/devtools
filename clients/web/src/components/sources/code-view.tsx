@@ -20,7 +20,7 @@ export default function CodeView(props: CodeViewProps) {
   );
 
   return (
-    <div class="min-h-full h-max min-w-full w-max bg-black bg-opacity-50">
+    <div class="min-h-full h-max min-w-full w-max">
       <Suspense fallback={<Loader />}>
         <CodeHighlighter
           text={text()}

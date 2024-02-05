@@ -17,17 +17,17 @@ const variant = (status: HealthCheckResponse_ServingStatus) => {
     // unknown
     {
       style: "inline-block mr-3 w-3 h-3 bg-gray-200 rounded-full",
-      tooltip: "Disconnected",
+      tooltip: "disconnected",
     },
     // serving
     {
       style: "inline-block mr-3 w-3 h-3 bg-green-500 rounded-full",
-      tooltip: "Connected",
+      tooltip: "connected",
     },
     // not serving
     {
       style: "inline-block mr-3 w-3 h-3 bg-red-500 rounded-full",
-      tooltip: "Disconnected",
+      tooltip: "disconnected",
     },
   ][status];
 };
