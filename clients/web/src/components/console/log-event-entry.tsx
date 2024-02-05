@@ -11,6 +11,7 @@ import { getFileNameFromPath } from "~/lib/console/get-file-name-from-path";
 export function LogEventEntry(props: {
   event: LogEvent;
   showTimestamp?: boolean;
+  odd?: boolean;
 }) {
   const { monitorData } = useMonitor();
   const logEvent = untrack(() => props.event);
@@ -32,8 +33,9 @@ export function LogEventEntry(props: {
   return (
     <div
       class={clsx(
-        "p-1  font-mono text-sm items-center flex gap-4 odd:bg-slate-900 group",
-        levelStyle ? levelStyle : "border-b-gray-800 text-white"
+        "p-1  font-mono text-sm items-center flex gap-4 group",
+        levelStyle ? levelStyle : "border-b-gray-800 text-white",
+        props.odd ? "bg-slate-900" : ""
       )}
     >
       <Show when={props.showTimestamp}>
