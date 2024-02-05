@@ -15,8 +15,8 @@ license = "MIT OR Apache-2.0"
 repository = "https://github.com/crabnebula-dev/devtools"
 
 [workspace.dependencies]
-devtools-core = { path = "./crates/devtools-core" }
-devtools-wire-format = { path = "./crates/wire" }
+devtools-core = { path = "./crates/devtools-core", version = "0.3.0" }
+devtools-wire-format = { path = "./crates/wire", version = "0.3.0" }
 tracing = "0.1"
 tracing-core = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
