@@ -36,7 +36,7 @@ export default function Console() {
           }
           type="text"
           placeholder="Filter..."
-          class="bg-gray-900 px-1 rounded text-white"
+          class="bg-slate-900 px-1 rounded text-white focus:outline-none focus:border focus:border-slate-400"
         />
         <LogLevelFilter filter={filter} setFilter={setFilter} />
         <FilterToggle
@@ -83,7 +83,7 @@ export default function Console() {
             return (
               <li
                 class={clsx(
-                  "p-1 font-mono text-sm border-b items-center flex gap-4",
+                  "p-1  font-mono text-sm items-center flex gap-4 odd:bg-slate-900 group",
                   levelStyle ? levelStyle : "border-b-gray-800 text-white"
                 )}
               >
@@ -91,18 +91,24 @@ export default function Console() {
                   <time
                     dateTime={timeDate.toISOString()}
                     class={clsx(
-                      levelStyle ? levelStyle : "text-gray-600",
-                      "font-mono text-xs"
+                      levelStyle
+                        ? levelStyle
+                        : "text-slate-400 group-hover:text-slate-100",
+                      "font-mono text-xs transition-colors"
                     )}
                   >
                     {formatTimestamp(timeDate)}
                   </time>
                 </Show>
-                <span>{message}</span>
+                <span class="group-hover:text-white text-slate-300 transition-colors">
+                  {message}
+                </span>
                 <span class="ml-auto flex gap-2 items-center text-xs">
                   <Show when={target}>
                     {(logTarget) => (
-                      <span class="text-gray-600">{logTarget()}</span>
+                      <span class="text-slate-400 group-hover:text-slate-100 transition-colors">
+                        {logTarget()}
+                      </span>
                     )}
                   </Show>
                   <Show when={metadata?.location?.file}>

@@ -60,23 +60,18 @@ function TextValue(props: TextConfigurationValueProps) {
 
   const value = () =>
     typeof props.value === "boolean" ? (
-      props.value ? (
-        <span class="font-mono">true</span>
-      ) : (
-        <span class="font-mono">false</span>
-      )
+      <span class="font-mono">{String(props.value)}</span>
     ) : (
       props.value
     );
-
   return (
-    <div class="flex text-xl border-1 border-[#4B4B4B] border-2 ">
+    <div class="flex text-xl hover:bg-slate-800">
       <div class="basis-2/5 p-1">
         <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
       </div>
-      <div class="basis-3/5 border-l-2 border-[#4B4B4B] p-1 text-right flex justify-between">
-        <Flags key={key()} value={props.value} />
+      <div class="basis-3/5 p-1 text-right flex justify-between">
         <span class="ml-auto">{value()}</span>
+        <Flags key={key()} value={props.value} />
       </div>
     </div>
   );
@@ -117,8 +112,8 @@ function ArrayValue(props: ArrayConfigurationValueProps) {
             {(value, childKey) => (
               <li>
                 <ConfigurationValue
+                  key={String(childKey())}
                   parentKey={props.parentKey + "." + props.key}
-                  key={childKey().toString()}
                   value={value}
                 />
               </li>

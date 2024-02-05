@@ -30,7 +30,7 @@ export function Navigation() {
   const { monitorData } = useMonitor();
   return (
     <nav>
-      <ul class="flex border-b flex-start border-b-neutral-800">
+      <ul class="flex flex-start">
         <For each={TABS}>
           {(tab) => (
             <Show
@@ -57,9 +57,9 @@ export function Navigation() {
                     e.currentTarget.click();
                   }}
                   href={tab.url(host, port)}
-                  activeClass="border-b-gray-500 hover:border-b-gray-400"
+                  activeClass="!border-b-slate-300 bg-slate-800"
                   inactiveClass="border-b-gray-800 hover:border-b-gray-600"
-                  class="flex -mb-[1px] items-center justify-center leading-none border-b py-2 px-4 hover:bg-gray-800 hover:border-gray-800"
+                  class="border-b-transparent hover:border-b-slate-600 flex -mb-[1px] items-center justify-center leading-none border-b py-2 px-4 hover:bg-slate-800 hover:border-slate-800"
                 >
                   {tab.title}
                 </A>

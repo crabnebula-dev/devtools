@@ -87,6 +87,7 @@ export function SpanList() {
         <tr class="text-left">
           <For each={columns}>
             {(column) => {
+              console.log(column);
               return (
                 <th
                   tabIndex="0"
@@ -96,7 +97,13 @@ export function SpanList() {
                     }
                   }}
                   onClick={() => column.isSortable && sortColumn(column.name)}
-                  class="p-1 cursor-pointer hover:bg-[#ffffff09]"
+                  class={`p-1 cursor-pointer hover:bg-[#ffffff09] ${
+                    column.name === "time" || column.name === "initiated"
+                      ? "w-2/12" // time and initiated
+                      : column.name === "name"
+                      ? "w-3/12" // name
+                      : "w-5/12" // waterfall
+                  }`}
                 >
                   <div class="flex uppercase select-none items-center gap-2">
                     {column.name}

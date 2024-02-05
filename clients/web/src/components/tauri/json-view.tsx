@@ -29,10 +29,10 @@ export function JsonView() {
       <Show
         when={config() && config()?.key !== "loaded"}
         fallback={
-          <p class="p-3">
+          <div class="h-full grid gap-4 text-center content-center justify-center items-center border-l p-4 border-gray-800">
             This configuration is parsed and merged, so there is no direct
             source file to display.
-          </p>
+          </div>
         }
       >
         <div class="min-h-full h-max min-w-full w-max bg-black bg-opacity-50">

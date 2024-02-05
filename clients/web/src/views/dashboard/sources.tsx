@@ -11,6 +11,7 @@ export default function Sources() {
   return (
     <SplitPane
       defaultPrefix="sources"
+      gutterSize={5}
       initialSizes={[22, 78]}
       defaultMinSizes={[70, 200]}
     >

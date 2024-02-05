@@ -35,7 +35,7 @@ export function SplitPane(props: WrapperProps) {
     splitInstance = Split(paneIds, {
       sizes,
       minSize: defaultMinSizes,
-      gutterSize: gutterSize ?? 10,
+      gutterSize: gutterSize ?? 5,
       onDragEnd: function (sizes) {
         setToLocalStorage(splitGutterSizeKey, sizes);
       },
@@ -48,10 +48,7 @@ export function SplitPane(props: WrapperProps) {
     <div class={clsx(`flex h-full overflow-auto`, props.class)}>
       <For each={children}>
         {(pane, idx) => (
-          <section
-            id={paneNames[idx()]}
-            class="border-neutral-800 border-x-2 overflow-auto"
-          >
+          <section id={paneNames[idx()]} class="overflow-auto">
             {pane}
           </section>
         )}

@@ -20,7 +20,7 @@ export default function Layout(props: Props) {
     <ConnectionProvider host={host} port={port}>
       <MonitorProvider>
         <header class="grid">
-          <div class="border-b border-gray-800 flex px-2 py-1 items-center justify-between">
+          <div class="flex px-2 pt-1 items-center justify-between">
             <HealthStatus />
             <DisconnectButton />
           </div>
@@ -33,7 +33,7 @@ export default function Layout(props: Props) {
         <div class="overflow-hidden absolute inset-0 w-full h-full -z-10">
           <img
             class="relative opacity-30 scale-110 bg-surface bg-surface"
-            src="/bg.jpeg"
+            src="/bg.webp"
             aria-hidden
           />
         </div>

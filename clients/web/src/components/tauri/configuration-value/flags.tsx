@@ -12,17 +12,19 @@ export function Flags(props: { key: string; value: boolean | string }) {
     return lineNumber > 0;
   };
   return (
-    <span class="text-neutral-400 pr-2 font-mono">
+    <span class="text-neutral-400 pl-2 text-sm">
       <Switch>
         <Match
           when={isDefaultValue(localSchema(), props.value) && isInConfig()}
         >
-          Set Default
+          (set default)
         </Match>
 
-        <Match when={isDefaultValue(localSchema(), props.value)}>Default</Match>
+        <Match when={isDefaultValue(localSchema(), props.value)}>
+          (default)
+        </Match>
 
-        <Match when={isInConfig()}>User Set</Match>
+        <Match when={isInConfig()}>(user set)</Match>
       </Switch>
     </span>
   );
