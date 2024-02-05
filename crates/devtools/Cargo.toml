@@ -1,5 +1,5 @@
 [package]
-name = "devtools"
+name = "tauri-plugin-devtools"
 version = "2.0.0-beta.0"
 authors.workspace = true
 edition.workspace = true
