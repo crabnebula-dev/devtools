@@ -77,6 +77,7 @@ export function AutoScrollPane<DataType>(props: AutoScrollPaneProps<DataType>) {
                 <props.displayComponent
                   event={props.dataStream[virtualRow.index]}
                   {...props.displayOptions}
+                  odd={virtualRow.index & 1}
                 />
               </li>
             );
