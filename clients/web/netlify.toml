@@ -1,11 +1,11 @@
 [[redirects]]
+from = "/app/*"
+to = "/:splat"
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-[[redirects]]
-from = "/app/*"
-to = "/:splat"
 
 # App Sentry redirect.
 [[redirects]]
