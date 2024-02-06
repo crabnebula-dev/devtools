@@ -3,6 +3,10 @@
   to = "/index.html"
   status = 200
 
+[[redirects]]
+from = "/app/*"
+to = "/:splat"
+
 # App Sentry redirect.
 [[redirects]]
   from = "/sentry-tunnel/*"
