@@ -1,89 +1,110 @@
-import { Show, Accessor, JSXElement, For, createEffect, on } from "solid-js";
-import { createVirtualizer } from "@tanstack/solid-virtual";
+import {
+  Show,
+  Accessor,
+  JSXElement,
+  For,
+  createEffect,
+  createMemo,
+} from "solid-js";
+import { Virtualizer, createVirtualizer } from "@tanstack/solid-virtual";
 
-function scrollEnd(ref?: HTMLElement, smooth?: boolean) {
-  ref?.scroll({
-    top: ref.scrollHeight,
-    /**
-     * @todo
-     * make it smooth when autoscroll is turned BACK on.
-     */
-    behavior: smooth ? "smooth" : "instant",
-  });
-}
-
-type AutoScrollPaneProps<DataType> = {
-  shouldAutoScroll: Accessor<boolean>;
-  dataStream: DataType[];
-  fallback: JSXElement;
-  displayOptions: Record<string, unknown>;
+type AutoScrollPaneProps<AutoScrollItem> = {
+  dataStream: AutoScrollItem[];
   displayComponent: (props: {
-    event: DataType;
+    event: AutoScrollItem;
     [key: string]: unknown;
   }) => JSXElement;
+  displayOptions: Record<string, unknown>;
+  shouldAutoScroll: Accessor<boolean>;
+  fallback: JSXElement;
 };
 
-export function AutoScrollPane<DataType>(props: AutoScrollPaneProps<DataType>) {
+export function AutoScrollPane<AutoScrollItem>(
+  props: AutoScrollPaneProps<AutoScrollItem>
+) {
   let logPanel: HTMLDivElement | undefined;
 
-  const virtualizer = createVirtualizer({
-    count: props.dataStream.length,
-    getScrollElement: () => logPanel ?? null,
-    estimateSize: () => 30,
-    overscan: 10,
-  });
-
-  function updateVirtualizer(newCount: number) {
+  function updateVirtualizer(
+    virtualizer: Virtualizer<HTMLDivElement, Element>,
+    count: number
+  ) {
     virtualizer.setOptions({
       ...virtualizer.options,
-      count: newCount,
+      count: count,
     });
     virtualizer.measure();
+    return virtualizer;
   }
 
-  createEffect(
-    on(
-      () => props.dataStream,
-      () => {
-        updateVirtualizer(props.dataStream.length);
-        if (props.shouldAutoScroll()) {
-          scrollEnd(logPanel);
-        }
-      }
-    )
+  const virtualizer = createMemo(
+    (oldVirtualizer: Virtualizer<HTMLDivElement, Element> | undefined) => {
+      const newCount = props.dataStream.length;
+
+      if (oldVirtualizer) return updateVirtualizer(oldVirtualizer, newCount);
+
+      return createVirtualizer({
+        count: newCount,
+        getScrollElement: () => logPanel ?? null,
+        estimateSize: () => 28,
+      });
+    }
   );
+
+  createEffect(() => {
+    if (props.shouldAutoScroll())
+      virtualizer().scrollToIndex(props.dataStream.length - 1);
+  });
 
   return (
     <div
-      ref={(e) => (logPanel = e)}
-      class="overflow-auto h-[calc(100%-var(--toolbar-height))]  relative"
+      ref={logPanel}
+      class="overflow-y-auto h-[calc(100%-var(--toolbar-height))]  relative"
+      style={{
+        contain: "strict",
+      }}
     >
       <Show when={props.dataStream.length === 0 || !props.dataStream}>
         {props.fallback}
       </Show>
-      <ul class="" style={{ height: `${virtualizer.getTotalSize()}px` }}>
-        <For each={virtualizer.getVirtualItems()}>
-          {(virtualRow, index) => {
-            return (
-              <li
-                data-id={virtualRow.index}
-                style={{
-                  height: `${virtualRow.size}px`,
-                  transform: `translateY(${
-                    virtualRow.start - index() * virtualRow.size
-                  }px)`,
-                }}
-              >
-                <props.displayComponent
-                  event={props.dataStream[virtualRow.index]}
-                  {...props.displayOptions}
-                  odd={virtualRow.index & 1}
-                />
-              </li>
-            );
+      <div
+        style={{
+          height: `${virtualizer().getTotalSize()}px`,
+          width: "100%",
+          position: "relative",
+        }}
+      >
+        <ul
+          class=""
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            transform: `translateY(${
+              virtualizer().getVirtualItems()[0]?.start ?? 0
+            }px)`,
           }}
-        </For>
-      </ul>
+        >
+          <For each={virtualizer().getVirtualItems()}>
+            {(virtualRow) => {
+              return (
+                <li
+                  data-index={virtualRow.index}
+                  ref={(el) =>
+                    queueMicrotask(() => virtualizer().measureElement(el))
+                  }
+                >
+                  <props.displayComponent
+                    event={props.dataStream[virtualRow.index]}
+                    {...props.displayOptions}
+                    odd={virtualRow.index & 1}
+                  />
+                </li>
+              );
+            }}
+          </For>
+        </ul>
+      </div>
     </div>
   );
 }
