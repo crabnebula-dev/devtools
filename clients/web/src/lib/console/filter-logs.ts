@@ -10,8 +10,10 @@ export const filterLogs = (
   monitorData: MonitorData,
   filter: LogFilterObject,
   logs: MonitorData["logs"]
-) =>
-  logs.filter((log) => {
+) => {
+  if (!filter.textContent && !filter.levels.length) return logs;
+
+  return logs.filter((log) => {
     if (!filter.textContent && !filter.levels.length) return true;
 
     const metadata = getLogMetadata(monitorData, log);
@@ -32,3 +34,4 @@ export const filterLogs = (
 
     return matchesTextContent && matchesLevel;
   });
+};
