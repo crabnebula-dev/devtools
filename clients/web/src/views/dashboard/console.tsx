@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, createMemo, untrack } from "solid-js";
 import { AutoScrollPane } from "~/components/auto-scroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { Toolbar } from "~/components/toolbar";
@@ -18,7 +18,10 @@ export default function Console() {
     levels: [0, 1, 2, 3, 4],
   });
   const [filter, setFilter] = createStore<LogFilterObject>(initialFilters());
-  const filteredLogs = () => filterLogs(monitorData, filter, monitorData.logs);
+  const filteredLogs = createMemo(() => {
+    const metadata = untrack(() => monitorData);
+    return filterLogs(metadata, filter, monitorData.logs);
+  });
   const resetFilter = () => setFilter(initialFilters);
 
   return (

@@ -11,7 +11,11 @@ export const filterLogs = (
   filter: LogFilterObject,
   logs: MonitorData["logs"]
 ) => {
-  if (!filter.textContent && !filter.levels.length) return logs;
+  if (
+    !filter.textContent &&
+    (!filter.levels.length || filter.levels.length === 5)
+  )
+    return logs;
 
   return logs.filter((log) => {
     if (!filter.textContent && !filter.levels.length) return true;
