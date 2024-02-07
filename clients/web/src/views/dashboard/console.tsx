@@ -1,4 +1,4 @@
-import { createSignal, createMemo, untrack, createEffect } from "solid-js";
+import { createSignal, untrack, createEffect } from "solid-js";
 import { AutoScrollPane } from "~/components/auto-scroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { Toolbar } from "~/components/toolbar";
