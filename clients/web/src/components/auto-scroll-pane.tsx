@@ -51,7 +51,7 @@ export function AutoScrollPane<AutoScrollItem>(
   );
 
   createEffect(() => {
-    if (props.shouldAutoScroll())
+    if (props.shouldAutoScroll() && props.dataStream.length > 0)
       virtualizer().scrollToIndex(props.dataStream.length - 1);
   });
 
