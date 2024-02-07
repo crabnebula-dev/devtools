@@ -46,6 +46,7 @@ export function AutoScrollPane<AutoScrollItem>(
         count: newCount,
         getScrollElement: () => logPanel ?? null,
         estimateSize: () => 28,
+        overscan: 25,
       });
     }
   );
