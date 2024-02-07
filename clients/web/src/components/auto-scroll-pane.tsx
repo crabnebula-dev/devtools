@@ -52,8 +52,15 @@ export function AutoScrollPane<AutoScrollItem>(
   );
 
   createEffect(() => {
-    if (props.shouldAutoScroll() && props.dataStream.length > 0)
-      virtualizer().scrollToIndex(props.dataStream.length - 1);
+    if (props.shouldAutoScroll() && props.dataStream.length > 0) {
+      // When updating the filter really quick (fast typing for example) it is possible to void the virtual items
+      // before the scroll can be performed, which will lead to an error
+      try {
+        virtualizer().scrollToIndex(props.dataStream.length - 1);
+      } catch (e) {
+        /* intentionally ignore */
+      }
+    }
   });
 
   return (
