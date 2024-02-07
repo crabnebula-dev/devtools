@@ -35,7 +35,7 @@ export function LogEventEntry(props: {
       class={clsx(
         "p-1  font-mono text-sm items-center flex gap-4 group",
         levelStyle ? levelStyle : "border-b-gray-800 text-white",
-        props.odd ? "bg-slate-900" : ""
+        props.odd ? "" : "bg-slate-900"
       )}
     >
       <Show when={props.showTimestamp}>
