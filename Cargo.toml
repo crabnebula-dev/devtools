@@ -6,6 +6,7 @@ members = [
   "crates/devtools",
   "examples/*/src-tauri",
 ]
+exclude = ["crates/devtools-v1", "crates/devtools", "examples/tauri-v1"]
 
 [workspace.package]
 authors = ["CrabNebula <hello@crabnebula.dev>"]

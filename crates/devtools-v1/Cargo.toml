@@ -1,5 +1,3 @@
-workspace = {}
-
 [package]
 name = "devtools"
 authors = ["CrabNebula <hello@crabnebula.dev>"]
