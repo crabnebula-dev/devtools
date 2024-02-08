@@ -60,6 +60,7 @@ export default function Console() {
   return (
     <>
       <Toolbar>
+        <div>({filteredLogs().length})</div>
         <input
           value={filter.textContent}
           onInput={(e) =>
