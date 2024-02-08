@@ -13,6 +13,7 @@ import { InstrumentRequest } from "../proto/instrument";
 import { updateSpanMetadata } from "../span/update-span-metadata";
 import { updatedSpans } from "../span/update-spans";
 import { MonitorData } from "./monitor";
+import * as Sentry from "@sentry/browser";
 
 export async function checkConnection(url: string) {
   const abortController = new AbortController();
@@ -111,7 +112,9 @@ export function addStreamListneners(
     const logsUpdate = update.logsUpdate;
     if (logsUpdate && logsUpdate.logEvents.length > 0) {
       setMonitorData("logs", (prev) => [...prev, ...logsUpdate.logEvents]);
+      Sentry.setMeasurement("droppedLogEvents", Number(logsUpdate.droppedEvents), 'none');
     }
+
 
     const spansUpdate = update.spansUpdate;
     if (spansUpdate && spansUpdate.spanEvents.length > 0) {
@@ -121,6 +124,7 @@ export function addStreamListneners(
           updatedSpans(clonedSpans, spansUpdate.spanEvents)
         )
       );
+      Sentry.setMeasurement("droppedSpanEvents", Number(spansUpdate.droppedEvents), 'none');
     }
   });
 }
