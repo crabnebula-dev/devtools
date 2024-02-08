@@ -112,9 +112,12 @@ export function addStreamListneners(
     const logsUpdate = update.logsUpdate;
     if (logsUpdate && logsUpdate.logEvents.length > 0) {
       setMonitorData("logs", (prev) => [...prev, ...logsUpdate.logEvents]);
-      Sentry.setMeasurement("droppedLogEvents", Number(logsUpdate.droppedEvents), 'none');
+      Sentry.setMeasurement(
+        "droppedLogEvents",
+        Number(logsUpdate.droppedEvents),
+        "none"
+      );
     }
-
 
     const spansUpdate = update.spansUpdate;
     if (spansUpdate && spansUpdate.spanEvents.length > 0) {
@@ -124,7 +127,11 @@ export function addStreamListneners(
           updatedSpans(clonedSpans, spansUpdate.spanEvents)
         )
       );
-      Sentry.setMeasurement("droppedSpanEvents", Number(spansUpdate.droppedEvents), 'none');
+      Sentry.setMeasurement(
+        "droppedSpanEvents",
+        Number(spansUpdate.droppedEvents),
+        "none"
+      );
     }
   });
 }
