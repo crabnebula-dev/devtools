@@ -1,12 +1,5 @@
-import {
-  Show,
-  Accessor,
-  JSXElement,
-  For,
-  createEffect,
-  createMemo,
-} from "solid-js";
-import { Virtualizer, createVirtualizer } from "@tanstack/solid-virtual";
+import { Show, Accessor, JSXElement, For, createEffect } from "solid-js";
+import { createVirtualizer } from "@tanstack/solid-virtual";
 
 type AutoScrollPaneProps<AutoScrollItem> = {
   dataStream: AutoScrollItem[];
@@ -24,39 +17,21 @@ export function AutoScrollPane<AutoScrollItem>(
 ) {
   let logPanel: HTMLDivElement | undefined;
 
-  function updateVirtualizer(
-    virtualizer: Virtualizer<HTMLDivElement, Element>,
-    count: number
-  ) {
-    virtualizer.setOptions({
-      ...virtualizer.options,
-      count: count,
-    });
-    virtualizer.measure();
-    return virtualizer;
-  }
-
-  const virtualizer = createMemo(
-    (oldVirtualizer: Virtualizer<HTMLDivElement, Element> | undefined) => {
-      const newCount = props.dataStream.length;
-
-      if (oldVirtualizer) return updateVirtualizer(oldVirtualizer, newCount);
-
-      return createVirtualizer({
-        count: newCount,
-        getScrollElement: () => logPanel ?? null,
-        estimateSize: () => 28,
-        overscan: 25,
-      });
-    }
-  );
+  const virtualizer = createVirtualizer({
+    get count() {
+      return props.dataStream.length;
+    },
+    getScrollElement: () => logPanel ?? null,
+    estimateSize: () => 28,
+    overscan: 25,
+  });
 
   createEffect(() => {
     if (props.shouldAutoScroll() && props.dataStream.length > 0) {
       // When updating the filter really quick (fast typing for example) it is possible to void the virtual items
       // before the scroll can be performed, which will lead to an error
       try {
-        virtualizer().scrollToIndex(props.dataStream.length - 1);
+        virtualizer.scrollToIndex(virtualizer.options.count - 1);
       } catch (e) {
         /* intentionally ignore */
       }
@@ -76,7 +51,7 @@ export function AutoScrollPane<AutoScrollItem>(
       </Show>
       <div
         style={{
-          height: `${virtualizer().getTotalSize()}px`,
+          height: `${virtualizer.getTotalSize()}px`,
           width: "100%",
           position: "relative",
         }}
@@ -89,17 +64,17 @@ export function AutoScrollPane<AutoScrollItem>(
             left: 0,
             width: "100%",
             transform: `translateY(${
-              virtualizer().getVirtualItems()[0]?.start ?? 0
+              virtualizer.getVirtualItems()[0]?.start ?? 0
             }px)`,
           }}
         >
-          <For each={virtualizer().getVirtualItems()}>
+          <For each={virtualizer.getVirtualItems()}>
             {(virtualRow) => {
               return (
                 <li
                   data-index={virtualRow.index}
                   ref={(el) =>
-                    queueMicrotask(() => virtualizer().measureElement(el))
+                    queueMicrotask(() => virtualizer.measureElement(el))
                   }
                 >
                   <props.displayComponent
