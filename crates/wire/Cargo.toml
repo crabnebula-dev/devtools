@@ -18,5 +18,5 @@ tracing-core.workspace = true
 bitflags = "2.4"
 
 [dev-dependencies]
-tonic-build = "0.10"
+tonic-build = "0.11"
 prost-build = "0.12"
