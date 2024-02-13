@@ -14,7 +14,9 @@ export default defineConfig({
   server: {
     strictPort: true,
     headers: {
-      "Content-Security-Policy": generateCSP(true),
+      "Content-Security-Policy": generateCSP(
+        process.env.NODE_ENV === "development"
+      ),
     },
   },
   build: {

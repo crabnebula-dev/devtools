@@ -7,14 +7,10 @@ export function generateCSP(isDev = false) {
       : "https://o4506303762464768.ingest.sentry.io/api/4506303812272128/security/?sentry_key=57614e75ac5f8c480aed3a2dd1528f13",
     directives: {
       "default-src": [SELF],
+      "frame-src": [SELF],
       "script-src": isDev ? [SELF, UNSAFE_EVAL] : [SELF],
       "style-src": isDev ? [SELF, UNSAFE_INLINE] : [SELF],
-      "connect-src": [
-        SELF,
-        "127.0.0.1",
-        "127.0.0.1:3000",
-        "ws://localhost:5173/",
-      ],
+      "connect-src": [SELF, "127.0.0.1", "ws://localhost:5173/"],
       "img-src": [SELF],
       "object-src": [NONE],
     },
