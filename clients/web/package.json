@@ -11,7 +11,7 @@
     "dev": "pnpm proto && vite",
     "build": "pnpm proto && vite build",
     "preview": "pnpm proto && vite preview",
-    "format": "prettier --write .",
+    "format": "prettier --write --cache .",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --fix --ext .ts,.tsx",
     "test": "cross-env TZ=UTC pnpm proto && vitest"

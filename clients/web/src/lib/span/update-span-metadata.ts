@@ -3,7 +3,7 @@ import { Update as InstrumentUpdate } from "~/lib/proto/instrument";
 
 export function updateSpanMetadata(
   currentMeta: Map<bigint, Metadata>,
-  update: InstrumentUpdate
+  update: InstrumentUpdate,
 ) {
   return new Map([
     ...(currentMeta || []),

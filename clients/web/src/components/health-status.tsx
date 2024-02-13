@@ -63,12 +63,12 @@ export function HealthStatus() {
       > 0 = time until reconnect 
   */
   const [reconnectTimer, setReconnectTimer] = createSignal<number | undefined>(
-    undefined
+    undefined,
   );
 
   async function reconnectInterval(
     steps: { timeIncrease: number; attempts: number },
-    initialTime = 1
+    initialTime = 1,
   ) {
     setReconnectTimer(-1);
     const ping = await checkConnection(connectionStore.serviceUrl);
@@ -84,13 +84,19 @@ export function HealthStatus() {
           setReconnectTimer(timer);
         }, 1000);
 
-        setTimeout(async () => {
-          await reconnectInterval(
-            { timeIncrease: steps.timeIncrease, attempts: steps.attempts - 1 },
-            initialTime + steps.timeIncrease
-          );
-          clearInterval(interval);
-        }, (initialTime + 1) * 1000);
+        setTimeout(
+          async () => {
+            await reconnectInterval(
+              {
+                timeIncrease: steps.timeIncrease,
+                attempts: steps.attempts - 1,
+              },
+              initialTime + steps.timeIncrease,
+            );
+            clearInterval(interval);
+          },
+          (initialTime + 1) * 1000,
+        );
 
         return;
       }

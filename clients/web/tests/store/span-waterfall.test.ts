@@ -23,7 +23,7 @@ describe("The store setter for the Span Waterfall", () => {
               oneofKind: undefined,
             },
           },
-        ]
+        ],
       );
     }).toThrowError("span type not supported");
   });
@@ -44,7 +44,7 @@ describe("The store setter for the Span Waterfall", () => {
             },
           },
         },
-      ]
+      ],
     );
 
     expect(result).toEqual([MOCK_SPAN]);
@@ -79,7 +79,7 @@ describe("The store setter for the Span Waterfall", () => {
             newSpan,
           },
         },
-      ]
+      ],
     );
 
     expect(result[1].id).toEqual(newSpan.id);

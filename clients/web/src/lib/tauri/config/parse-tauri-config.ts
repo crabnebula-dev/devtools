@@ -4,7 +4,7 @@ import { TauriConfig } from "./tauri-conf";
 
 export function parseTauriConfig(
   configData: JSONValue,
-  schema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>
+  schema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>,
 ) {
   const config = schema.safeParse(configData);
 
@@ -33,7 +33,7 @@ interface JSONObject {
 function parseErrorConfig(
   configData: JSONValue,
   parsed: SafeParseError<TauriConfig>,
-  schema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>
+  schema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>,
 ):
   | z.SafeParseReturnType<TauriConfig, TauriConfig>
   | PartialSafeParseSuccess<TauriConfig> {
@@ -87,13 +87,13 @@ function isJsonArray(value: JSONValue): value is Array<JSONValue> {
 }
 
 export function isValidConfig<T>(
-  value: PartialSafeParseSuccess<T> | SafeParseSuccess<T> | SafeParseError<T>
+  value: PartialSafeParseSuccess<T> | SafeParseSuccess<T> | SafeParseError<T>,
 ): value is SafeParseSuccess<T> {
   return "data" in value && !("error" in value);
 }
 
 export function isPartiallyValidConfig<T>(
-  value: PartialSafeParseSuccess<T> | SafeParseSuccess<T> | SafeParseError<T>
+  value: PartialSafeParseSuccess<T> | SafeParseSuccess<T> | SafeParseError<T>,
 ): value is PartialSafeParseSuccess<T> {
   return "data" in value && "error" in value;
 }
@@ -101,7 +101,7 @@ export function isPartiallyValidConfig<T>(
 function deleteUnrecognizedKey(
   object: JSONValue,
   path: (string | number)[],
-  keys: string[]
+  keys: string[],
 ) {
   path.forEach((path) => {
     if (isJsonObject(object) && Object.hasOwn(object, path))

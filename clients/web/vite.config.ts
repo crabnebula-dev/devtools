@@ -15,7 +15,7 @@ export default defineConfig({
     strictPort: true,
     headers: {
       "Content-Security-Policy": generateCSP(
-        process.env.NODE_ENV === "development"
+        process.env.NODE_ENV === "development",
       ),
     },
   },
@@ -36,20 +36,20 @@ export default defineConfig({
           src: normalizePath(
             path.resolve(
               __dirname,
-              "node_modules/@crabnebula/file-icons/icons"
-            ) + "/[!.]*"
+              "node_modules/@crabnebula/file-icons/icons",
+            ) + "/[!.]*",
           ),
           dest: "./icons/",
         },
         {
           src: normalizePath(
-            path.resolve(__dirname, "node_modules/shiki/dist/onig.wasm")
+            path.resolve(__dirname, "node_modules/shiki/dist/onig.wasm"),
           ),
           dest: "./shiki/",
         },
         {
           src: normalizePath(
-            path.resolve(__dirname, "node_modules/shiki/languages/") + "/*"
+            path.resolve(__dirname, "node_modules/shiki/languages/") + "/*",
           ),
           dest: "./shiki/languages/",
         },
@@ -57,8 +57,8 @@ export default defineConfig({
           src: normalizePath(
             path.resolve(
               __dirname,
-              "node_modules/shiki/themes/material-theme-ocean.json"
-            )
+              "node_modules/shiki/themes/material-theme-ocean.json",
+            ),
           ),
           dest: "./shiki/themes/",
         },

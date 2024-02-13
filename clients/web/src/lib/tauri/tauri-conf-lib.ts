@@ -22,7 +22,7 @@ export function generateDescriptions(key: string, data: object) {
   setDescriptions(
     buildSchemaMap(monitorData.schema ?? {}, {
       [key]: data,
-    })
+    }),
   );
 }
 

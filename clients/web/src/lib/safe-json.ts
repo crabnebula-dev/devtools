@@ -8,7 +8,7 @@ export function safeParseJson(jsonString: string) {
       console.error(
         `Failed to safely parse the following value to json: `,
         jsonString,
-        e
+        e,
       );
     }
     return undefined;
@@ -23,7 +23,7 @@ export function safeStringifyJson(object: Record<string, unknown>) {
       console.error(
         `Failed to safely json stringify the following value: `,
         object,
-        e
+        e,
       );
     }
     return undefined;
