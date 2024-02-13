@@ -1,4 +1,5 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { generateCSP } from "./csp";
 /**
  * Vitest extends Vite config.
  */
@@ -12,6 +13,11 @@ import { normalizePath } from "vite";
 export default defineConfig({
   server: {
     strictPort: true,
+    headers: {
+      "Content-Security-Policy": generateCSP(
+        process.env.NODE_ENV === "development"
+      ),
+    },
   },
   build: {
     // file-icons need top-level await

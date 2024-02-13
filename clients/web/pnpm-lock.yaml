@@ -97,6 +97,9 @@ devDependencies:
   cross-env:
     specifier: ^7.0.3
     version: 7.0.3
+  csp-header:
+    specifier: ^5.2.1
+    version: 5.2.1
   eslint:
     specifier: ^8.53.0
     version: 8.53.0
@@ -1996,6 +1999,11 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+    dev: true
+
+  /csp-header@5.2.1:
+    resolution: {integrity: sha512-qOJNu39JZkPrbrAM40a1tQCePEPYVIoI6nMDhX4RA07QjU8efS+zyd/zE83XJu85KKazH9NjKlvvlswFMteMgg==}
+    engines: {node: '>=10'}
     dev: true
 
   /csp_evaluator@1.1.1:
