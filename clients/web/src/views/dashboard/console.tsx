@@ -73,7 +73,7 @@ export default function Console() {
             let target = metadata?.target;
             if (target === "log") {
               const field = logEvent.fields.find(
-                (field) => field.name === "log.target"
+                (field) => field.name === "log.target",
               );
               if (field) {
                 target = processFieldValue(field.value);
@@ -84,7 +84,7 @@ export default function Console() {
               <li
                 class={clsx(
                   "p-1  font-mono text-sm items-center flex gap-4 odd:bg-slate-900 group",
-                  levelStyle ? levelStyle : "border-b-gray-800 text-white"
+                  levelStyle ? levelStyle : "border-b-gray-800 text-white",
                 )}
               >
                 <Show when={showTimestamp()}>
@@ -94,7 +94,7 @@ export default function Console() {
                       levelStyle
                         ? levelStyle
                         : "text-slate-400 group-hover:text-slate-100",
-                      "font-mono text-xs transition-colors"
+                      "font-mono text-xs transition-colors",
                     )}
                   >
                     {formatTimestamp(timeDate)}

@@ -101,8 +101,8 @@ export function SpanList() {
                     column.name === "time" || column.name === "initiated"
                       ? "w-2/12" // time and initiated
                       : column.name === "name"
-                      ? "w-3/12" // name
-                      : "w-5/12" // waterfall
+                        ? "w-3/12" // name
+                        : "w-5/12" // waterfall
                   }`}
                 >
                   <div class="flex uppercase select-none items-center gap-2">
@@ -148,13 +148,13 @@ export function SpanList() {
                         "relative rounded-sm h-2",
                         computeColorClassName(
                           span.original.closedAt - span.original.createdAt,
-                          callsContext.durations.durations.average
-                        )
+                          callsContext.durations.durations.average,
+                        ),
                       )}
                       style={computeWaterfallStyle(
                         span,
                         callsContext.durations.durations.start,
-                        callsContext.durations.durations.end
+                        callsContext.durations.durations.end,
                       )}
                     >
                       <For each={computeSlices(span.original)}>

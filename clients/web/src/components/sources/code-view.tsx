@@ -16,7 +16,7 @@ export default function CodeView(props: CodeViewProps) {
 
   const [text] = createResource(
     () => [connectionStore.client.sources, props.path, props.size] as const,
-    async (textProps) => getText(...textProps)
+    async (textProps) => getText(...textProps),
   );
 
   return (

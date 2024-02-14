@@ -27,8 +27,8 @@ export function AutoscrollPane(props: AutoScrollPaneProps) {
         if (props.shouldAutoScroll()) {
           scrollEnd(logPanel);
         }
-      }
-    )
+      },
+    ),
   );
 
   return (

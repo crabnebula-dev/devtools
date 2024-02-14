@@ -16,7 +16,7 @@ function scaleToMax(numbers: number[], max: number): number[] {
 
 export function computeColorClassName(
   duration: number,
-  averageSpanDuration: number
+  averageSpanDuration: number,
 ) {
   const relativeDuration = (duration / averageSpanDuration) * 100;
   return calculateSpanColorFromRelativeDuration(relativeDuration);
@@ -27,7 +27,7 @@ export function computeWaterfallStyle(
   start: number,
   end: number,
   shortest?: number,
-  longest?: number
+  longest?: number,
 ) {
   const callsContext = useCalls();
 
@@ -46,7 +46,7 @@ export function computeWaterfallStyle(
 
   const width = Math.min(
     scaleToMax([span.duration], totalDuration / granularity)[0],
-    100 - offset
+    100 - offset,
   );
   const marginLeft = offset - (offset * width) / 100;
 
@@ -62,12 +62,12 @@ export function computeSlices(span: Span) {
 
     const width = scaleToMax(
       [exited - entered.timestamp],
-      allExits - allEnters
+      allExits - allEnters,
     )[0];
     const offset = scaleNumbers(
       [entered.timestamp],
       span.createdAt,
-      span.closedAt
+      span.closedAt,
     )[0];
     const marginLeft = offset - (offset * width) / 100;
 

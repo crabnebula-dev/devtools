@@ -10,7 +10,7 @@ export function getRootPathByUrlSegment(path: string, segment: string) {
     .split("/")
     .slice(
       0,
-      path.split("/").findIndex((e) => e === segment)
+      path.split("/").findIndex((e) => e === segment),
     )
     .concat(segment)
     .join("/");

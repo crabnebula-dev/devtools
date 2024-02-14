@@ -17,7 +17,7 @@ export function UnrecognizedKeyIssue(props: { issue: ZodIssueBase }) {
 }
 
 export function isUnrecognizedKeyIssue(
-  value: ZodIssueBase
+  value: ZodIssueBase,
 ): value is ZodUnrecognizedKeysIssue {
   return "keys" in value;
 }

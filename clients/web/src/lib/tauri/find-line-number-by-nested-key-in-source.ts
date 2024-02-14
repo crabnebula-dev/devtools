@@ -1,6 +1,6 @@
 export function findLineNumberByNestedKeyInSource(
   jsonString: string,
-  nestedKeyPath: string
+  nestedKeyPath: string,
 ): number {
   const lines = jsonString.split("\n");
 
@@ -107,7 +107,7 @@ function lineHasOneLineArray(searchOptions: SearchOptions, line: string) {
 
 function lineHasMultiLineArrayKey(
   searchOptions: SearchOptions,
-  line: string
+  line: string,
 ): boolean {
   // If the search property is a number we are in an array and assume that we are in the correct spot and only have to search for the correct index
   const arrayPointer = parseInt(searchOptions.searchStack[searchOptions.level]);

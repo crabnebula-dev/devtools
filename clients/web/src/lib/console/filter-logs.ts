@@ -9,7 +9,7 @@ export type LogFilterObject = {
 export const filterLogs = (
   monitorData: MonitorData,
   filter: LogFilterObject,
-  logs: MonitorData["logs"]
+  logs: MonitorData["logs"],
 ) =>
   logs.filter((log) => {
     if (!filter.textContent && !filter.levels.length) return true;

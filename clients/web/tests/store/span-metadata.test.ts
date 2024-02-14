@@ -7,7 +7,7 @@ import { updateSpanMetadata } from "~/lib/span/update-span-metadata";
 
 const MOCK_METADATA = (
   kind = Metadata_Kind.SPAN,
-  level = Metadata_Level.INFO
+  level = Metadata_Level.INFO,
 ) => ({
   name: "test",
   target: "test",
@@ -40,11 +40,11 @@ describe("Update metadata for Span Waterfalls", () => {
     const updated = updateSpanMetadata(MOCK_MAP, MOCK_UPDATE);
 
     expect(updated.get(BigInt(10))).toEqual(
-      MOCK_UPDATE.newMetadata[0].metadata
+      MOCK_UPDATE.newMetadata[0].metadata,
     );
 
     expect(updated.get(BigInt(11))).toEqual(
-      MOCK_UPDATE.newMetadata[1].metadata
+      MOCK_UPDATE.newMetadata[1].metadata,
     );
   });
 });

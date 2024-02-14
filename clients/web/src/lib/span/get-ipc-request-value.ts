@@ -22,11 +22,11 @@ export function getIpcRequestValues({ metadata, rootSpan }: Options) {
         (span) =>
           (span?.fields?.reduce(
             (acc, field) => ({ ...acc, [field.name]: field.value }),
-            {}
-          ) ?? {}) as Record<string, Field["value"]>
+            {},
+          ) ?? {}) as Record<string, Field["value"]>,
       ),
       metadata: spans.map((span) =>
-        metadata.get(span?.metadataId ?? BigInt(0))
+        metadata.get(span?.metadataId ?? BigInt(0)),
       ),
     };
 
