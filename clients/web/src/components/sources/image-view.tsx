@@ -6,7 +6,7 @@ export function ImageView(props: { path: string; size: number; type: string }) {
   const { connectionStore } = useConnection();
   const [bytes] = createResource(
     () => [connectionStore.client.sources, props.path, props.size] as const,
-    ([client, path, size]) => getEntryBytes(client, decodeFileName(path), size)
+    ([client, path, size]) => getEntryBytes(client, decodeFileName(path), size),
   );
 
   const url = () => {

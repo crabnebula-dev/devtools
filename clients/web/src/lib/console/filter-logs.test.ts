@@ -14,7 +14,7 @@ describe("Log Filter Function", () => {
     const result = filterLogs(
       fakeMonitorData,
       { textContent: "", levels: [] },
-      logs
+      logs,
     );
     expect(result).toEqual(logs);
   });
@@ -23,12 +23,12 @@ describe("Log Filter Function", () => {
   for (let level = 0; level <= 4; level++) {
     it(`should filter logs by level ${level} only`, () => {
       const expected = logs.filter(
-        (log: any) => getLogMetadata(fakeMonitorData, log)?.level === level
+        (log: any) => getLogMetadata(fakeMonitorData, log)?.level === level,
       );
       const result = filterLogs(
         fakeMonitorData,
         { textContent: "", levels: [level] },
-        logs
+        logs,
       );
       expect(result).toEqual(expected);
     });
@@ -43,13 +43,13 @@ describe("Log Filter Function", () => {
           log.message.includes(textContent) ||
           getLogMetadata(fakeMonitorData, log)?.target?.includes(textContent) ||
           getLogMetadata(fakeMonitorData, log)?.location?.file?.includes(
-            textContent
-          )
+            textContent,
+          ),
       );
       const result = filterLogs(
         fakeMonitorData,
         { textContent, levels: [] },
-        logs
+        logs,
       );
       expect(result).toEqual(expected);
     });
@@ -61,17 +61,17 @@ describe("Log Filter Function", () => {
           (log: any) =>
             (log.message.includes(textContent) ||
               getLogMetadata(fakeMonitorData, log)?.target?.includes(
-                textContent
+                textContent,
               ) ||
               getLogMetadata(fakeMonitorData, log)?.location?.file?.includes(
-                textContent
+                textContent,
               )) &&
-            getLogMetadata(fakeMonitorData, log)?.level === level
+            getLogMetadata(fakeMonitorData, log)?.level === level,
         );
         const result = filterLogs(
           fakeMonitorData,
           { textContent, levels: [level] },
-          logs
+          logs,
         );
         expect(result).toEqual(expected);
       });

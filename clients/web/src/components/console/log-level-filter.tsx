@@ -15,7 +15,7 @@ export function LogLevelFilter(props: Props) {
     if (props.filter.levels.includes(level)) {
       props.setFilter(
         "levels",
-        props.filter.levels.filter((l) => l !== level)
+        props.filter.levels.filter((l) => l !== level),
       );
     } else {
       props.setFilter("levels", (levels) => [...levels, level]);
@@ -62,7 +62,7 @@ export function LogLevelFilter(props: Props) {
           onChange={() => toggleLogLevel(2)}
           class={clsx(
             "p-1 cursor-pointer justify-between flex items-center gap-2 hover:bg-gray-900",
-            getLevelClasses(2)
+            getLevelClasses(2),
           )}
           checked={props.filter.levels.includes(2)}
         >
@@ -73,7 +73,7 @@ export function LogLevelFilter(props: Props) {
           onChange={() => toggleLogLevel(1)}
           class={clsx(
             "p-1 cursor-pointer justify-between flex items-center gap-2 hover:bg-gray-900",
-            getLevelClasses(1)
+            getLevelClasses(1),
           )}
           checked={props.filter.levels.includes(1)}
         >
@@ -84,7 +84,7 @@ export function LogLevelFilter(props: Props) {
           onChange={() => toggleLogLevel(0)}
           class={clsx(
             "p-1 cursor-pointer justify-between flex items-center gap-2 hover:bg-gray-900",
-            getLevelClasses(0)
+            getLevelClasses(0),
           )}
           checked={props.filter.levels.includes(0)}
         >

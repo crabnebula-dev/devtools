@@ -38,7 +38,7 @@ export function SourcePane() {
                   lang={
                     resolvedContentType().replace(
                       "code/",
-                      ""
+                      "",
                     ) as HighlighterLang
                   }
                 />

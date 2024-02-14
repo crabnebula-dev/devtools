@@ -20,7 +20,7 @@ export function CodeHighlighter(props: Props) {
     text: string | undefined,
     highlighter: Highlighter | undefined,
     lang: HighlighterLang,
-    highlightedLine?: number
+    highlightedLine?: number,
   ) => {
     if (!text || !highlighter) return undefined;
     return getHighlightedCode([text, highlighter, lang, highlightedLine]);
@@ -33,7 +33,7 @@ export function CodeHighlighter(props: Props) {
         props.text,
         highlighter(),
         props.lang,
-        props.highlightedLine
+        props.highlightedLine,
       )}
     />
   );

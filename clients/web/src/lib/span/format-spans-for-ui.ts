@@ -47,14 +47,14 @@ export function formatSpanForUi(span: Span) {
   return formatSpanForUiWithMetadata(
     span,
     monitorData.metadata,
-    monitorData.spans
+    monitorData.spans,
   );
 }
 
 export function formatSpanForUiWithMetadata(
   span: Span,
   metadata: Map<bigint, Metadata>,
-  spans: Span[]
+  spans: Span[],
 ) {
   const isProcessing = span.closedAt < 0;
 

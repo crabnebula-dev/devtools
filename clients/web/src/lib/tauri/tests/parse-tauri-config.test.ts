@@ -8,37 +8,37 @@ import { parseTauriConfig } from "../config/parse-tauri-config";
 describe("parseTauriConfig", () => {
   it("should be able to parse and validate a valid v1 tauri config", () => {
     expect(parseTauriConfig(validConfig, tauriConfigSchemaV1).success).toBe(
-      true
+      true,
     );
   });
 
   it("should be able to parse and validate a partially valid v1 tauri config", () => {
     expect(
-      parseTauriConfig(partiallyValidConfig, tauriConfigSchemaV1).success
+      parseTauriConfig(partiallyValidConfig, tauriConfigSchemaV1).success,
     ).toBe(true);
   });
 
   it("should be able to reject a completely broken v1 tauri config", () => {
     expect(
-      parseTauriConfig(brokenConfiguration, tauriConfigSchemaV1).success
+      parseTauriConfig(brokenConfiguration, tauriConfigSchemaV1).success,
     ).toBe(false);
   });
 
   it("should be able to parse and validate a valid v2 tauri config", () => {
     expect(parseTauriConfig(validConfig, tauriConfigSchemaV2).success).toBe(
-      true
+      true,
     );
   });
 
   it("should be able to parse and validate a partially valid v2 tauri config", () => {
     expect(
-      parseTauriConfig(partiallyValidConfig, tauriConfigSchemaV2).success
+      parseTauriConfig(partiallyValidConfig, tauriConfigSchemaV2).success,
     ).toBe(true);
   });
 
   it("should be able to reject a completely broken v2 tauri config", () => {
     expect(
-      parseTauriConfig(brokenConfiguration, tauriConfigSchemaV2).success
+      parseTauriConfig(brokenConfiguration, tauriConfigSchemaV2).success,
     ).toBe(false);
   });
 });

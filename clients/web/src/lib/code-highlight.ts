@@ -49,7 +49,7 @@ export function textToHtml(
   text: string,
   highlighter: Highlighter | undefined,
   lang: HighlighterLang,
-  highlightedLine?: number
+  highlightedLine?: number,
 ) {
   if (!highlighter) return "";
 
@@ -80,7 +80,7 @@ export async function createHighlighter() {
 export async function getText(
   sourcesClient: SourcesClient,
   path: string,
-  size: number
+  size: number,
 ) {
   const bytes = await getEntryBytes(sourcesClient, path, size);
 
@@ -89,13 +89,13 @@ export async function getText(
 }
 
 export function getHighlightedCode(
-  sourcesArg: HighlighterCodeParamsForSources
+  sourcesArg: HighlighterCodeParamsForSources,
 ): string;
 export function getHighlightedCode(
-  spansArg: HighlighterCodeParamsForSpans
+  spansArg: HighlighterCodeParamsForSpans,
 ): (code: string) => string;
 export function getHighlightedCode(
-  arg: HighlighterCodeParamsForSources | HighlighterCodeParamsForSpans
+  arg: HighlighterCodeParamsForSources | HighlighterCodeParamsForSpans,
 ) {
   if ("lang" in arg) {
     const { lang, highlighter } = arg;
