@@ -57,7 +57,7 @@
     "clsx": "^2.1.0",
     "csp_evaluator": "^1.1.1",
     "json-schema-library": "^9.1.2",
-    "shiki": "^0.14.5",
+    "shiki": "^1.1.2",
     "solid-js": "^1.8.14",
     "solid-markdown": "^1.2.2",
     "split.js": "^1.6.5",
