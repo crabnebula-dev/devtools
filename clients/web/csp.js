@@ -10,7 +10,7 @@ export function generateCSP(isDev = false) {
       "frame-src": [SELF],
       "script-src": isDev ? [SELF, UNSAFE_EVAL] : [SELF],
       "style-src": isDev ? [SELF, UNSAFE_INLINE] : [SELF],
-      "connect-src": [SELF, "127.0.0.1", "ws://localhost:5173/"],
+      "connect-src": [SELF, "127.0.0.1", "127.0.0.1:*", "ws://localhost:5173/"],
       "img-src": [SELF],
       "object-src": [NONE],
     },
