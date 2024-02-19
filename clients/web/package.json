@@ -19,6 +19,7 @@
   "devDependencies": {
     "@protobuf-ts/protoc": "^2.9.3",
     "@sentry/netlify-build-plugin": "^1.1.1",
+    "@shikijs/transformers": "^1.1.5",
     "@solidjs/testing-library": "^0.8.6",
     "@testing-library/jest-dom": "^6.4.2",
     "@types/testing-library__jest-dom": "^5.14.9",

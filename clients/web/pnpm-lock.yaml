@@ -73,6 +73,9 @@ devDependencies:
   '@sentry/netlify-build-plugin':
     specifier: ^1.1.1
     version: 1.1.1
+  '@shikijs/transformers':
+    specifier: ^1.1.5
+    version: 1.1.5
   '@solidjs/testing-library':
     specifier: ^0.8.6
     version: 0.8.6(@solidjs/router@0.12.0)(solid-js@1.8.14)
@@ -1236,6 +1239,16 @@ packages:
   /@shikijs/core@1.1.2:
     resolution: {integrity: sha512-ERVzNQz88ZkDqUpWeC57Kp+Kmx5RjqeDBR1M8AGWGom4yrkITiTfXCGmjchlDSw12MhDTuPYR4HVFW8uT61RaQ==}
     dev: false
+
+  /@shikijs/core@1.1.5:
+    resolution: {integrity: sha512-cKc5vGQ4p/4sjx48BHIO7CvLaN32vqpz5Wh7v2n+U1EezGdfX4Wms7khBctKz3iCg9yYq4sfGUc2t+JWj6EUsw==}
+    dev: true
+
+  /@shikijs/transformers@1.1.5:
+    resolution: {integrity: sha512-ot6KWPmLuSN9nA9FAhttOXZIjKIy7cnwpNtI9aWmYN72RUaDz8eojRfMGUXsXXUxW/buvcvdZQAQldk7/pFpdw==}
+    dependencies:
+      shiki: 1.1.5
+    dev: true
 
   /@sinclair/typebox@0.27.8:
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
@@ -4420,6 +4433,12 @@ packages:
     dependencies:
       '@shikijs/core': 1.1.2
     dev: false
+
+  /shiki@1.1.5:
+    resolution: {integrity: sha512-754GuKIwkUdT810Xm8btuyNQPL+q3PqOkwGW/VlmAWyMYp+HbvvDt69sWXO1sm5aeczBJQjmQTTMR4GkKQNQPw==}
+    dependencies:
+      '@shikijs/core': 1.1.5
+    dev: true
 
   /side-channel@1.0.5:
     resolution: {integrity: sha512-QcgiIWV4WV7qWExbN5llt6frQB/lBven9pqliLXfGPB+K9ZYXxDozp0wLkHS24kWCm+6YXH/f0HhnObZnZOBnQ==}

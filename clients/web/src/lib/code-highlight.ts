@@ -4,6 +4,7 @@ import {
   Highlighter,
   getHighlighter,
 } from "shiki";
+import { transformerCompactLineOptions } from "@shikijs/transformers";
 import { type BundledLanguage } from "shiki/langs";
 import { SourcesClient } from "~/lib/proto/sources.client";
 import { getEntryBytes } from "~/lib/sources/file-entries";
@@ -37,6 +38,7 @@ export function textToHtml(
   text: string,
   highlighter: Highlighter | undefined,
   lang: BundledLanguage,
+  highlightedLine?: number,
 ) {
   if (!highlighter) return "";
 
@@ -44,6 +46,17 @@ export function textToHtml(
     lang,
     theme: "material-theme-ocean",
   };
+
+  if (highlightedLine) {
+    options.transformers = [
+      transformerCompactLineOptions([
+        {
+          line: highlightedLine,
+          classes: ["highlighted bg-slate-800"],
+        },
+      ]),
+    ];
+  }
 
   return highlighter.codeToHtml(text, options);
 }
@@ -80,7 +93,7 @@ export function getHighlightedCode(
       highlighter.codeToHtml(code, { lang, theme: "material-theme-ocean" });
   }
 
-  const [text, highlighter, lang] = arg;
-  const code = textToHtml(text, highlighter, lang);
+  const [text, highlighter, lang, highlightedLine] = arg;
+  const code = textToHtml(text, highlighter, lang, highlightedLine);
   return code;
 }
