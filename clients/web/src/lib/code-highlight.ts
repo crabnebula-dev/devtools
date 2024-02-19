@@ -1,13 +1,20 @@
-import { Highlighter, Lang, getHighlighter, setCDN, setWasm } from "shiki";
+import {
+  BundledTheme,
+  CodeToHastOptions,
+  Highlighter,
+  getHighlighter,
+} from "shiki";
+import { transformerCompactLineOptions } from "@shikijs/transformers";
+import { type BundledLanguage } from "shiki/langs";
 import { SourcesClient } from "~/lib/proto/sources.client";
 import { getEntryBytes } from "~/lib/sources/file-entries";
 
 type HighlighterCodeParamsForSources = Readonly<
-  [string, Highlighter, HighlighterLang, number?]
+  [string, Highlighter, BundledLanguage, number?]
 >;
 
 type HighlighterCodeParamsForSpans = Readonly<{
-  lang: HighlighterLang;
+  lang: BundledLanguage;
   highlighter: Highlighter;
 }>;
 
@@ -19,26 +26,8 @@ export const SUPPORTED_LANGS = [
   "json",
   "md",
   "yaml",
-] satisfies Lang[];
+] satisfies BundledLanguage[];
 
-type LangList = typeof SUPPORTED_LANGS;
-export type HighlighterLang = LangList[number];
-
-interface CodeToHtmlOptions {
-  lang?: HighlighterLang;
-  lineOptions?: LineOption[];
-}
-
-interface LineOption {
-  /**
-   * 1-based line number.
-   */
-  line: number;
-  classes?: string[];
-}
-
-// Initializing a TextDecoder is expensive plus they can be reused,
-// so we create a global instance
 const TEXT_DECODER = new TextDecoder();
 
 export function bytesToText(bytes: Uint8Array | undefined): string {
@@ -48,33 +37,34 @@ export function bytesToText(bytes: Uint8Array | undefined): string {
 export function textToHtml(
   text: string,
   highlighter: Highlighter | undefined,
-  lang: HighlighterLang,
+  lang: BundledLanguage,
   highlightedLine?: number,
 ) {
   if (!highlighter) return "";
 
-  const options: CodeToHtmlOptions = { lang };
+  const options: CodeToHastOptions<BundledLanguage, BundledTheme> = {
+    lang,
+    theme: "material-theme-ocean",
+  };
 
-  if (highlightedLine)
-    options.lineOptions = [
-      {
-        line: highlightedLine,
-        classes: ["highlighted bg-slate-800"],
-      },
+  if (highlightedLine) {
+    options.transformers = [
+      transformerCompactLineOptions([
+        {
+          line: highlightedLine,
+          classes: ["highlighted bg-slate-800"],
+        },
+      ]),
     ];
+  }
 
   return highlighter.codeToHtml(text, options);
 }
 
 export async function createHighlighter() {
-  setCDN("/shiki/");
-  const responseWasm = await fetch("/shiki/onig.wasm");
-  setWasm(responseWasm);
-
   return await getHighlighter({
-    theme: "material-theme-ocean",
+    themes: ["material-theme-ocean"],
     langs: SUPPORTED_LANGS,
-    paths: { wasm: "dist/" },
   });
 }
 export async function getText(
@@ -98,8 +88,9 @@ export function getHighlightedCode(
   arg: HighlighterCodeParamsForSources | HighlighterCodeParamsForSpans,
 ) {
   if ("lang" in arg) {
-    const { lang, highlighter } = arg;
-    return (code: string) => highlighter.codeToHtml(code, { lang });
+    const { lang } = arg;
+    return (code: string) =>
+      highlighter.codeToHtml(code, { lang, theme: "material-theme-ocean" });
   }
 
   const [text, highlighter, lang, highlightedLine] = arg;
