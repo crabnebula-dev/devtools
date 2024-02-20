@@ -6,7 +6,7 @@ import { useMonitor } from "~/context/monitor-provider";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import type { LogEvent } from "~/lib/proto/logs";
 import clsx from "clsx";
-import { getFileNameFromPath } from "~/lib/console/get-file-name-from-path";
+import { getFileLineFromLocation } from "~/lib/console/get-file-line-from-location";
 
 export function LogEventEntry(props: {
   event: LogEvent;
@@ -62,12 +62,8 @@ export function LogEventEntry(props: {
             </span>
           )}
         </Show>
-        <Show when={metadata?.location?.file}>
-          {(filePath) => (
-            <>
-              {getFileNameFromPath(filePath())}:{metadata?.location?.line ?? ""}
-            </>
-          )}
+        <Show when={getFileLineFromLocation(metadata?.location)}>
+          {(line) => <span>{line()}</span>}
         </Show>
       </span>
     </div>
