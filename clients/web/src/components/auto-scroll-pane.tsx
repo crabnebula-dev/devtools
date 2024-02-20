@@ -13,7 +13,7 @@ type AutoScrollPaneProps<AutoScrollItem> = {
 };
 
 export function AutoScrollPane<AutoScrollItem>(
-  props: AutoScrollPaneProps<AutoScrollItem>
+  props: AutoScrollPaneProps<AutoScrollItem>,
 ) {
   let logPanel: HTMLDivElement | undefined;
 
