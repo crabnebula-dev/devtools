@@ -7,7 +7,7 @@ export function buildSchemaMap(baseSchema: JsonSchema, data: object) {
   const buildMap = (
     schema: JsonSchema,
     value: unknown,
-    pointer: JsonPointer
+    pointer: JsonPointer,
   ) => {
     //schema = jsonSchema.compileSchema(schema);
     pointer = pointer.replace("#/", "").replace("#", "").replaceAll("/", ".");

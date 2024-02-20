@@ -6,7 +6,7 @@ import type {
 
 export function getColumnDirection(
   columnSort: ColumnSort,
-  name: SortableColumn
+  name: SortableColumn,
 ): SortDirection {
   if (columnSort.name === name) {
     if (columnSort.direction === "asc") return "desc";

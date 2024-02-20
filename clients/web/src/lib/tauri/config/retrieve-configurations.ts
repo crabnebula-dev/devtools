@@ -65,13 +65,13 @@ async function loadConfigurations() {
     await readListOfConfigurations(
       possibleConfigurationFiles,
       connectionStore.client.sources,
-      zodSchema
+      zodSchema,
     )
   ).filter(notEmpty);
 
   const loadedConfiguration = parseTauriConfig(
     monitorData.tauriConfig ?? {},
-    zodSchema
+    zodSchema,
   );
 
   return [
@@ -98,7 +98,7 @@ function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
 async function readListOfConfigurations(
   entries: string[],
   client: SourcesClient,
-  zodSchema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>
+  zodSchema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>,
 ) {
   return await Promise.all(
     entries.map(async (entry): Promise<ConfigurationObject | null> => {
@@ -127,7 +127,7 @@ async function readListOfConfigurations(
         size: 0,
         raw: text,
       } satisfies ConfigurationObject;
-    })
+    }),
   );
 }
 

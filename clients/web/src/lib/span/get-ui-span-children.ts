@@ -7,7 +7,7 @@ export function getUiSpanChildren(
   filter?: string,
   all: UiSpan[] = [],
   depth = 0,
-  maxDepth = 10
+  maxDepth = 10,
 ) {
   if (depth === maxDepth) return all;
 

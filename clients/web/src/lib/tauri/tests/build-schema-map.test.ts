@@ -6,7 +6,7 @@ describe("buildSchemaMap", () => {
     expect(
       buildSchemaMap(tauriConfSchemaV1, {
         tauri: {},
-      }).has("tauri")
+      }).has("tauri"),
     ).toBe(true);
   });
 
@@ -14,7 +14,7 @@ describe("buildSchemaMap", () => {
     expect(
       buildSchemaMap(tauriConfSchemaV1, {
         tauri: {},
-      }).get("tauri")?.description
+      }).get("tauri")?.description,
     ).toBe("The Tauri configuration.");
   });
 
@@ -26,7 +26,7 @@ describe("buildSchemaMap", () => {
             use: "brownfield",
           },
         },
-      }).get("tauri.pattern")?.description
+      }).get("tauri.pattern")?.description,
     ).toBe("The pattern to use.");
   });
 
@@ -44,7 +44,7 @@ describe("buildSchemaMap", () => {
             },
           ],
         },
-      }).get("tauri.windows.0.title")?.description
+      }).get("tauri.windows.0.title")?.description,
     ).toBe("The window title.");
   });
 });

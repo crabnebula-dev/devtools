@@ -1,4 +1,5 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { generateCSP } from "./csp";
 /**
  * Vitest extends Vite config.
  */
@@ -12,6 +13,11 @@ import { normalizePath } from "vite";
 export default defineConfig({
   server: {
     strictPort: true,
+    headers: {
+      "Content-Security-Policy": generateCSP(
+        process.env.NODE_ENV === "development",
+      ),
+    },
   },
   build: {
     // file-icons need top-level await
@@ -30,20 +36,20 @@ export default defineConfig({
           src: normalizePath(
             path.resolve(
               __dirname,
-              "node_modules/@crabnebula/file-icons/icons"
-            ) + "/[!.]*"
+              "node_modules/@crabnebula/file-icons/icons",
+            ) + "/[!.]*",
           ),
           dest: "./icons/",
         },
         {
           src: normalizePath(
-            path.resolve(__dirname, "node_modules/shiki/dist/onig.wasm")
+            path.resolve(__dirname, "node_modules/shiki/dist/onig.wasm"),
           ),
           dest: "./shiki/",
         },
         {
           src: normalizePath(
-            path.resolve(__dirname, "node_modules/shiki/languages/") + "/*"
+            path.resolve(__dirname, "node_modules/shiki/languages/") + "/*",
           ),
           dest: "./shiki/languages/",
         },
@@ -51,8 +57,8 @@ export default defineConfig({
           src: normalizePath(
             path.resolve(
               __dirname,
-              "node_modules/shiki/themes/material-theme-ocean.json"
-            )
+              "node_modules/shiki/themes/material-theme-ocean.json",
+            ),
           ),
           dest: "./shiki/themes/",
         },

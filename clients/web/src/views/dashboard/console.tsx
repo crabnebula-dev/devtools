@@ -28,8 +28,8 @@ export default function Console() {
       filterLogs(
         untrack(() => monitorData),
         filter,
-        untrack(() => monitorData.logs)
-      )
+        untrack(() => monitorData.logs),
+      ),
     );
   });
 
@@ -46,9 +46,9 @@ export default function Console() {
           filterLogs(
             metadata,
             untrack(() => filter),
-            monitorData.logs.slice(oldLength - 1, newLength - 1)
-          )
-        )
+            monitorData.logs.slice(oldLength - 1, newLength - 1),
+          ),
+        ),
       );
     }
 

@@ -37,7 +37,7 @@ export function isDefaultValue(
         enum?: string[];
       }
     | undefined,
-  value: boolean | null | string
+  value: boolean | null | string,
 ) {
   if (!schema) return false;
 

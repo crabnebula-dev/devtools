@@ -44,7 +44,7 @@ const liStyles = "hover:bg-gray-800 hover:text-white focus:bg-gray-800";
 export function Directory(props: DirectoryProps) {
   const { monitorData } = useMonitor();
   const path = untrack(() =>
-    props.parent ? `${props.parent}/${props.defaultPath}` : props.defaultPath
+    props.parent ? `${props.parent}/${props.defaultPath}` : props.defaultPath,
   );
   const [entries, { refetch }] = awaitEntries(path);
   createEffect((prevHealth) => {

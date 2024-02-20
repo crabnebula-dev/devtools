@@ -39,7 +39,7 @@ export function updateUiSpansFromStream(incomingSpans: Span[]) {
         newUiSpan.id,
         uiSpansMap,
         callsContext.durations,
-        callsContext.runningIntervals
+        callsContext.runningIntervals,
       );
     }
     updateDurations(spanPointer, newUiSpan, callsContext.durations);
@@ -53,7 +53,7 @@ function updateDurations(
   durationsStore: {
     durations: Durations;
     setDurations: SetStoreFunction<Durations>;
-  }
+  },
 ) {
   const { durations, setDurations } = durationsStore;
 
@@ -99,7 +99,7 @@ function updateDurations(
 function attachToParentSpan(
   spanId: bigint,
   parentId: bigint,
-  uiSpansMap: ReactiveMap<bigint, UiSpan>
+  uiSpansMap: ReactiveMap<bigint, UiSpan>,
 ) {
   const parentSpan = uiSpansMap.get(parentId);
   if (parentSpan) {
@@ -110,7 +110,7 @@ function attachToParentSpan(
 
 function triggerRenameOnRoot(
   span: UiSpan,
-  uiSpansMap: ReactiveMap<bigint, UiSpan>
+  uiSpansMap: ReactiveMap<bigint, UiSpan>,
 ) {
   if (span.kind) {
     span.name = getSpanName(span) ?? span.name;
@@ -133,7 +133,7 @@ function attachUpdateInterval(
     durations: Durations;
     setDurations: SetStoreFunction<Durations>;
   },
-  intervals: NodeJS.Timeout[]
+  intervals: NodeJS.Timeout[],
 ) {
   const { durations, setDurations } = durationsStore;
   const interval = setInterval(() => {
