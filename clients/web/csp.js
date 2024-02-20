@@ -8,7 +8,7 @@ export function generateCSP(isDev = false) {
     directives: {
       "default-src": [SELF],
       "frame-src": [SELF],
-      "script-src": isDev ? [SELF, UNSAFE_EVAL] : [SELF],
+      "script-src": [SELF, UNSAFE_EVAL],
       "style-src": isDev ? [SELF, UNSAFE_INLINE] : [SELF],
       "connect-src": [SELF, "127.0.0.1", "127.0.0.1:*", "ws://localhost:5173/"],
       "img-src": [SELF],
