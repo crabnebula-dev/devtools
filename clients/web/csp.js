@@ -1,4 +1,10 @@
-import { getCSP, SELF, NONE, UNSAFE_INLINE, UNSAFE_EVAL, WASM_UNSAFE_EVAL } from "csp-header";
+import {
+  getCSP,
+  SELF,
+  NONE,
+  UNSAFE_INLINE,
+  WASM_UNSAFE_EVAL,
+} from "csp-header";
 
 export function generateCSP(isDev = false) {
   return getCSP({
