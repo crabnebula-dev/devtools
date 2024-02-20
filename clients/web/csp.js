@@ -4,6 +4,7 @@ import {
   NONE,
   UNSAFE_INLINE,
   WASM_UNSAFE_EVAL,
+  UNSAFE_EVAL,
 } from "csp-header";
 
 export function generateCSP(isDev = false) {
@@ -14,7 +15,7 @@ export function generateCSP(isDev = false) {
     directives: {
       "default-src": [SELF],
       "frame-src": [SELF],
-      "script-src": [SELF, WASM_UNSAFE_EVAL],
+      "script-src": isDev ? [SELF, UNSAFE_EVAL] : [SELF, WASM_UNSAFE_EVAL],
       "style-src": isDev ? [SELF, UNSAFE_INLINE] : [SELF],
       "connect-src": [SELF, "127.0.0.1", "127.0.0.1:*", "ws://localhost:5173/"],
       "img-src": [SELF],
