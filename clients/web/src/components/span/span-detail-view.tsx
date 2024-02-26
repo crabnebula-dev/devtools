@@ -1,26 +1,25 @@
 import { For, JSXElement } from "solid-js";
-import { UiSpan } from "~/lib/span/format-spans-for-ui";
+import { Span } from "~/lib/connection/monitor";
 import { SpanDetailTrace } from "./span-detail-trace";
 import { SpanDetailArgs } from "./span-detail-args";
 
 type Props = {
   name: string;
-  spanChildren: UiSpan[];
+  spanChildren: Span[];
   valuesSectionTitle: string;
   values: (string | object)[];
   children: JSXElement;
 };
 
 export function SpanDetailView(props: Props) {
-  const closedSpans = () =>
-    props.spanChildren.filter((s) => s.original.closedAt > 0);
+  const closedSpans = () => props.spanChildren.filter((s) => s.closedAt > 0);
 
   const durations = () => {
     return {
-      start: Math.min(...closedSpans().map((s) => s.original.createdAt)),
-      end: Math.max(...closedSpans().map((s) => s.original.closedAt)),
-      shortest: Math.min(...closedSpans().map((s) => s.original.duration)),
-      longest: Math.max(...closedSpans().map((s) => s.original.duration)),
+      start: Math.min(...closedSpans().map((s) => s.createdAt)),
+      end: Math.max(...closedSpans().map((s) => s.closedAt)),
+      shortest: Math.min(...closedSpans().map((s) => s.duration)),
+      longest: Math.max(...closedSpans().map((s) => s.duration)),
     };
   };
 

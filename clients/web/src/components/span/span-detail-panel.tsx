@@ -2,14 +2,16 @@ import { Show } from "solid-js";
 import { SpanDetail } from "./span-detail";
 import { Heading } from "../heading";
 import { useSearchParams } from "@solidjs/router";
-import { useCalls } from "./calls-context";
+import { useMonitor } from "~/context/monitor-provider";
 
 export function SpanDetailPanel() {
   const [searchParams] = useSearchParams();
-  const { spans } = useCalls();
+  const { monitorData } = useMonitor();
 
   const span = () =>
-    searchParams.span ? spans.get(BigInt(searchParams.span)) : undefined;
+    searchParams.span
+      ? monitorData.spans.get(BigInt(searchParams.span))
+      : undefined;
 
   return (
     <Show

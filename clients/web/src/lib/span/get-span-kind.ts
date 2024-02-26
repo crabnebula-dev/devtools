@@ -1,36 +1,23 @@
-import { Metadata } from "../proto/common";
 import { isEventSpan } from "./is-event-span";
-import { useMonitor } from "~/context/monitor-provider";
 import { Span } from "../connection/monitor";
 import { getSpanChildren } from "./get-span-children";
-
-type Options = {
-  metadata: Map<bigint, Metadata>;
-  span: Span;
-  spans: Span[];
-};
+import { getSpanChildrenWithFilter } from "./get-span-children-with-filter";
 
 export function getSpanKind(span: Span) {
-  const { monitorData } = useMonitor();
-  return getSpanKindByMetadata({
-    metadata: monitorData.metadata,
-    span,
-    spans: monitorData.spans,
-  });
+  return getSpanKindByMetadata(span);
 }
 
-export function getSpanKindByMetadata({ metadata, span, spans }: Options) {
-  if (isEventSpan({ metadata, span })) {
+export function getSpanKindByMetadata(span: Span) {
+  if (isEventSpan(span)) {
     return "event";
   }
 
-  const spanMetadata = metadata.get(span.metadataId);
-
+  const spanMetadata = span.metadata;
   if (spanMetadata?.name === "wry::custom_protocol::handle") {
-    const children = getSpanChildren(span, spans);
+    const children = getSpanChildren(span);
     if (
       children.some((s) => {
-        if (metadata.get(s.metadataId)?.name === "ipc::request::handle") {
+        if (s.metadata?.name === "ipc::request::handle") {
           const cmdField = s.fields.find((f) => f.name === "cmd");
           return (
             cmdField &&

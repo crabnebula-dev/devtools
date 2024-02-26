@@ -65,7 +65,11 @@ export function MonitorProvider(props: ProviderProps) {
     }
   });
 
-  addStreamListneners(connectionStore.stream.update, setMonitorData);
+  addStreamListneners(
+    connectionStore.stream.update,
+    setMonitorData,
+    monitorData
+  );
 
   return (
     <Show when={tauriMetrics()}>

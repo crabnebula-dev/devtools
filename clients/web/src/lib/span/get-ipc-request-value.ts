@@ -1,16 +1,11 @@
-import { Field, Metadata } from "../proto/common";
-import { UiSpan } from "./format-spans-for-ui";
+import { Field } from "../proto/common";
+import { Span } from "../connection/monitor";
 import { IpcSpanName } from "./ipc-spans";
-import { getUiSpanChildren } from "./get-ui-span-children";
+import { getSpanChildrenWithFilter } from "./get-span-children-with-filter";
 
-type Options = {
-  metadata: Map<bigint, Metadata>;
-  rootSpan: UiSpan;
-};
-
-export function getIpcRequestValues({ metadata, rootSpan }: Options) {
+export function getIpcRequestValues(rootSpan: Span) {
   return function (name: IpcSpanName) {
-    const spans = getUiSpanChildren(rootSpan, name);
+    const spans = getSpanChildrenWithFilter(rootSpan, name);
 
     if (!spans) {
       return null;
@@ -25,9 +20,7 @@ export function getIpcRequestValues({ metadata, rootSpan }: Options) {
             {}
           ) ?? {}) as Record<string, Field["value"]>
       ),
-      metadata: spans.map((span) =>
-        metadata.get(span?.metadataId ?? BigInt(0))
-      ),
+      metadata: spans.map((span) => span.metadata),
     };
 
     return result;

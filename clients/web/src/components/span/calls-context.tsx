@@ -4,12 +4,13 @@ import { createStore } from "solid-js/store";
 import { UiSpan } from "~/lib/span/format-spans-for-ui";
 
 export type Durations = {
-  start: number;
+  start?: number;
   end: number;
   shortestTime?: number;
   longestTime?: number;
   average: number;
   counted: number;
+  openSpans: number;
 };
 
 type CallsContextType = ReturnType<typeof makeCallsContext>;
@@ -33,6 +34,7 @@ function makeCallsContext() {
     longestTime: undefined,
     average: 0,
     counted: 0,
+    openSpans: 0,
   });
   const intervals: NodeJS.Timeout[] = [];
 

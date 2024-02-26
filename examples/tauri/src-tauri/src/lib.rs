@@ -26,6 +26,35 @@ async fn test1(
 
     app.emit("test1-event", "sleeping").unwrap();
 
+     let mut count = 0;
+
+    // Infinite loop
+    loop {
+        count += 1;
+
+        tokio::time::sleep(Duration::from_millis(5)).await;
+
+        app
+        .emit(
+            format!("test{}-event", count).as_str(),
+            &EventPayload {
+                key: "count",
+                value: count.to_string(),
+            },
+
+            
+        )
+        .unwrap();
+
+        tracing::debug!("test{}-event", count);
+
+        if count == 500 {
+            // Exit this loop
+            break;
+        }
+    }
+
+
     tokio::time::sleep(Duration::from_secs(timeout_seconds)).await;
 
     app.emit_filter("ping-filter-main", "making get request", |w| {

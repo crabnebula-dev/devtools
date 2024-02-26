@@ -12,11 +12,6 @@ const emitSpanNames = [
   "window::emit::all",
 ];
 
-type Options = {
-  metadata: Map<bigint, Metadata>;
-  span: Span;
-};
-
-export function isEventSpan({ metadata, span }: Options) {
-  return emitSpanNames.includes(metadata.get(span.metadataId)?.name ?? "");
+export function isEventSpan(span: Span) {
+  return emitSpanNames.includes(span.metadata?.name ?? "");
 }

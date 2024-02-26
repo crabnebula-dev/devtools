@@ -1,11 +1,12 @@
-import { UiSpan, formatSpanForUi, getSpanName } from "./format-spans-for-ui";
+import { getSpanName, getSpanNameByMetadata } from "./format-spans-for-ui";
+import { getSpanKindByMetadata } from "./get-span-kind";
 import { ReactiveMap } from "@solid-primitives/map";
 import { Span } from "../connection/monitor";
 import { useCalls, Durations } from "~/components/span/calls-context";
 import { SetStoreFunction } from "solid-js/store";
 import { useMonitor } from "~/context/monitor-provider";
 
-export function updateUiSpansFromStream(incomingSpans: Span[]) {
+export function updateUiSpansFromStream(incomingSpans: Map<bigint, Span>) {
   const { monitorData } = useMonitor();
   const callsContext = useCalls();
   const uiSpansMap = callsContext.spans;
@@ -13,7 +14,7 @@ export function updateUiSpansFromStream(incomingSpans: Span[]) {
   let spanPointer = callsContext.spanPointer;
 
   const numberOfFormattedSpans = spanPointer;
-  const numberOfIncomingSpans = incomingSpans.length;
+  const numberOfIncomingSpans = incomingSpans.size;
 
   // If we don't have new spans we return
   if (numberOfIncomingSpans <= numberOfFormattedSpans) return;
@@ -47,9 +48,8 @@ export function updateUiSpansFromStream(incomingSpans: Span[]) {
   callsContext.spanPointer = spanPointer;
 }
 
-function updateDurations(
-  spanPointer: number,
-  incomingSpan: UiSpan,
+export function updateDurations(
+  incomingSpan: Span,
   durationsStore: {
     durations: Durations;
     setDurations: SetStoreFunction<Durations>;
@@ -66,33 +66,32 @@ function updateDurations(
     counted?: number;
   } = {};
 
-  if (spanPointer === 0) {
-    updateDurations.start = incomingSpan.original.createdAt;
+  if (!durations.start) {
+    updateDurations.start = incomingSpan.createdAt;
   }
 
-  if (incomingSpan.original.closedAt > 0) {
-    updateDurations.end = incomingSpan.original.closedAt;
+  if (incomingSpan.closedAt > 0) {
+    updateDurations.end = incomingSpan.closedAt;
 
     if (incomingSpan.kind) {
-      const spanDuration =
-        incomingSpan.original.closedAt - incomingSpan.original.createdAt;
+      const spanDuration = incomingSpan.closedAt - incomingSpan.createdAt;
       const newAverage =
         (durations.average * durations.counted + spanDuration) /
         (durations.counted + 1);
 
       updateDurations.counted = durations.counted + 1;
       updateDurations.average = newAverage;
+
+      if (
+        !durations.shortestTime ||
+        (incomingSpan.time && durations.shortestTime > incomingSpan.time)
+      )
+        updateDurations.shortestTime = incomingSpan.time;
+
+      if (!durations.longestTime || durations.longestTime < incomingSpan.time)
+        updateDurations.longestTime = incomingSpan.time;
     }
   }
-
-  if (incomingSpan.kind) {
-    if (!durations.shortestTime || durations.shortestTime > incomingSpan.time)
-      updateDurations.shortestTime = incomingSpan.time;
-
-    if (!durations.longestTime || durations.longestTime < incomingSpan.time)
-      updateDurations.longestTime = incomingSpan.time;
-  }
-
   setDurations(updateDurations);
 }
 
@@ -108,15 +107,13 @@ function attachToParentSpan(
   }
 }
 
-function triggerRenameOnRoot(
-  span: UiSpan,
-  uiSpansMap: ReactiveMap<bigint, UiSpan>
+export function triggerRenameOnRoot(
+  span: Span,
+  uiSpansMap: ReactiveMap<bigint, Span>
 ) {
-  if (span.kind) {
-    span.name = getSpanName(span) ?? span.name;
-    uiSpansMap.set(span.id, span);
-    return;
-  }
+  span.kind = getSpanKindByMetadata(span) ?? span.kind;
+  span.name = getSpanNameByMetadata(span) ?? span.name;
+  //uiSpansMap.set(span.id, span);
 
   if (span.parentId) {
     const parentSpan = uiSpansMap.get(span.parentId);
@@ -126,41 +123,37 @@ function triggerRenameOnRoot(
   return;
 }
 
-function attachUpdateInterval(
+export function attachUpdateInterval(
   spanId: bigint,
-  uiSpansMap: ReactiveMap<bigint, UiSpan>,
+  uiSpansMap: ReactiveMap<bigint, Span>,
   durationsStore: {
     durations: Durations;
     setDurations: SetStoreFunction<Durations>;
-  },
-  intervals: NodeJS.Timeout[]
+  }
 ) {
   const { durations, setDurations } = durationsStore;
   const interval = setInterval(() => {
     const currentValue = uiSpansMap.get(spanId);
     if (!currentValue) return;
 
-    const isProcessing = currentValue.original.closedAt < 0;
+    const isProcessing = currentValue.closedAt < 0;
     const time = !isProcessing
-      ? (currentValue.original.closedAt - currentValue.original.createdAt) / 1e6
-      : Date.now() - currentValue.original.createdAt / 1e6;
+      ? (currentValue.closedAt - currentValue.createdAt) / 1e6
+      : Date.now() - currentValue.createdAt / 1e6;
 
     currentValue.time = time;
     currentValue.isProcessing = isProcessing;
 
     const duration =
-      currentValue.original.duration === -1
-        ? Date.now() * 1e6 - currentValue.original.createdAt
-        : currentValue.original.duration;
+      currentValue.duration === -1
+        ? Date.now() * 1e6 - currentValue.createdAt
+        : currentValue.duration;
 
     currentValue.duration = duration;
 
-    if (
-      durations.end <
-      currentValue.duration + currentValue.original.createdAt
-    ) {
+    if (durations.end < currentValue.duration + currentValue.createdAt) {
       setDurations({
-        end: currentValue.duration + currentValue.original.createdAt,
+        end: currentValue.duration + currentValue.createdAt,
       });
     }
 
@@ -172,5 +165,9 @@ function attachUpdateInterval(
       clearInterval(interval);
     }
   }, 10);
-  intervals.push(interval);
+
+  const currentValue = uiSpansMap.get(spanId);
+  if (!currentValue) return;
+  currentValue.interval = interval;
+  uiSpansMap.set(currentValue?.id, currentValue);
 }

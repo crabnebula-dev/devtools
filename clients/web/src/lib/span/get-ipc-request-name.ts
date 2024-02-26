@@ -1,13 +1,7 @@
-import { Metadata } from "../proto/common";
 import { processFieldValue } from "./process-field-value";
 import { getIpcRequestValues } from "./get-ipc-request-value";
-import { UiSpan } from "./format-spans-for-ui";
-import { getUiSpanChildren } from "./get-ui-span-children";
-
-type Options = {
-  metadata: Map<bigint, Metadata>;
-  span: UiSpan;
-};
+import type { Span } from "../connection/monitor";
+import { getSpanChildrenWithFilter } from "./get-span-children-with-filter";
 
 const ipcSpanNameMap: Record<string, string> = {
   "ipc::request": "Request",
@@ -16,15 +10,15 @@ const ipcSpanNameMap: Record<string, string> = {
   "wry::eval": "Eval Response",
 };
 
-export function getIpcRequestName({ metadata, span }: Options) {
-  const meta = metadata.get(span.metadataId);
+export function getIpcRequestName(span: Span) {
+  const meta = span.metadata;
   if (
     ["wry::custom_protocol::handle", "wry::ipc::handle"].includes(
       meta?.name ?? ""
     )
   ) {
     const commandHandlerSpan =
-      getUiSpanChildren(span, "ipc::request::handle")?.[0] ?? null;
+      getSpanChildrenWithFilter(span, "ipc::request::handle")?.[0] ?? null;
     if (commandHandlerSpan) {
       const val = commandHandlerSpan.fields.find(
         (f) => f.name === "cmd"
@@ -34,11 +28,9 @@ export function getIpcRequestName({ metadata, span }: Options) {
 
       if (commandName === "tauri") {
         const args =
-          getIpcRequestValues({
-            metadata,
-            rootSpan: span,
-          })("ipc::request")?.fields.map((f) => processFieldValue(f.request)) ??
-          [];
+          getIpcRequestValues(span)("ipc::request")?.fields.map((f) =>
+            processFieldValue(f.request)
+          ) ?? [];
         try {
           const arg = args.length > 0 ? JSON.parse(args[0]) : {};
           const cmd =
@@ -46,7 +38,7 @@ export function getIpcRequestName({ metadata, span }: Options) {
               ? arg.message.data.cmd.type
               : arg.message.cmd;
           return `${arg.__tauriModule}.${cmd}`;
-        } catch {
+        } catch (e) {
           /* intentionally ignore */
         }
       }

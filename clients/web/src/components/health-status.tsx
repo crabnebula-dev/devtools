@@ -11,6 +11,7 @@ import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
 import { ReconnectDisplay } from "./reconnect-display";
 import { ReconnectButton } from "./reconnect-button";
+import { ReactiveMap } from "@solid-primitives/map";
 
 const variant = (status: HealthCheckResponse_ServingStatus) => {
   return [
@@ -112,10 +113,14 @@ export function HealthStatus() {
   }
 
   function reconnect() {
-    setMonitorData("spans", reconcile([]));
+    setMonitorData("spans", new ReactiveMap());
     const newConnection = connect(connectionStore.serviceUrl);
     setConnection(reconcile(newConnection, { merge: false }));
-    addStreamListneners(connectionStore.stream.update, setMonitorData);
+    addStreamListneners(
+      connectionStore.stream.update,
+      setMonitorData,
+      monitorData
+    );
     connectionStore.stream.health.responses.onError(healthErrorHandler);
     connectionStore.stream.update.responses.onError(updateErrorHandler);
   }

@@ -6,26 +6,40 @@ import { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
 import { timestampToDate } from "~/lib/formatters";
 import { AppMetadata } from "../proto/meta";
 import { Versions } from "../proto/tauri";
+import { SpanKind } from "../span/types";
+import { ReactiveMap } from "@solid-primitives/map";
+import { Durations } from "~/components/span/calls-context";
 
 export type HealthStatus = keyof typeof HealthCheckResponse_ServingStatus;
 
 export type Span = {
   id: bigint;
+  name: string;
+  kind?: SpanKind;
   parentId?: bigint;
+  parent?: Span;
   metadataId: bigint;
+  metadata?: Metadata;
   fields: Field[];
+  initiated: number;
   createdAt: number;
   enters: { timestamp: number; threadID: number }[];
   exits: { timestamp: number; threadID: number }[];
+  children: Span[];
   closedAt: number;
+  time: number;
   duration: number;
+  isProcessing?: boolean;
+  interval?: NodeJS.Timeout;
 };
 
 export type MonitorData = {
   health: HealthCheckResponse_ServingStatus;
   metadata: Map<bigint, Metadata>;
   logs: LogEvent[];
-  spans: Span[];
+  spans: ReactiveMap<bigint, Span>;
+  runningSpans: number;
+  durations: Durations;
 
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;
   tauriVersions?: Versions;
@@ -43,8 +57,15 @@ export const initialMonitorData: MonitorData = {
   health: HealthCheckResponse_ServingStatus.UNKNOWN,
   metadata: new Map(),
   logs: [],
-  spans: [],
-
+  spans: new ReactiveMap(),
+  runningSpans: 0,
+  durations: {
+    start: undefined,
+    end: Date.now() * 1e6,
+    average: 0,
+    counted: 0,
+    openSpans: 0,
+  },
   tauriConfig: undefined,
   tauriVersions: undefined,
   appMetadata: undefined,

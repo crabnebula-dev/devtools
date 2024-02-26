@@ -33,11 +33,11 @@ pub struct Aggregator {
     new_metadata: Vec<NewMetadata>,
 
     /// Buffered log events.
-    /// Up to 256 events are retained before the oldest will be dropped.
+    /// Up to 512 events are retained before the oldest will be dropped.
     logs: EventBuf<LogEvent, 512>,
     /// Buffered span events.
-    /// Up to 256 events are retained before the oldest will be dropped.
-    spans: EventBuf<SpanEvent, 512>,
+    /// Up to 2048 events are retained before the oldest will be dropped.
+    spans: EventBuf<SpanEvent, 4096>,
 
     /// All connected clients
     watchers: Vec<Watcher>,

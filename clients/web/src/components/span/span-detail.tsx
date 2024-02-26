@@ -1,20 +1,17 @@
-import { useMonitor } from "~/context/monitor-provider";
-import { Show, Suspense } from "solid-js";
-import { UiSpan } from "~/lib/span/format-spans-for-ui";
+import { Show, Suspense, createEffect } from "solid-js";
+import { Span } from "~/lib/connection/monitor";
 import { SpanDetailView } from "./span-detail-view";
 import { getIpcRequestValues } from "~/lib/span/get-ipc-request-value";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { spanFieldsToObject } from "~/lib/span/span-fields-to-object";
-import { getUiSpanChildren } from "~/lib/span/get-ui-span-children";
+import { getSpanChildrenWithFilter } from "~/lib/span/get-span-children-with-filter";
 import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
 import { CodeHighlighter } from "../code-highlighter";
 import { Loader } from "../loader";
 
-export function SpanDetail(props: { span: UiSpan }) {
-  const { monitorData } = useMonitor();
-
+export function SpanDetail(props: { span: Span }) {
   const children = () => {
-    const allChildren = getUiSpanChildren(props.span);
+    const allChildren = getSpanChildrenWithFilter(props.span);
     if (props.span.kind === "ipc") {
       // platforms that use webview's postMessage for IPC (such as iOS for remote URLs, Android and Linux)
       // might send the response via an auxiliary custom protocol request, so we filter out those spans
@@ -31,7 +28,7 @@ export function SpanDetail(props: { span: UiSpan }) {
         (s) =>
           s.name !== "ipc::request::response" &&
           !channelResponseSpans.includes(s.id) &&
-          isIpcSpanName(s.metadataName ?? "")
+          isIpcSpanName(s.metadata?.name ?? "")
       );
     }
     return allChildren;
@@ -52,10 +49,7 @@ export function SpanDetail(props: { span: UiSpan }) {
     switch (props.span.kind) {
       case "ipc": {
         const ipcValues =
-          getIpcRequestValues({
-            metadata: monitorData.metadata,
-            rootSpan: props.span,
-          })("ipc::request")
+          getIpcRequestValues(props.span)("ipc::request")
             ?.fields.map((f) => {
               if (f.request) {
                 if (f.request.oneofKind === "debugVal") {
@@ -77,10 +71,8 @@ export function SpanDetail(props: { span: UiSpan }) {
   const code = () => {
     switch (props.span.kind) {
       case "ipc": {
-        const field = getIpcRequestValues({
-          metadata: monitorData.metadata,
-          rootSpan: props.span,
-        })("ipc::request::response")?.fields[0]?.response;
+        const field = getIpcRequestValues(props.span)("ipc::request::response")
+          ?.fields[0]?.response;
         return field
           ? processFieldValue(field).replace(
               /\\n/gim, // Turn escaped newlines into actual newlines

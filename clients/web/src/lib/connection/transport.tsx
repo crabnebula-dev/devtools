@@ -5,6 +5,7 @@ import { TauriClient } from "~/lib/proto/tauri.client";
 import { SourcesClient } from "~/lib/proto/sources.client.ts";
 import { MetadataClient } from "../proto/meta.client";
 import { SetStoreFunction, createStore } from "solid-js/store";
+import { batch } from "solid-js";
 import {
   HealthCheckRequest,
   HealthCheckResponse_ServingStatus,
@@ -100,7 +101,8 @@ type UpdateStream = ReturnType<typeof connect>["stream"]["update"];
 
 export function addStreamListneners(
   stream: UpdateStream,
-  setMonitorData: SetStoreFunction<MonitorData>
+  setMonitorData: SetStoreFunction<MonitorData>,
+  monitorData: MonitorData
 ) {
   stream.responses.onMessage((update) => {
     setMonitorData("health", 1);
@@ -114,10 +116,17 @@ export function addStreamListneners(
     }
 
     const spansUpdate = update.spansUpdate;
+
     if (spansUpdate && spansUpdate.spanEvents.length > 0) {
-      setMonitorData("spans", (spans) => [
-        ...updatedSpans(spans, spansUpdate.spanEvents),
-      ]);
+      batch(() => {
+        const durations = updatedSpans(
+          monitorData.spans,
+          spansUpdate.spanEvents,
+          monitorData.metadata,
+          monitorData.durations
+        );
+        setMonitorData("durations", durations);
+      });
     }
   });
 }

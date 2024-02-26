@@ -1,13 +1,11 @@
 import { Span } from "../connection/monitor";
 
-export function getSpanChildren(span: Span, allSpans: Span[]) {
+export function getSpanChildren(span: Span) {
   let children: Span[] = [];
 
-  for (const s of allSpans) {
-    if (s.parentId === span.id) {
-      children.push(s);
-      children = children.concat(getSpanChildren(s, allSpans));
-    }
+  for (const s of span.children) {
+    children.push(s);
+    children = children.concat(getSpanChildren(s));
   }
 
   return children;
