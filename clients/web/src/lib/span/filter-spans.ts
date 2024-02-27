@@ -8,7 +8,6 @@ export function filterSpans(
 ): [filteredSpans: Span[], newPointer: number] {
   let localPointer = 0;
 
-  console.log("filter");
   if (spanProcessingPointer + 1 === allSpans.size)
     return [alreadyFiltered, spanProcessingPointer];
   if (spanProcessingPointer + 1 > allSpans.size) {

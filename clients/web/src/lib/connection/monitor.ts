@@ -38,7 +38,6 @@ export type MonitorData = {
   metadata: Map<bigint, Metadata>;
   logs: LogEvent[];
   spans: ReactiveMap<bigint, Span>;
-  runningSpans: number;
   durations: Durations;
 
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;
@@ -53,19 +52,24 @@ export type MonitorData = {
   connectionStatus: HealthStatus;
 };
 
+export function initialDurations() {
+  return {
+    start: undefined,
+    end: Date.now() * 1e6,
+    shortestTime: undefined,
+    longestTime: undefined,
+    average: 0,
+    counted: 0,
+    openSpans: 0,
+  };
+}
+
 export const initialMonitorData: MonitorData = {
   health: HealthCheckResponse_ServingStatus.UNKNOWN,
   metadata: new Map(),
   logs: [],
   spans: new ReactiveMap(),
-  runningSpans: 0,
-  durations: {
-    start: undefined,
-    end: Date.now() * 1e6,
-    average: 0,
-    counted: 0,
-    openSpans: 0,
-  },
+  durations: initialDurations(),
   tauriConfig: undefined,
   tauriVersions: undefined,
   appMetadata: undefined,

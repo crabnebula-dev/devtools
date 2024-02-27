@@ -44,18 +44,21 @@ export function computeWaterfallStyle(
   const granularity =
     ((longestSpanTime ?? 1) / (shortestSpanTime ?? 1)) *
     (callsContext.granularity.granularity() / 10000);
+
+  const scaledDuration =
+    callsContext.granularity.granularity() === 1
+      ? totalDuration
+      : totalDuration / granularity;
+
   const spanDuration =
     span.duration === -1 ? Date.now() * 1e6 - span.createdAt : span.duration;
 
   const width = Math.max(
     0.05,
-    Math.min(
-      scaleToMax([spanDuration], totalDuration / granularity)[0],
-      100 - offset
-    )
+    Math.min(scaleToMax([spanDuration], scaledDuration)[0], 100 - offset)
   );
 
-  const marginLeft = offset - (offset * width) / 100;
+  const marginLeft = offset;
 
   return `width:${width}%;margin-left:${marginLeft}%;`;
 }

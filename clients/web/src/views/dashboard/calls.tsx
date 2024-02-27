@@ -5,6 +5,7 @@ import { SpanList } from "~/components/span/span-list";
 import { SpanScaleSlider } from "~/components/span/span-scale-slider";
 import { CallsContextProvider } from "~/components/span/calls-context";
 import { useMonitor } from "~/context/monitor-provider";
+import { ClearCallsButton } from "~/components/span/clear-calls-button";
 import { filterSpans } from "~/lib/span/filter-spans";
 import { Span } from "~/lib/connection/monitor";
 import { createMemo } from "solid-js";
@@ -27,7 +28,8 @@ function Calls() {
   return (
     <div class="h-[calc(100%-var(--toolbar-height))]">
       <Toolbar>
-        <span>{monitorData.durations.openSpans}</span>
+        <ClearCallsButton />
+        <span>Running calls: {monitorData.durations.openSpans}</span>
         <SpanScaleSlider />
       </Toolbar>
       <SplitPane

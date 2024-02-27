@@ -111,7 +111,7 @@ export function triggerRenameOnRoot(
   span: Span,
   uiSpansMap: ReactiveMap<bigint, Span>
 ) {
-  span.kind = getSpanKindByMetadata(span) ?? span.kind;
+  span.kind = span.kind ? span.kind : getSpanKindByMetadata(span) ?? span.kind;
   span.name = getSpanNameByMetadata(span) ?? span.name;
   //uiSpansMap.set(span.id, span);
 

@@ -16,6 +16,7 @@ import { MonitorData, initialMonitorData } from "~/lib/connection/monitor";
 import { addStreamListneners } from "~/lib/connection/transport";
 import { useConnection } from "~/context/connection-provider";
 import { jsonSchemaForVersion } from "~/lib/tauri/config/json-schema-for-version";
+import { initialDurations } from "~/lib/connection/monitor";
 
 type ProviderProps = {
   children: JSXElement;
@@ -24,6 +25,7 @@ type ProviderProps = {
 const MonitorContext = createContext<{
   monitorData: MonitorData;
   setMonitorData: SetStoreFunction<MonitorData>;
+  resetCalls: () => void;
 }>();
 
 export function useMonitor() {
@@ -71,9 +73,17 @@ export function MonitorProvider(props: ProviderProps) {
     monitorData
   );
 
+  const resetCalls = () => {
+    setMonitorData("durations", initialDurations());
+
+    monitorData.spans.clear();
+  };
+
   return (
     <Show when={tauriMetrics()}>
-      <MonitorContext.Provider value={{ monitorData, setMonitorData }}>
+      <MonitorContext.Provider
+        value={{ monitorData, setMonitorData, resetCalls }}
+      >
         {props.children}
       </MonitorContext.Provider>
     </Show>
