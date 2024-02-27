@@ -6,8 +6,6 @@ import { SortCaret } from "./sort-caret";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { useMonitor } from "~/context/monitor-provider";
 import { SpanTableRow } from "./span-table-row";
-import { updateDurations } from "~/lib/span/update-ui-spans-from-stream";
-import { useCalls } from "./calls-context";
 
 export type SortDirection = "asc" | "desc";
 
@@ -22,7 +20,7 @@ type Column = {
   isSortable: boolean;
 };
 
-export function SpanList() {
+export function SpanList(props: { calls: Span[] }) {
   const { monitorData } = useMonitor();
 
   const spans = monitorData.spans;
@@ -66,30 +64,12 @@ export function SpanList() {
     }
   };
 
-  const filteredSpans = createMemo<Span[]>((alreadyFiltered) => {
-    let localPointer = 0;
-
-    if (spanProcessingPointer + 1 === spans.size) return alreadyFiltered;
-
-    spans.forEach((span) => {
-      if (localPointer > spanProcessingPointer && span.kind) {
-        alreadyFiltered.push(span);
-      }
-
-      localPointer++;
-    });
-
-    spanProcessingPointer = localPointer;
-    console.log("computed filter");
-    return [...alreadyFiltered];
-  }, []);
-
   function sort(spans: Span[]) {
     return [...spans.sort((a, b) => spanSort(a, b, columnSort))];
   }
 
   const sortedSpans = createMemo(() => {
-    return sort(filteredSpans());
+    return sort(props.calls);
   });
 
   const sortColumn = (name: SortableColumn) => {
@@ -102,7 +82,7 @@ export function SpanList() {
 
   const virtualizer = createVirtualizer({
     get count() {
-      return filteredSpans().length;
+      return props.calls.length;
     },
     getScrollElement: () => virtualList ?? null,
     estimateSize: () => 32,
@@ -117,7 +97,6 @@ export function SpanList() {
             <tr class="text-left">
               <For each={columns}>
                 {(column) => {
-                  console.log(column);
                   return (
                     <th
                       tabIndex="0"
@@ -157,7 +136,7 @@ export function SpanList() {
             <For each={virtualizer.getVirtualItems()}>
               {(virtualRow, index) => {
                 const span = () =>
-                  spans.get(sortedSpans()[virtualRow.index].id);
+                  spans.get(sortedSpans()[virtualRow.index]?.id);
                 return (
                   <Show when={span()}>
                     {(currentSpan) => (
