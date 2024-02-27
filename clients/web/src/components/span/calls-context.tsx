@@ -26,7 +26,7 @@ export function CallsContextProvider(props: { children: JSXElement }) {
 }
 
 function makeCallsContext() {
-  const [granularity, setGranularity] = createSignal(1000);
+  const [granularity, setGranularity] = createSignal(1);
   const [durations, setDurations] = createStore<Durations>({
     start: Date.now() * 1e6,
     end: Date.now() * 1e6,
