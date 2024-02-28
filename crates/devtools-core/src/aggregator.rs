@@ -36,8 +36,8 @@ pub struct Aggregator {
     /// Up to 512 events are retained before the oldest will be dropped.
     logs: EventBuf<LogEvent, 512>,
     /// Buffered span events.
-    /// Up to 2048 events are retained before the oldest will be dropped.
-    spans: EventBuf<SpanEvent, 4096>,
+    /// Up to 512 events are retained before the oldest will be dropped.
+    spans: EventBuf<SpanEvent, 512>,
 
     /// All connected clients
     watchers: Vec<Watcher>,
