@@ -40,7 +40,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rust: [nightly, stable]
+        rust: [ nightly, stable ]
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -111,7 +111,7 @@ jobs:
       - name: Check Rust Licenses
         uses: EmbarkStudios/cargo-deny-action@v1
         with:
-          arguments: --manifest-path crates/devtools-v1/Cargo.toml
+          manifest-path: crates/devtools-v1/Cargo.toml
 
 #  outdated:
 #     name: Outdated
