@@ -21,7 +21,7 @@ tokio-stream = { workspace = true, features = ["fs"] }
 prost-types.workspace = true
 tonic.workspace = true
 tonic-web = "0.10"
-tonic-health = "0.10"
+tonic-health = "0.11"
 tower-http = "0.4"
 tower-layer = "0.3"
 futures = "0.3.30"
