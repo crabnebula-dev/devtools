@@ -1,3 +1,16 @@
+# Developing
+
+There are a couple components to devtools that you should know about:
+- `crates/devtools-core` The core instrumentation library that will cappture and process `tracing` data from your app.
+- `crates/devtools` The user-facing Tauri plugin that hooks `devtools-core` into a Tauri app.
+- `crates/devtools-v1` The Tauri plugin for legacy Tauri v1.x versions
+- `crates/wire` The protobuf files that define the message protocol between the instrumentation and GUI. 
+- `clients/web` The user-facing web GUI that is hosted at `devtools.crabnebula.dev`
+
+## Developing locally
+
+By default the instrumentation has strict CORS checks enabled to ensure only the legitimate frontend hosted at `devtools.crabnebula.dev` can access the data, as this would also block the frontend running locally in development mode (`localhost` doesn't match `devtools.crabnebula.dev`) these checks can be disabled by setting the environment variable `__DEVTOOLS_LOCAL_DEVELOPMENT=true`. If you run the examples contained within this repo through `cargo` or the Tauri CLI nothing needs to be done, that environment variable is set automatically.
+
 # Architecture
 
 The core observation behind DevTools is that Tauri apps are *interactive* and *long-running* processes, 
