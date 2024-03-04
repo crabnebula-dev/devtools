@@ -123,7 +123,7 @@ export function addStreamListneners(
     if (spansUpdate && spansUpdate.spanEvents.length > 0) {
       setMonitorData(
         "spans",
-        produce((clonedSpans: Span[]) =>
+        produce((clonedSpans) =>
           updatedSpans(clonedSpans, spansUpdate.spanEvents),
         ),
       );
