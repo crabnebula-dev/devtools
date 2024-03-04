@@ -1,13 +1,6 @@
 import type { Span } from "~/lib/connection/monitor";
 import clsx from "clsx";
-import {
-  Show,
-  For,
-  createSignal,
-  onCleanup,
-  onMount,
-  createEffect,
-} from "solid-js";
+import { Show, For, createSignal, onCleanup, createEffect } from "solid-js";
 import { getTime } from "~/lib/formatters";
 import type { JSX } from "solid-js/h/jsx-runtime";
 import { computeSlices } from "~/lib/span/normalize-spans";
@@ -15,7 +8,6 @@ import {
   computeColorClassName,
   computeWaterfallStyle,
 } from "~/lib/span/normalize-spans";
-import { useCalls } from "./calls-context";
 import { useSearchParams } from "@solidjs/router";
 import { useMonitor } from "~/context/monitor-provider";
 
@@ -23,7 +15,6 @@ export function SpanTableRow(props: {
   span: Span;
   style: string | JSX.CSSProperties | undefined;
 }) {
-  const callsContext = useCalls();
   const { monitorData } = useMonitor();
   const [, setSearchParams] = useSearchParams();
   const [timePassed, setTimePassed] = createSignal(0);
@@ -34,10 +25,18 @@ export function SpanTableRow(props: {
     if (props.span.closedAt < 0) {
       setTimePassed(Date.now() - props.span.createdAt / 1e6);
       lastRequest = window.requestAnimationFrame(updateTimePassed);
+      return;
     }
+
+    lastRequest = undefined;
   }
 
   function triggerAnimation() {
+    if (monitorData.health === 0 || props.span.aborted) {
+      setTimePassed(-1);
+      return "";
+    }
+
     if (lastRequest) cancelAnimationFrame(lastRequest);
     lastRequest = requestAnimationFrame(updateTimePassed);
     return "";
@@ -47,15 +46,12 @@ export function SpanTableRow(props: {
     if (lastRequest) cancelAnimationFrame(lastRequest);
   });
 
-  createEffect((prevHealth) => {
+  createEffect(() => {
     // If the connection goes bad we make sure to remove the unclosed spans from their pending state
-    if (monitorData.health === 0 && lastRequest)
+    if (monitorData.health === 0 && lastRequest) {
+      setTimePassed(-1);
       cancelAnimationFrame(lastRequest);
-
-    // If the connection comes back we have to clear the old calls
-    if (prevHealth === 0 && monitorData.health === 1) callsContext.resetCalls();
-
-    return monitorData.health;
+    }
   });
 
   return (

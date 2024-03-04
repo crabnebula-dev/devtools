@@ -30,6 +30,7 @@ export type Span = {
   time: number;
   duration: number;
   isProcessing?: boolean;
+  aborted: boolean;
   interval?: NodeJS.Timeout;
 };
 

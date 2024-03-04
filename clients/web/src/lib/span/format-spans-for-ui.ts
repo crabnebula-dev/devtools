@@ -56,6 +56,7 @@ export function formatSpanForUiWithMetadata(
     isProcessing: true,
     children: [],
     closedAt: -1,
+    aborted: false,
   } satisfies Span;
 
   span.kind = getSpanKindByMetadata(span) ?? undefined;

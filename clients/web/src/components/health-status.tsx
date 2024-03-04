@@ -1,5 +1,5 @@
 import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
-import { Show, createEffect, createSignal, onMount } from "solid-js";
+import { Show, createEffect, createSignal, onMount, batch } from "solid-js";
 import { ErrorDialog } from "./dialogs/error-dialog";
 import {
   addStreamListneners,
@@ -11,7 +11,6 @@ import { useConnection } from "~/context/connection-provider";
 import { useMonitor } from "~/context/monitor-provider";
 import { ReconnectDisplay } from "./reconnect-display";
 import { ReconnectButton } from "./reconnect-button";
-import { ReactiveMap } from "@solid-primitives/map";
 
 const variant = (status: HealthCheckResponse_ServingStatus) => {
   return [
@@ -113,8 +112,19 @@ export function HealthStatus() {
   }
 
   function reconnect() {
-    setMonitorData("spans", new ReactiveMap());
+    /** set all open spans to aborted */
+    batch(() => {
+      monitorData.spans.forEach((span) => {
+        if (span.closedAt === -1) {
+          span.aborted = true;
+          monitorData.spans.set(span.id, span);
+        }
+      });
+    });
+    setMonitorData("durations", { openSpans: 0 });
+
     const newConnection = connect(connectionStore.serviceUrl);
+
     setConnection(reconcile(newConnection, { merge: false }));
     addStreamListneners(
       connectionStore.stream.update,
