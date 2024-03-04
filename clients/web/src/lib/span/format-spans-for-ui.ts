@@ -1,20 +1,13 @@
 import { Metadata } from "../proto/common";
 import { getEventName } from "./get-event-name";
 import { getIpcRequestName } from "./get-ipc-request-name";
-import { getSpanKindByMetadata } from "./get-span-kind";
+import { getSpanKind } from "./get-span-kind";
 import { useMonitor } from "~/context/monitor-provider";
 import type { Span } from "../connection/monitor";
 import type { SpanEvent_Span } from "../proto/spans";
 import { convertTimestampToNanoseconds } from "../formatters";
 
 export function getSpanName(span: Span) {
-  console.log("get span name 1");
-  const { monitorData } = useMonitor();
-  console.log("get span name 2");
-  return getSpanNameByMetadata(span, monitorData.metadata);
-}
-
-export function getSpanNameByMetadata(span: Span) {
   if (span.kind === "ipc") {
     return getIpcRequestName(span);
   } else if (span.kind === "event") {
@@ -26,7 +19,7 @@ export function getSpanNameByMetadata(span: Span) {
   }
 }
 
-export function formatSpanForUi(span: Span) {
+export function formatSpanForUi(span: SpanEvent_Span) {
   const { monitorData } = useMonitor();
   return formatSpanForUiWithMetadata(span, monitorData.metadata);
 }
@@ -59,7 +52,7 @@ export function formatSpanForUiWithMetadata(
     aborted: false,
   } satisfies Span;
 
-  span.kind = getSpanKindByMetadata(span) ?? undefined;
-  span.name = getSpanNameByMetadata(span) || "-";
+  span.kind = getSpanKind(span) ?? undefined;
+  span.name = getSpanName(span) || "-";
   return span;
 }

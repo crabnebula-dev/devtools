@@ -1,5 +1,5 @@
-import { getSpanName, getSpanNameByMetadata } from "./format-spans-for-ui";
-import { getSpanKindByMetadata } from "./get-span-kind";
+import { getSpanName } from "./format-spans-for-ui";
+import { getSpanKind } from "./get-span-kind";
 import { ReactiveMap } from "@solid-primitives/map";
 import { Span } from "../connection/monitor";
 import { useCalls, Durations } from "~/components/span/calls-context";
@@ -111,8 +111,8 @@ export function triggerRenameOnRoot(
   span: Span,
   uiSpansMap: ReactiveMap<bigint, Span>
 ) {
-  span.kind = span.kind ? span.kind : getSpanKindByMetadata(span) ?? span.kind;
-  span.name = getSpanNameByMetadata(span) ?? span.name;
+  span.kind = span.kind ? span.kind : getSpanKind(span) ?? span.kind;
+  span.name = getSpanName(span) ?? span.name;
   //uiSpansMap.set(span.id, span);
 
   if (span.parentId) {
