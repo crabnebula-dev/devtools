@@ -4,7 +4,7 @@ import { InstrumentClient } from "~/lib/proto/instrument.client";
 import { TauriClient } from "~/lib/proto/tauri.client";
 import { SourcesClient } from "~/lib/proto/sources.client.ts";
 import { MetadataClient } from "../proto/meta.client";
-import { SetStoreFunction, createStore } from "solid-js/store";
+import { SetStoreFunction, createStore, produce } from "solid-js/store";
 import {
   HealthCheckRequest,
   HealthCheckResponse_ServingStatus,
@@ -121,9 +121,12 @@ export function addStreamListneners(
 
     const spansUpdate = update.spansUpdate;
     if (spansUpdate && spansUpdate.spanEvents.length > 0) {
-      setMonitorData("spans", (spans) => [
-        ...updatedSpans(spans, spansUpdate.spanEvents),
-      ]);
+      setMonitorData(
+        "spans",
+        produce((clonedSpans: Span[]) =>
+          updatedSpans(clonedSpans, spansUpdate.spanEvents),
+        ),
+      );
       Sentry.setMeasurement(
         "droppedSpanEvents",
         Number(spansUpdate.droppedEvents),
