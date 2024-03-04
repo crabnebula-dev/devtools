@@ -24,7 +24,6 @@ export function SpanList(props: { calls: Span[] }) {
   const { monitorData } = useMonitor();
 
   const spans = monitorData.spans;
-  let spanProcessingPointer = 0;
 
   let virtualList: HTMLDivElement | undefined;
 
