@@ -16,35 +16,41 @@ export function LogEventEntry(props: {
         <div
           class={clsx(
             "p-1  font-mono text-sm items-center flex gap-4 group",
-            levelStyle ? levelStyle : "border-b-gray-800 text-white",
+            processedEvent().levelStyle
+              ? processedEvent().levelStyle
+              : "border-b-gray-800 text-white",
             props.odd ? "" : "bg-slate-900",
           )}
         >
           <Show when={props.showTimestamp}>
             <time
-              dateTime={timeDate.toISOString()}
+              dateTime={processedEvent().timeDate.toISOString()}
               class={clsx(
-                levelStyle
-                  ? levelStyle
+                processedEvent().levelStyle
+                  ? processedEvent().levelStyle
                   : "text-slate-400 group-hover:text-slate-100",
                 "font-mono text-xs transition-colors",
               )}
             >
-              {formatTimestamp(timeDate)}
+              {formatTimestamp(processedEvent().timeDate)}
             </time>
           </Show>
           <span class="group-hover:text-white text-slate-300 transition-colors">
-            {message}
+            {processedEvent().message}
           </span>
           <span class="ml-auto flex gap-2 items-center text-xs">
-            <Show when={target}>
+            <Show when={processedEvent().target}>
               {(logTarget) => (
                 <span class="text-slate-400 group-hover:text-slate-100 transition-colors">
                   {logTarget()}
                 </span>
               )}
             </Show>
-            <Show when={getFileLineFromLocation(metadata?.location)}>
+            <Show
+              when={getFileLineFromLocation(
+                processedEvent().metadata?.location,
+              )}
+            >
               {(line) => <span>{line()}</span>}
             </Show>
           </span>
