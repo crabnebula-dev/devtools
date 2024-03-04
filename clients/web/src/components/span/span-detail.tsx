@@ -4,14 +4,14 @@ import { SpanDetailView } from "./span-detail-view";
 import { getIpcRequestValues } from "~/lib/span/get-ipc-request-value";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { spanFieldsToObject } from "~/lib/span/span-fields-to-object";
-import { getSpanChildrenWithFilter } from "~/lib/span/get-span-children-with-filter";
+import { getSpanChildren } from "~/lib/span/get-span-children";
 import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
 import { CodeHighlighter } from "../code-highlighter";
 import { Loader } from "../loader";
 
 export function SpanDetail(props: { span: Span }) {
   const children = () => {
-    const allChildren = getSpanChildrenWithFilter(props.span);
+    const allChildren = getSpanChildren(props.span);
     if (props.span.kind === "ipc") {
       // platforms that use webview's postMessage for IPC (such as iOS for remote URLs, Android and Linux)
       // might send the response via an auxiliary custom protocol request, so we filter out those spans
