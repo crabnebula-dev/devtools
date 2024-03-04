@@ -15,11 +15,10 @@ export function filterSpans(
     alreadyFiltered = [];
   }
   allSpans.forEach((span) => {
+    localPointer++;
     if (localPointer > spanProcessingPointer && span.kind) {
       alreadyFiltered.push(span);
     }
-
-    localPointer++;
   });
 
   spanProcessingPointer = localPointer;
