@@ -87,7 +87,6 @@ export function SpanList() {
         <tr class="text-left">
           <For each={columns}>
             {(column) => {
-              console.log(column);
               return (
                 <th
                   tabIndex="0"
