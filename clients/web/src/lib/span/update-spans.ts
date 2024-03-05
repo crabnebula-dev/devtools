@@ -4,14 +4,14 @@ import { convertTimestampToNanoseconds } from "../formatters";
 import { formatSpanForUiWithMetadata } from "./format-spans-for-ui";
 import { Metadata } from "../proto/common";
 import { type ReactiveMap } from "@solid-primitives/map";
-import { triggerRenameOnRoot } from "./update-ui-spans-from-stream";
+import { triggerRenameOnRoot } from "./trigger-rename-on-root";
 import { Durations } from "~/components/span/calls-context";
 
 export function updatedSpans(
   currentSpans: ReactiveMap<bigint, Span>,
   spanEvents: SpanEvent[],
   metadata: Map<bigint, Metadata>,
-  oldDurations: Durations
+  oldDurations: Durations,
 ) {
   let { start, end, shortestTime, longestTime, average, counted, openSpans } =
     oldDurations;
@@ -21,7 +21,7 @@ export function updatedSpans(
       case "newSpan": {
         const span: Span = formatSpanForUiWithMetadata(
           event.event.newSpan,
-          metadata
+          metadata,
         );
 
         if (span.parentId) {

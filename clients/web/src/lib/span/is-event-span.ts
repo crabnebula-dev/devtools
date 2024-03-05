@@ -1,5 +1,4 @@
 import { Span } from "../connection/monitor";
-import { Metadata } from "../proto/common";
 
 const emitSpanNames = [
   "app::emit::all",
