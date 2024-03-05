@@ -68,7 +68,7 @@
     "json-schema-library": "^9.1.2",
     "shiki": "^1.1.2",
     "solid-js": "^1.8.14",
-    "solid-markdown": "^1.2.2",
+    "solid-markdown": "^2.0.0",
     "split.js": "^1.6.5",
     "tailwind-scrollbar": "^3.1.0",
     "zod": "^3.22.4"

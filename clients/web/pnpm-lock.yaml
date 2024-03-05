@@ -57,8 +57,8 @@ dependencies:
     specifier: ^1.8.14
     version: 1.8.14
   solid-markdown:
-    specifier: ^1.2.2
-    version: 1.2.2(solid-js@1.8.14)
+    specifier: ^2.0.0
+    version: 2.0.0(solid-js@1.8.14)
   split.js:
     specifier: ^1.6.5
     version: 1.6.5
@@ -1529,10 +1529,6 @@ packages:
     dependencies:
       undici-types: 5.26.5
     dev: true
-
-  /@types/prop-types@15.7.10:
-    resolution: {integrity: sha512-mxSnDQxPqsZxmeShFH+uwQ4kO4gcJcGahjjMFeLbKE95IAZiiZyiEepGZjtXJ7hN/yfu0bu9xN2ajcU0JcxX6A==}
-    dev: false
 
   /@types/semver@7.5.5:
     resolution: {integrity: sha512-+d+WYC1BxJ6yVOgUgzK8gWvp5qF8ssV5r4nsDcZWKRWcDQLQ619tvWAxJQYGgBrO1MnLJC7a5GtiYsAoQ47dJg==}
@@ -4653,14 +4649,12 @@ packages:
       seroval: 1.0.4
       seroval-plugins: 1.0.4(seroval@1.0.4)
 
-  /solid-markdown@1.2.2(solid-js@1.8.14):
-    resolution: {integrity: sha512-ohRnAgGqMyUCsiDx0uHWpo++6+2YEKnGwYBIR0ioJV0p601s5Ln0fOBXxBYN3DbgFiD/IDwgv4l9hMPxtUwoXA==}
+  /solid-markdown@2.0.0(solid-js@1.8.14):
+    resolution: {integrity: sha512-TttuvRaAuvHNIOZ2Weqfi4C16SAE5QaWA4qLwZY8Ad/g7gQyE3aUenXK4sgy9spM/uumz150JIc2oxDGiNLfEw==}
+    engines: {node: '>=18', pnpm: '>=8.6.0'}
     peerDependencies:
-      solid-js: ^1.2.0
+      solid-js: ^1.6.0
     dependencies:
-      '@types/hast': 2.3.8
-      '@types/prop-types': 15.7.10
-      '@types/unist': 2.0.10
       comma-separated-tokens: 2.0.3
       property-information: 6.4.0
       remark-gfm: 3.0.1
@@ -4668,7 +4662,7 @@ packages:
       remark-rehype: 10.1.0
       solid-js: 1.8.14
       space-separated-tokens: 2.0.2
-      style-to-object: 0.4.4
+      style-to-object: 0.3.0
       unified: 10.1.2
       unist-util-visit: 4.1.2
       vfile: 5.3.7
@@ -4799,13 +4793,6 @@ packages:
     resolution: {integrity: sha512-CzFnRRXhzWIdItT3OmF8SQfWyahHhjq3HwcMNCNLn+N7klOOqPjMeG/4JSu77D7ypZdGvSzvkrbyeTMizz2VrA==}
     dependencies:
       inline-style-parser: 0.1.1
-    dev: true
-
-  /style-to-object@0.4.4:
-    resolution: {integrity: sha512-HYNoHZa2GorYNyqiCaBgsxvcJIn7OHq6inEga+E6Ke3m5JkoqpQbnFssk4jwe+K7AhGa2fcha4wSOf1Kn01dMg==}
-    dependencies:
-      inline-style-parser: 0.1.1
-    dev: false
 
   /sucrase@3.35.0:
     resolution: {integrity: sha512-8EbVDiu9iN/nESwxeSxDKe0dunta1GOlHufmSSXxMD2z2/tMZpDMpvXQGsc+ajGo8y2uYUmixaSRUc/QPoQ0GA==}
