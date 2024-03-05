@@ -1,11 +1,11 @@
 import { Toolbar } from "~/components/toolbar";
 import { SplitPane } from "~/components/split-pane";
-import { SpanDetailPanel } from "~/components/span/span-detail-panel";
-import { SpanList } from "~/components/span/span-list";
-import { SpanScaleSlider } from "~/components/span/span-scale-slider";
-import { CallsContextProvider } from "~/components/span/calls-context";
+import { CallDetailPanel } from "~/components/calls/call-detail-panel";
+import { CallsList } from "~/components/calls/calls-list";
+import { CallsScaleSlider } from "~/components/calls/topbar/calls-scale-slider";
+import { CallsContextProvider } from "~/components/calls/calls-context";
 import { useMonitor } from "~/context/monitor-provider";
-import { ClearCallsButton } from "~/components/span/clear-calls-button";
+import { CallsClearButton } from "~/components/calls/topbar/calls-clear-button";
 import { filterSpans } from "~/lib/span/filter-spans";
 import { Span } from "~/lib/connection/monitor";
 import { createMemo } from "solid-js";
@@ -15,30 +15,30 @@ function Calls() {
 
   let spanProcessingPointer = 0;
 
-  const filteredSpans = createMemo<Span[]>((alreadyFiltered) => {
-    const [filteredSpans, newPointer] = filterSpans(
+  const filteredCalls = createMemo<Span[]>((alreadyFiltered) => {
+    const [filteredCalls, newPointer] = filterSpans(
       alreadyFiltered,
       spanProcessingPointer,
-      monitorData.spans
+      monitorData.spans,
     );
     spanProcessingPointer = newPointer;
-    return filteredSpans;
+    return filteredCalls;
   }, []);
 
   return (
     <div class="h-[calc(100%-var(--toolbar-height))]">
       <Toolbar>
-        <ClearCallsButton />
+        <CallsClearButton />
         <span>Running calls: {monitorData.durations.openSpans}</span>
-        <SpanScaleSlider />
+        <CallsScaleSlider />
       </Toolbar>
       <SplitPane
         initialSizes={[70, 30]}
         defaultMinSizes={[600, 300]}
         defaultPrefix="span-waterfall"
       >
-        <SpanList calls={filteredSpans()} />
-        <SpanDetailPanel />
+        <CallsList calls={filteredCalls()} />
+        <CallDetailPanel />
       </SplitPane>
     </div>
   );

@@ -1,7 +1,7 @@
 import { For, JSXElement } from "solid-js";
 import { Span } from "~/lib/connection/monitor";
-import { SpanDetailTrace } from "./span-detail-trace";
-import { SpanDetailArgs } from "./span-detail-args";
+import { CallDetailTrace } from "./call-detail-trace";
+import { CallDetailArgs } from "./call-detail-args";
 
 type Props = {
   name: string;
@@ -11,7 +11,7 @@ type Props = {
   children: JSXElement;
 };
 
-export function SpanDetailView(props: Props) {
+export function CallDetailView(props: Props) {
   const closedSpans = () => props.spanChildren.filter((s) => s.closedAt > 0);
 
   const durations = () => {
@@ -31,7 +31,7 @@ export function SpanDetailView(props: Props) {
       <table>
         <tbody>
           <For each={props.spanChildren}>
-            {(span) => <SpanDetailTrace span={span} durations={durations()} />}
+            {(span) => <CallDetailTrace span={span} durations={durations()} />}
           </For>
         </tbody>
       </table>
@@ -39,7 +39,7 @@ export function SpanDetailView(props: Props) {
         <h2 class="text-xl p-4">{props.valuesSectionTitle}</h2>
         <table>
           <tbody>
-            <SpanDetailArgs args={props.values} />
+            <CallDetailArgs args={props.values} />
           </tbody>
         </table>
       </div>

@@ -1,11 +1,10 @@
-import { type Span } from "~/lib/connection/monitor";
+import { type Span, type Durations } from "~/lib/connection/monitor";
 import { type SpanEvent } from "~/lib/proto/spans";
 import { convertTimestampToNanoseconds } from "../formatters";
-import { formatSpanForUiWithMetadata } from "./format-spans-for-ui";
+import { formatSpan } from "./format-span";
 import { Metadata } from "../proto/common";
 import { type ReactiveMap } from "@solid-primitives/map";
 import { triggerRenameOnRoot } from "./trigger-rename-on-root";
-import { Durations } from "~/components/span/calls-context";
 
 export function updatedSpans(
   currentSpans: ReactiveMap<bigint, Span>,
@@ -19,10 +18,7 @@ export function updatedSpans(
   for (const event of spanEvents) {
     switch (event.event.oneofKind) {
       case "newSpan": {
-        const span: Span = formatSpanForUiWithMetadata(
-          event.event.newSpan,
-          metadata,
-        );
+        const span: Span = formatSpan(event.event.newSpan, metadata);
 
         if (span.parentId) {
           const parent = currentSpans.get(span.parentId);

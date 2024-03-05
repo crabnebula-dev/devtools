@@ -1,7 +1,7 @@
 import { Button } from "@kobalte/core";
 import { useMonitor } from "~/context/monitor-provider";
 
-export function ClearCallsButton() {
+export function CallsClearButton() {
   const { resetCalls } = useMonitor();
 
   return (

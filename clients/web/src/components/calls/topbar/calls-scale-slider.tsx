@@ -1,8 +1,8 @@
 import { Tooltip } from "@kobalte/core";
 import { Show } from "solid-js";
-import { useCalls } from "./calls-context";
+import { useCalls } from "../calls-context";
 
-export function SpanScaleSlider() {
+export function CallsScaleSlider() {
   const callsContext = useCalls();
   return (
     <div class="flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { getSpanName } from "./format-spans-for-ui";
+import { getSpanName } from "./get-span-name";
 import { getSpanKind } from "./get-span-kind";
 import { ReactiveMap } from "@solid-primitives/map";
 import { Span } from "../connection/monitor";

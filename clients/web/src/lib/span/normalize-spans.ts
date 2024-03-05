@@ -1,7 +1,7 @@
 import { useMonitor } from "~/context/monitor-provider";
 import { Span } from "../connection/monitor";
 import { calculateSpanColorFromRelativeDuration } from "./calculate-span-color-from-relative-duration";
-import { useCalls } from "~/components/span/calls-context";
+import { useCalls } from "~/components/calls/calls-context";
 
 function scaleNumbers(numbers: number[], min: number, max: number): number[] {
   const range = max - min;

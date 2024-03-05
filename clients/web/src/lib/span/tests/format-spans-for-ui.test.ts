@@ -1,4 +1,4 @@
-import { formatSpanForUiWithMetadata } from "../format-spans-for-ui";
+import { formatSpanForUiWithMetadata } from "../format-span";
 import { spans } from "./fixtures/spans";
 import { metadata } from "./fixtures/metadata";
 import { vi } from "vitest";

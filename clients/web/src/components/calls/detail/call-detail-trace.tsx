@@ -7,7 +7,7 @@ import {
 import { Popover } from "@kobalte/core";
 import { getDetailedTime } from "~/lib/formatters.ts";
 
-export function SpanDetailTrace(props: {
+export function CallDetailTrace(props: {
   span: Span;
   durations: {
     start: number;

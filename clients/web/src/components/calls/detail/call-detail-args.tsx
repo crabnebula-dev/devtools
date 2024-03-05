@@ -4,7 +4,7 @@ type Props = {
   args: (string | object)[];
 };
 
-export function SpanDetailArgs(props: Props) {
+export function CallDetailArgs(props: Props) {
   return (
     <For each={props.args}>
       {(arg) => {

@@ -6,16 +6,24 @@ import { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
 import { timestampToDate } from "~/lib/formatters";
 import { AppMetadata } from "../proto/meta";
 import { Versions } from "../proto/tauri";
-import { SpanKind } from "../span/types";
 import { ReactiveMap } from "@solid-primitives/map";
-import { Durations } from "~/components/span/calls-context";
 
 export type HealthStatus = keyof typeof HealthCheckResponse_ServingStatus;
+
+export type Durations = {
+  start?: number;
+  end: number;
+  shortestTime?: number;
+  longestTime?: number;
+  average: number;
+  counted: number;
+  openSpans: number;
+};
 
 export type Span = {
   id: bigint;
   name: string;
-  kind?: SpanKind;
+  kind?: "ipc" | "event";
   parentId?: bigint;
   parent?: Span;
   metadataId: bigint;

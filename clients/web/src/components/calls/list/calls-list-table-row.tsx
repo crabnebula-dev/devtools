@@ -11,8 +11,8 @@ import {
 import { useSearchParams } from "@solidjs/router";
 import { useMonitor } from "~/context/monitor-provider";
 
-export function SpanTableRow(props: {
-  span: Span;
+export function CallsListTableRow(props: {
+  call: Span;
   style: string | JSX.CSSProperties | undefined;
 }) {
   const { monitorData } = useMonitor();
@@ -22,8 +22,8 @@ export function SpanTableRow(props: {
   let lastRequest: number | undefined;
 
   function updateTimePassed() {
-    if (props.span.closedAt < 0) {
-      setTimePassed(Date.now() - props.span.createdAt / 1e6);
+    if (props.call.closedAt < 0) {
+      setTimePassed(Date.now() - props.call.createdAt / 1e6);
       lastRequest = window.requestAnimationFrame(updateTimePassed);
       return;
     }
@@ -32,7 +32,7 @@ export function SpanTableRow(props: {
   }
 
   function triggerAnimation() {
-    if (monitorData.health === 0 || props.span.aborted) {
+    if (monitorData.health === 0 || props.call.aborted) {
       setTimePassed(-1);
       return "";
     }
@@ -57,29 +57,29 @@ export function SpanTableRow(props: {
   return (
     <tr
       onClick={() => {
-        setSearchParams({ span: String(props.span.id) });
+        setSearchParams({ span: String(props.call.id) });
       }}
       class="even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]"
       style={props.style}
     >
-      <td class="p-1 overflow-hidden text-ellipsis" title={props.span.name}>
-        {props.span.name}
+      <td class="p-1 overflow-hidden text-ellipsis" title={props.call.name}>
+        {props.call.name}
       </td>
       <td
         class="p-1 overflow-hidden text-ellipsis"
-        title={getTime(new Date(props.span.initiated))}
+        title={getTime(new Date(props.call.initiated))}
       >
-        {getTime(new Date(props.span.initiated))}
+        {getTime(new Date(props.call.initiated))}
       </td>
       <td
         class="p-1 overflow-hidden text-ellipsis"
-        title={`${props.span.time.toFixed(2)} ms`}
+        title={`${props.call.time.toFixed(2)} ms`}
       >
         <Show
-          when={props.span.closedAt > -1}
+          when={props.call.closedAt > -1}
           fallback={(triggerAnimation(), timePassed().toFixed(2) + "ms")}
         >
-          {props.span.time.toFixed(2)}ms
+          {props.call.time.toFixed(2)}ms
         </Show>
       </td>
       <td class="p-1 relative overflow-hidden">
@@ -89,21 +89,21 @@ export function SpanTableRow(props: {
             class={clsx(
               "relative rounded-sm h-2",
               computeColorClassName(
-                props.span.duration === -1
-                  ? Date.now() * 1e6 - props.span.createdAt
-                  : props.span.duration,
-                monitorData.durations.average
-              )
+                props.call.duration === -1
+                  ? Date.now() * 1e6 - props.call.createdAt
+                  : props.call.duration,
+                monitorData.durations.average,
+              ),
             )}
             style={computeWaterfallStyle(
-              props.span,
+              props.call,
               monitorData.durations.start ?? Date.now() * 1e6,
               monitorData.durations.openSpans > 0
                 ? Date.now() * 1e6
-                : monitorData.durations.end
+                : monitorData.durations.end,
             )}
           >
-            <For each={computeSlices(props.span)}>
+            <For each={computeSlices(props.call)}>
               {(slice) => (
                 <div
                   class="absolute top-0 left-0 bg-black bg-opacity-10 h-full"

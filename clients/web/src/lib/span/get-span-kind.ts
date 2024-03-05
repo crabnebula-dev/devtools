@@ -27,5 +27,5 @@ export function getSpanKind(span: Span) {
     }
   }
 
-  return spanMetadata?.name === "wry::ipc::handle" ? "ipc" : null;
+  return spanMetadata?.name === "wry::ipc::handle" ? "ipc" : undefined;
 }

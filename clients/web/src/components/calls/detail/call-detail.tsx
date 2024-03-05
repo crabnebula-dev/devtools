@@ -1,15 +1,15 @@
-import { Show, Suspense, createEffect } from "solid-js";
+import { Show, Suspense } from "solid-js";
 import { Span } from "~/lib/connection/monitor";
-import { SpanDetailView } from "./span-detail-view";
+import { CallDetailView } from "./call-detail-view";
 import { getIpcRequestValues } from "~/lib/span/get-ipc-request-value";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { spanFieldsToObject } from "~/lib/span/span-fields-to-object";
 import { getSpanChildren } from "~/lib/span/get-span-children";
 import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
-import { CodeHighlighter } from "../code-highlighter";
-import { Loader } from "../loader";
+import { CodeHighlighter } from "../../code-highlighter";
+import { Loader } from "../../loader";
 
-export function SpanDetail(props: { span: Span }) {
+export function CallDetail(props: { span: Span }) {
   const children = () => {
     const allChildren = getSpanChildren(props.span);
     if (props.span.kind === "ipc") {
@@ -87,7 +87,7 @@ export function SpanDetail(props: { span: Span }) {
   };
 
   return (
-    <SpanDetailView
+    <CallDetailView
       name={props.span.name ?? "-"}
       spanChildren={children() ?? []}
       valuesSectionTitle={valuesSectionTitle()}
@@ -105,6 +105,6 @@ export function SpanDetail(props: { span: Span }) {
           </div>
         )}
       </Show>
-    </SpanDetailView>
+    </CallDetailView>
   );
 }
