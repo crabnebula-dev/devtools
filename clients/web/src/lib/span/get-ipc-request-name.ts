@@ -1,7 +1,7 @@
 import { processFieldValue } from "./process-field-value";
 import { getIpcRequestValues } from "./get-ipc-request-value";
 import type { Span } from "../connection/monitor";
-import { getSpanChildrenWithFilter } from "./get-span-children-with-filter";
+import { getSpanChildren } from "./get-span-children";
 
 const ipcSpanNameMap: Record<string, string> = {
   "ipc::request": "Request",
@@ -18,7 +18,7 @@ export function getIpcRequestName(span: Span) {
     )
   ) {
     const commandHandlerSpan =
-      getSpanChildrenWithFilter(span, "ipc::request::handle")?.[0] ?? null;
+      getSpanChildren(span, "ipc::request::handle")?.[0] ?? null;
     if (commandHandlerSpan) {
       const val = commandHandlerSpan.fields.find(
         (f) => f.name === "cmd",
@@ -29,7 +29,7 @@ export function getIpcRequestName(span: Span) {
       if (commandName === "tauri") {
         const args =
           getIpcRequestValues(span)("ipc::request")?.fields.map((f) =>
-            processFieldValue(f.request)
+            processFieldValue(f.request),
           ) ?? [];
         try {
           const arg = args.length > 0 ? JSON.parse(args[0]) : {};

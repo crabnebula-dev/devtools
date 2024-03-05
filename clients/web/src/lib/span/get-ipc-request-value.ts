@@ -1,11 +1,11 @@
 import { Field } from "../proto/common";
 import { Span } from "../connection/monitor";
 import { IpcSpanName } from "./ipc-spans";
-import { getSpanChildrenWithFilter } from "./get-span-children-with-filter";
+import { getSpanChildren } from "./get-span-children";
 
 export function getIpcRequestValues(rootSpan: Span) {
   return function (name: IpcSpanName) {
-    const spans = getSpanChildrenWithFilter(rootSpan, name);
+    const spans = getSpanChildren(rootSpan, name);
 
     if (!spans) {
       return null;

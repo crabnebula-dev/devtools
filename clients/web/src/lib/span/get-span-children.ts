@@ -1,16 +1,23 @@
 import { Span } from "../connection/monitor";
 
-export function getSpanChildren(span: Span, maxDepth = 10, depth = -1) {
-  let children: Span[] = [];
+export function getSpanChildren(
+  span: Span,
+  filter?: string,
+  all: Span[] = [],
+  depth = 0,
+  maxDepth = 10,
+) {
+  if (depth === maxDepth) return all;
 
-  depth++;
+  const spans = span.children;
 
-  if (depth === maxDepth) return children;
+  const toPush = filter
+    ? spans.filter((span) => span.metadata?.name === filter)
+    : spans;
 
-  for (const s of span.children) {
-    children.push(s);
-    children = children.concat(getSpanChildren(s, maxDepth, depth));
-  }
+  all.push(...toPush);
 
-  return children;
+  for (const child of spans) getSpanChildren(child, filter, all, depth + 1);
+
+  return all;
 }
