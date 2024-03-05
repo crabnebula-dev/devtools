@@ -13,7 +13,7 @@ type AutoScrollPaneProps<AutoScrollItem> = {
 };
 
 export function AutoScrollPane<AutoScrollItem>(
-  props: AutoScrollPaneProps<AutoScrollItem>
+  props: AutoScrollPaneProps<AutoScrollItem>,
 ) {
   let logPanel: HTMLDivElement | undefined;
 
@@ -27,14 +27,11 @@ export function AutoScrollPane<AutoScrollItem>(
   });
 
   createEffect(() => {
-    if (props.shouldAutoScroll() && props.dataStream.length > 0) {
+    if (props.shouldAutoScroll() && virtualizer.getTotalSize() > 0) {
       // When updating the filter really quick (fast typing for example) it is possible to void the virtual items
       // before the scroll can be performed, which will lead to an error
-      try {
+      if (virtualizer.options.count > 0)
         virtualizer.scrollToIndex(virtualizer.options.count - 1);
-      } catch (e) {
-        /* intentionally ignore */
-      }
     }
   });
 

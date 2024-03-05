@@ -10,6 +10,9 @@ Inspect, monitor, and understand your [Tauri](https://tauri.app) application wit
 
 ## Getting Started
 
+> [!TIP]
+> For the full documentation, check: [docs.crabnebula.dev/devtools](https://docs.crabnebula.dev/devtools)
+
 ### Tauri v1
 
 Ensure you have [Tauri](https://tauri.app/v1/guides/getting-started/setup/) set up correctly. Then install the Rust instrumentation from crates.io:
@@ -18,7 +21,7 @@ Ensure you have [Tauri](https://tauri.app/v1/guides/getting-started/setup/) set 
 cargo add devtools
 ```
 
-You also have to use Tauri **1.5.3** (or later) so your `Cargo.toml` file should look as follows:
+You also have to use Tauri **1.5.3** (or later) so your `Cargo.toml` file should look as follows::
 
 ```toml
 [dependencies]
@@ -33,15 +36,15 @@ tauri-build = "1.5.0"
 Ensure you have [Tauri](https://beta.tauri.app/guides/create/) set up correctly. Then install the Rust instrumentation from crates.io:
 
 ```sh
-cargo add tauri-plugin-devtools@2.0.0-beta
+cargo add tauri-plugin-devtools --git https://github.com/crabnebula-dev/devtools
 ```
 
 You also have to use Tauri **2.0.0-beta.1** (or later) so your `Cargo.toml` file should look as follows:
 
 ```toml
 [dependencies]
-tauri-plugin-devtools = "2.0.0-beta"
-tauri = "2.0.0-beta.1"
+tauri-plugin-devtools = { git = "https://github.com/crabnebula-dev/devtools" }
+tauri = "2.0.0-beta.3"
 [build-dependencies]
 tauri-build = "2.0.0-beta"
 ```

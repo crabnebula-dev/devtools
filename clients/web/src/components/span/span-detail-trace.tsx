@@ -33,7 +33,7 @@ export function SpanDetailTrace(props: {
                 props.durations.start,
                 props.durations.end,
                 props.durations.shortest,
-                props.durations.longest
+                props.durations.longest,
               )}
             >
               {/* Slices is "time slices" as in multiple entry points to a given span */}

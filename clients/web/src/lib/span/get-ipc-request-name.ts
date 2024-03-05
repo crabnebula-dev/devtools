@@ -14,14 +14,14 @@ export function getIpcRequestName(span: Span) {
   const meta = span.metadata;
   if (
     ["wry::custom_protocol::handle", "wry::ipc::handle"].includes(
-      meta?.name ?? ""
+      meta?.name ?? "",
     )
   ) {
     const commandHandlerSpan =
       getSpanChildrenWithFilter(span, "ipc::request::handle")?.[0] ?? null;
     if (commandHandlerSpan) {
       const val = commandHandlerSpan.fields.find(
-        (f) => f.name === "cmd"
+        (f) => f.name === "cmd",
       )?.value;
       // this is actually always strVal unless the Tauri tracing implementation messes it up
       const commandName = val?.oneofKind === "strVal" ? val.strVal : null;

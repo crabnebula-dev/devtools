@@ -26,7 +26,7 @@ export function formatSpanForUi(span: SpanEvent_Span) {
 
 export function formatSpanForUiWithMetadata(
   spanEvent: SpanEvent_Span,
-  metadata: Map<bigint, Metadata>
+  metadata: Map<bigint, Metadata>,
 ) {
   const createdAt = spanEvent.at
     ? convertTimestampToNanoseconds(spanEvent.at)

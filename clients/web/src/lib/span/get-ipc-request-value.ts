@@ -17,8 +17,8 @@ export function getIpcRequestValues(rootSpan: Span) {
         (span) =>
           (span?.fields?.reduce(
             (acc, field) => ({ ...acc, [field.name]: field.value }),
-            {}
-          ) ?? {}) as Record<string, Field["value"]>
+            {},
+          ) ?? {}) as Record<string, Field["value"]>,
       ),
       metadata: spans.map((span) => span.metadata),
     };

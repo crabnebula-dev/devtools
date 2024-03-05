@@ -346,7 +346,6 @@ mod test {
     use super::*;
     use crate::layer::Layer;
     use devtools_wire_format::instrument::Update;
-    use tokio::sync::mpsc;
     use tracing_subscriber::prelude::*;
 
     #[test]

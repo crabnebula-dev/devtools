@@ -14,6 +14,7 @@ import { InstrumentRequest } from "../proto/instrument";
 import { updateSpanMetadata } from "../span/update-span-metadata";
 import { updatedSpans } from "../span/update-spans";
 import { MonitorData } from "./monitor";
+import * as Sentry from "@sentry/browser";
 
 export async function checkConnection(url: string) {
   const abortController = new AbortController();
@@ -26,7 +27,7 @@ export async function checkConnection(url: string) {
   try {
     const healthClient = new HealthClient(transport);
     const healthCheck = await healthClient.check(
-      HealthCheckRequest.create({ service: "" })
+      HealthCheckRequest.create({ service: "" }),
     );
 
     const statusCode = healthCheck.response.status;
@@ -66,10 +67,10 @@ export function connect(url: string) {
     /**
      * empty string means all services.
      */
-    HealthCheckRequest.create({ service: "" })
+    HealthCheckRequest.create({ service: "" }),
   );
   const updateStream = instrumentClient.watchUpdates(
-    InstrumentRequest.create({})
+    InstrumentRequest.create({}),
   );
 
   const connectionStore = {
@@ -102,7 +103,7 @@ type UpdateStream = ReturnType<typeof connect>["stream"]["update"];
 export function addStreamListneners(
   stream: UpdateStream,
   setMonitorData: SetStoreFunction<MonitorData>,
-  monitorData: MonitorData
+  monitorData: MonitorData,
 ) {
   stream.responses.onMessage((update) => {
     setMonitorData("health", 1);
@@ -113,6 +114,11 @@ export function addStreamListneners(
     const logsUpdate = update.logsUpdate;
     if (logsUpdate && logsUpdate.logEvents.length > 0) {
       setMonitorData("logs", (prev) => [...prev, ...logsUpdate.logEvents]);
+      Sentry.setMeasurement(
+        "droppedLogEvents",
+        Number(logsUpdate.droppedEvents),
+        "none",
+      );
     }
 
     const spansUpdate = update.spansUpdate;
@@ -123,10 +129,15 @@ export function addStreamListneners(
           monitorData.spans,
           spansUpdate.spanEvents,
           monitorData.metadata,
-          monitorData.durations
+          monitorData.durations,
         );
         setMonitorData("durations", durations);
       });
+      Sentry.setMeasurement(
+        "droppedSpanEvents",
+        Number(spansUpdate.droppedEvents),
+        "none",
+      );
     }
   });
 }

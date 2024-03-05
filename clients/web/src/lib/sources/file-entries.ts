@@ -47,7 +47,7 @@ export function awaitEntries(path: string) {
 export async function getEntryBytes(
   client: SourcesClient,
   path: string,
-  size: number | undefined
+  size: number | undefined,
 ): Promise<Uint8Array | undefined> {
   const call = client.getEntryBytes({ path });
 
@@ -65,15 +65,15 @@ export async function getEntryBytes(
 
 async function fillWithChunkStream(
   array: Uint8Array,
-  callResponses: RpcOutputStream<Chunk>
+  callResponses: RpcOutputStream<Chunk>,
 ): Promise<Uint8Array>;
 async function fillWithChunkStream(
   array: number[],
-  callResponses: RpcOutputStream<Chunk>
+  callResponses: RpcOutputStream<Chunk>,
 ): Promise<number[]>;
 async function fillWithChunkStream(
   array: Uint8Array | number[],
-  callResponses: RpcOutputStream<Chunk>
+  callResponses: RpcOutputStream<Chunk>,
 ) {
   let offset = 0;
   for await (const chunk of callResponses) {

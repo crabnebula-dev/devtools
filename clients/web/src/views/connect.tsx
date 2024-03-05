@@ -75,18 +75,17 @@ export default function Connect() {
       </header>
       <aside class="max-w-screen-sm w-full flex flex-col gap-5 text-xl leading-tight text-center text-neutral-400">
         <p>
-          To get started, make sure you have the{" "}
+          Check our{" "}
           <a
             class="after:[content:'↗'] after:relative after:-top-2 after:text-xs text-white hover:text-cyan-300 focus:text-cyan-300 transition-colors"
-            href="https://docs.rs/devtools/latest/devtools"
+            href="https://docs.crabnebula.dev/devtools/get-started/"
             rel="noopener"
             target="_blank"
           >
-            <code class="font-mono ">devtools</code> crate
+            <code class="font-mono ">docs</code>
           </a>{" "}
-          installed.
+          for information on how to get started.
         </p>
-        <p>Add the right information and start inspecting!</p>
       </aside>
       <form
         class="max-w-screen-sm w-full grid grid-cols-2 gap-8 p-12 border-navy-900 border-px backdrop-blur-md bg-navy-800 bg-opacity-30 rounded-md place-items-center"
@@ -112,7 +111,7 @@ export default function Connect() {
         />
         <Button.Root
           type="submit"
-          class="bg-white border-white text-gray-950 flex items-center gap-2 text-2xl border-2 rounded-full py-2 px-4 col-span-2 focus:outline-dashed focus:outline-white focus:outline-offset-2 hover:scale-110 transition-transform ease-in-out"
+          class="bg-white border-white text-gray-950 flex items-center gap-2 text-2xl border-2 rounded-md py-2 px-4 col-span-2 focus:outline-dashed focus:outline-white focus:outline-offset-2 hover:scale-110 transition-transform ease-in-out"
         >
           <span>Inspect</span>
         </Button.Root>

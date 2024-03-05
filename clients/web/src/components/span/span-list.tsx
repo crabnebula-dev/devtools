@@ -114,8 +114,8 @@ export function SpanList(props: { calls: Span[] }) {
                         column.name === "time" || column.name === "initiated"
                           ? "w-2/12" // time and initiated
                           : column.name === "name"
-                          ? "w-3/12" // name
-                          : "w-5/12" // waterfall
+                            ? "w-3/12" // name
+                            : "w-5/12" // waterfall
                       }`}
                     >
                       <div class="flex uppercase select-none items-center gap-2">

@@ -10,8 +10,8 @@ export function getEventName(span: Span) {
       const kind = name?.startsWith("app::")
         ? "global event"
         : name === "window::trigger"
-        ? "rust event"
-        : "event";
+          ? "rust event"
+          : "event";
       return `${kind}: ${processFieldValue(eventField.value)}`;
     }
   }

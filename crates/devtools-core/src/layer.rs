@@ -177,7 +177,6 @@ where
 mod test {
     use super::*;
     use futures::StreamExt;
-    use tokio::sync::mpsc;
     use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
     use tracing_subscriber::prelude::*;
 

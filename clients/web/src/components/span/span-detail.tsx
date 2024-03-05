@@ -28,7 +28,7 @@ export function SpanDetail(props: { span: Span }) {
         (s) =>
           s.name !== "ipc::request::response" &&
           !channelResponseSpans.includes(s.id) &&
-          isIpcSpanName(s.metadata?.name ?? "")
+          isIpcSpanName(s.metadata?.name ?? ""),
       );
     }
     return allChildren;
@@ -76,7 +76,7 @@ export function SpanDetail(props: { span: Span }) {
         return field
           ? processFieldValue(field).replace(
               /\\n/gim, // Turn escaped newlines into actual newlines
-              "\n"
+              "\n",
             )
           : null;
       }

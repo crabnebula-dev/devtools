@@ -5,8 +5,8 @@ describe("getRootPathByUrlSegment", () => {
     expect(
       getRootPathByUrlSegment(
         "http://localhost:5173/dash/127.0.0.1/3000/calls",
-        "calls"
-      )
+        "calls",
+      ),
     ).toBe("http://localhost:5173/dash/127.0.0.1/3000/calls");
   });
 
@@ -14,8 +14,8 @@ describe("getRootPathByUrlSegment", () => {
     expect(
       getRootPathByUrlSegment(
         "http://localhost:5173/dash/127.0.0.1/3000/calls?span=9007199254740996",
-        "calls"
-      )
+        "calls",
+      ),
     ).toBe("http://localhost:5173/dash/127.0.0.1/3000/calls");
   });
 
@@ -23,8 +23,8 @@ describe("getRootPathByUrlSegment", () => {
     expect(
       getRootPathByUrlSegment(
         "http://localhost:5173/dash/127.0.0.1/3000/tauri/tauri.conf.json/tauri?size=0",
-        "tauri"
-      )
+        "tauri",
+      ),
     ).toBe("http://localhost:5173/dash/127.0.0.1/3000/tauri");
   });
 });
