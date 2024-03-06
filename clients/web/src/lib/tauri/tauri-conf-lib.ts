@@ -4,6 +4,7 @@ import { useMonitor } from "~/context/monitor-provider";
 import { findLineNumberByNestedKeyInSource } from "./find-line-number-by-nested-key-in-source";
 import { retrieveConfigurationByKey } from "./config/retrieve-configurations";
 import { buildSchemaMap } from "./build-schema-map";
+import { TauriConfig } from "./config/tauri-conf";
 
 export function getDescriptionByKey(key: string) {
   const {
@@ -12,7 +13,10 @@ export function getDescriptionByKey(key: string) {
   return descriptions().has(key) ? descriptions().get(key) : undefined;
 }
 
-export function generateDescriptions(key: string, data: object) {
+export function generateDescriptions(
+  key: string,
+  data: TauriConfig[keyof TauriConfig],
+) {
   const { monitorData } = useMonitor();
 
   const {

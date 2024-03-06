@@ -8,6 +8,7 @@ import { ConfigurationErrors } from "./configuration-errors";
 import { MissingConfigurationParameterDialog } from "./dialogs/missing-configuration-parameter-dialog";
 import { MissingConfigurationDialog } from "./dialogs/missing-configuration-dialog";
 import { Heading } from "../heading";
+import { TauriConfig } from "~/lib/tauri/config/tauri-conf";
 
 export function ConfigurationView() {
   const params = useParams<{
@@ -17,7 +18,7 @@ export function ConfigurationView() {
       | "tauri.windows.conf"
       | "tauri.linux.conf"
       | "tauri.macos.conf";
-    selected: "build" | "package" | "plugins" | "tauri";
+    selected: keyof TauriConfig;
   }>();
 
   const config = () => retrieveConfigurationByKey(params.config);
