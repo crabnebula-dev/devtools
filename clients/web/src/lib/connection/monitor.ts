@@ -39,7 +39,6 @@ export type Span = {
   duration: number;
   isProcessing?: boolean;
   aborted: boolean;
-  interval?: NodeJS.Timeout;
 };
 
 export type MonitorData = {
