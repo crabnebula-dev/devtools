@@ -1,5 +1,7 @@
 import { Span } from "../connection/monitor";
 
+export type SortableColumns = keyof Pick<Span, "name" | "initiated" | "time">;
+
 export type SortDirection = "asc" | "desc";
 
 export type CurrentSort = {
@@ -15,16 +17,26 @@ export type BaseColumn = {
 
 type SpanProps = keyof Span;
 
+export type SortColumn = SortColumns[SortableColumns];
+
+type SortColumns = {
+  [K in SortableColumns]: GenericSortColumn<K>;
+};
+
 export type GenericSortColumn<T extends SpanProps> = {
   name: T;
   isSortable: boolean;
   modifier?: (value: Span[T], span: Span) => Span[T];
 };
 
-export type SortColumn = BaseColumn &
-  { [K in SpanProps]: GenericSortColumn<K> }[SpanProps];
-
-export function sortCalls(a: Span, b: Span, currentSort: CurrentSort) {
+export function sortCalls<ColumnKey extends SortableColumns>(
+  a: Span,
+  b: Span,
+  currentSort: {
+    column: SortColumns[ColumnKey];
+    direction: SortDirection;
+  },
+) {
   let lhs = a[currentSort.column.name];
   let rhs = b[currentSort.column.name];
 
