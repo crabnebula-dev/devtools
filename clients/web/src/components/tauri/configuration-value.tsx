@@ -1,18 +1,9 @@
-import { Show, For, Switch, Match } from "solid-js";
+import { Show, For, createMemo } from "solid-js";
 import { ConfigurationTooltip } from "./configuration-tooltip";
 import { Flags } from "./configuration-value/flags";
+import { TauriConfig } from "~/lib/tauri/config/tauri-conf";
 
-type ConfigurationValue =
-  | ConfigurationRecord
-  | string
-  | []
-  | boolean
-  | null
-  | undefined
-  | unknown;
-
-/* eslint-disable-next-line @typescript-eslint/no-empty-interface */
-interface ConfigurationRecord extends Record<string, ConfigurationValue> {}
+type ConfigurationValue = TauriConfig[keyof TauriConfig];
 
 interface ConfigurationValueProps {
   parentKey: string;
@@ -20,38 +11,33 @@ interface ConfigurationValueProps {
   value: ConfigurationValue;
 }
 
-interface TextConfigurationValueProps extends ConfigurationValueProps {
+type TextConfigurationValueProps = Omit<ConfigurationValueProps, "value"> & {
   value: string | boolean;
-}
+};
 
 interface ArrayConfigurationValueProps extends ConfigurationValueProps {
-  value: [];
+  value: ConfigurationValue[];
 }
 
 interface ObjectConfigurationValueProps extends ConfigurationValueProps {
-  value: ConfigurationRecord;
+  value: Omit<ConfigurationValue, "undefined">;
 }
 
 export function ConfigurationValue(props: ConfigurationValueProps) {
-  return (
-    <Switch
-      fallback={<TextValue {...(props as TextConfigurationValueProps)} />}
-    >
-      <Match
-        when={
-          typeof props.value === "string" || typeof props.value === "boolean"
-        }
-      >
-        <TextValue {...(props as TextConfigurationValueProps)} />
-      </Match>
-      <Match when={Array.isArray(props.value)}>
-        <ArrayValue {...(props as ArrayConfigurationValueProps)} />
-      </Match>
-      <Match when={typeof props.value === "object" && props.value !== null}>
-        <ObjectValue {...(props as ObjectConfigurationValueProps)} />
-      </Match>
-    </Switch>
-  );
+  const selectedTemplate = createMemo(() => {
+    if (typeof props.value === "string" || typeof props.value === "boolean")
+      return <TextValue {...props} value={props.value} />;
+
+    if (Array.isArray(props.value))
+      return <ArrayValue {...props} value={props.value} />;
+
+    if (typeof props.value === "object" && props.value)
+      return <ObjectValue {...props} value={props.value} />;
+
+    return <TextValue {...props} value={String(props.value)} />;
+  });
+
+  return <>{selectedTemplate()}</>;
 }
 
 function TextValue(props: TextConfigurationValueProps) {
@@ -84,7 +70,7 @@ function ObjectValue(props: ObjectConfigurationValueProps) {
         <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
       </h2>
       <ul class="flex flex-col">
-        <For each={Object.entries(props.value)}>
+        <For each={Object.entries<ConfigurationValue>(props.value)}>
           {([childKey, value]) => (
             <li>
               <ConfigurationValue
