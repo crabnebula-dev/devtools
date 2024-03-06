@@ -8,7 +8,6 @@ import { CallsListTableRow } from "./list/calls-list-table-row";
 import {
   type Column,
   type SortColumn,
-  type SpanValues,
   type CurrentSort,
   sortCalls,
 } from "~/lib/calls/calls-sorting";
@@ -28,7 +27,7 @@ export function CallsList(props: { calls: Span[] }) {
     {
       name: "time",
       isSortable: true,
-      modifier: (value: SpanValues, span: Span) =>
+      modifier: (value: number, span: Span) =>
         value === -1 ? Date.now() - span.createdAt / 1e6 : value,
     },
     { name: "waterfall" },

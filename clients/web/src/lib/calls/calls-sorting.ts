@@ -14,15 +14,15 @@ export type BaseColumn = {
 };
 
 type SpanProps = keyof Span;
-export type SpanValues = Span[SpanProps];
 
-export type SortColumn = BaseColumn & {
-  name: SpanProps;
+export type GenericSortColumn<T extends SpanProps> = {
+  name: T;
   isSortable: boolean;
-  modifier?: (value: SpanValues, span: Span) => SpanValues;
+  modifier?: (value: Span[T], span: Span) => Span[T];
 };
 
-export type SortModifier<T extends SpanValues> = (value: T, span: Span) => T;
+export type SortColumn = BaseColumn &
+  { [K in SpanProps]: GenericSortColumn<K> }[SpanProps];
 
 export function sortCalls(a: Span, b: Span, currentSort: CurrentSort) {
   let lhs = a[currentSort.column.name];
