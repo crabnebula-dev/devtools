@@ -1,5 +1,6 @@
 import { z } from "zod";
 export type TauriConfigV2 = z.infer<typeof tauriConfigSchemaV2>;
+
 export const tauriConfigSchemaV2 = z
   .object({
     $schema: z
@@ -842,6 +843,280 @@ export const tauriConfigSchemaV2 = z
               .describe("The application pattern.")
               .describe("The pattern to use.")
               .default({ use: "brownfield" }),
+            capabilities: z
+              .array(
+                z
+                  .union([
+                    z
+                      .object({
+                        identifier: z
+                          .string()
+                          .describe("Identifier of the capability."),
+                        description: z
+                          .string()
+                          .describe("Description of the capability.")
+                          .default(""),
+                        remote: z
+                          .union([
+                            z
+                              .object({
+                                urls: z
+                                  .array(z.string())
+                                  .describe(
+                                    "Remote domains this capability refers to. Can use glob patterns.",
+                                  ),
+                              })
+                              .describe(
+                                "Configuration for remote URLs that are associated with the capability.",
+                              ),
+                            z.null(),
+                          ])
+                          .describe(
+                            "Configure remote URLs that can use the capability permissions.",
+                          )
+                          .optional(),
+                        local: z
+                          .boolean()
+                          .describe(
+                            "Whether this capability is enabled for local app URLs or not. Defaults to `true`.",
+                          )
+                          .default(true),
+                        windows: z
+                          .array(z.string())
+                          .describe(
+                            "List of windows that uses this capability. Can be a glob pattern.\n\nOn multiwebview windows, prefer [`Self::webviews`] for a fine grained access control.",
+                          ),
+                        webviews: z
+                          .array(z.string())
+                          .describe(
+                            "List of webviews that uses this capability. Can be a glob pattern.\n\nThis is only required when using on multiwebview contexts, by default all child webviews of a window that matches [`Self::windows`] are linked.",
+                          )
+                          .optional(),
+                        permissions: z
+                          .array(
+                            z
+                              .union([
+                                z
+                                  .string()
+                                  .describe(
+                                    "Reference a permission or permission set by identifier.",
+                                  ),
+                                z
+                                  .object({
+                                    identifier: z
+                                      .string()
+                                      .describe(
+                                        "Identifier of the permission or permission set.",
+                                      ),
+                                    allow: z
+                                      .union([
+                                        z
+                                          .array(
+                                            z
+                                              .union([
+                                                z
+                                                  .null()
+                                                  .describe(
+                                                    "Represents a null JSON value.",
+                                                  ),
+                                                z
+                                                  .boolean()
+                                                  .describe(
+                                                    "Represents a [`bool`].",
+                                                  ),
+                                                z
+                                                  .union([
+                                                    z
+                                                      .number()
+                                                      .int()
+                                                      .describe(
+                                                        "Represents an [`i64`].",
+                                                      ),
+                                                    z
+                                                      .number()
+                                                      .describe(
+                                                        "Represents a [`f64`].",
+                                                      ),
+                                                  ])
+                                                  .describe(
+                                                    "A valid ACL number.",
+                                                  )
+                                                  .describe(
+                                                    "Represents a valid ACL [`Number`].",
+                                                  ),
+                                                z
+                                                  .string()
+                                                  .describe(
+                                                    "Represents a [`String`].",
+                                                  ),
+                                                z
+                                                  .array(z.any())
+                                                  .describe(
+                                                    "Represents a list of other [`Value`]s.",
+                                                  ),
+                                                z
+                                                  .record(z.any())
+                                                  .describe(
+                                                    "Represents a map of [`String`] keys to [`Value`]s.",
+                                                  ),
+                                              ])
+                                              .describe(
+                                                "All supported ACL values.",
+                                              ),
+                                          )
+                                          .describe(
+                                            "Data that defines what is allowed by the scope.",
+                                          ),
+                                        z
+                                          .null()
+                                          .describe(
+                                            "Data that defines what is allowed by the scope.",
+                                          ),
+                                      ])
+                                      .describe(
+                                        "Data that defines what is allowed by the scope.",
+                                      )
+                                      .optional(),
+                                    deny: z
+                                      .union([
+                                        z
+                                          .array(
+                                            z
+                                              .union([
+                                                z
+                                                  .null()
+                                                  .describe(
+                                                    "Represents a null JSON value.",
+                                                  ),
+                                                z
+                                                  .boolean()
+                                                  .describe(
+                                                    "Represents a [`bool`].",
+                                                  ),
+                                                z
+                                                  .union([
+                                                    z
+                                                      .number()
+                                                      .int()
+                                                      .describe(
+                                                        "Represents an [`i64`].",
+                                                      ),
+                                                    z
+                                                      .number()
+                                                      .describe(
+                                                        "Represents a [`f64`].",
+                                                      ),
+                                                  ])
+                                                  .describe(
+                                                    "A valid ACL number.",
+                                                  )
+                                                  .describe(
+                                                    "Represents a valid ACL [`Number`].",
+                                                  ),
+                                                z
+                                                  .string()
+                                                  .describe(
+                                                    "Represents a [`String`].",
+                                                  ),
+                                                z
+                                                  .array(z.any())
+                                                  .describe(
+                                                    "Represents a list of other [`Value`]s.",
+                                                  ),
+                                                z
+                                                  .record(z.any())
+                                                  .describe(
+                                                    "Represents a map of [`String`] keys to [`Value`]s.",
+                                                  ),
+                                              ])
+                                              .describe(
+                                                "All supported ACL values.",
+                                              ),
+                                          )
+                                          .describe(
+                                            "Data that defines what is denied by the scope.",
+                                          ),
+                                        z
+                                          .null()
+                                          .describe(
+                                            "Data that defines what is denied by the scope.",
+                                          ),
+                                      ])
+                                      .describe(
+                                        "Data that defines what is denied by the scope.",
+                                      )
+                                      .optional(),
+                                  })
+                                  .describe(
+                                    "Reference a permission or permission set by identifier and extends its scope.",
+                                  ),
+                              ])
+                              .describe(
+                                "An entry for a permission value in a [`Capability`] can be either a raw permission [`Identifier`] or an object that references a permission and extends its scope.",
+                              ),
+                          )
+                          .describe(
+                            "List of permissions attached to this capability. Must include the plugin name as prefix in the form of `${plugin-name}:${permission-name}`.",
+                          ),
+                        platforms: z
+                          .array(
+                            z
+                              .any()
+                              .superRefine((x, ctx) => {
+                                const schemas = [
+                                  z.literal("macOS").describe("MacOS."),
+                                  z.literal("windows").describe("Windows."),
+                                  z.literal("linux").describe("Linux."),
+                                  z.literal("android").describe("Android."),
+                                  z.literal("iOS").describe("iOS."),
+                                ];
+                                const errors = schemas.reduce(
+                                  (errors: z.ZodError[], schema) =>
+                                    ((result) =>
+                                      "error" in result
+                                        ? [...errors, result.error]
+                                        : errors)(schema.safeParse(x)),
+                                  [],
+                                );
+                                if (schemas.length - errors.length !== 1) {
+                                  ctx.addIssue({
+                                    path: ctx.path,
+                                    code: "invalid_union",
+                                    unionErrors: errors,
+                                    message:
+                                      "Invalid input: Should pass single schema",
+                                  });
+                                }
+                              })
+                              .describe("Platform target."),
+                          )
+                          .describe(
+                            "Target platforms this capability applies. By default all platforms are affected by this capability.",
+                          )
+                          .default([
+                            "linux",
+                            "macOS",
+                            "windows",
+                            "android",
+                            "iOS",
+                          ]),
+                      })
+                      .describe(
+                        "a grouping and boundary mechanism developers can use to separate windows or plugins functionality from each other at runtime.\n\nIf a window is not matching any capability then it has no access to the IPC layer at all.\n\nThis can be done to create trust groups and reduce impact of vulnerabilities in certain plugins or windows. Windows can be added to a capability by exact name or glob patterns like *, admin-* or main-window.",
+                      )
+                      .describe("An inlined capability."),
+                    z
+                      .string()
+                      .describe("Reference to a capability identifier."),
+                  ])
+                  .describe(
+                    "A capability entry which can be either an inlined capability or a reference to a capability defined on its own file.",
+                  ),
+              )
+              .describe(
+                "List of capabilities that are enabled on the application.\n\nIf the list is empty, all capabilities are included.",
+              )
+              .default([]),
           })
           .strict()
           .describe(
@@ -850,6 +1125,7 @@ export const tauriConfigSchemaV2 = z
           .describe("Security configuration.")
           .default({
             assetProtocol: { enable: false, scope: [] },
+            capabilities: [],
             dangerousDisableAssetCspModification: false,
             freezePrototype: false,
             pattern: { use: "brownfield" },
@@ -939,6 +1215,7 @@ export const tauriConfigSchemaV2 = z
         macOSPrivateApi: false,
         security: {
           assetProtocol: { enable: false, scope: [] },
+          capabilities: [],
           dangerousDisableAssetCspModification: false,
           freezePrototype: false,
           pattern: { use: "brownfield" },
@@ -2056,6 +2333,57 @@ export const tauriConfigSchemaV2 = z
                     "Path to a custom desktop file Handlebars template.\n\nAvailable variables: `categories`, `comment` (optional), `exec`, `icon` and `name`.",
                   )
                   .optional(),
+                section: z
+                  .union([
+                    z
+                      .string()
+                      .describe(
+                        "Define the section in Debian Control file. See : https://www.debian.org/doc/debian-policy/ch-archive.html#s-subsections",
+                      ),
+                    z
+                      .null()
+                      .describe(
+                        "Define the section in Debian Control file. See : https://www.debian.org/doc/debian-policy/ch-archive.html#s-subsections",
+                      ),
+                  ])
+                  .describe(
+                    "Define the section in Debian Control file. See : https://www.debian.org/doc/debian-policy/ch-archive.html#s-subsections",
+                  )
+                  .optional(),
+                priority: z
+                  .union([
+                    z
+                      .string()
+                      .describe(
+                        "Change the priority of the Debian Package. By default, it is set to `optional`. Recognized Priorities as of now are :  `required`, `important`, `standard`, `optional`, `extra`",
+                      ),
+                    z
+                      .null()
+                      .describe(
+                        "Change the priority of the Debian Package. By default, it is set to `optional`. Recognized Priorities as of now are :  `required`, `important`, `standard`, `optional`, `extra`",
+                      ),
+                  ])
+                  .describe(
+                    "Change the priority of the Debian Package. By default, it is set to `optional`. Recognized Priorities as of now are :  `required`, `important`, `standard`, `optional`, `extra`",
+                  )
+                  .optional(),
+                changelog: z
+                  .union([
+                    z
+                      .string()
+                      .describe(
+                        "Path of the uncompressed Changelog file, to be stored at /usr/share/doc/package-name/changelog.gz. See https://www.debian.org/doc/debian-policy/ch-docs.html#changelog-files-and-release-notes",
+                      ),
+                    z
+                      .null()
+                      .describe(
+                        "Path of the uncompressed Changelog file, to be stored at /usr/share/doc/package-name/changelog.gz. See https://www.debian.org/doc/debian-policy/ch-docs.html#changelog-files-and-release-notes",
+                      ),
+                  ])
+                  .describe(
+                    "Path of the uncompressed Changelog file, to be stored at /usr/share/doc/package-name/changelog.gz. See https://www.debian.org/doc/debian-policy/ch-docs.html#changelog-files-and-release-notes",
+                  )
+                  .optional(),
               })
               .strict()
               .describe(
@@ -2391,5 +2719,5 @@ export const tauriConfigSchemaV2 = z
   })
   .strict()
   .describe(
-    'The Tauri configuration object. It is read from a file where you can define your frontend assets, configure the bundler and define a tray icon.\n\nThe configuration file is generated by the [`tauri init`](https://tauri.app/v1/api/cli#init) command that lives in your Tauri application source directory (src-tauri).\n\nOnce generated, you may modify it at will to customize your Tauri application.\n\n## File Formats\n\nBy default, the configuration is defined as a JSON file named `tauri.conf.json`.\n\nTauri also supports JSON5 and TOML files via the `config-json5` and `config-toml` Cargo features, respectively. The JSON5 file name must be either `tauri.conf.json` or `tauri.conf.json5`. The TOML file name is `Tauri.toml`.\n\n## Platform-Specific Configuration\n\nIn addition to the default configuration file, Tauri can read a platform-specific configuration from `tauri.linux.conf.json`, `tauri.windows.conf.json`, `tauri.macos.conf.json`, `tauri.android.conf.json` and `tauri.ios.conf.json` (or `Tauri.linux.toml`, `Tauri.windows.toml`, `Tauri.macos.toml`, `Tauri.android.toml` and `Tauri.ios.toml` if the `Tauri.toml` format is used), which gets merged with the main configuration object.\n\n## Configuration Structure\n\nThe configuration is composed of the following objects:\n\n- [`package`](#packageconfig): Package settings - [`app`](#appconfig): The Tauri config - [`build`](#buildconfig): The build configuration - [`plugins`](#pluginconfig): The plugins config\n\n```json title="Example tauri.config.json file" { "productName": "tauri-app", "version": "0.1.0" "build": { "beforeBuildCommand": "", "beforeDevCommand": "", "devUrl": "../dist", "frontendDist": "../dist" }, "app": { "security": { "csp": null }, "windows": [ { "fullscreen": false, "height": 600, "resizable": true, "title": "Tauri App", "width": 800 } ] }, "bundle": {} } ```',
+    'The Tauri configuration object. It is read from a file where you can define your frontend assets, configure the bundler and define a tray icon.\n\nThe configuration file is generated by the [`tauri init`](https://tauri.app/v1/api/cli#init) command that lives in your Tauri application source directory (src-tauri).\n\nOnce generated, you may modify it at will to customize your Tauri application.\n\n## File Formats\n\nBy default, the configuration is defined as a JSON file named `tauri.conf.json`.\n\nTauri also supports JSON5 and TOML files via the `config-json5` and `config-toml` Cargo features, respectively. The JSON5 file name must be either `tauri.conf.json` or `tauri.conf.json5`. The TOML file name is `Tauri.toml`.\n\n## Platform-Specific Configuration\n\nIn addition to the default configuration file, Tauri can read a platform-specific configuration from `tauri.linux.conf.json`, `tauri.windows.conf.json`, `tauri.macos.conf.json`, `tauri.android.conf.json` and `tauri.ios.conf.json` (or `Tauri.linux.toml`, `Tauri.windows.toml`, `Tauri.macos.toml`, `Tauri.android.toml` and `Tauri.ios.toml` if the `Tauri.toml` format is used), which gets merged with the main configuration object.\n\n## Configuration Structure\n\nThe configuration is composed of the following objects:\n\n- [`app`](#appconfig): The Tauri configuration - [`build`](#buildconfig): The build configuration - [`bundle`](#bundleconfig): The bundle configurations - [`plugins`](#pluginconfig): The plugins configuration\n\n```json title="Example tauri.config.json file" { "productName": "tauri-app", "version": "0.1.0" "build": { "beforeBuildCommand": "", "beforeDevCommand": "", "devUrl": "../dist", "frontendDist": "../dist" }, "app": { "security": { "csp": null }, "windows": [ { "fullscreen": false, "height": 600, "resizable": true, "title": "Tauri App", "width": 800 } ] }, "bundle": {}, "plugins": {} } ```',
   );
