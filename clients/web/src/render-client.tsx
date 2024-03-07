@@ -9,7 +9,7 @@ if (!DEV) {
     dsn: "https://57614e75ac5f8c480aed3a2dd1528f13@o4506303762464768.ingest.sentry.io/4506303812272128",
     tunnel: "/sentry-tunnel",
     integrations: (def) => [...def, Sentry.browserTracingIntegration()],
-    tracesSampleRate: 0.1
+    tracesSampleRate: 0.1,
   });
 }
 
