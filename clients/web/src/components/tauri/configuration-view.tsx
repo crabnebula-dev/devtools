@@ -9,6 +9,7 @@ import { MissingConfigurationParameterDialog } from "./dialogs/missing-configura
 import { MissingConfigurationDialog } from "./dialogs/missing-configuration-dialog";
 import { Heading } from "../heading";
 import { TauriConfig } from "~/lib/tauri/config/tauri-conf";
+import { createMemo } from "solid-js";
 
 export function ConfigurationView() {
   const params = useParams<{
@@ -23,17 +24,24 @@ export function ConfigurationView() {
 
   const config = () => retrieveConfigurationByKey(params.config);
 
-  const tab = () => {
+  const tab = createMemo(() => {
     const config = retrieveConfigurationByKey(params.config);
-    if (config && config.data && config.data[params.selected])
+    if (
+      config &&
+      config.data &&
+      (config.data[params.selected] ||
+        typeof config.data[params.selected] === "string")
+    )
       return config.data[params.selected];
     return undefined;
-  };
+  });
 
-  const tabWithKeys = (currentTab: ReturnType<typeof tab>) => {
+  const tabWithKeys = createMemo(() => {
+    const currentTab = tab();
+    if (typeof currentTab === "string" && currentTab === "") return "empty";
     if (!currentTab || !(Object.keys(currentTab).length > 0)) return undefined;
     return currentTab;
-  };
+  });
 
   createEffect(() => {
     const data = tab();
@@ -55,7 +63,7 @@ export function ConfigurationView() {
           <h1 class="text-3xl">{config()?.label}</h1>
           <ConfigurationErrors error={config()?.error} />
         </Match>
-        <Match when={tabWithKeys(tab())}>
+        <Match when={tabWithKeys()}>
           {(t) => (
             <>
               <header>
