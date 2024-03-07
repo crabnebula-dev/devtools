@@ -29,6 +29,7 @@ function Calls() {
     <div class="h-[calc(100%-var(--toolbar-height))]">
       <Toolbar>
         <CallsClearButton />
+        <span>Displayed calls: {filteredCalls().length}</span>
         <span>Running calls: {monitorData.durations.openSpans}</span>
         <CallsScaleSlider />
       </Toolbar>

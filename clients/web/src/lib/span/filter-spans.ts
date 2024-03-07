@@ -4,7 +4,7 @@ import { Span } from "../connection/monitor";
 export function filterSpans(
   alreadyFiltered: Span[],
   spanProcessingPointer: number,
-  allSpans: ReactiveMap<bigint, Span>
+  allSpans: ReactiveMap<bigint, Span>,
 ): [filteredSpans: Span[], newPointer: number] {
   let localPointer = 0;
 
