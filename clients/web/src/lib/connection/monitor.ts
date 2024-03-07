@@ -29,7 +29,7 @@ export type MonitorData = {
   spans: Span[];
   /** The original/parsed tauri configuration we receive from instrumentation */
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;
-  /** All the parsed configurations files we read from the frontend */
+  /** All the parsed configuration files we read from the frontend */
   tauriConfigStore?: ConfigurationStore;
   tauriVersions?: Versions;
   appMetadata?: AppMetadata;
