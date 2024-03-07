@@ -1,21 +1,21 @@
 import { For, Suspense, Show } from "solid-js";
 import { FileIcon } from "~/components/icons/ide-icons";
 import { A } from "@solidjs/router";
-import {
-  type ConfigurationObject,
-  retrieveConfigurations,
-} from "~/lib/tauri/config/retrieve-configurations";
+import { type ConfigurationObject } from "~/lib/tauri/config/retrieve-configurations";
 import { Loader } from "~/components/loader";
 import { getTauriTabBasePath } from "~/lib/tauri/get-tauri-tab-base-path";
+import { useMonitor } from "~/context/monitor-provider";
 
 export function Sidebar() {
-  const [configEntries] = retrieveConfigurations();
+  const { monitorData } = useMonitor();
 
   return (
     <>
       <h2 class="text-neutral-300 p-4 pb-2 text-2xl">Config</h2>
       <Suspense fallback={<Loader />}>
-        <For each={configEntries()}>{(child) => <Config config={child} />}</For>
+        <For each={monitorData.tauriConfigStore?.configs}>
+          {(child) => <Config config={child} />}
+        </For>
       </Suspense>
     </>
   );

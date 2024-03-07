@@ -6,6 +6,7 @@ import { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
 import { timestampToDate } from "~/lib/formatters";
 import { AppMetadata } from "../proto/meta";
 import { Versions } from "../proto/tauri";
+import { ConfigurationStore } from "../tauri/config/retrieve-configurations";
 
 export type HealthStatus = keyof typeof HealthCheckResponse_ServingStatus;
 
@@ -26,8 +27,10 @@ export type MonitorData = {
   metadata: Map<bigint, Metadata>;
   logs: LogEvent[];
   spans: Span[];
-
+  /** The original/parsed tauri configuration we receive from instrumentation */
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;
+  /** All the parsed configurations files we read from the frontend */
+  tauriConfigStore?: ConfigurationStore;
   tauriVersions?: Versions;
   appMetadata?: AppMetadata;
   schema?: object;
@@ -44,7 +47,6 @@ export const initialMonitorData: MonitorData = {
   metadata: new Map(),
   logs: [],
   spans: [],
-
   tauriConfig: undefined,
   tauriVersions: undefined,
   appMetadata: undefined,

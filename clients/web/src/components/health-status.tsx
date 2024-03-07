@@ -2,7 +2,7 @@ import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
 import { Show, createEffect, createSignal, onMount } from "solid-js";
 import { ErrorDialog } from "./dialogs/error-dialog";
 import {
-  addStreamListneners,
+  addStreamListeners,
   connect,
   checkConnection,
 } from "~/lib/connection/transport";
@@ -121,7 +121,7 @@ export function HealthStatus() {
     setMonitorData("spans", reconcile([]));
     const newConnection = connect(connectionStore.serviceUrl);
     setConnection(reconcile(newConnection, { merge: false }));
-    addStreamListneners(connectionStore.stream.update, setMonitorData);
+    addStreamListeners(connectionStore.stream.update, setMonitorData);
     connectionStore.stream.health.responses.onError(healthErrorHandler);
     connectionStore.stream.update.responses.onError(updateErrorHandler);
   }
