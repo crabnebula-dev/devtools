@@ -9,7 +9,7 @@ export function CallsScaleSlider() {
       <Tooltip.Root>
         <Tooltip.Trigger>
           <span class="flex items-center gap-1">
-            Scale Spans
+            Scale Calls
             <Show when={callsContext.granularity.granularity() > 1}>
               <span>ⓘ</span>
             </Show>
