@@ -65,7 +65,10 @@ export function CallsList(props: { calls: Span[] }) {
 
   return (
     <div ref={virtualList} class="overflow-auto max-h-full h-full relative">
-      <div style={{ height: `${virtualizer.getTotalSize()}px` }}>
+      <div
+        style={{ height: `${virtualizer.getTotalSize()}px` }}
+        class="min-w-[650px]"
+      >
         <table class="w-full table-fixed">
           <CallsListTableHeader
             setCurrentSort={setCurrentSort}
@@ -80,6 +83,7 @@ export function CallsList(props: { calls: Span[] }) {
                     {(currentCall) => (
                       <CallsListTableRow
                         call={currentCall()}
+                        height={virtualRow.size}
                         style={{
                           height: `${virtualRow.size}px`,
                           transform: `translateY(${

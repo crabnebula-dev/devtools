@@ -24,7 +24,7 @@ export function CallDetailView(props: Props) {
   };
 
   return (
-    <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800">
+    <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800 min-w-[420px]">
       <div class="pt-4 px-4">
         <h2 class="text-2xl">{props.name}</h2>
       </div>

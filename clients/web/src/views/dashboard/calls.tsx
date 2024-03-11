@@ -35,7 +35,7 @@ function Calls() {
       </Toolbar>
       <SplitPane
         initialSizes={[70, 30]}
-        defaultMinSizes={[600, 300]}
+        defaultMinSizes={[50, 50]}
         defaultPrefix="span-waterfall"
       >
         <CallsList calls={filteredCalls()} />

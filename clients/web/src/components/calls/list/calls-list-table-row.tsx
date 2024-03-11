@@ -1,6 +1,13 @@
 import type { Span } from "~/lib/connection/monitor";
 import clsx from "clsx";
-import { Show, For, createSignal, onCleanup, createEffect } from "solid-js";
+import {
+  Show,
+  For,
+  createSignal,
+  onCleanup,
+  createEffect,
+  JSXElement,
+} from "solid-js";
 import { getTime } from "~/lib/formatters";
 import type { JSX } from "solid-js/h/jsx-runtime";
 import { computeSlices } from "~/lib/span/normalize-spans";
@@ -14,6 +21,7 @@ import { useMonitor } from "~/context/monitor-provider";
 export function CallsListTableRow(props: {
   call: Span;
   style: string | JSX.CSSProperties | undefined;
+  height: number;
 }) {
   const { monitorData } = useMonitor();
   const [, setSearchParams] = useSearchParams();
@@ -59,21 +67,17 @@ export function CallsListTableRow(props: {
       onClick={() => {
         setSearchParams({ span: String(props.call.id) });
       }}
-      class="even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]"
+      class="even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10] h-3"
       style={props.style}
     >
-      <td class="p-1 overflow-hidden text-ellipsis" title={props.call.name}>
-        {props.call.name}
-      </td>
-      <td
-        class="p-1 overflow-hidden text-ellipsis"
+      <TableCell title={props.call.name} height={props.height} />
+      <TableCell
         title={getTime(new Date(props.call.initiated))}
-      >
-        {getTime(new Date(props.call.initiated))}
-      </td>
-      <td
-        class="p-1 overflow-hidden text-ellipsis"
+        height={props.height}
+      />
+      <TableCell
         title={`${props.call.time.toFixed(2)} ms`}
+        height={props.height}
       >
         <Show
           when={props.call.closedAt > -1}
@@ -81,8 +85,8 @@ export function CallsListTableRow(props: {
         >
           {props.call.time.toFixed(2)}ms
         </Show>
-      </td>
-      <td class="p-1 relative overflow-hidden">
+      </TableCell>
+      <TableCell title="" height={props.height}>
         <div class="relative w-[90%]">
           <div class="bg-gray-800 w-full absolute rounded-sm h-2" />
           <div
@@ -113,7 +117,23 @@ export function CallsListTableRow(props: {
             </For>
           </div>
         </div>
-      </td>
+      </TableCell>
     </tr>
+  );
+}
+
+function TableCell(props: {
+  title: string;
+  height: number;
+  children?: JSXElement;
+}) {
+  return (
+    <td title={props.title}>
+      <div
+        class={`p-1 overflow-hidden text-ellipsis h-[${props.height}px] text-nowrap`}
+      >
+        {props.children ? props.children : props.title}
+      </div>
+    </td>
   );
 }
