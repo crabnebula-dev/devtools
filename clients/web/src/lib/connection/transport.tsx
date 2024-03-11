@@ -100,7 +100,7 @@ export function setup(url: string) {
 
 type UpdateStream = ReturnType<typeof connect>["stream"]["update"];
 
-export function addStreamListneners(
+export function addStreamListeners(
   stream: UpdateStream,
   setMonitorData: SetStoreFunction<MonitorData>,
   monitorData: MonitorData,

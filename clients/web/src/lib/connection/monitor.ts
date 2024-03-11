@@ -7,6 +7,7 @@ import { timestampToDate } from "~/lib/formatters";
 import { AppMetadata } from "../proto/meta";
 import { Versions } from "../proto/tauri";
 import { ReactiveMap } from "@solid-primitives/map";
+import { ConfigurationStore } from "../tauri/config/retrieve-configurations";
 
 export type HealthStatus = keyof typeof HealthCheckResponse_ServingStatus;
 
@@ -47,8 +48,10 @@ export type MonitorData = {
   logs: LogEvent[];
   spans: ReactiveMap<bigint, Span>;
   durations: Durations;
-
+  /** The original/parsed tauri configuration we receive from instrumentation */
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;
+  /** All the parsed configuration files we read from the frontend */
+  tauriConfigStore?: ConfigurationStore;
   tauriVersions?: Versions;
   appMetadata?: AppMetadata;
   schema?: object;

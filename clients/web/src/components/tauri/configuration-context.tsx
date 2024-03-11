@@ -4,8 +4,6 @@ import {
   useContext,
   type JSXElement,
 } from "solid-js";
-import { type ConfigurationStore } from "~/lib/tauri/config/retrieve-configurations";
-import { createStore } from "solid-js/store";
 
 type ConfigurationContextType = ReturnType<typeof makeConfigurationContext>;
 const ConfigurationContext = createContext<ConfigurationContextType>();
@@ -24,7 +22,6 @@ export const makeConfigurationContext = () => {
   const [descriptions, setDescriptions] = createSignal<
     Map<string, { default?: string }>
   >(new Map());
-  const [configurations, setConfigurations] = createStore<ConfigurationStore>();
   return {
     highlightKey: {
       highlightKey: highlightKey,
@@ -33,10 +30,6 @@ export const makeConfigurationContext = () => {
     descriptions: {
       descriptions: descriptions,
       setDescriptions: setDescriptions,
-    },
-    configurations: {
-      configurations: configurations,
-      setConfigurations: setConfigurations,
     },
   } as const;
 };
