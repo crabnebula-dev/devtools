@@ -18,8 +18,8 @@ export function CallDetailPanel() {
       when={span()}
       fallback={
         <div class="h-full grid gap-4 text-center content-center justify-center items-center border-l p-4 border-gray-800 min-w-[200px]">
-          <Heading>No Span Selected</Heading>
-          &larr; Pick a span to get started.
+          <Heading>No Call Selected</Heading>
+          &larr; Pick a call to get started.
         </div>
       }
     >
