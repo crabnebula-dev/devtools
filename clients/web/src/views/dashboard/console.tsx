@@ -12,6 +12,7 @@ import { LogEvent } from "~/lib/proto/logs";
 
 export default function Console() {
   const { monitorData } = useMonitor();
+  const [showAttributes, toggleAttributes] = createSignal(true);
   const [showTimestamp, toggleTimeStamp] = createSignal(true);
   const [shouldAutoScroll, toggleAutoScroll] = createSignal<boolean>(true);
   const initialFilters = () => ({
@@ -73,6 +74,13 @@ export default function Console() {
         <LogLevelFilter filter={filter} setFilter={setFilter} />
         <FilterToggle
           defaultPressed
+          aria-label="attributes"
+          changeHandler={() => toggleAttributes((prev) => !prev)}
+        >
+          <span>Attributes</span>
+        </FilterToggle>
+        <FilterToggle
+          defaultPressed
           aria-label="time stamps"
           changeHandler={() => toggleTimeStamp((prev) => !prev)}
         >
@@ -89,7 +97,10 @@ export default function Console() {
       <AutoScrollPane
         dataStream={filteredLogs()}
         displayComponent={LogEventEntry}
-        displayOptions={{ showTimestamp: showTimestamp() }}
+        displayOptions={{
+          showAttributes: showAttributes(),
+          showTimestamp: showTimestamp(),
+        }}
         shouldAutoScroll={shouldAutoScroll}
         fallback={<NoLogs filter={filter} reset={resetFilter} />}
       />

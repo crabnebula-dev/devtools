@@ -4,9 +4,24 @@ import type { LogEvent } from "~/lib/proto/logs";
 import clsx from "clsx";
 import { getFileLineFromLocation } from "~/lib/console/get-file-line-from-location";
 import { processLogEventForView } from "~/lib/console/process-log-event-for-view";
+import { Field } from "~/lib/proto/common";
+import { processFieldValue } from "~/lib/span/process-field-value";
+
+function displayField(field: Field) {
+  return (
+    <span class="group-hover:text-slate-300 text-slate-500 transition-colors hackathon">
+      <span class="fname">{field.name}</span>
+      <span class="fequal"> = </span>
+      <span class="fval group-hover:text-slate-100 text-slate-300 transition-colors">
+        {processFieldValue(field.value)}
+      </span>
+    </span>
+  );
+}
 
 export function LogEventEntry(props: {
   event: LogEvent;
+  showAttributes?: boolean;
   showTimestamp?: boolean;
   odd?: boolean;
 }) {
@@ -35,9 +50,14 @@ export function LogEventEntry(props: {
               {formatTimestamp(processedEvent().timeDate)}
             </time>
           </Show>
-          <span class="group-hover:text-white text-slate-300 transition-colors">
-            {processedEvent().message}
-          </span>
+          <Show when={processedEvent().message.length}>
+            <span class="group-hover:text-white text-slate-300 transition-colors">
+              {processedEvent().message}
+            </span>
+          </Show>
+          <Show when={props.showAttributes}>
+            {processedEvent().fields.map(displayField)}
+          </Show>
           <span class="ml-auto flex gap-2 items-center text-xs">
             <Show when={processedEvent().target}>
               {(logTarget) => (
