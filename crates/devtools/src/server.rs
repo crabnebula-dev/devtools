@@ -123,7 +123,7 @@ impl<R: Runtime> Sources for SourcesService<R> {
             .app_handle
             .asset_resolver()
             .iter()
-            .find(|(path, _bytes)| **path == asset_path)
+            .find(|(path, _bytes)| *path == asset_path)
             // decompress the asset
             .and_then(|(path, _bytes)| self.app_handle.asset_resolver().get((*path).to_string()))
         {
