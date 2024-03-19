@@ -6,28 +6,49 @@ import { Timestamp } from "~/lib/proto/google/protobuf/timestamp";
 import { timestampToDate } from "~/lib/formatters";
 import { AppMetadata } from "../proto/meta";
 import { Versions } from "../proto/tauri";
+import { ReactiveMap } from "@solid-primitives/map";
 import { ConfigurationStore } from "../tauri/config/retrieve-configurations";
 
 export type HealthStatus = keyof typeof HealthCheckResponse_ServingStatus;
 
+export type Durations = {
+  start?: number;
+  end: number;
+  shortestTime?: number;
+  longestTime?: number;
+  average: number;
+  counted: number;
+  openSpans: number;
+};
+
 export type Span = {
   id: bigint;
+  name: string;
+  kind?: "ipc" | "event";
   parentId?: bigint;
+  parent?: Span;
   metadataId: bigint;
+  metadata?: Metadata;
   fields: Field[];
+  initiated: number;
   createdAt: number;
   enters: { timestamp: number; threadID: number }[];
   exits: { timestamp: number; threadID: number }[];
+  children: Span[];
   closedAt: number;
+  time: number;
   duration: number;
   hasError: boolean | null;
+  isProcessing?: boolean;
+  aborted: boolean;
 };
 
 export type MonitorData = {
   health: HealthCheckResponse_ServingStatus;
   metadata: Map<bigint, Metadata>;
   logs: LogEvent[];
-  spans: Span[];
+  spans: ReactiveMap<bigint, Span>;
+  durations: Durations;
   /** The original/parsed tauri configuration we receive from instrumentation */
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;
   /** All the parsed configuration files we read from the frontend */
@@ -43,11 +64,24 @@ export type MonitorData = {
   connectionStatus: HealthStatus;
 };
 
+export function initialDurations() {
+  return {
+    start: undefined,
+    end: Date.now() * 1e6,
+    shortestTime: undefined,
+    longestTime: undefined,
+    average: 0,
+    counted: 0,
+    openSpans: 0,
+  };
+}
+
 export const initialMonitorData: MonitorData = {
   health: HealthCheckResponse_ServingStatus.UNKNOWN,
   metadata: new Map(),
   logs: [],
-  spans: [],
+  spans: new ReactiveMap(),
+  durations: initialDurations(),
   tauriConfig: undefined,
   tauriVersions: undefined,
   appMetadata: undefined,
