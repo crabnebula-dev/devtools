@@ -10,8 +10,6 @@ concurrency:
 
 on:
   push:
-    branches:
-      - main
 
 jobs:
   release-plz:
