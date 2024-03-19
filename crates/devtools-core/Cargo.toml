@@ -1,6 +1,6 @@
 [package]
 name = "devtools-core"
-version = "0.3.0"
+version = "0.3.1"
 description = "CrabNebula devtools for Tauri: Inspect, monitor, and understand your application with ease."
 authors.workspace = true
 edition.workspace = true

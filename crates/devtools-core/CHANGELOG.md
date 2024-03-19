@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.0...devtools-core-v0.3.1) - 2024-03-19
+
+### Fixed
+- fix release
+
+### Other
+- update deps
+- update deps
+
 ## [0.3.0](https://github.com/crabnebula-dev/devtools/compare/devtools-v0.2.5...devtools-v0.3.0) - 2023-12-20
 
 ### Fixed
