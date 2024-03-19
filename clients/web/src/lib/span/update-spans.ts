@@ -2,7 +2,12 @@ import { type Span } from "~/lib/connection/monitor";
 import { type SpanEvent } from "~/lib/proto/spans";
 import { convertTimestampToNanoseconds } from "../formatters";
 
-export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
+export function updatedSpans(
+  errorMetadata: Set<bigint>,
+  errorEventParents: Set<bigint>,
+  currentSpans: Span[],
+  spanEvents: SpanEvent[],
+) {
   for (const event of spanEvents) {
     switch (event.event.oneofKind) {
       case "newSpan": {
@@ -18,6 +23,10 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
           exits: [],
           closedAt: -1,
           duration: -1,
+          hasError:
+            errorMetadata.has(event.event.newSpan.metadataId) ||
+            errorEventParents.has(event.event.newSpan.id) ||
+            null,
         };
 
         currentSpans.push(span);

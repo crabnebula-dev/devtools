@@ -97,6 +97,7 @@ export function SpanDetail(props: { span: UiSpan }) {
   return (
     <SpanDetailView
       name={props.span.name ?? "-"}
+      hasError={props.span.hasError}
       spanChildren={children() ?? []}
       valuesSectionTitle={valuesSectionTitle()}
       values={values() ?? []}

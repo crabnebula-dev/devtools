@@ -21,6 +21,7 @@ export type UiSpan = {
   fields: Field[];
   original: Span;
   duration: number;
+  hasError: boolean | null;
 };
 
 export type BaseSpan = { children: BaseSpan[] } & Span;
@@ -89,6 +90,7 @@ export function formatSpanForUiWithMetadata(
       : Date.now() - span.createdAt / 1e6,
     children: [],
     original: span,
+    hasError: span.hasError,
   } satisfies UiSpan;
 
   return newUiSpan;

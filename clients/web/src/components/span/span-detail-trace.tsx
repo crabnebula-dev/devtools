@@ -7,6 +7,7 @@ import {
 } from "~/lib/span/normalize-spans";
 import { Popover } from "@kobalte/core";
 import { getDetailedTime } from "~/lib/formatters.ts";
+import clsx from "clsx";
 
 export function SpanDetailTrace(props: {
   span: UiSpan;
@@ -23,7 +24,11 @@ export function SpanDetailTrace(props: {
         class="even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]"
         as="tr"
       >
-        <td class="py-1 px-4">{props.span.name}</td>
+        <td
+          class={clsx("py-1 px-4", props.span.hasError ? "text-red-400" : "")}
+        >
+          {props.span.name}
+        </td>
         <td class="py-1 px-4 relative w-[70%]">
           <div class="relative">
             <div class="bg-gray-800 w-full absolute rounded-sm h-2" />

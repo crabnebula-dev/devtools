@@ -122,7 +122,10 @@ export function SpanList() {
             return (
               <tr
                 onClick={() => setSearchParams({ span: String(span.id) })}
-                class="even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]"
+                class={clsx(
+                  "even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]",
+                  span.hasError ? "text-red-400" : "",
+                )}
               >
                 <td class="p-1 overflow-hidden text-ellipsis" title={span.name}>
                   {span.name}

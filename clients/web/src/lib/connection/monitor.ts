@@ -20,6 +20,7 @@ export type Span = {
   exits: { timestamp: number; threadID: number }[];
   closedAt: number;
   duration: number;
+  hasError: boolean | null;
 };
 
 export type MonitorData = {

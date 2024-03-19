@@ -2,9 +2,11 @@ import { For, JSXElement } from "solid-js";
 import { UiSpan } from "~/lib/span/format-spans-for-ui";
 import { SpanDetailTrace } from "./span-detail-trace";
 import { SpanDetailArgs } from "./span-detail-args";
+import clsx from "clsx";
 
 type Props = {
   name: string;
+  hasError: boolean | null;
   spanChildren: UiSpan[];
   valuesSectionTitle: string;
   values: (string | object)[];
@@ -27,7 +29,9 @@ export function SpanDetailView(props: Props) {
   return (
     <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800">
       <div class="pt-4 px-4">
-        <h2 class="text-2xl">{props.name}</h2>
+        <h2 class={clsx("text-2xl", props.hasError ? "text-red-400" : "")}>
+          {props.name}
+        </h2>
       </div>
       <table>
         <tbody>
