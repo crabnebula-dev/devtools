@@ -6,6 +6,7 @@ import { getFileLineFromLocation } from "~/lib/console/get-file-line-from-locati
 import { processLogEventForView } from "~/lib/console/process-log-event-for-view";
 import { Field } from "~/lib/proto/common";
 import { processFieldValue } from "~/lib/span/process-field-value";
+import { A, useParams } from "@solidjs/router";
 
 function displayField(field: Field) {
   return (
@@ -25,6 +26,7 @@ export function LogEventEntry(props: {
   showTimestamp?: boolean;
   odd?: boolean;
 }) {
+  const { host, port } = useParams();
   return (
     <Show when={processLogEventForView(props.event)}>
       {(processedEvent) => (
@@ -49,6 +51,14 @@ export function LogEventEntry(props: {
             >
               {formatTimestamp(processedEvent().timeDate)}
             </time>
+          </Show>
+          <Show when={processedEvent().parent}>
+            <A
+              href={`/dash/${host}/${port}/calls?span=${processedEvent().parent}`}
+              class="text-slate-100 group-hover:text-white"
+            >
+              🔗
+            </A>
           </Show>
           <Show when={processedEvent().message.length}>
             <span class="group-hover:text-white text-slate-300 transition-colors">
