@@ -7,6 +7,7 @@ import {
 } from "~/lib/span/normalize-spans";
 import { Popover } from "@kobalte/core";
 import { getDetailedTime } from "~/lib/formatters.ts";
+import { processFieldValue } from "~/lib/span/process-field-value";
 import clsx from "clsx";
 
 export function SpanDetailTrace(props: {
@@ -72,7 +73,16 @@ function SpanDetailPopOverContent(props: { span: UiSpan }) {
       style={{ "max-width": "min(calc(100vw - 16px), 380px)" }}
     >
       <ToolTipContent>
-        <ToolTipRow title={props.span.name} />
+        <ToolTipRow title={props.span.name}>
+          {props.span.metadataTarget}
+        </ToolTipRow>
+        <For each={props.span.fields}>
+          {(field) => (
+            <ToolTipRow title={field.name}>
+              {processFieldValue(field.value)}
+            </ToolTipRow>
+          )}
+        </For>
         <ToolTipRow title="Busy">
           {(busy(props.span.original) / 1e6).toFixed(3)}ms
         </ToolTipRow>

@@ -18,6 +18,7 @@ export type UiSpan = {
   children: bigint[];
   metadataId: bigint;
   metadataName?: string;
+  metadataTarget?: string;
   fields: Field[];
   original: Span;
   duration: number;
@@ -77,6 +78,7 @@ export function formatSpanForUiWithMetadata(
     id: span.id,
     metadataId: span.metadataId,
     metadataName: metadata.get(span.metadataId)?.name,
+    metadataTarget: metadata.get(span.metadataId)?.target,
     fields: span.fields,
     isProcessing: isProcessing,
     duration:
