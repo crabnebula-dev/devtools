@@ -74,11 +74,13 @@ export function AutoScrollPane<AutoScrollItem>(
                     queueMicrotask(() => virtualizer.measureElement(el))
                   }
                 >
-                  <props.displayComponent
-                    event={props.dataStream[virtualRow.index]}
-                    {...props.displayOptions}
-                    odd={virtualRow.index & 1}
-                  />
+                  <Show when={props.dataStream[virtualRow.index]}>
+                    <props.displayComponent
+                      event={props.dataStream[virtualRow.index]}
+                      {...props.displayOptions}
+                      odd={virtualRow.index & 1}
+                    />
+                  </Show>
                 </li>
               );
             }}
