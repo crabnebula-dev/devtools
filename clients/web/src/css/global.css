@@ -6,7 +6,7 @@
 @layer base {
   /** fonts */
   :root {
-    --header-height: 90px;
+    --header-height: 45px;
     --toolbar-height: 36px;
     --footer-height: 32px;
   }
@@ -69,15 +69,24 @@
   /**
    * SplitPane specific CSS (split.js)
   **/
-  .gutter,
+  .gutter {
+    border: 0px;
+    min-width: 1.5px;
+    width: 1px !important;
+    @apply cursor-col-resize bg-slate-800;
+    transition: 120ms ease;
+  }
+
   .gutter:hover {
-    border: 0;
-    @apply cursor-col-resize  bg-slate-800;
+    width: 5px !important;
+    border: 10px;
+    @apply cursor-col-resize bg-slate-700;
   }
 
   .gutter:active {
     @apply bg-slate-400;
   }
+
   /**
    * /SplitPane specific CSS (split.js)
   **/
@@ -98,6 +107,7 @@
     max-height: 90vh;
     top: -250px;
   }
+
   /**
    * /Background classes
   **/
@@ -113,7 +123,8 @@
     min-height: 100%;
     height: max-content;
     width: max-content;
-    background: transparent !important; /* override shiki's background */
+    background: transparent !important;
+    /* override shiki's background */
   }
 
   code {
@@ -135,4 +146,12 @@
   /**
    * /shiki
   **/
+}
+
+.select-none {
+  user-select: none;
+}
+
+::selection {
+  background: rgb(0, 50, 78);
 }

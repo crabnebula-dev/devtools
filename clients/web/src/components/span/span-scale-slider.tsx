@@ -5,7 +5,7 @@ import { useCalls } from "./calls-context";
 export function SpanScaleSlider() {
   const callsContext = useCalls();
   return (
-    <div class="flex items-center gap-2">
+    <div class={"flex items-center gap-2"}>
       <Tooltip.Root>
         <Tooltip.Trigger>
           <span class="flex items-center gap-1">

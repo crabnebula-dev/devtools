@@ -2,7 +2,6 @@ import {
   createEffect,
   createSignal,
   For,
-  JSXElement,
   mergeProps,
   Show,
   Suspense,
@@ -23,6 +22,7 @@ import {
 } from "~/lib/sources/file-entries";
 import { Loader } from "~/components/loader";
 import { useMonitor } from "~/context/monitor-provider";
+import * as styles from "~/css/styles.ts";
 
 type DirectoryProps = {
   parent?: Entry["path"];
@@ -31,15 +31,6 @@ type DirectoryProps = {
   defaultFileType: Entry["fileType"];
   class?: string;
 };
-
-type TreeEntryProps = {
-  caret?: JSXElement;
-  icon: JSXElement;
-  isAssetOrResource: boolean;
-  children: JSXElement;
-};
-
-const liStyles = "hover:bg-gray-800 hover:text-white focus:bg-gray-800";
 
 export function Directory(props: DirectoryProps) {
   const { monitorData } = useMonitor();
@@ -58,7 +49,7 @@ export function Directory(props: DirectoryProps) {
 
   return (
     <Suspense fallback={<Loader />}>
-      <ul class={props.class}>
+      <ul class={props.class + " " + styles.hierarchy}>
         <For each={sortedEntries()} fallback={<li>Empty</li>}>
           {(child) => {
             const absolutePath = [path, child.path]
@@ -79,7 +70,7 @@ export function Directory(props: DirectoryProps) {
                   as="li"
                   onOpenChange={(isOpen) => setIsOpen(isOpen)}
                 >
-                  <Collapsible.Trigger class={`w-full ${liStyles}`}>
+                  <Collapsible.Trigger class={`w-full`}>
                     <TreeEntry
                       caret={isOpen() ? <CaretDown /> : <CaretRight />}
                       icon={<FolderIcon path={child.path} />}
@@ -89,7 +80,7 @@ export function Directory(props: DirectoryProps) {
                     </TreeEntry>
                   </Collapsible.Trigger>
                   <Collapsible.Content>
-                    <div class="pl-4">
+                    <div class={styles.hierarchySubDir}>
                       <Directory
                         parent={path}
                         defaultPath={childProps.path}
@@ -103,7 +94,12 @@ export function Directory(props: DirectoryProps) {
             } else {
               return (
                 <A
-                  class={`block w-full rounded-sm pl-1 ${liStyles}`}
+                  draggable={false}
+                  class={
+                    styles.hierarchyItem +
+                    styles.genericHover +
+                    styles.genericTrans
+                  }
                   activeClass="bg-navy-400"
                   href={`${encodeFileName(absolutePath)}?sizeHint=${
                     child.size
@@ -128,8 +124,8 @@ export function Directory(props: DirectoryProps) {
 function TreeEntry(props: TreeEntryProps) {
   return (
     <li
-      class={`grid gap-1.5 text-lg items-center text-left ${
-        props.caret ? "grid-cols-[1em_1em_1fr]" : "grid-cols-[1em_1fr]"
+      class={`${styles.hierarchyItem} ${
+        props.caret ? styles.hierarchyItemCarret : styles.hierarchyItemNoCarret
       }`}
     >
       <Show when={Boolean(props.caret)}>{props.caret}</Show>

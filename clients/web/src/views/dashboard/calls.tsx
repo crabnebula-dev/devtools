@@ -28,7 +28,7 @@ function Calls() {
   });
 
   return (
-    <div class="h-[calc(100%-var(--toolbar-height))]">
+    <div class={"h-[calc(100%-var(--toolbar-height))]"}>
       <Toolbar>
         <SpanScaleSlider />
       </Toolbar>

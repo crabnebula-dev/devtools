@@ -11,7 +11,6 @@ export function Sidebar() {
 
   return (
     <>
-      <h2 class="text-neutral-300 p-4 pb-2 text-2xl">Config</h2>
       <Suspense fallback={<Loader />}>
         <For each={monitorData.tauriConfigStore?.configs}>
           {(child) => <Config config={child} />}
@@ -26,6 +25,7 @@ function Config(props: { config: ConfigurationObject }) {
   return (
     <section class="p-2">
       <A
+        draggable={false}
         href={`${basePath}/${props.config.key}/`}
         activeClass="text-white"
         class="grid gap-1.5 items-center text-left grid-cols-[1rem_1fr] text-xl text-neutral-400"
@@ -57,6 +57,7 @@ function TabLink(props: { name: string; key: string; size: number }) {
   const basePath = getTauriTabBasePath();
   return (
     <A
+      draggable={false}
       href={`${basePath}/${props.key}/${props.name}?size=${props.size}`}
       activeClass="hover:bg-slate-700 bg-slate-800 text-white"
       class="text-lg hover:bg-slate-600 p-1 pl-4 text-neutral-400 hover:text-white grid gap-1.5 items-center text-left grid-cols-[1rem_1fr]"
