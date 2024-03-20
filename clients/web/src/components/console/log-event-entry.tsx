@@ -9,12 +9,23 @@ import { processFieldValue } from "~/lib/span/process-field-value";
 import { A, useParams } from "@solidjs/router";
 
 function displayField(field: Field) {
+  // HACK: overflow isn't handled nicely right now.
+  const maxLen = 180;
+  const fullStrVal = processFieldValue(field.value);
+  let strVal = fullStrVal;
+  if (strVal.length > maxLen) {
+    strVal = strVal.substring(0, maxLen) + "…";
+  }
+
   return (
     <span class="group-hover:text-slate-300 text-slate-500 transition-colors hackathon">
       <span class="fname">{field.name}</span>
       <span class="fequal"> = </span>
-      <span class="fval group-hover:text-slate-100 text-slate-300 transition-colors">
-        {processFieldValue(field.value)}
+      <span
+        class="fval group-hover:text-slate-100 text-slate-300 transition-colors"
+        title={fullStrVal}
+      >
+        {strVal}
       </span>
     </span>
   );
