@@ -1,4 +1,4 @@
-import { Show } from "solid-js";
+import { JSXElement, Show, createMemo } from "solid-js";
 import { formatTimestamp } from "~/lib/formatters";
 import type { LogEvent } from "~/lib/proto/logs";
 import clsx from "clsx";
@@ -7,6 +7,7 @@ import { processLogEventForView } from "~/lib/console/process-log-event-for-view
 import { Field } from "~/lib/proto/common";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { A, useParams } from "@solidjs/router";
+import { encodeFileName } from "~/lib/sources/file-entries";
 
 function displayField(field: Field) {
   // HACK: overflow isn't handled nicely right now.
@@ -39,6 +40,24 @@ export function LogEventEntry(props: {
   odd?: boolean;
 }) {
   const { host, port } = useParams();
+
+  const maybeRelativePath = createMemo(() => {
+    const loc = processLogEventForView(props.event)?.metadata?.location;
+    if (!loc) return;
+
+    const file = loc.file;
+    if (!file) return;
+
+    // Only relative paths work.
+    // HACK: assume all tauri apps use `src/**/*.rs`
+    if (file.startsWith("src/")) {
+      return `./${file}`;
+    }
+    if (file.startsWith("./src/")) {
+      return file;
+    }
+  });
+
   return (
     <Show when={processLogEventForView(props.event)}>
       {(processedEvent) => (
@@ -80,7 +99,11 @@ export function LogEventEntry(props: {
           <Show when={props.showAttributes}>
             {processedEvent().fields.map(displayField)}
           </Show>
-          <span class="ml-auto flex gap-2 items-center text-xs">
+          <MaybeLinkedSource
+            class="ml-auto flex gap-2 items-center text-xs"
+            baseSources={`/dash/${host}/${port}/sources/`}
+            maybeRelativePath={maybeRelativePath()}
+          >
             <Show when={processedEvent().target}>
               {(logTarget) => (
                 <span class="text-slate-400 group-hover:text-slate-100 transition-colors">
@@ -95,8 +118,31 @@ export function LogEventEntry(props: {
             >
               {(line) => <span>{line()}</span>}
             </Show>
-          </span>
+          </MaybeLinkedSource>
         </div>
+      )}
+    </Show>
+  );
+}
+
+function MaybeLinkedSource(props: {
+  baseSources: string;
+  maybeRelativePath?: string;
+  class: string;
+  children: JSXElement;
+}) {
+  return (
+    <Show
+      when={props.maybeRelativePath}
+      fallback={<span class={props.class}>{props.children}</span>}
+    >
+      {(path) => (
+        <A
+          href={props.baseSources + encodeFileName(path())}
+          class={props.class}
+        >
+          {props.children}
+        </A>
       )}
     </Show>
   );
