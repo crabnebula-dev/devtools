@@ -22,6 +22,7 @@ function displayField(field: Field) {
 
 export function LogEventEntry(props: {
   event: LogEvent;
+  showLinks?: boolean;
   showAttributes?: boolean;
   showTimestamp?: boolean;
   odd?: boolean;
@@ -52,7 +53,7 @@ export function LogEventEntry(props: {
               {formatTimestamp(processedEvent().timeDate)}
             </time>
           </Show>
-          <Show when={processedEvent().parent}>
+          <Show when={props.showLinks && processedEvent().parent}>
             <A
               href={`/dash/${host}/${port}/calls?span=${processedEvent().parent}`}
               class="text-slate-100 group-hover:text-white"

@@ -73,7 +73,7 @@ export function CallDetailView(props: Props) {
         </div>
         <table>
           <thead>
-            <tr class="uppercase">
+            <tr class="uppercase border-gray-800 border-b">
               <th>Name</th>
               <th>Waterfall</th>
             </tr>

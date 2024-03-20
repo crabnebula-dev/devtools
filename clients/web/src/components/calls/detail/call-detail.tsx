@@ -1,4 +1,4 @@
-import { Show, Suspense, createMemo, createSignal } from "solid-js";
+import { For, Show, Suspense, createMemo, createSignal } from "solid-js";
 import { Span } from "~/lib/connection/monitor";
 import { CallDetailView } from "./call-detail-view";
 import { spanFieldsToObject } from "~/lib/span/span-fields-to-object";
@@ -6,8 +6,12 @@ import { treeEntries } from "~/lib/span/get-span-children";
 import { CodeHighlighter } from "../../code-highlighter";
 import { Loader } from "../../loader";
 import { Metadata_Level } from "~/lib/proto/common";
+import { useMonitor } from "~/context/monitor-provider";
+import { LogEventEntry } from "~/components/console/log-event-entry";
 
 export function CallDetail(props: { span: Span }) {
+  const { monitorData } = useMonitor();
+
   const [minLevel, setMinLevel] = createSignal<Metadata_Level>(
     Metadata_Level.TRACE,
   );
@@ -17,6 +21,17 @@ export function CallDetail(props: { span: Span }) {
     return treeEntries(
       props.span,
       (span) => span.metadata && span.metadata.level <= level,
+    );
+  });
+
+  const includedSpans = createMemo(
+    () => new Set(children().map((n) => n.span.id)),
+  );
+
+  const associatedLogs = createMemo(() => {
+    const spanIds = includedSpans();
+    return monitorData.logs.filter(
+      (log) => log.parent && spanIds.has(log.parent),
     );
   });
 
@@ -61,6 +76,23 @@ export function CallDetail(props: { span: Span }) {
             </pre>
           </div>
         )}
+      </Show>
+      <Show when={associatedLogs().length}>
+        <div class="grid gap-2 border-gray-800 border-b">
+          <h2 class="text-xl p-4 border-gray-800 border-b">
+            Logs ({associatedLogs().length})
+          </h2>
+          <For each={associatedLogs()}>
+            {(log, idx) => (
+              <LogEventEntry
+                event={log}
+                showAttributes={true}
+                showTimestamp={true}
+                odd={idx() % 2 == 0}
+              />
+            )}
+          </For>
+        </div>
       </Show>
     </CallDetailView>
   );

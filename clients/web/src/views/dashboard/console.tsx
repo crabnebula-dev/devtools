@@ -98,6 +98,7 @@ export default function Console() {
         dataStream={filteredLogs()}
         displayComponent={LogEventEntry}
         displayOptions={{
+          showLinks: true,
           showAttributes: showAttributes(),
           showTimestamp: showTimestamp(),
         }}
