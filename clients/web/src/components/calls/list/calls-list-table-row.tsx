@@ -76,7 +76,16 @@ export function CallsListTableRow(props: {
       <TableCell
         title={props.call.displayName ?? props.call.name}
         height={props.height}
-      />
+      >
+        {/*
+          Note: we might show spans that are not root spans, based on kind.
+          This could be confusing so we display them as slightly indented.
+        */}
+        <Show when={props.call.parentId}>
+          <span class="text-slate-800 text-s">{"| "}</span>
+        </Show>
+        {props.call.displayName ?? props.call.name}
+      </TableCell>
       <TableCell
         title={getTime(new Date(props.call.initiated))}
         height={props.height}
