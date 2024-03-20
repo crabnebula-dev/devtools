@@ -4,7 +4,16 @@ import { convertTimestampToNanoseconds } from "../formatters";
 import { formatSpan } from "./format-span";
 import { Metadata } from "../proto/common";
 import { type ReactiveMap } from "@solid-primitives/map";
-import { triggerRenameOnRoot } from "./trigger-rename-on-root";
+import { mutateWhenKnownKind } from "./detect-known-trace";
+
+function findRoot(
+  span: Span,
+  spansMap: ReactiveMap<bigint, Span>,
+): Span | null {
+  if (!span.parentId) return span;
+  const parentSpan = spansMap.get(span.parentId);
+  return parentSpan ? findRoot(parentSpan, spansMap) : null;
+}
 
 export function updatedSpans(
   errorMetadata: Set<bigint>,
@@ -14,6 +23,9 @@ export function updatedSpans(
   metadata: Map<bigint, Metadata>,
   oldDurations: Durations,
 ) {
+  const dirtyRoots: Set<Span> = new Set();
+  const erroredRoots: Set<Span> = new Set();
+
   let { start, end, shortestTime, longestTime, average, counted, openSpans } =
     oldDurations;
 
@@ -34,7 +46,12 @@ export function updatedSpans(
             span.parent = parent;
           }
 
-          triggerRenameOnRoot(span, currentSpans);
+          const root = findRoot(span, currentSpans);
+          if (root != null) {
+            dirtyRoots.add(root);
+            if (span.hasError) erroredRoots.add(root);
+          }
+          // triggerRenameOnRoot(span, currentSpans);
         }
         currentSpans.set(span.id, span);
 
@@ -127,6 +144,16 @@ export function updatedSpans(
       default:
         throw new Error("span type not supported");
     }
+  }
+
+  for (const span of dirtyRoots) {
+    // Do this regardless of kind.
+    span.hasChildError = span.hasChildError || erroredRoots.has(span);
+
+    mutateWhenKnownKind(span);
+
+    // Trigger reactivity on the dirty root.
+    currentSpans.set(span.id, span);
   }
 
   return {

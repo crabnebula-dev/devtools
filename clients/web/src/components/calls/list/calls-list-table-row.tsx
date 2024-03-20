@@ -69,11 +69,14 @@ export function CallsListTableRow(props: {
       }}
       class={clsx(
         "even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10] h-3",
-        props.call.hasError ? "text-red-400" : "",
+        props.call.hasError || props.call.hasChildError ? "text-red-400" : "",
       )}
       style={props.style}
     >
-      <TableCell title={props.call.name} height={props.height} />
+      <TableCell
+        title={props.call.displayName ?? props.call.name}
+        height={props.height}
+      />
       <TableCell
         title={getTime(new Date(props.call.initiated))}
         height={props.height}

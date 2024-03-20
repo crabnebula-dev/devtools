@@ -8,8 +8,10 @@ import { Popover } from "@kobalte/core";
 import { getDetailedTime } from "~/lib/formatters.ts";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import clsx from "clsx";
+import { Metadata_Level } from "~/lib/proto/common";
 
 export function CallDetailTrace(props: {
+  depth: number;
   span: Span;
   durations: {
     start: number;
@@ -18,15 +20,26 @@ export function CallDetailTrace(props: {
     longest: number;
   };
 }) {
+  const color = () => {
+    if (props.span.hasError) return "text-red-400";
+    switch (props.span.metadata?.level) {
+      case Metadata_Level.TRACE:
+        return "text-slate-600";
+      case Metadata_Level.DEBUG:
+        return "text-slate-400";
+      default:
+        return "";
+    }
+  };
+
   return (
     <Popover.Root>
       <Popover.Trigger
         class="even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]"
         as="tr"
       >
-        <td
-          class={clsx("py-1 px-4", props.span.hasError ? "text-red-400" : "")}
-        >
+        <td class={clsx("py-1 px-4", color())}>
+          <span class="text-slate-800 text-xs">{"| ".repeat(props.depth)}</span>
           {props.span.name}
         </td>
         <td class="py-1 px-4 relative w-[70%]">
@@ -72,9 +85,8 @@ function SpanDetailPopOverContent(props: { span: Span }) {
       style={{ "max-width": "min(calc(100vw - 16px), 380px)" }}
     >
       <ToolTipContent>
-        <ToolTipRow title={props.span.name}>
-          {props.span.metadataTarget}
-        </ToolTipRow>
+        <ToolTipRow title={props.span.name} />
+        <ToolTipRow title="target">{props.span.metadata?.target}</ToolTipRow>
         <For each={props.span.fields}>
           {(field) => (
             <ToolTipRow title={field.name}>
@@ -150,7 +162,9 @@ function ToolTipContent(props: { children: JSXElement }) {
 function ToolTipRow(props: { title: string; children?: JSXElement }) {
   return (
     <tr class="grid grid-cols-2 text-left">
-      <th>{props.title}</th>
+      <th style={{ "grid-column": props.children ? "" : "span 2" }}>
+        {props.title}
+      </th>
       <Show when={props.children}>
         <td>{props.children}</td>
       </Show>
