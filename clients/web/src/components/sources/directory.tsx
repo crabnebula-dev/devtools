@@ -125,7 +125,7 @@ function TreeEntry(props: TreeEntryProps) {
   return (
     <li
       class={`${styles.hierarchyItem} ${
-        props.caret ? styles.hierarchyItemCarret : styles.hierarchyItemNoCarret
+        props.caret ? styles.hierarchyItemCaret : styles.hierarchyItemNoCaret
       }`}
     >
       <Show when={Boolean(props.caret)}>{props.caret}</Show>
