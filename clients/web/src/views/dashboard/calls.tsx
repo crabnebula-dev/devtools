@@ -14,28 +14,48 @@ import { FilterToggle } from "~/components/filter-toggle";
 function Calls() {
   const { monitorData } = useMonitor();
 
+  const [textFilter, setTextFilter] = createSignal<string>("");
   const [showErrors, toggleErrorFilter] = createSignal(false);
 
   let spanProcessingPointer = 0;
 
-  const filteredCalls = createMemo<Span[]>((alreadyFiltered) => {
-    const onlyErrors = showErrors();
-    const [filteredCalls, newPointer] = filterSpans(
+  const selectedCalls = createMemo<Span[]>((alreadyFiltered) => {
+    const [selectedCalls, newPointer] = filterSpans(
       alreadyFiltered,
       spanProcessingPointer,
       monitorData.spans,
     );
     spanProcessingPointer = newPointer;
-    // TODO: this is not reactive when spans are marked as error later.
-    return filteredCalls.filter(
-      (s) => !onlyErrors || s.hasChildError || s.hasError,
-    );
+    return selectedCalls;
   }, []);
+
+  const filteredCalls = createMemo<Span[]>(() => {
+    const onlyErrors = showErrors();
+    const text = textFilter();
+    // TODO: this is not reactive when spans are marked as error later.
+    return selectedCalls()
+      .filter((s) => !onlyErrors || s.hasChildError || s.hasError)
+      .filter(
+        (s) =>
+          !text ||
+          s.name.includes(text) ||
+          s.displayName?.includes(text) ||
+          s.metadata?.target.includes(text) ||
+          s.metadata?.location?.file?.includes(text),
+      );
+  });
 
   return (
     <div class="h-[calc(100%-var(--toolbar-height))]">
       <Toolbar>
         <CallsClearButton />
+        <input
+          value={textFilter()}
+          onInput={(e) => setTextFilter(() => e.currentTarget.value)}
+          type="text"
+          placeholder="Filter..."
+          class="bg-slate-900 px-1 rounded text-white focus:outline-none focus:border focus:border-slate-400"
+        />
         <FilterToggle
           defaultPressed={showErrors()}
           aria-label="errors only"

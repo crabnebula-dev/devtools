@@ -9,3 +9,4 @@
 1. Associated logs in trace details.
 1. Roughly prevent log duplication.
 1. Jump to source from logs.
+1. Error and text filter spans.
