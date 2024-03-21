@@ -4,9 +4,9 @@ import { convertTimestampToNanoseconds } from "../formatters";
 import { formatSpan } from "./format-span";
 import { Metadata } from "../proto/common";
 import { type ReactiveMap } from "@solid-primitives/map";
-import { mutateWhenKnownKind } from "./detect-known-trace";
+import { filterSpan, mutateWhenKnownKind } from "./detect-known-trace";
 
-function findRoot(
+export function findRoot(
   span: Span,
   spansMap: ReactiveMap<bigint, Span>,
 ): Span | null {
@@ -150,10 +150,22 @@ export function updatedSpans(
     // Do this regardless of kind.
     span.hasChildError = span.hasChildError || erroredRoots.has(span);
 
+    // Interpret the root span.
     mutateWhenKnownKind(span);
 
     // Trigger reactivity on the dirty root.
     currentSpans.set(span.id, span);
+
+    // HACK: we still display child spans of particular "kinds".
+    // Run them through our detection too.
+    const spansWithKind = filterSpan(span, (s) => s.kind);
+    for (const child of spansWithKind) {
+      // Interpret the child span.
+      mutateWhenKnownKind(child);
+
+      // Trigger reactivity on the span.
+      currentSpans.set(child.id, child);
+    }
   }
 
   return {

@@ -40,7 +40,7 @@ export function CallDetailTrace(props: {
       >
         <td class={clsx("py-1 px-4", color())}>
           <span class="text-slate-800 text-xs">{"| ".repeat(props.depth)}</span>
-          {props.span.name}
+          {props.span.displayName ?? props.span.name}
         </td>
         <td class="py-1 px-4 relative w-[70%]">
           <div class="relative">
