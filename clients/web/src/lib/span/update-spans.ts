@@ -153,9 +153,6 @@ export function updatedSpans(
     // Interpret the root span.
     mutateWhenKnownKind(span);
 
-    // Trigger reactivity on the dirty root.
-    currentSpans.set(span.id, span);
-
     // HACK: we still display child spans of particular "kinds".
     // Run them through our detection too.
     const spansWithKind = filterSpan(span, (s) => s.kind);
@@ -164,8 +161,12 @@ export function updatedSpans(
       mutateWhenKnownKind(child);
 
       // Trigger reactivity on the span.
+      // NOTE: This needs to happen before the root node, or we cause duplicate entries in detail view.
       currentSpans.set(child.id, child);
     }
+
+    // Trigger reactivity on the dirty root.
+    currentSpans.set(span.id, span);
   }
 
   return {
