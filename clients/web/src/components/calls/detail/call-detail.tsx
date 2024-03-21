@@ -63,7 +63,11 @@ export function CallDetail(props: { span: Span }) {
   };
 
   const values = () => {
-    return [props.span.ipcData?.inputs ?? spanFieldsToObject(props.span)];
+    return [
+      props.span.ipcData?.tauriInputs ?? {},
+      props.span.ipcData?.inputs ?? {},
+      spanFieldsToObject(props.span),
+    ];
   };
 
   return (

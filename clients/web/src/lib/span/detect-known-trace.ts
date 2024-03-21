@@ -96,7 +96,9 @@ function mutateWhenIpcTrace(root: Span): boolean {
   const ipcData = detectIpcTrace(root);
   if (!ipcData) return false;
   root.kind = "ipc";
-  root.displayName = `command: ${ipcData.cmd}`;
+  root.displayName = ipcData.tauriModule
+    ? `${ipcData.tauriModule}.${ipcData.tauriCmd}`
+    : `command: ${ipcData.cmd}`;
   root.ipcData = ipcData;
   return true;
 }
@@ -128,6 +130,34 @@ function detectIpcTrace(root: Span): IpcData | undefined {
   // TODO: Why though? I just copied this behavior.
   if (cmd === "plugin:__TAURI_CHANNEL__|fetch") return;
 
+  let tauriModule;
+  let tauriCmd;
+  let tauriInputs;
+  if (cmd === "tauri" && inputs.message && typeof inputs.message === "object") {
+    /*
+      Example IPC request, wraps another "message".
+      {
+        "cmd":"tauri",
+        "callback":3826522349,
+        "error":1782778738,
+        "__tauriModule":"Event",
+        "message":{"cmd":"listen","event":"tauri://update-available","windowLabel":null,"handler":3485047437}
+      }
+    */
+
+    const {
+      cmd: messageCmd,
+      // Intentionally filtering variables we don't want in `inputs`
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      handler: messageHandler,
+      ...messageInputs
+    } = inputs.message as Record<string, string | undefined>;
+
+    tauriModule = __tauriModule;
+    tauriCmd = messageCmd;
+    tauriInputs = messageInputs;
+  }
+
   // Note: allow this to be null, so that commands that are still running are detected as IPC calls.
   const responseSpan = findNamedSpan(
     root,
@@ -142,7 +172,7 @@ function detectIpcTrace(root: Span): IpcData | undefined {
       )
     : null;
 
-  return { cmd, inputs, response };
+  return { cmd, inputs, response, tauriCmd, tauriModule, tauriInputs };
 }
 
 export function getSpanValues(span: Span): Record<string, unknown> | undefined {

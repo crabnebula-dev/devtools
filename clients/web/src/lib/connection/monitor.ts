@@ -25,6 +25,9 @@ export type IpcData = {
   cmd: string;
   inputs: Record<string, unknown>;
   response: string | null;
+  tauriModule?: string;
+  tauriCmd?: string;
+  tauriInputs?: Record<string, unknown>;
 };
 
 export type EventKind = "global event" | "rust event" | "event";
