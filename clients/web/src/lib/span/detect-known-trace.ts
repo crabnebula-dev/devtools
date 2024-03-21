@@ -128,9 +128,11 @@ function mutateWhenIpcTrace(root: Span): boolean {
   const ipcData = detectIpcTrace(root);
   if (!ipcData) return false;
   root.kind = "ipc";
-  root.displayName = ipcData.tauriModule
-    ? `${ipcData.tauriModule}.${ipcData.tauriCmd}`
-    : `command: ${ipcData.cmd}`;
+  root.displayName = ipcData.pluginName
+    ? `plugin: ${ipcData.pluginName}.${ipcData.pluginCmd}`
+    : ipcData.tauriModule
+      ? `${ipcData.tauriModule}.${ipcData.tauriCmd}`
+      : `command: ${ipcData.cmd}`;
   root.ipcData = ipcData;
   root.hasError = root.hasError || ipcData.responseKind === "Err";
   return true;
@@ -174,9 +176,17 @@ function detectIpcTrace(root: Span): IpcData | undefined {
   // TODO: Why though? I just copied this behavior.
   if (cmd === "plugin:__TAURI_CHANNEL__|fetch") return;
 
-  let tauriModule;
-  let tauriCmd;
-  let tauriInputs;
+  // Parse plugin commands for nicer display.
+  let pluginName, pluginCmd;
+  if (cmd.startsWith("plugin:")) {
+    // Note: this colon split will always have a 2nd part, because we checked it exists with startsWith.
+    const parts = cmd.split(":")[1].split("|");
+    pluginName = parts[0];
+    pluginCmd = parts[1];
+  }
+
+  // Doesn't this beautiful code remind you of es5?
+  let tauriModule, tauriCmd, tauriInputs;
   if (cmd === "tauri" && inputs.message && typeof inputs.message === "object") {
     /*
       Example IPC request, wraps another "message".
@@ -228,6 +238,8 @@ function detectIpcTrace(root: Span): IpcData | undefined {
     tauriCmd,
     tauriModule,
     tauriInputs,
+    pluginName,
+    pluginCmd,
   };
 }
 

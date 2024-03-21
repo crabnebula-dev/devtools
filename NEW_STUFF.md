@@ -10,3 +10,6 @@
 1. Roughly prevent log duplication.
 1. Jump to source from logs.
 1. Error and text filter spans.
+1. Parse plugin commands from
+   `command: plugin:your_plugin|some_cmd`
+   to `plugin: your_plugin.some_cmd`.
