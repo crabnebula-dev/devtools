@@ -61,13 +61,14 @@ export function* filterSpan(
 
 export function findNamedSpan(
   value: Span,
-  target: string,
+  partialTarget: string,
   name: string,
   maxDepth = 10,
 ): Span | undefined {
   return findSpan(
     value,
-    (s) => s.metadata?.target === target && s.metadata?.name === name,
+    (s) =>
+      s.metadata?.target.startsWith(partialTarget) && s.metadata?.name === name,
     maxDepth,
   );
 }
@@ -145,18 +146,29 @@ function detectIpcTrace(root: Span): IpcData | undefined {
   if (!root.metadata?.name || !ipcNames.includes(root.metadata?.name)) return;
 
   // Then we try to parse a child span with request data.
-  const requestSpan = findNamedSpan(root, "tauri::manager", "ipc::request");
+  const requestSpan = findNamedSpan(root, "tauri::", "ipc::request");
   const requestField = requestSpan?.fields.find((f) => f.name === "request");
+  const requestHandleSpan = findNamedSpan(
+    root,
+    "tauri::",
+    "ipc::request::handle",
+  );
+  const cmdField = requestHandleSpan?.fields.find((f) => f.name === "cmd");
   if (!requestField) return;
   const request = JSON.parse(processFieldValue(requestField.value)) as unknown;
   if (!request || typeof request !== "object") return;
 
-  // Intentionally filtering variables we don't want in `inputs`
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { cmd, callback, error, __tauriModule, ...inputs } = request as Record<
+  // eslint-disable-next-line prefer-const
+  let { cmd, ...requestRemainer } = request as Record<
     string,
     string | undefined
   >;
+
+  // Intentionally filtering variables we don't want in `inputs`
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { callback, error, __tauriModule, ...inputs } = requestRemainer;
+
+  cmd = cmd ?? (cmdField ? processFieldValue(cmdField.value) : undefined);
 
   // cmd is required.
   if (!cmd) return;
@@ -194,11 +206,7 @@ function detectIpcTrace(root: Span): IpcData | undefined {
   }
 
   // Note: allow this to be null, so that commands that are still running are detected as IPC calls.
-  const responseSpan = findNamedSpan(
-    root,
-    "tauri::hooks",
-    "ipc::request::response",
-  );
+  const responseSpan = findNamedSpan(root, "tauri::", "ipc::request::response");
   const responseField = responseSpan?.fields.find((f) => f.name === "response");
   const response = responseField
     ? processFieldValue(responseField.value).replace(

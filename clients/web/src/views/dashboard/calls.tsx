@@ -32,7 +32,6 @@ function Calls() {
   const filteredCalls = createMemo<Span[]>(() => {
     const onlyErrors = showErrors();
     const text = textFilter();
-    // TODO: this is not reactive when spans are marked as error later.
     return selectedCalls()
       .filter((s) => !onlyErrors || s.hasChildError || s.hasError)
       .filter(
