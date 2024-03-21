@@ -2,11 +2,6 @@
 from = "/app/*"
 to = "/:splat"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
 # App Sentry redirect.
 [[redirects]]
   from = "/sentry-tunnel/*"
@@ -14,6 +9,10 @@ to = "/:splat"
   status = 200
   headers = { Content-Type = "application/x-sentry-envelope" }
 
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [build]
     base = "clients/web/"
