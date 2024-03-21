@@ -13,6 +13,7 @@ type Props = {
   setMinLevel: Setter<Metadata_Level>;
   hasError: boolean | null;
   parentId?: bigint;
+  rootSpanId?: bigint;
   spanChildren: TreeEntry[];
   valuesSectionTitle: string;
   values: (string | object)[];
@@ -36,8 +37,8 @@ export function CallDetailView(props: Props) {
   return (
     <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800 min-w-[420px]">
       <div class="pt-4 px-4">
-        <Show when={props.parentId}>
-          <A href={`/dash/${host}/${port}/calls?span=${props.parentId}`}>
+        <Show when={props.rootSpanId}>
+          <A href={`/dash/${host}/${port}/calls?span=${props.rootSpanId}`}>
             ↑ parent
           </A>
         </Show>

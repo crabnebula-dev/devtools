@@ -16,6 +16,18 @@ export function CallDetail(props: { span: Span }) {
     Metadata_Level.TRACE,
   );
 
+  const root = createMemo(() => {
+    // If our current span is a root span, don't recurse up.
+    if (!props.span.parent) return;
+
+    // Walk up, with a limit on number of hops.
+    let node = props.span;
+    for (let limit = 10; limit && node.parent; limit--) {
+      node = node.parent;
+    }
+    return node;
+  });
+
   const children = createMemo(() => {
     const level = minLevel();
     return treeEntries(
@@ -61,6 +73,7 @@ export function CallDetail(props: { span: Span }) {
       setMinLevel={setMinLevel}
       hasError={props.span.hasError}
       parentId={props.span.parentId}
+      rootSpanId={root()?.id}
       spanChildren={children()}
       valuesSectionTitle={valuesSectionTitle()}
       values={values()}
