@@ -73,9 +73,6 @@ export function findNamedSpan(
   );
 }
 
-// add updater traces from
-// https://github.com/crabnebula-dev/devtools/pull/109
-
 export function mutateWhenKnownKind(root: Span): boolean {
   try {
     return mutateWhenEventTrace(root) || mutateWhenIpcTrace(root);
