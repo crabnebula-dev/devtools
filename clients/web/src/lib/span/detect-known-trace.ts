@@ -134,6 +134,7 @@ function mutateWhenIpcTrace(root: Span): boolean {
     ? `${ipcData.tauriModule}.${ipcData.tauriCmd}`
     : `command: ${ipcData.cmd}`;
   root.ipcData = ipcData;
+  root.hasError = root.hasError || ipcData.responseKind === "Err";
   return true;
 }
 
@@ -206,7 +207,23 @@ function detectIpcTrace(root: Span): IpcData | undefined {
       )
     : null;
 
-  return { cmd, inputs, response, tauriCmd, tauriModule, tauriInputs };
+  const responseKind = !response
+    ? undefined
+    : response.startsWith("Ok(")
+      ? "Ok"
+      : response.startsWith("Err(")
+        ? "Err"
+        : undefined;
+
+  return {
+    cmd,
+    inputs,
+    response,
+    responseKind,
+    tauriCmd,
+    tauriModule,
+    tauriInputs,
+  };
 }
 
 export function getSpanValues(span: Span): Record<string, unknown> | undefined {

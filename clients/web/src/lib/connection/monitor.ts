@@ -25,6 +25,7 @@ export type IpcData = {
   cmd: string;
   inputs: Record<string, unknown>;
   response: string | null;
+  responseKind?: "Ok" | "Err";
   tauriModule?: string;
   tauriCmd?: string;
   tauriInputs?: Record<string, unknown>;
