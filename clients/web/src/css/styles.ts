@@ -14,7 +14,7 @@ export const hierarchyItemNoCaret = " grid-cols-[1em_1fr]";
 export const tab =
   " border-b-2 pt-1 border-b-transparent h-full border-b-transparent flex -mb-[2px] items-center justify-center leading-none border-b px-3 gap-3";
 export const tabHover = " hover:border-b-slate-600";
-export const tabActive = " border-b-slate-500";
+export const tabActive = " border-b-[#97feffff]";
 export const tabInactive = " border-b-gray-800 hover:border-b-gray-600";
 
 export const surface = " bg-gray-950 bg-opacity-50";

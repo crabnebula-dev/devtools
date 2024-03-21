@@ -98,7 +98,7 @@ export function SpanList() {
                     }
                   }}
                   onClick={() => column.isSortable && sortColumn(column.name)}
-                  class={`p-1 cursor-pointer hover:bg-[#ffffff09] ${
+                  class={`${styles.genericHover + styles.genericTrans} p-1 cursor-pointer ${
                     column.name === "time" || column.name === "initiated"
                       ? "w-2/12" // time and initiated
                       : column.name === "name"

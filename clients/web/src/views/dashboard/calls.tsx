@@ -1,4 +1,3 @@
-import { Toolbar } from "~/components/toolbar";
 import { createEffect } from "solid-js";
 import { SplitPane } from "~/components/split-pane";
 import { SpanDetailPanel } from "~/components/span/span-detail-panel";
@@ -28,10 +27,7 @@ function Calls() {
   });
 
   return (
-    <div class={"h-[calc(100%-var(--toolbar-height))]"}>
-      <Toolbar>
-        <SpanScaleSlider />
-      </Toolbar>
+    <div class={"h-[calc(100%-24px)]"}>
       <SplitPane
         initialSizes={[70, 30]}
         defaultMinSizes={[600, 300]}
@@ -40,6 +36,9 @@ function Calls() {
         <SpanList />
         <SpanDetailPanel />
       </SplitPane>
+      <div class="bg-gray-900 px-2 flex justify-center w-full">
+        <SpanScaleSlider />
+      </div>
     </div>
   );
 }

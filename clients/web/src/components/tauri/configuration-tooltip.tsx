@@ -39,8 +39,8 @@ export function ConfigurationTooltip(props: {
             class="hover:bg-gray-900 rounded"
             onMouseOver={updateHighlightKey}
           >
+            <sup class="text-sm text-neutral-400 m-1 pr-3">ⓘ</sup>
             {props.key}
-            <sup class="text-sm text-neutral-400 pl-1">?</sup>
           </span>
         </Tooltip.Trigger>
         <Tooltip.Portal>
