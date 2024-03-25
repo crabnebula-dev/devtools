@@ -5,6 +5,7 @@ import { type ConfigurationObject } from "~/lib/tauri/config/retrieve-configurat
 import { Loader } from "~/components/loader";
 import { getTauriTabBasePath } from "~/lib/tauri/get-tauri-tab-base-path";
 import { useMonitor } from "~/context/monitor-provider";
+import { TauriConfig } from "~/lib/tauri/config/tauri-conf";
 
 import * as styles from "~/css/styles.ts";
 
@@ -33,9 +34,12 @@ function Config(props: { config: ConfigurationObject }) {
         <div class="w-5 h-5">
           <FileIcon path="tauri.conf.json" />
         </div>
-        {props.config.data.productName
-          ? props.config.data.productName
-          : "Untitled App"}
+        <Show
+          when={hasProductName(props.config.data)}
+          fallback={"Untitled App"}
+        >
+          {(productName) => productName()}
+        </Show>
       </div>
       <A
         draggable={false}
@@ -71,4 +75,10 @@ function Config(props: { config: ConfigurationObject }) {
       </nav>
     </section>
   );
+}
+
+function hasProductName(config?: TauriConfig) {
+  if (!config || !("productName" in config)) return false;
+
+  return config.productName;
 }
