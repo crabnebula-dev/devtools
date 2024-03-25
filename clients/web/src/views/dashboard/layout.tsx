@@ -37,7 +37,7 @@ export default function Layout(props: Props) {
             <DisconnectButton />
           </div>
           <a
-            href="www.crabnebula.dev"
+            href="https://www.crabnebula.dev/"
             class={
               "px-2 flex items-center" +
               styles.genericHover +
@@ -49,13 +49,6 @@ export default function Layout(props: Props) {
             </div>
           </a>
         </footer>
-        <div class="overflow-hidden absolute inset-0 w-full h-full -z-10">
-          <img
-            class="relative opacity-30 scale-110 bg-surface bg-surface"
-            src="/bg.webp"
-            aria-hidden
-          />
-        </div>
       </MonitorProvider>
     </ConnectionProvider>
   );

@@ -1,1 +1,11 @@
-<svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><defs><style>*{fill: #ffffff70;}.cls-1 {fill: none;}</style></defs><title>terminal</title><path d="M26,4H6A2,2,0,0,0,4,6V26a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2V6A2,2,0,0,0,26,4Zm0,2v4H6V6ZM6,26V12H26V26Z" transform="translate(0 0.01)"/><polygon points="10.76 16.18 13.58 19.01 10.76 21.84 12.17 23.25 16.41 19.01 12.17 14.77 10.76 16.18"/><rect id="_Transparent_Rectangle_" data-name="&lt;Transparent Rectangle&gt;" class="cls-1" width="32" height="32"/></svg>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_925_2227)">
+<path d="M4.00536 7.35328L12.1478 15.5024L4 23.6502L5.3588 25L15.1145 15.5L5.3588 6L4.00536 7.35328Z" fill="#ffffff90"/>
+<rect x="16.3906" y="23.3335" width="11" height="2" fill="#ffffff90"/>
+</g>
+<defs>
+<clipPath id="clip0_925_2227">
+<rect width="32" height="32" fill="#ffffff90"/>
+</clipPath>
+</defs>
+</svg>

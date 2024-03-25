@@ -49,7 +49,7 @@ export function Directory(props: DirectoryProps) {
 
   return (
     <Suspense fallback={<Loader />}>
-      <ul class={props.class + " " + styles.hierarchy}>
+      <ul class={props.class + styles.hierarchy}>
         <For each={sortedEntries()} fallback={<li>Empty</li>}>
           {(child) => {
             const absolutePath = [path, child.path]
@@ -95,15 +95,10 @@ export function Directory(props: DirectoryProps) {
               return (
                 <A
                   draggable={false}
-                  class={
-                    styles.hierarchyItem +
-                    styles.genericHover +
-                    styles.genericTrans
-                  }
-                  activeClass="bg-navy-400"
                   href={`${encodeFileName(absolutePath)}?sizeHint=${
                     child.size
                   }`}
+                  activeClass={styles.hierarchyActive}
                 >
                   <TreeEntry
                     icon={<FileIcon path={child.path} />}
@@ -123,14 +118,14 @@ export function Directory(props: DirectoryProps) {
 
 function TreeEntry(props: TreeEntryProps) {
   return (
-    <li
-      class={`${styles.hierarchyItem} ${
-        props.caret ? styles.hierarchyItemCaret : styles.hierarchyItemNoCaret
-      }`}
-    >
-      <Show when={Boolean(props.caret)}>{props.caret}</Show>
-      {props.icon}
-      {props.children}
-    </li>
+    <>
+      <li class={styles.hierarchyItem}>
+        <div class={styles.hierarchyItemCaret}>
+          <Show when={Boolean(props.caret)}>{props.caret}</Show>
+        </div>
+        <div class={styles.hierarchyIcon}>{props.icon}</div>
+        {props.children}
+      </li>
+    </>
   );
 }

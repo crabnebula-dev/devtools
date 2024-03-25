@@ -1,5 +1,4 @@
 {
-  "productName": "Windows Build",
   "version": "0.1.0",
   "app": {
     "windows": [

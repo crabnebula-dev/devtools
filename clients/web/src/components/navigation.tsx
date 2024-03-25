@@ -20,14 +20,14 @@ const TABS = [
   {
     id: "sources",
     url: (host: string, port: string) => `/dash/${host}/${port}/sources`,
-    title: "Project Directory",
-    icon: "repo--source-code",
+    title: "Sources",
+    icon: "code",
   },
   {
     id: "tauri",
     url: (host: string, port: string) => `/dash/${host}/${port}/tauri`,
     title: "Tauri Config",
-    icon: "gui--management",
+    icon: "tauri",
   },
 ];
 

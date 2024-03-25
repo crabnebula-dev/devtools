@@ -6,7 +6,7 @@
 @layer base {
   /** fonts */
   :root {
-    --header-height: 45px;
+    --header-height: 43px;
     --toolbar-height: 36px;
     --footer-height: 32px;
   }
@@ -52,7 +52,7 @@
   }
 
   * {
-    @apply scrollbar-thin scrollbar-track-neutral-900 scrollbar-thumb-rounded scrollbar-thumb-neutral-600;
+    @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-600;
   }
 
   h1,
@@ -153,5 +153,9 @@
 }
 
 ::selection {
-  background: rgb(0, 50, 78);
+  background: rgb(0, 66, 104);
+}
+
+#tauri-config-0-pane {
+  min-width: 250px;
 }
