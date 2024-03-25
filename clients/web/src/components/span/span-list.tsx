@@ -13,6 +13,8 @@ import {
 } from "~/lib/span/normalize-spans";
 import clsx from "clsx";
 
+import * as styles from "~/css/styles";
+
 export type SortDirection = "asc" | "desc";
 
 export type SortableColumn = "name" | "initiated" | "time";
@@ -82,7 +84,7 @@ export function SpanList() {
   };
 
   return (
-    <table class="w-full table-fixed">
+    <table class={"w-full table-fixed" + styles.surface}>
       <thead>
         <tr class="text-left">
           <For each={columns}>
@@ -96,7 +98,7 @@ export function SpanList() {
                     }
                   }}
                   onClick={() => column.isSortable && sortColumn(column.name)}
-                  class={`p-1 cursor-pointer hover:bg-[#ffffff09] ${
+                  class={`${styles.genericHover + styles.genericTrans} p-1 cursor-pointer ${
                     column.name === "time" || column.name === "initiated"
                       ? "w-2/12" // time and initiated
                       : column.name === "name"
@@ -104,7 +106,7 @@ export function SpanList() {
                         : "w-5/12" // waterfall
                   }`}
                 >
-                  <div class="flex uppercase select-none items-center gap-2">
+                  <div class="flex uppercase select-none items-center gap-3 text-sm font-normal">
                     {column.name}
                     {columnSort.name === column.name && column.isSortable && (
                       <SortCaret direction={columnSort.direction} />

@@ -9,8 +9,8 @@ export default function TauriConfig() {
     <ConfigurationContextProvider>
       <SplitPane
         defaultPrefix="tauri-config"
-        defaultMinSizes={[150, 300, 300]}
         initialSizes={[10, 45, 45]}
+        defaultMinSizes={[250, 300, 300]}
       >
         <Sidebar />
         <ConfigurationView />

@@ -50,7 +50,7 @@ export function ConfigurationView() {
   });
 
   return (
-    <div class="p-4 h-full">
+    <div class="p-4 h-full w-full">
       <Switch
         fallback={
           <div class="h-full grid gap-4 text-center content-center justify-center items-center p-4">

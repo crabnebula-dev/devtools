@@ -1,6 +1,6 @@
 {
   "identifier": "dev.crabnebula.devtools",
-  "productName": "Hello World",
+  "productName": "Example App",
   "version": "0.1.0",
   "build": {
     "beforeDevCommand": "pnpm dev",
