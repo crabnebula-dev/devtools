@@ -1,7 +1,7 @@
 import { Button } from "@kobalte/core";
 import { useNavigate } from "@solidjs/router";
 import { useConnection } from "~/context/connection-provider";
-import * as styels from "~/css/styles.ts";
+import * as styles from "~/css/styles.ts";
 
 export function DisconnectButton() {
   const { connectionStore } = useConnection();
@@ -12,7 +12,7 @@ export function DisconnectButton() {
       id="close"
       class={
         "px-2 transition-all inline-flex items-center justify-center text-slate-200" +
-        styels.genericHover
+        styles.genericHover
       }
       onClick={() => {
         connectionStore.abortController.abort();
