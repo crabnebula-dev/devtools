@@ -1,15 +1,15 @@
 import { Tooltip } from "@kobalte/core";
 import { Show } from "solid-js";
-import { useCalls } from "./calls-context";
+import { useCalls } from "../calls-context";
 
-export function SpanScaleSlider() {
+export function CallsScaleSlider() {
   const callsContext = useCalls();
   return (
     <div class="flex items-center gap-2">
       <Tooltip.Root>
         <Tooltip.Trigger>
           <span class="flex items-center gap-1">
-            Scale Spans
+            Scale Calls
             <Show when={callsContext.granularity.granularity() > 1}>
               <span>ⓘ</span>
             </Show>

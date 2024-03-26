@@ -1,22 +1,33 @@
 import { Span } from "~/lib/connection/monitor";
 import { updatedSpans } from "~/lib/span/update-spans";
+import { ReactiveMap } from "@solid-primitives/map";
+import { MOCK_METADATA } from "./span-metadata.test";
+import type { Metadata } from "~/lib/proto/common";
 
-const MOCK_SPAN: Span = {
+const MOCK_SPANS: ReactiveMap<bigint, Span> = new ReactiveMap();
+const MOCK_MAP: Map<bigint, Metadata> = new Map([[BigInt(1), MOCK_METADATA()]]);
+
+MOCK_SPANS.set(BigInt(7), {
   id: BigInt(7),
+  name: "",
   metadataId: BigInt(2),
   fields: [],
+  initiated: -1,
+  time: -1,
   createdAt: -1,
   closedAt: -1,
   duration: -1,
+  children: [],
+  aborted: false,
   enters: [],
   exits: [],
-};
+});
 
 describe("The store setter for the Span Waterfall", () => {
   it("should throw if an invalid span type is received", () => {
     expect(() => {
       updatedSpans(
-        [MOCK_SPAN],
+        MOCK_SPANS,
         [
           {
             event: {
@@ -24,13 +35,16 @@ describe("The store setter for the Span Waterfall", () => {
             },
           },
         ],
+        MOCK_MAP,
+        { end: -1, average: -1, counted: 0, openSpans: 0 },
       );
     }).toThrowError("span type not supported");
   });
 
   it("should do nothing for `closeSpan`", () => {
-    const result = updatedSpans(
-      [MOCK_SPAN],
+    const sizeBeforeUpdate = MOCK_SPANS.size;
+    updatedSpans(
+      MOCK_SPANS,
       [
         {
           event: {
@@ -45,9 +59,11 @@ describe("The store setter for the Span Waterfall", () => {
           },
         },
       ],
+      MOCK_MAP,
+      { end: -1, average: -1, counted: 0, openSpans: 0 },
     );
 
-    expect(result).toEqual([MOCK_SPAN]);
+    expect(sizeBeforeUpdate).toEqual(MOCK_SPANS.size);
   });
 
   it("should add `newSpan` without parent to root level", () => {
@@ -70,8 +86,8 @@ describe("The store setter for the Span Waterfall", () => {
       ],
     };
 
-    const result = updatedSpans(
-      [MOCK_SPAN],
+    updatedSpans(
+      MOCK_SPANS,
       [
         {
           event: {
@@ -80,8 +96,11 @@ describe("The store setter for the Span Waterfall", () => {
           },
         },
       ],
+      MOCK_MAP,
+      { end: -1, average: -1, counted: 0, openSpans: 0 },
     );
-
+    const result: Span[] = [];
+    MOCK_SPANS.forEach((span) => result.push(span));
     expect(result[1].id).toEqual(newSpan.id);
     expect(result[1].fields[0].name).toEqual(newSpan.fields[0].name);
   });

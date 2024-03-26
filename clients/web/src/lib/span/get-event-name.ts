@@ -1,17 +1,10 @@
-import { Metadata } from "../proto/common";
 import { isEventSpan } from "./is-event-span";
 import { processFieldValue } from "./process-field-value";
-import { UiSpan } from "./format-spans-for-ui";
+import type { Span } from "../connection/monitor";
 
-type Options = {
-  metadata: Map<bigint, Metadata>;
-  span: UiSpan;
-};
-
-export function getEventName({ metadata, span }: Options) {
-  const name = metadata.get(span.metadataId)?.name ?? null;
-
-  if (isEventSpan({ metadata, span })) {
+export function getEventName(span: Span) {
+  const name = span.metadata?.name ?? null;
+  if (isEventSpan(span)) {
     const eventField = span.fields.find((f) => f.name === "event");
     if (eventField) {
       const kind = name?.startsWith("app::")
@@ -22,6 +15,5 @@ export function getEventName({ metadata, span }: Options) {
       return `${kind}: ${processFieldValue(eventField.value)}`;
     }
   }
-
   return name;
 }
