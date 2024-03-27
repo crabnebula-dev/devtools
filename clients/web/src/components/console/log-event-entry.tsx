@@ -9,6 +9,9 @@ import { processFieldValue } from "~/lib/span/process-field-value";
 import { A, useParams } from "@solidjs/router";
 import { encodeFileName } from "~/lib/sources/file-entries";
 
+import MigrateAlt from "../icons/migrate--alt";
+import { Tooltip } from "@kobalte/core";
+
 function displayField(field: Field) {
   // HACK: overflow isn't handled nicely right now.
   const maxLen = 180;
@@ -63,7 +66,7 @@ export function LogEventEntry(props: {
       {(processedEvent) => (
         <div
           class={clsx(
-            "p-1  font-mono text-sm items-center flex gap-4 group",
+            "p-1  font-mono text-sm items-center flex gap-8 group",
             processedEvent().levelStyle
               ? processedEvent().levelStyle
               : "border-b-gray-800 text-white",
@@ -83,16 +86,18 @@ export function LogEventEntry(props: {
               {formatTimestamp(processedEvent().timeDate)}
             </time>
           </Show>
-          <Show when={props.showLinks && processedEvent().parent}>
-            <A
-              href={`/dash/${host}/${port}/calls?span=${processedEvent().parent}`}
-              class="text-slate-100 group-hover:text-white"
-            >
-              🔗
-            </A>
-          </Show>
           <Show when={processedEvent().message.length}>
-            <span class="group-hover:text-white text-slate-300 transition-colors">
+            <span class="group-hover:text-white text-slate-300 transition-colors relative">
+              <Show when={props.showLinks && processedEvent().parent}>
+                <A
+                  href={`/dash/${host}/${port}/calls?span=${processedEvent().parent}`}
+                  class="text-slate-400 group-hover:text-white absolute -left-6 top-1/2 -translate-y-1/2"
+                >
+                  <span class="size-4 hover:scale-125 inline-block">
+                    <MigrateAlt />
+                  </span>
+                </A>
+              </Show>
               {processedEvent().message}
             </span>
           </Show>
@@ -116,13 +121,31 @@ export function LogEventEntry(props: {
                 processedEvent().metadata?.location,
               )}
             >
-              {(line) => <span>{line()}</span>}
+              {(line) => (
+                <Tooltip.Root>
+                  <Tooltip.Trigger>
+                    <span>{shortenFilePath(line())}</span>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>
+                    <div class="rounded p-2 border border-slate-500 bg-black shadow">
+                      {line()}
+                    </div>
+                  </Tooltip.Content>
+                </Tooltip.Root>
+              )}
             </Show>
           </MaybeLinkedSource>
         </div>
       )}
     </Show>
   );
+}
+
+function shortenFilePath(fullPath: string): string {
+  return JSON.stringify(fullPath ?? "")
+    .split("\\")
+    .pop()
+    .replace(/"$/, "");
 }
 
 function MaybeLinkedSource(props: {

@@ -72,12 +72,13 @@
   .gutter,
   .gutter:hover {
     border: 0;
-    @apply cursor-col-resize  bg-slate-800;
+    @apply cursor-col-resize bg-slate-800;
   }
 
   .gutter:active {
     @apply bg-slate-400;
   }
+
   /**
    * /SplitPane specific CSS (split.js)
   **/
@@ -98,6 +99,7 @@
     max-height: 90vh;
     top: -250px;
   }
+
   /**
    * /Background classes
   **/
@@ -113,7 +115,8 @@
     min-height: 100%;
     height: max-content;
     width: max-content;
-    background: transparent !important; /* override shiki's background */
+    background: transparent !important;
+    /* override shiki's background */
   }
 
   code {
