@@ -12,7 +12,7 @@ export default function MigrateAlt() {
       />
       <path
         data-name="&lt;Transparent Rectangle&gt;"
-        style="fill:none"
+        style={{ fill: "none" }}
         d="M0 0h32v32H0z"
       />
     </svg>
