@@ -142,10 +142,7 @@ export function LogEventEntry(props: {
 }
 
 function shortenFilePath(fullPath: string): string {
-  return JSON.stringify(fullPath ?? "")
-    .split("\\")
-    .pop()
-    .replace(/"$/, "");
+  return fullPath.substring(fullPath.lastIndexOf("\\") + 1);
 }
 
 function MaybeLinkedSource(props: {
