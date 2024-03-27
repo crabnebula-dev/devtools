@@ -9,6 +9,7 @@ import { getDetailedTime } from "~/lib/formatters.ts";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import clsx from "clsx";
 import { Metadata_Level } from "~/lib/proto/common";
+import { useSearchParams } from "@solidjs/router";
 
 export function CallDetailTrace(props: {
   depth: number;
@@ -31,6 +32,7 @@ export function CallDetailTrace(props: {
         return "";
     }
   };
+  const [, setSearchParams] = useSearchParams();
 
   return (
     <Popover.Root>
@@ -38,7 +40,12 @@ export function CallDetailTrace(props: {
         class="even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]"
         as="tr"
       >
-        <td class={clsx("py-1 px-4", color())}>
+        <td
+          class={clsx("py-1 px-4", color())}
+          onClick={() => {
+            setSearchParams({ span: String(props.span.id) });
+          }}
+        >
           <span class="text-slate-800 text-xs">{"| ".repeat(props.depth)}</span>
           {props.span.displayName ?? props.span.name}
         </td>
