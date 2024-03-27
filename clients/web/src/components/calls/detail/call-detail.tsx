@@ -77,7 +77,7 @@ export function CallDetail(props: { span: Span }) {
       setMinLevel={setMinLevel}
       hasError={props.span.hasError}
       parentId={props.span.parentId}
-      rootSpanId={root()?.id}
+      rootSpan={root()}
       spanChildren={children()}
       valuesSectionTitle={valuesSectionTitle()}
       values={values()}

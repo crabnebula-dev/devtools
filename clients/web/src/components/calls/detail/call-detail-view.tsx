@@ -6,6 +6,7 @@ import clsx from "clsx";
 import { TreeEntry } from "~/lib/span/get-span-children";
 import { Metadata_Level } from "~/lib/proto/common";
 import { FilterToggle } from "~/components/filter-toggle";
+import { Span } from "~/lib/connection/monitor";
 
 type Props = {
   name: string;
@@ -13,7 +14,7 @@ type Props = {
   setMinLevel: Setter<Metadata_Level>;
   hasError: boolean | null;
   parentId?: bigint;
-  rootSpanId?: bigint;
+  rootSpan?: Span;
   spanChildren: TreeEntry[];
   valuesSectionTitle: string;
   values: (string | object)[];
@@ -37,10 +38,12 @@ export function CallDetailView(props: Props) {
   return (
     <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800 min-w-[420px]">
       <div class="pt-4 px-4">
-        <Show when={props.rootSpanId}>
-          <A href={`/dash/${host}/${port}/calls?span=${props.rootSpanId}`}>
-            ↑ parent
-          </A>
+        <Show when={props.rootSpan}>
+          {(rootSpan) => (
+            <A href={`/dash/${host}/${port}/calls?span=${rootSpan().id}`}>
+              ↑ parent: {rootSpan().displayName ?? rootSpan().name}
+            </A>
+          )}
         </Show>
         <h2 class={clsx("text-2xl", props.hasError ? "text-red-400" : "")}>
           {props.name}
