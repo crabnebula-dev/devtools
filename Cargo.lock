@@ -2840,9 +2840,9 @@ dependencies = [
 
 [[package]]
 name = "ringbuf"
-version = "0.4.0-rc.3"
+version = "0.4.0-rc.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bdbd88a807ef07d0f243843ecccf4e7383638e536284fc0adf1663790faec4ef"
+checksum = "d0e88bb7654ac0363537fcfcaf3d95647788fbc0971698eb52091e8e72ffa53f"
 dependencies = [
  "crossbeam-utils",
 ]
