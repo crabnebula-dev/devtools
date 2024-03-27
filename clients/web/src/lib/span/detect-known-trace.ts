@@ -158,14 +158,14 @@ function detectIpcTrace(root: Span): IpcData | undefined {
   if (!request || typeof request !== "object") return;
 
   // eslint-disable-next-line prefer-const
-  let { cmd, ...requestRemainer } = request as Record<
+  let { cmd, ...requestRemainder } = request as Record<
     string,
     string | undefined
   >;
 
   // Intentionally filtering variables we don't want in `inputs`
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { callback, error, __tauriModule, ...inputs } = requestRemainer;
+  const { callback, error, __tauriModule, ...inputs } = requestRemainder;
 
   cmd = cmd ?? (cmdField ? processFieldValue(cmdField.value) : undefined);
 
