@@ -11,8 +11,8 @@ import {
   HealthCheckResponse_ServingStatus,
 } from "../proto/health";
 import { InstrumentRequest } from "../proto/instrument";
-import { updateSpanMetadata } from "../span/update-span-metadata";
-import { updatedSpans } from "../span/update-spans";
+import { updateSpanMetadata } from "../span/update/update-span-metadata";
+import { updatedSpans } from "../span/update/update-spans";
 import { MonitorData } from "./monitor";
 import * as Sentry from "@sentry/browser";
 import { Metadata_Level } from "../proto/common";

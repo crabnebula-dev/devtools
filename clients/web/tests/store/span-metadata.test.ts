@@ -3,7 +3,7 @@ import {
   Metadata_Kind,
   Metadata_Level,
 } from "~/lib/proto/common";
-import { updateSpanMetadata } from "~/lib/span/update-span-metadata";
+import { updateSpanMetadata } from "~/lib/span/update/update-span-metadata";
 
 export const MOCK_METADATA = (
   kind = Metadata_Kind.SPAN,

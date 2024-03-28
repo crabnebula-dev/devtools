@@ -1,5 +1,5 @@
 import { Span } from "~/lib/connection/monitor";
-import { updatedSpans } from "~/lib/span/update-spans";
+import { updatedSpans } from "~/lib/span/update/update-spans";
 import { ReactiveMap } from "@solid-primitives/map";
 import { MOCK_METADATA } from "./span-metadata.test";
 import type { Metadata } from "~/lib/proto/common";
