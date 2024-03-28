@@ -1,6 +1,5 @@
 import { For, createEffect, Switch, Match } from "solid-js";
 import { ConfigurationValue } from "./configuration-value";
-import { ConfigurationTooltip } from "./configuration-tooltip";
 import { generateDescriptions } from "~/lib/tauri/tauri-conf-lib";
 import { retrieveConfigurationByKey } from "~/lib/tauri/config/retrieve-configurations";
 import { useParams } from "@solidjs/router";
@@ -50,7 +49,7 @@ export function ConfigurationView() {
   });
 
   return (
-    <div class="p-4 h-full w-full">
+    <div class="h-full w-full">
       <Switch
         fallback={
           <div class="h-full grid gap-4 text-center content-center justify-center items-center p-4">
@@ -66,11 +65,6 @@ export function ConfigurationView() {
         <Match when={tabWithKeys()}>
           {(t) => (
             <>
-              <header>
-                <h1 class="text-3xl pb-8 text-white">
-                  <ConfigurationTooltip parentKey="" key={params.selected} />
-                </h1>
-              </header>
               <Switch
                 fallback={
                   <ConfigurationValue

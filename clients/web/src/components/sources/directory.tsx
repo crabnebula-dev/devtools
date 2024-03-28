@@ -98,7 +98,8 @@ export function Directory(props: DirectoryProps) {
                   href={`${encodeFileName(absolutePath)}?sizeHint=${
                     child.size
                   }`}
-                  activeClass={styles.hierarchyActive}
+                  activeClass={"filter saturate-1" + styles.hierarchyActive}
+                  inactiveClass={"filter saturate-[0.6] opacity-70"}
                 >
                   <TreeEntry
                     icon={<FileIcon path={child.path} />}

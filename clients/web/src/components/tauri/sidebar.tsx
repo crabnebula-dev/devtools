@@ -29,8 +29,13 @@ function Config(props: { config: ConfigurationObject }) {
   const basePath = getTauriTabBasePath();
 
   return (
-    <section class={styles.hierarchy}>
-      <div class="p-2 mb-2 flex flex-row gap-2 font-bold items-center border-b border-slate-700 truncate">
+    <section
+      class={
+        "my-2 first:mt-0 filter hover:brightness-125 border-slate-400" +
+        styles.hierarchy
+      }
+    >
+      <div class="p-2 mb-2 flex flex-row gap-2 font-bold items-center bg-slate-800 bg-opacity-50 truncate">
         <div class="w-5 h-5">
           <FileIcon path="tauri.conf.json" />
         </div>
@@ -55,14 +60,10 @@ function Config(props: { config: ConfigurationObject }) {
               <A
                 draggable={false}
                 href={`${basePath}/${props.config.key}/${name}?size=${props.config.size}`}
-                activeClass={styles.hierarchyActive}
+                activeClass={"filter saturate-1" + styles.hierarchyActive}
+                inactiveClass={"filter saturate-[0.1] opacity-70"}
               >
-                <li
-                  class={
-                    styles.hierarchyItem +
-                    " filter saturate-0 hover:saturate-50"
-                  }
-                >
+                <li class={styles.hierarchyItem}>
                   <div class={styles.hierarchyIcon}>
                     <FileIcon path=".json" />
                   </div>

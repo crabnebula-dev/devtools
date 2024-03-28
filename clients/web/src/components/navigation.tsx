@@ -26,7 +26,7 @@ const TABS = [
   {
     id: "tauri",
     url: (host: string, port: string) => `/dash/${host}/${port}/tauri`,
-    title: "Tauri Config",
+    title: "Config",
     icon: "tauri",
   },
 ];
