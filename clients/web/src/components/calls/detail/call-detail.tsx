@@ -1,40 +1,57 @@
-import { Show, Suspense } from "solid-js";
+import { For, Show, Suspense, createMemo, createSignal } from "solid-js";
 import { Span } from "~/lib/connection/monitor";
 import { CallDetailView } from "./call-detail-view";
-import { getIpcRequestValues } from "~/lib/span/get-ipc-request-value";
-import { processFieldValue } from "~/lib/span/process-field-value";
 import { spanFieldsToObject } from "~/lib/span/span-fields-to-object";
-import { getSpanChildren } from "~/lib/span/get-span-children";
-import { isIpcSpanName } from "~/lib/span/isIpcSpanName";
+import { treeEntries } from "~/lib/span/get-span-children";
 import { CodeHighlighter } from "../../code-highlighter";
 import { Loader } from "../../loader";
+import { Metadata_Level } from "~/lib/proto/common";
+import { useMonitor } from "~/context/monitor-provider";
+import { LogEventEntry } from "~/components/console/log-event-entry";
 
 export function CallDetail(props: { span: Span }) {
-  const children = () => {
-    const allChildren = getSpanChildren(props.span);
-    if (props.span.kind === "ipc") {
-      // platforms that use webview's postMessage for IPC (such as iOS for remote URLs, Android and Linux)
-      // might send the response via an auxiliary custom protocol request, so we filter out those spans
-      const channelResponseSpans: bigint[] = [];
-      for (const child of allChildren) {
-        if (child.parentId && channelResponseSpans.includes(child.parentId)) {
-          channelResponseSpans.push(child.id);
-        }
-        if (child.name === "wry::custom_protocol::handle") {
-          channelResponseSpans.push(child.id);
-        }
-      }
-      return allChildren.filter(
-        (s) =>
-          s.name !== "ipc::request::response" &&
-          !channelResponseSpans.includes(s.id) &&
-          isIpcSpanName(s.metadata?.name ?? ""),
-      );
+  const { monitorData } = useMonitor();
+
+  const [minLevel, setMinLevel] = createSignal<Metadata_Level>(
+    Metadata_Level.TRACE,
+  );
+
+  const root = createMemo(() => {
+    // If our current span is a root span, don't recurse up.
+    if (!props.span.parent) return;
+
+    // Walk up, with a limit on number of hops.
+    let node = props.span;
+    for (let limit = 10; limit && node.parent; limit--) {
+      node = node.parent;
     }
-    return allChildren;
-  };
+    return node;
+  });
+
+  const children = createMemo(() => {
+    const level = minLevel();
+    return treeEntries(
+      props.span,
+      (span) => span.metadata && span.metadata.level <= level,
+    );
+  });
+
+  const includedSpans = createMemo(
+    () => new Set(children().map((n) => n.span.id)),
+  );
+
+  const associatedLogs = createMemo(() => {
+    const spanIds = includedSpans();
+    return monitorData.logs.filter(
+      (log) => log.parent && spanIds.has(log.parent),
+    );
+  });
 
   const valuesSectionTitle = () => {
+    if (props.span.ipcData?.inputs) {
+      return "Inputs";
+    }
+
     switch (props.span.kind) {
       case "ipc":
         return "Inputs";
@@ -46,54 +63,26 @@ export function CallDetail(props: { span: Span }) {
   };
 
   const values = () => {
-    switch (props.span.kind) {
-      case "ipc": {
-        const ipcValues =
-          getIpcRequestValues(props.span)("ipc::request")
-            ?.fields.map((f) => {
-              if (f.request) {
-                if (f.request.oneofKind === "debugVal") {
-                  return { "": f.request.debugVal };
-                }
-                return processFieldValue(f.request);
-              }
-              return null;
-            })
-            .filter(Boolean) ?? [];
-        return ipcValues;
-      }
-
-      default:
-        return [spanFieldsToObject(props.span)];
-    }
-  };
-
-  const code = () => {
-    switch (props.span.kind) {
-      case "ipc": {
-        const field = getIpcRequestValues(props.span)("ipc::request::response")
-          ?.fields[0]?.response;
-        return field
-          ? processFieldValue(field).replace(
-              /\\n/gim, // Turn escaped newlines into actual newlines
-              "\n",
-            )
-          : null;
-      }
-
-      default:
-        return null;
-    }
+    return [
+      props.span.ipcData?.tauriInputs ?? {},
+      props.span.ipcData?.inputs ?? {},
+      spanFieldsToObject(props.span),
+    ];
   };
 
   return (
     <CallDetailView
-      name={props.span.name ?? "-"}
-      spanChildren={children() ?? []}
+      name={props.span.displayName ?? props.span.name ?? "-"}
+      minLevel={minLevel()}
+      setMinLevel={setMinLevel}
+      hasError={props.span.hasError}
+      parentId={props.span.parentId}
+      rootSpan={root()}
+      spanChildren={children()}
       valuesSectionTitle={valuesSectionTitle()}
-      values={values() ?? []}
+      values={values()}
     >
-      <Show when={code()}>
+      <Show when={props.span.ipcData?.response}>
         {(raw) => (
           <div class="grid gap-2">
             <h2 class="text-xl p-4">Response</h2>
@@ -104,6 +93,23 @@ export function CallDetail(props: { span: Span }) {
             </pre>
           </div>
         )}
+      </Show>
+      <Show when={associatedLogs().length}>
+        <div class="grid gap-2 border-gray-800 border-b">
+          <h2 class="text-xl p-4 border-gray-800 border-b">
+            Logs ({associatedLogs().length})
+          </h2>
+          <For each={associatedLogs()}>
+            {(log, idx) => (
+              <LogEventEntry
+                event={log}
+                showAttributes={true}
+                showTimestamp={true}
+                odd={idx() % 2 == 0}
+              />
+            )}
+          </For>
+        </div>
       </Show>
     </CallDetailView>
   );

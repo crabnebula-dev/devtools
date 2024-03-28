@@ -8,27 +8,60 @@ import { useMonitor } from "~/context/monitor-provider";
 import { CallsClearButton } from "~/components/calls/topbar/calls-clear-button";
 import { filterSpans } from "~/lib/span/filter-spans";
 import { Span } from "~/lib/connection/monitor";
-import { createMemo } from "solid-js";
+import { createMemo, createSignal } from "solid-js";
+import { FilterToggle } from "~/components/filter-toggle";
 
 function Calls() {
   const { monitorData } = useMonitor();
 
+  const [textFilter, setTextFilter] = createSignal<string>("");
+  const [showErrors, toggleErrorFilter] = createSignal(false);
+
   let spanProcessingPointer = 0;
 
-  const filteredCalls = createMemo<Span[]>((alreadyFiltered) => {
-    const [filteredCalls, newPointer] = filterSpans(
+  const selectedCalls = createMemo<Span[]>((alreadyFiltered) => {
+    const [selectedCalls, newPointer] = filterSpans(
       alreadyFiltered,
       spanProcessingPointer,
       monitorData.spans,
     );
     spanProcessingPointer = newPointer;
-    return filteredCalls;
+    return selectedCalls;
   }, []);
+
+  const filteredCalls = createMemo<Span[]>(() => {
+    const onlyErrors = showErrors();
+    const text = textFilter();
+    return selectedCalls()
+      .filter((s) => !onlyErrors || s.hasChildError || s.hasError)
+      .filter(
+        (s) =>
+          !text ||
+          s.name.includes(text) ||
+          s.displayName?.includes(text) ||
+          s.metadata?.target.includes(text) ||
+          s.metadata?.location?.file?.includes(text),
+      );
+  });
 
   return (
     <div class="h-[calc(100%-var(--toolbar-height))]">
       <Toolbar>
         <CallsClearButton />
+        <input
+          value={textFilter()}
+          onInput={(e) => setTextFilter(() => e.currentTarget.value)}
+          type="text"
+          placeholder="Filter..."
+          class="bg-slate-900 px-1 rounded text-white focus:outline-none focus:border focus:border-slate-400"
+        />
+        <FilterToggle
+          defaultPressed={showErrors()}
+          aria-label="errors only"
+          changeHandler={() => toggleErrorFilter((prev) => !prev)}
+        >
+          <span>Errors only</span>
+        </FilterToggle>
         <span>Displayed calls: {filteredCalls().length}</span>
         <span>Running calls: {monitorData.durations.openSpans}</span>
         <CallsScaleSlider />

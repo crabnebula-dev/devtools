@@ -15,6 +15,8 @@ import { updateSpanMetadata } from "../span/update-span-metadata";
 import { updatedSpans } from "../span/update-spans";
 import { MonitorData } from "./monitor";
 import * as Sentry from "@sentry/browser";
+import { Metadata_Level } from "../proto/common";
+import { convertTimestampToNanoseconds } from "../formatters";
 
 export async function checkConnection(url: string) {
   const abortController = new AbortController();
@@ -111,9 +113,38 @@ export function addStreamListeners(
       setMonitorData("metadata", (prev) => updateSpanMetadata(prev, update));
     }
 
+    const errorMetadata = new Set(
+      update.newMetadata
+        .filter(
+          (m) => m.id != null && m.metadata?.level === Metadata_Level.ERROR,
+        )
+        .map((m) => m.id ?? BigInt(-1)),
+    );
+
     const logsUpdate = update.logsUpdate;
+
+    const errorEventParents = new Set(
+      update.logsUpdate?.logEvents
+        .filter((ev) => ev.parent != null && errorMetadata.has(ev.metadataId))
+        .map((ev) => ev.parent ?? BigInt(-1)),
+    );
+
     if (logsUpdate && logsUpdate.logEvents.length > 0) {
-      setMonitorData("logs", (prev) => [...prev, ...logsUpdate.logEvents]);
+      setMonitorData("logs", (prev) => {
+        // HACK: ensure we're only inserting logs newer than the latest we already had.
+        // Workaround for https://linear.app/crabnebula/issue/DT-121/bug-logs-are-duplicated-when-reconnecting
+        const maxNs: number = prev.reduce(
+          (max, log) =>
+            Math.max(max, log.at ? convertTimestampToNanoseconds(log.at) : 0),
+          0,
+        );
+        return [
+          ...prev,
+          ...logsUpdate.logEvents.filter(
+            (log) => log.at && convertTimestampToNanoseconds(log.at) > maxNs,
+          ),
+        ];
+      });
       Sentry.setMeasurement(
         "droppedLogEvents",
         Number(logsUpdate.droppedEvents),
@@ -126,6 +157,8 @@ export function addStreamListeners(
     if (spansUpdate && spansUpdate.spanEvents.length > 0) {
       batch(() => {
         const durations = updatedSpans(
+          errorMetadata,
+          errorEventParents,
           monitorData.spans,
           spansUpdate.spanEvents,
           monitorData.metadata,

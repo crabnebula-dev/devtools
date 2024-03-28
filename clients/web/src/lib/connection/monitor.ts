@@ -21,10 +21,35 @@ export type Durations = {
   openSpans: number;
 };
 
+export type IpcData = {
+  cmd: string;
+  inputs: Record<string, unknown>;
+  response: string | null;
+  responseKind?: "Ok" | "Err";
+  tauriModule?: string;
+  tauriCmd?: string;
+  tauriInputs?: Record<string, unknown>;
+  pluginName?: string;
+  pluginCmd?: string;
+};
+
+export type EventKind = "global event" | "rust event" | "event";
+export type EventData = {
+  kind: EventKind;
+  event: string;
+};
+
 export type Span = {
   id: bigint;
   name: string;
   kind?: "ipc" | "event";
+
+  displayName?: string;
+  ipcData?: IpcData;
+  eventData?: EventData;
+  hasChildError?: boolean;
+  hasError: boolean | null;
+
   parentId?: bigint;
   parent?: Span;
   metadataId: bigint;
@@ -47,6 +72,7 @@ export type MonitorData = {
   metadata: Map<bigint, Metadata>;
   logs: LogEvent[];
   spans: ReactiveMap<bigint, Span>;
+  // rootSpans: ReactiveMap<bigint, RootSpan>;
   durations: Durations;
   /** The original/parsed tauri configuration we receive from instrumentation */
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;

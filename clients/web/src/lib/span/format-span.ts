@@ -30,8 +30,10 @@ export function formatSpan(
     children: [],
     closedAt: -1,
     aborted: false,
+    hasError: null,
   };
 
+  // NOTE: we're still doing this here, so detection is still partially migrated to `detect-known-traces.ts`.
   span.kind = getSpanKind(span);
   span.name = getSpanName(span) || "-";
   return span;

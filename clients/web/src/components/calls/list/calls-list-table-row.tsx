@@ -17,6 +17,7 @@ import {
 } from "~/lib/span/normalize-spans";
 import { useSearchParams } from "@solidjs/router";
 import { useMonitor } from "~/context/monitor-provider";
+import { Metadata_Level } from "~/lib/proto/common";
 
 export function CallsListTableRow(props: {
   call: Span;
@@ -28,6 +29,19 @@ export function CallsListTableRow(props: {
   const [timePassed, setTimePassed] = createSignal(0);
 
   let lastRequest: number | undefined;
+
+  const nameColor = () => {
+    if (props.call.hasError) return "text-red-400";
+    if (props.call.hasChildError) return "text-orange-300";
+    switch (props.call.metadata?.level) {
+      case Metadata_Level.TRACE:
+        return "text-slate-600";
+      case Metadata_Level.DEBUG:
+        return "text-slate-400";
+      default:
+        return "";
+    }
+  };
 
   function updateTimePassed() {
     if (props.call.closedAt < 0) {
@@ -67,10 +81,25 @@ export function CallsListTableRow(props: {
       onClick={() => {
         setSearchParams({ span: String(props.call.id) });
       }}
-      class="even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10] h-3"
+      class={clsx(
+        "even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10] h-3",
+        nameColor(),
+      )}
       style={props.style}
     >
-      <TableCell title={props.call.name} height={props.height} />
+      <TableCell
+        title={props.call.displayName ?? props.call.name}
+        height={props.height}
+      >
+        {/*
+          Note: we might show spans that are not root spans, based on kind.
+          This could be confusing so we display them as slightly indented.
+        */}
+        <Show when={props.call.parentId}>
+          <span class="text-slate-800 text-s">{"| "}</span>
+        </Show>
+        {props.call.displayName ?? props.call.name}
+      </TableCell>
       <TableCell
         title={getTime(new Date(props.call.initiated))}
         height={props.height}

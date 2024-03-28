@@ -16,7 +16,7 @@ export function filterSpans(
   }
   allSpans.forEach((span) => {
     localPointer++;
-    if (localPointer > spanProcessingPointer && span.kind) {
+    if (localPointer > spanProcessingPointer && (span.kind || !span.parent)) {
       alreadyFiltered.push(span);
     }
   });

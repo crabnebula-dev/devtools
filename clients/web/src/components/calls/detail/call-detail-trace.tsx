@@ -6,8 +6,13 @@ import {
 } from "~/lib/span/normalize-spans";
 import { Popover } from "@kobalte/core";
 import { getDetailedTime } from "~/lib/formatters.ts";
+import { processFieldValue } from "~/lib/span/process-field-value";
+import clsx from "clsx";
+import { Metadata_Level } from "~/lib/proto/common";
+import { useSearchParams } from "@solidjs/router";
 
 export function CallDetailTrace(props: {
+  depth: number;
   span: Span;
   durations: {
     start: number;
@@ -16,13 +21,34 @@ export function CallDetailTrace(props: {
     longest: number;
   };
 }) {
+  const color = () => {
+    if (props.span.hasError) return "text-red-400";
+    switch (props.span.metadata?.level) {
+      case Metadata_Level.TRACE:
+        return "text-slate-600";
+      case Metadata_Level.DEBUG:
+        return "text-slate-400";
+      default:
+        return "";
+    }
+  };
+  const [, setSearchParams] = useSearchParams();
+
   return (
     <Popover.Root>
       <Popover.Trigger
         class="even:bg-nearly-invisible cursor-pointer hover:bg-[#ffffff05] even:hover:bg-[#ffffff10]"
         as="tr"
       >
-        <td class="py-1 px-4">{props.span.name}</td>
+        <td
+          class={clsx("py-1 px-4", color())}
+          onClick={() => {
+            setSearchParams({ span: String(props.span.id) });
+          }}
+        >
+          <span class="text-slate-800 text-xs">{"| ".repeat(props.depth)}</span>
+          {props.span.displayName ?? props.span.name}
+        </td>
         <td class="py-1 px-4 relative w-[70%]">
           <div class="relative">
             <div class="bg-gray-800 w-full absolute rounded-sm h-2" />
@@ -67,6 +93,14 @@ function SpanDetailPopOverContent(props: { span: Span }) {
     >
       <ToolTipContent>
         <ToolTipRow title={props.span.name} />
+        <ToolTipRow title="target">{props.span.metadata?.target}</ToolTipRow>
+        <For each={props.span.fields}>
+          {(field) => (
+            <ToolTipRow title={field.name}>
+              {processFieldValue(field.value)}
+            </ToolTipRow>
+          )}
+        </For>
         <ToolTipRow title="Busy">
           {(busy(props.span) / 1e6).toFixed(3)}ms
         </ToolTipRow>
@@ -135,7 +169,9 @@ function ToolTipContent(props: { children: JSXElement }) {
 function ToolTipRow(props: { title: string; children?: JSXElement }) {
   return (
     <tr class="grid grid-cols-2 text-left">
-      <th>{props.title}</th>
+      <th style={{ "grid-column": props.children ? "" : "span 2" }}>
+        {props.title}
+      </th>
       <Show when={props.children}>
         <td>{props.children}</td>
       </Show>

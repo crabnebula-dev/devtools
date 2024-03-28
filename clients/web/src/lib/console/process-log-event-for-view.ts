@@ -7,7 +7,7 @@ import { LogEvent } from "../proto/logs";
 
 export function processLogEventForView(logEvent: LogEvent) {
   const { monitorData } = useMonitor();
-  const { message, at } = logEvent;
+  const { message, at, fields, parent } = logEvent;
   if (!at) return;
 
   const metadata = getLogMetadata(monitorData, logEvent);
@@ -28,5 +28,7 @@ export function processLogEventForView(logEvent: LogEvent) {
     levelStyle,
     target,
     metadata,
+    fields,
+    parent,
   };
 }
