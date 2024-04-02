@@ -35,7 +35,7 @@ export function SplitPane(props: WrapperProps) {
     splitInstance = Split(paneIds, {
       sizes,
       minSize: defaultMinSizes,
-      gutterSize: gutterSize ?? 5,
+      gutterSize: gutterSize,
       onDragEnd: function (sizes) {
         setToLocalStorage(splitGutterSizeKey, sizes);
       },

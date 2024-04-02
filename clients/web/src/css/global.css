@@ -6,7 +6,7 @@
 @layer base {
   /** fonts */
   :root {
-    --header-height: 90px;
+    --header-height: 43px;
     --toolbar-height: 36px;
     --footer-height: 32px;
   }
@@ -52,7 +52,7 @@
   }
 
   * {
-    @apply scrollbar-thin scrollbar-track-neutral-900 scrollbar-thumb-rounded scrollbar-thumb-neutral-600;
+    @apply scrollbar-thin scrollbar-track-transparent scrollbar-thumb-slate-600;
   }
 
   h1,
@@ -69,10 +69,18 @@
   /**
    * SplitPane specific CSS (split.js)
   **/
-  .gutter,
-  .gutter:hover {
-    border: 0;
+  .gutter {
+    border: 0px;
+    min-width: 1.5px;
+    width: 1px !important;
     @apply cursor-col-resize bg-slate-800;
+    transition: 120ms ease;
+  }
+
+  .gutter:hover {
+    width: 5px !important;
+    border: 10px;
+    @apply cursor-col-resize bg-slate-700;
   }
 
   .gutter:active {
@@ -138,4 +146,16 @@
   /**
    * /shiki
   **/
+}
+
+.select-none {
+  user-select: none;
+}
+
+::selection {
+  background: rgb(0, 66, 104);
+}
+
+#tauri-config-0-pane {
+  min-width: 250px;
 }

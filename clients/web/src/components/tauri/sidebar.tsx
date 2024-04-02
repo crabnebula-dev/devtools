@@ -5,17 +5,21 @@ import { type ConfigurationObject } from "~/lib/tauri/config/retrieve-configurat
 import { Loader } from "~/components/loader";
 import { getTauriTabBasePath } from "~/lib/tauri/get-tauri-tab-base-path";
 import { useMonitor } from "~/context/monitor-provider";
+import { TauriConfig } from "~/lib/tauri/config/tauri-conf";
+
+import * as styles from "~/css/styles.ts";
 
 export function Sidebar() {
   const { monitorData } = useMonitor();
 
   return (
     <>
-      <h2 class="text-neutral-300 p-4 pb-2 text-2xl">Config</h2>
       <Suspense fallback={<Loader />}>
-        <For each={monitorData.tauriConfigStore?.configs}>
-          {(child) => <Config config={child} />}
-        </For>
+        <div class={"flex flex-col h-full" + styles.surface}>
+          <For each={monitorData.tauriConfigStore?.configs}>
+            {(child) => <Config config={child} />}
+          </For>
+        </div>
       </Suspense>
     </>
   );
@@ -23,28 +27,49 @@ export function Sidebar() {
 
 function Config(props: { config: ConfigurationObject }) {
   const basePath = getTauriTabBasePath();
+
   return (
-    <section class="p-2">
+    <section
+      class={
+        "my-2 first:mt-0 filter hover:brightness-125 border-slate-400" +
+        styles.hierarchy
+      }
+    >
+      <div class="p-2 mb-2 flex flex-row gap-2 font-bold items-center bg-slate-800 bg-opacity-50 truncate">
+        <div class="w-5 h-5">
+          <FileIcon path="tauri.conf.json" />
+        </div>
+        <Show
+          when={hasProductName(props.config.data)}
+          fallback={"Untitled App"}
+        >
+          {(productName) => productName()}
+        </Show>
+      </div>
       <A
+        draggable={false}
         href={`${basePath}/${props.config.key}/`}
         activeClass="text-white"
-        class="grid gap-1.5 items-center text-left grid-cols-[1rem_1fr] text-xl text-neutral-400"
       >
-        <FileIcon path="tauri.conf.json" />
-        {props.config.label}
         <Show when={props.config.error}>⚠</Show>
       </A>
-      <nav class="flex flex-col">
+      <nav>
         <ul>
           <For each={Object.entries(props.config.data ?? {})}>
             {([name]) => (
-              <li>
-                <TabLink
-                  name={name}
-                  key={props.config.key}
-                  size={props.config.size}
-                />
-              </li>
+              <A
+                draggable={false}
+                href={`${basePath}/${props.config.key}/${name}?size=${props.config.size}`}
+                activeClass={"filter saturate-1" + styles.hierarchyActive}
+                inactiveClass={"filter saturate-[0.1] opacity-70"}
+              >
+                <li class={styles.hierarchyItem}>
+                  <div class={styles.hierarchyIcon}>
+                    <FileIcon path=".json" />
+                  </div>
+                  {name}
+                </li>
+              </A>
             )}
           </For>
         </ul>
@@ -53,16 +78,8 @@ function Config(props: { config: ConfigurationObject }) {
   );
 }
 
-function TabLink(props: { name: string; key: string; size: number }) {
-  const basePath = getTauriTabBasePath();
-  return (
-    <A
-      href={`${basePath}/${props.key}/${props.name}?size=${props.size}`}
-      activeClass="hover:bg-slate-700 bg-slate-800 text-white"
-      class="text-lg hover:bg-slate-600 p-1 pl-4 text-neutral-400 hover:text-white grid gap-1.5 items-center text-left grid-cols-[1rem_1fr]"
-    >
-      <FileIcon path={props.name} />
-      {props.name}
-    </A>
-  );
+function hasProductName(config?: TauriConfig) {
+  if (!config || !("productName" in config)) return false;
+
+  return config.productName;
 }

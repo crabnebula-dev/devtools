@@ -1,5 +1,5 @@
 import { useLocation } from "@solidjs/router";
-import { getRootPathByUrlSegment } from "../get-root-path-by-url-segment";
+import { getRootPathByUrlSegment } from "../formatters";
 
 export function getTauriTabBasePath() {
   const { pathname } = useLocation();

@@ -4,13 +4,24 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri Devtools Web-Client</title>
+    <title>CrabNebula DevTools</title>
   </head>
-  <body class="bg-navy-700 text-white">
+  <body class="bg-[#070c17] text-white">
     <div
       id="app"
       class="grid bg-navy-700 bg-opacity-70 grid-rows-[var(--header-height),calc(100vh-calc(var(--header-height)+var(--footer-height))),var(--footer-height)] h-screen"
     ></div>
+    <div
+      style="
+        z-index: -10;
+        position: absolute;
+        inset: 0px;
+        opacity: 0.5;
+        overflow: hidden;
+      "
+    >
+      <img style="width: 100%; height: 100%" src="/bg.webp" aria-hidden />
+    </div>
     <!-- this one is handled by Vite. No need for subpath-->
     <script type="module" src="/src/render-client.tsx"></script>
   </body>

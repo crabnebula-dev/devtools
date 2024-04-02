@@ -25,34 +25,30 @@ export function ConfigurationTooltip(props: {
     <Show
       when={localSchema()}
       fallback={
-        <span
-          class="hover:bg-gray-900 rounded"
-          onMouseOver={updateHighlightKey}
-        >
+        <span class="" onMouseOver={updateHighlightKey}>
           {props.key}
         </span>
       }
     >
-      <Tooltip.Root openDelay={500} closeDelay={500}>
-        <Tooltip.Trigger>
-          <span
-            class="hover:bg-gray-900 rounded"
-            onMouseOver={updateHighlightKey}
-          >
-            {props.key}
-            <sup class="text-sm text-neutral-400 pl-1">?</sup>
-          </span>
-        </Tooltip.Trigger>
+      <Tooltip.Root openDelay={0} closeDelay={0}>
+        <span class="" onMouseOver={updateHighlightKey}>
+          {props.key}
+          <Tooltip.Trigger>
+            <sup class="text-xs text-slate-500 p-1 px-2 rounded hover:text-white cursor-help hover:bg-slate-700 font-bold">
+              ?
+            </sup>
+          </Tooltip.Trigger>
+        </span>
         <Tooltip.Portal>
-          <Tooltip.Content class="bg-gray-900 text-xl font-medium text-white">
-            <Tooltip.Arrow style={{ fill: "rgb(55, 65, 81)" }} />
-            <div class="relative overflow-auto max-w-5xl max-h-96">
-              <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <Tooltip.Content>
+            <Tooltip.Arrow style={{ fill: "rgb(200, 200, 200)" }} />
+            <div class="relative overflow-auto max-w-5xl max-h-96 shadow-2xl border border-slate-500 rounded text-slate-200 bg-slate-900">
+              <table class="w-full text-sm text-left">
+                <thead class="text-xs uppercase">
                   <tr>
                     <For each={Object.entries(localSchema() ?? {})}>
                       {([key]) => (
-                        <th scope="col" class="px-6 py-3">
+                        <th scope="col" class="px-2 py-1">
                           {key}
                         </th>
                       )}
@@ -60,10 +56,10 @@ export function ConfigurationTooltip(props: {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                  <tr class="border-b bg-slate-800 border-slate-700">
                     <For each={Object.entries(localSchema() ?? {})}>
                       {([, value]) => (
-                        <td class="px-6 py-4 max-w-md align-top">
+                        <td class="px-2 py-2 max-w-md align-top">
                           <ToolTipValue value={value} />
                         </td>
                       )}

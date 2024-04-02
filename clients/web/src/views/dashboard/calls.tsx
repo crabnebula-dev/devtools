@@ -1,4 +1,3 @@
-import { Toolbar } from "~/components/toolbar";
 import { SplitPane } from "~/components/split-pane";
 import { CallDetailPanel } from "~/components/calls/call-detail-panel";
 import { CallsList } from "~/components/calls/calls-list";
@@ -45,8 +44,16 @@ function Calls() {
   });
 
   return (
-    <div class="h-[calc(100%-var(--toolbar-height))]">
-      <Toolbar>
+    <div class={"h-[calc(100%-24px)]"}>
+      <SplitPane
+        initialSizes={[70, 30]}
+        defaultMinSizes={[50, 50]}
+        defaultPrefix="span-waterfall"
+      >
+        <CallsList calls={filteredCalls()} />
+        <CallDetailPanel />
+      </SplitPane>
+      <div class="bg-gray-900 px-2 flex justify-center w-full">
         <CallsClearButton />
         <input
           value={textFilter()}
@@ -65,15 +72,7 @@ function Calls() {
         <span>Displayed calls: {filteredCalls().length}</span>
         <span>Running calls: {monitorData.durations.openSpans}</span>
         <CallsScaleSlider />
-      </Toolbar>
-      <SplitPane
-        initialSizes={[70, 30]}
-        defaultMinSizes={[50, 50]}
-        defaultPrefix="span-waterfall"
-      >
-        <CallsList calls={filteredCalls()} />
-        <CallDetailPanel />
-      </SplitPane>
+      </div>
     </div>
   );
 }
