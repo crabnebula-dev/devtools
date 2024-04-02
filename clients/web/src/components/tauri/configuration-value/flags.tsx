@@ -4,8 +4,6 @@ import {
   findLineNumberByKey,
 } from "~/lib/tauri/tauri-conf-lib";
 
-import SettingsEdit from "~/components/icons/settings--edit.tsx";
-
 export function Flags(props: { key: string; value: boolean | string }) {
   const localSchema = () => getDescriptionByKey(props.key);
 
@@ -14,7 +12,7 @@ export function Flags(props: { key: string; value: boolean | string }) {
     return lineNumber > 0;
   };
   return (
-    <span class="fill-yellow-500 flex size-4">
+    <span class="flex size-4">
       <Switch>
         <Match
           when={isDefaultValue(localSchema(), props.value) && isInConfig()}
@@ -23,7 +21,7 @@ export function Flags(props: { key: string; value: boolean | string }) {
         <Match when={isDefaultValue(localSchema(), props.value)} />
 
         <Match when={isInConfig()}>
-          <SettingsEdit />
+          <span class="text-base fill-yellow text-[#fb2]">*</span>
         </Match>
       </Switch>
     </span>

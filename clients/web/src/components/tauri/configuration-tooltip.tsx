@@ -30,21 +30,21 @@ export function ConfigurationTooltip(props: {
         </span>
       }
     >
-      <span class="text-slate-300" onMouseOver={updateHighlightKey}>
-        {props.key}
-      </span>
       <Tooltip.Root openDelay={0} closeDelay={0}>
-        <Tooltip.Trigger>
-          <sup class="text-xs text-slate-500 p-1 px-2 rounded hover:text-white cursor-help hover:bg-slate-700 font-bold">
-            ?
-          </sup>
-        </Tooltip.Trigger>
+        <span class="" onMouseOver={updateHighlightKey}>
+          {props.key}
+          <Tooltip.Trigger>
+            <sup class="text-xs text-slate-500 p-1 px-2 rounded hover:text-white cursor-help hover:bg-slate-700 font-bold">
+              ?
+            </sup>
+          </Tooltip.Trigger>
+        </span>
         <Tooltip.Portal>
           <Tooltip.Content>
             <Tooltip.Arrow style={{ fill: "rgb(200, 200, 200)" }} />
-            <div class="relative overflow-auto max-w-5xl max-h-96 shadow-2xl border border-slate-500 rounded">
+            <div class="relative overflow-auto max-w-5xl max-h-96 shadow-2xl border border-slate-500 rounded text-slate-200 bg-slate-900">
               <table class="w-full text-sm text-left">
-                <thead class="text-xs text-gray-400 uppercase bg-gray-50 dark:bg-gray-700">
+                <thead class="text-xs uppercase">
                   <tr>
                     <For each={Object.entries(localSchema() ?? {})}>
                       {([key]) => (
@@ -56,7 +56,7 @@ export function ConfigurationTooltip(props: {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                  <tr class="border-b bg-slate-800 border-slate-700">
                     <For each={Object.entries(localSchema() ?? {})}>
                       {([, value]) => (
                         <td class="px-2 py-2 max-w-md align-top">

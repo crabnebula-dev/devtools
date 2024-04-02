@@ -55,7 +55,7 @@ function TextValue(props: TextConfigurationValueProps) {
       <div class="basis-3/5 py-2 pl-3 text-right flex justify-between">
         <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
       </div>
-      <div class="mr-2 flex pt-1">
+      <div class="mr-2 flex pt-3">
         <Flags key={key()} value={props.value} />
       </div>
       <div class="basis-2/5 flex px-4 bg-slate-950 border-l border-slate-800">
