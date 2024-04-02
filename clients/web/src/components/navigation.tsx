@@ -2,26 +2,32 @@ import { For, Show } from "solid-js";
 import { A, useParams } from "@solidjs/router";
 import { useMonitor } from "~/context/monitor-provider";
 
+import * as styles from "~/css/styles.ts";
+
 const TABS = [
   {
     id: "console",
     url: (host: string, port: string) => `/dash/${host}/${port}/console`,
     title: "Console",
+    icon: "terminal",
   },
   {
     id: "calls",
     url: (host: string, port: string) => `/dash/${host}/${port}/calls`,
     title: "Calls",
+    icon: "page-scroll",
   },
   {
     id: "sources",
     url: (host: string, port: string) => `/dash/${host}/${port}/sources`,
     title: "Sources",
+    icon: "code",
   },
   {
     id: "tauri",
     url: (host: string, port: string) => `/dash/${host}/${port}/tauri`,
-    title: "Tauri",
+    title: "Config",
+    icon: "tauri",
   },
 ];
 
@@ -29,8 +35,8 @@ export function Navigation() {
   const { host, port } = useParams();
   const { monitorData } = useMonitor();
   return (
-    <nav>
-      <ul class="flex flex-start">
+    <nav class="bg-gray-900 border-b border-b-gray-700 bg-opacity-50">
+      <ul class="flex flex-start h-full">
         <For each={TABS}>
           {(tab) => (
             <Show
@@ -42,7 +48,7 @@ export function Navigation() {
                   monitorData.appMetadata?.os !== "ios")
               }
             >
-              <li>
+              <li class="h-full">
                 <A
                   // Maximum a11y: respond to both Enter _and_ Space
                   // Buttons natively do this, anchor links not but we
@@ -56,11 +62,22 @@ export function Navigation() {
                     e.preventDefault();
                     e.currentTarget.click();
                   }}
+                  draggable={false}
                   href={tab.url(host, port)}
-                  activeClass="!border-b-slate-300 bg-slate-800"
-                  inactiveClass="border-b-gray-800 hover:border-b-gray-600"
-                  class="border-b-transparent hover:border-b-slate-600 flex -mb-[1px] items-center justify-center leading-none border-b py-2 px-4 hover:bg-slate-800 hover:border-slate-800"
+                  activeClass={styles.tabActive}
+                  inactiveClass={styles.tabInactive}
+                  class={
+                    styles.tab +
+                    styles.genericHover +
+                    styles.genericActive +
+                    styles.genericTrans
+                  }
                 >
+                  <img
+                    class="h-4"
+                    alt={tab.title}
+                    src={`/icons/${tab.icon ? tab.icon : "new-tab"}.svg`}
+                  />
                   {tab.title}
                 </A>
               </li>

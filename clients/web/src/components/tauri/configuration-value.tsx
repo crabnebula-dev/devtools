@@ -51,13 +51,15 @@ function TextValue(props: TextConfigurationValueProps) {
       props.value
     );
   return (
-    <div class="flex text-xl hover:bg-slate-800">
-      <div class="basis-2/5 p-1">
+    <div class="flex text-base border-t border-slate-800">
+      <div class="basis-3/5 py-2 pl-3 text-right flex justify-between">
         <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
       </div>
-      <div class="basis-3/5 p-1 text-right flex justify-between">
-        <span class="ml-auto">{value()}</span>
+      <div class="mr-2 flex pt-3">
         <Flags key={key()} value={props.value} />
+      </div>
+      <div class="basis-2/5 flex px-4 bg-slate-950 border-l border-slate-800">
+        <span class="font-bold w-full h-full flex items-center">{value()}</span>
       </div>
     </div>
   );
@@ -65,8 +67,8 @@ function TextValue(props: TextConfigurationValueProps) {
 
 function ObjectValue(props: ObjectConfigurationValueProps) {
   return (
-    <div class="p-4 pr-0 group">
-      <h2 class="text-3xl pb-2">
+    <div class="">
+      <h2 class="text-1xl text-white font-bold py-2 px-3 bg-slate-700 bg-opacity-30 flex justify-between">
         <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
       </h2>
       <ul class="flex flex-col">
@@ -89,7 +91,7 @@ function ObjectValue(props: ObjectConfigurationValueProps) {
 function ArrayValue(props: ArrayConfigurationValueProps) {
   return (
     <div class="array">
-      <h2 class="text-xl pb-2">
+      <h2 class="text-2xl text-white font-bold py-2 px-3 bg-slate-700 bg-opacity-50 flex justify-between">
         <ConfigurationTooltip parentKey={props.parentKey} key={props.key} />
       </h2>
       <ul class="flex flex-col">
