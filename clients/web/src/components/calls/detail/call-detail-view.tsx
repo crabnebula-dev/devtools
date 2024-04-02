@@ -1,12 +1,12 @@
-import { For, JSXElement, Setter, Show } from "solid-js";
+import { For, JSXElement, Setter } from "solid-js";
 import { CallDetailTrace } from "./call-detail-trace";
 import { CallDetailArgs } from "./call-detail-args";
-import { A, useParams } from "@solidjs/router";
 import clsx from "clsx";
 import { TreeEntry } from "~/lib/span/get-span-children";
 import { Metadata_Level } from "~/lib/proto/common";
 import { FilterToggle } from "~/components/filter-toggle";
 import { Span } from "~/lib/connection/monitor";
+import { CallDetailRootLink } from "./call-detail-root-link";
 
 type Props = {
   name: string;
@@ -22,7 +22,6 @@ type Props = {
 };
 
 export function CallDetailView(props: Props) {
-  const { host, port } = useParams();
   const closedSpans = () =>
     props.spanChildren.filter((s) => s.span.closedAt > 0);
 
@@ -38,13 +37,7 @@ export function CallDetailView(props: Props) {
   return (
     <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800 min-w-[420px]">
       <div class="pt-4 px-4">
-        <Show when={props.rootSpan}>
-          {(rootSpan) => (
-            <A href={`/dash/${host}/${port}/calls?span=${rootSpan().id}`}>
-              ↑ parent: {rootSpan().displayName ?? rootSpan().name}
-            </A>
-          )}
-        </Show>
+        <CallDetailRootLink rootSpan={props.rootSpan} />
         <h2 class={clsx("text-2xl", props.hasError ? "text-red-400" : "")}>
           {props.name}
         </h2>
