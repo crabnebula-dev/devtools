@@ -2,11 +2,6 @@
 from = "/app/*"
 to = "/:splat"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
 # App Sentry redirect.
 [[redirects]]
   from = "/sentry-tunnel/*"
@@ -14,6 +9,10 @@ to = "/:splat"
   status = 200
   headers = { Content-Type = "application/x-sentry-envelope" }
 
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
 [build]
     base = "clients/web/"
@@ -22,6 +21,6 @@ to = "/:splat"
 
 [[headers]]
   for = "/*"
-  [[headers.values]]
+  [headers.values]
     X-Frame-Options = "DENY"
     Content-Security-Policy-Report-Only="default-src 'self'; frame-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' 127.0.0.1 ws://localhost:5173/; img-src 'self'; object-src 'none'; report-uri https://o4506303762464768.ingest.sentry.io/api/4506303812272128/security/?sentry_key=57614e75ac5f8c480aed3a2dd1528f13;"
