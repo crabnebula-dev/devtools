@@ -8,8 +8,8 @@ import { Popover } from "@kobalte/core";
 import { getDetailedTime } from "~/lib/formatters.ts";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import clsx from "clsx";
-import { Metadata_Level } from "~/lib/proto/common";
 import { useSearchParams } from "@solidjs/router";
+import { determineCallColor } from "~/lib/calls/determine-call-color";
 
 export function CallDetailTrace(props: {
   depth: number;
@@ -21,17 +21,6 @@ export function CallDetailTrace(props: {
     longest: number;
   };
 }) {
-  const color = () => {
-    if (props.span.hasError) return "text-red-400";
-    switch (props.span.metadata?.level) {
-      case Metadata_Level.TRACE:
-        return "text-slate-600";
-      case Metadata_Level.DEBUG:
-        return "text-slate-400";
-      default:
-        return "";
-    }
-  };
   const [, setSearchParams] = useSearchParams();
 
   return (
@@ -41,7 +30,7 @@ export function CallDetailTrace(props: {
         as="tr"
       >
         <td
-          class={clsx("py-1 px-4", color())}
+          class={clsx("py-1 px-4", determineCallColor(props.span))}
           onClick={() => {
             setSearchParams({ span: String(props.span.id) });
           }}
