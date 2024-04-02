@@ -10,6 +10,7 @@ import {
 } from "solid-js";
 import { ErrorRoot } from "~/components/errors/error-root";
 import { setup, checkConnection } from "~/lib/connection/transport";
+import { Loader } from "~/components/loader";
 
 type ProviderProps = {
   host: string;
@@ -47,13 +48,7 @@ export function ConnectionProvider(props: ProviderProps) {
   });
 
   return (
-    <Suspense
-      fallback={
-        <div class="absolute right-1/2 bottom-1/2  transform translate-x-1/2 translate-y-1/2 ">
-          <div class="border-t-transparent border-solid animate-spin  rounded-full dark:text-gray-600 fill-navy-700 border-8 h-64 w-64" />
-        </div>
-      }
-    >
+    <Suspense fallback={<Loader />}>
       <Show
         when={connection()}
         fallback={

@@ -4,18 +4,19 @@ import { Directory } from "~/components/sources/directory.tsx";
 import { SourcePane } from "~/components/sources/source-pane";
 import { useMonitor } from "~/context/monitor-provider";
 import { Show } from "solid-js";
+import * as styles from "~/css/styles.ts";
 
 export default function Sources() {
   const { monitorData } = useMonitor();
 
   return (
     <SplitPane
-      defaultPrefix="sources"
+      defaultPrefix="project-dir"
       gutterSize={5}
       initialSizes={[22, 78]}
       defaultMinSizes={[70, 200]}
     >
-      <div class="relative h-full">
+      <div class={"relative h-full" + styles.surface}>
         <div class="overflow-hidden relative">
           <Directory
             defaultPath="."
