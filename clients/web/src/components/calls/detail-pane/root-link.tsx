@@ -3,7 +3,7 @@ import { Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { getCallsTabBasePath } from "~/lib/calls/get-calls-tab-base-path";
 
-export function CallDetailRootLink(props: { rootSpan?: Span }) {
+export function RootLink(props: { rootSpan?: Span }) {
   const basePath = getCallsTabBasePath();
   return (
     <Show when={props.rootSpan}>

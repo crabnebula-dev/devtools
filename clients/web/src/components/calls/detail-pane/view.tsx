@@ -1,14 +1,14 @@
 import { For, JSXElement, Setter } from "solid-js";
-import { CallDetailTrace } from "./call-detail-trace";
-import { CallDetailArgs } from "./call-detail-args";
+import { Trace } from "./trace";
+import { Args } from "./args";
 import clsx from "clsx";
 import { TreeEntry } from "~/lib/span/get-span-children";
 import { Metadata_Level } from "~/lib/proto/common";
 import { FilterToggle } from "~/components/filter-toggle";
 import { Span } from "~/lib/connection/monitor";
-import { CallDetailRootLink } from "./call-detail-root-link";
+import { RootLink } from "./root-link";
 
-type Props = {
+export function View(props: {
   name: string;
   minLevel: Metadata_Level;
   setMinLevel: Setter<Metadata_Level>;
@@ -19,9 +19,7 @@ type Props = {
   valuesSectionTitle: string;
   values: (string | object)[];
   children: JSXElement;
-};
-
-export function CallDetailView(props: Props) {
+}) {
   const closedSpans = () =>
     props.spanChildren.filter((s) => s.span.closedAt > 0);
 
@@ -37,7 +35,7 @@ export function CallDetailView(props: Props) {
   return (
     <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800 min-w-[420px]">
       <div class="pt-4 px-4">
-        <CallDetailRootLink rootSpan={props.rootSpan} />
+        <RootLink rootSpan={props.rootSpan} />
         <h2 class={clsx("text-2xl", props.hasError ? "text-red-400" : "")}>
           {props.name}
         </h2>
@@ -46,7 +44,7 @@ export function CallDetailView(props: Props) {
         <h2 class="text-xl p-4">{props.valuesSectionTitle}</h2>
         <table>
           <tbody>
-            <CallDetailArgs args={props.values} />
+            <Args args={props.values} />
           </tbody>
         </table>
       </div>
@@ -78,11 +76,7 @@ export function CallDetailView(props: Props) {
           <tbody>
             <For each={props.spanChildren}>
               {({ depth, span }) => (
-                <CallDetailTrace
-                  depth={depth}
-                  span={span}
-                  durations={durations()}
-                />
+                <Trace depth={depth} span={span} durations={durations()} />
               )}
             </For>
           </tbody>

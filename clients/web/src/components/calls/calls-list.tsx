@@ -9,8 +9,8 @@ import {
 import { createStore } from "solid-js/store";
 import type { Span } from "~/lib/connection/monitor";
 import { createVirtualizer } from "@tanstack/solid-virtual";
-import { CallsListTableRow } from "./list/calls-list-table-row";
-import { CallsListTableHeader } from "./list/calls-list-table-header";
+import { TableHeader } from "./list/table-header";
+import { TableRow } from "./list/table-row";
 import { type CurrentSort, sortCalls } from "~/lib/calls/calls-sorting";
 import { useMonitor } from "~/context/monitor-provider";
 
@@ -70,7 +70,7 @@ export function CallsList(props: { calls: Span[] }) {
         class="min-w-[650px]"
       >
         <table class="w-full table-fixed">
-          <CallsListTableHeader
+          <TableHeader
             setCurrentSort={setCurrentSort}
             currentSort={currentSort}
           />
@@ -81,7 +81,7 @@ export function CallsList(props: { calls: Span[] }) {
                 return (
                   <Show when={call()}>
                     {(currentCall) => (
-                      <CallsListTableRow
+                      <TableRow
                         call={currentCall()}
                         height={virtualRow.size}
                         style={{

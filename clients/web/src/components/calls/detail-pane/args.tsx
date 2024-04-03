@@ -1,10 +1,6 @@
 import { For, Show } from "solid-js";
 
-type Props = {
-  args: (string | object)[];
-};
-
-export function CallDetailArgs(props: Props) {
+export function Args(props: { args: (string | object)[] }) {
   return (
     <For each={props.args}>
       {(arg) => {

@@ -1,13 +1,6 @@
 import type { Span } from "~/lib/connection/monitor";
 import clsx from "clsx";
-import {
-  Show,
-  For,
-  createSignal,
-  onCleanup,
-  createEffect,
-  JSXElement,
-} from "solid-js";
+import { Show, For, createSignal, onCleanup, createEffect } from "solid-js";
 import { getTime } from "~/lib/formatters";
 import type { JSX } from "solid-js/h/jsx-runtime";
 import { computeSlices } from "~/lib/span/normalize-spans";
@@ -18,8 +11,9 @@ import {
 import { useSearchParams } from "@solidjs/router";
 import { useMonitor } from "~/context/monitor-provider";
 import { determineCallColor } from "~/lib/calls/determine-call-color";
+import { TableCell } from "./table-cell";
 
-export function CallsListTableRow(props: {
+export function TableRow(props: {
   call: Span;
   style: string | JSX.CSSProperties | undefined;
   height: number;
@@ -135,21 +129,5 @@ export function CallsListTableRow(props: {
         </div>
       </TableCell>
     </tr>
-  );
-}
-
-function TableCell(props: {
-  title: string;
-  height: number;
-  children?: JSXElement;
-}) {
-  return (
-    <td title={props.title}>
-      <div
-        class={`p-1 overflow-hidden text-ellipsis h-[${props.height}px] text-nowrap`}
-      >
-        {props.children ? props.children : props.title}
-      </div>
-    </td>
   );
 }

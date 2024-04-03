@@ -1,5 +1,5 @@
 import { SplitPane } from "~/components/split-pane";
-import { CallDetailPanel } from "~/components/calls/call-detail-panel";
+import { CallDetailPane } from "~/components/calls/call-detail-pane";
 import { CallsList } from "~/components/calls/calls-list";
 import { CallsScaleSlider } from "~/components/calls/topbar/calls-scale-slider";
 import { CallsContextProvider } from "~/components/calls/calls-context";
@@ -51,7 +51,7 @@ function Calls() {
         defaultPrefix="span-waterfall"
       >
         <CallsList calls={filteredCalls()} />
-        <CallDetailPanel />
+        <CallDetailPane />
       </SplitPane>
       <div class="bg-gray-900 px-2 flex justify-center w-full">
         <CallsClearButton />

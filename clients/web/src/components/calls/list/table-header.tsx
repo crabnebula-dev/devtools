@@ -28,7 +28,7 @@ const columns: Column[] = [
   { name: "waterfall" },
 ];
 
-export function CallsListTableHeader(props: {
+export function TableHeader(props: {
   setCurrentSort: SetStoreFunction<CurrentSort>;
   currentSort: { column: SortColumn; direction: SortDirection };
 }) {

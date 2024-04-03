@@ -1,6 +1,6 @@
 import { For, Show, Suspense, createMemo, createSignal } from "solid-js";
 import { Span } from "~/lib/connection/monitor";
-import { CallDetailView } from "./call-detail-view";
+import { View } from "./view";
 import { spanFieldsToObject } from "~/lib/span/span-fields-to-object";
 import { treeEntries } from "~/lib/span/get-span-children";
 import { CodeHighlighter } from "../../code-highlighter";
@@ -9,7 +9,7 @@ import { Metadata_Level } from "~/lib/proto/common";
 import { useMonitor } from "~/context/monitor-provider";
 import { LogEventEntry } from "~/components/console/log-event-entry";
 
-export function CallDetail(props: { span: Span }) {
+export function Detail(props: { span: Span }) {
   const { monitorData } = useMonitor();
 
   const [minLevel, setMinLevel] = createSignal<Metadata_Level>(
@@ -71,7 +71,7 @@ export function CallDetail(props: { span: Span }) {
   };
 
   return (
-    <CallDetailView
+    <View
       name={props.span.displayName ?? props.span.name ?? "-"}
       minLevel={minLevel()}
       setMinLevel={setMinLevel}
@@ -111,6 +111,6 @@ export function CallDetail(props: { span: Span }) {
           </For>
         </div>
       </Show>
-    </CallDetailView>
+    </View>
   );
 }

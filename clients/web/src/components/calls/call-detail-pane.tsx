@@ -1,10 +1,10 @@
 import { Show } from "solid-js";
-import { CallDetail } from "./detail/call-detail";
+import { Detail } from "./detail-pane/detail";
 import { Heading } from "../heading";
 import { useSearchParams } from "@solidjs/router";
 import { useMonitor } from "~/context/monitor-provider";
 
-export function CallDetailPanel() {
+export function CallDetailPane() {
   const [searchParams] = useSearchParams();
   const { monitorData } = useMonitor();
 
@@ -23,7 +23,7 @@ export function CallDetailPanel() {
         </div>
       }
     >
-      {(detailSpan) => <CallDetail span={detailSpan()} />}
+      {(detailSpan) => <Detail span={detailSpan()} />}
     </Show>
   );
 }

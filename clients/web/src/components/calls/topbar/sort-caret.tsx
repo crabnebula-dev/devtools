@@ -1,4 +1,4 @@
-import type { SortDirection } from "../calls-list";
+import type { SortDirection } from "~/lib/calls/calls-sorting";
 
 export function SortCaret(props: { direction: SortDirection }) {
   return (
