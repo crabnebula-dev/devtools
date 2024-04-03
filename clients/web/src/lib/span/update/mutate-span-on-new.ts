@@ -25,7 +25,9 @@ export function mutateSpanOnNew(
     }
 
     const root = getRootSpan(span, currentSpans);
+
     if (root != null) {
+      span.rootSpan = root;
       dirtyRoots.add(root);
       if (span.hasError) erroredRoots.add(root);
     }

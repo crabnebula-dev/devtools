@@ -52,6 +52,7 @@ export type Span = {
 
   parentId?: bigint;
   parent?: Span;
+  rootSpan?: Span;
   metadataId: bigint;
   metadata?: Metadata;
   fields: Field[];
