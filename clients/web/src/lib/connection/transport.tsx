@@ -94,8 +94,9 @@ export function connect(url: string) {
   return connectionStore;
 }
 
-export function setup(url: string) {
-  const [connectionStore, setConnection] = createStore(connect(url));
+export function setup(url: string, host: string, port: string) {
+  const connection = { ...connect(url), host, port };
+  const [connectionStore, setConnection] = createStore(connection);
 
   return { connectionStore, setConnection };
 }

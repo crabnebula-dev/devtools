@@ -1,8 +1,8 @@
-import { LogEvent } from "~/lib/proto/logs";
-import { LogEventEntry } from "~/components/console/log-event-entry";
+import type { LogEvent as ILogEvent } from "~/lib/proto/logs";
+import { LogEvent } from "~/components/console/log-event";
 import { Show, For } from "solid-js";
 
-export function AssociatedLogs(props: { logs: LogEvent[] }) {
+export function AssociatedLogs(props: { logs: ILogEvent[] }) {
   return (
     <Show when={props.logs.length}>
       <div class="grid gap-2 border-gray-800 border-b">
@@ -11,7 +11,7 @@ export function AssociatedLogs(props: { logs: LogEvent[] }) {
         </h2>
         <For each={props.logs}>
           {(log, idx) => (
-            <LogEventEntry
+            <LogEvent
               event={log}
               showAttributes={true}
               showTimestamp={true}

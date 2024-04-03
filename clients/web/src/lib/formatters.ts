@@ -57,3 +57,7 @@ export function getRootPathByUrlSegment(path: string, segment: string) {
     .concat(segment)
     .join("/");
 }
+
+export function shortenFilePath(fullPath: string): string {
+  return fullPath.substring(fullPath.lastIndexOf("\\") + 1);
+}

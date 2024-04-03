@@ -7,8 +7,8 @@ import { createStore } from "solid-js/store";
 import { LogFilterObject, filterLogs } from "~/lib/console/filter-logs";
 import { LogLevelFilter } from "~/components/console/log-level-filter";
 import { NoLogs } from "~/components/console/no-logs";
-import { LogEventEntry } from "~/components/console/log-event-entry";
-import { LogEvent } from "~/lib/proto/logs";
+import { LogEvent } from "~/components/console/log-event";
+import type { LogEvent as ILogEvent } from "~/lib/proto/logs";
 
 export default function Console() {
   const { monitorData } = useMonitor();
@@ -21,7 +21,7 @@ export default function Console() {
   });
   const [filter, setFilter] = createStore<LogFilterObject>(initialFilters());
 
-  const [filteredLogs, setFilteredLogs] = createSignal<LogEvent[]>([]);
+  const [filteredLogs, setFilteredLogs] = createSignal<ILogEvent[]>([]);
 
   // If the filter changes we want to do a full filter on the list
   createEffect(() => {
@@ -96,7 +96,7 @@ export default function Console() {
       </Toolbar>
       <AutoScrollPane
         dataStream={filteredLogs()}
-        displayComponent={LogEventEntry}
+        displayComponent={LogEvent}
         displayOptions={{
           showLinks: true,
           showAttributes: showAttributes(),
