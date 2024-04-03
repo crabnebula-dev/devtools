@@ -1,4 +1,4 @@
-import { getRootPathByUrlSegment } from "../get-tauri-tab-base-path";
+import { getRootPathByUrlSegment } from "../formatters";
 
 describe("getRootPathByUrlSegment", () => {
   it("Should be able to find base path if we are on it", () => {

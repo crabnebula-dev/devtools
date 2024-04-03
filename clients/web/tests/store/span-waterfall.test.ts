@@ -11,6 +11,7 @@ MOCK_SPANS.set(BigInt(7), {
   id: BigInt(7),
   name: "",
   metadataId: BigInt(2),
+  hasError: null,
   fields: [],
   initiated: -1,
   time: -1,
@@ -27,6 +28,8 @@ describe("The store setter for the Span Waterfall", () => {
   it("should throw if an invalid span type is received", () => {
     expect(() => {
       updatedSpans(
+        new Set(),
+        new Set(),
         MOCK_SPANS,
         [
           {
@@ -44,6 +47,8 @@ describe("The store setter for the Span Waterfall", () => {
   it("should do nothing for `closeSpan`", () => {
     const sizeBeforeUpdate = MOCK_SPANS.size;
     updatedSpans(
+      new Set(),
+      new Set(),
       MOCK_SPANS,
       [
         {
@@ -87,6 +92,8 @@ describe("The store setter for the Span Waterfall", () => {
     };
 
     updatedSpans(
+      new Set(),
+      new Set(),
       MOCK_SPANS,
       [
         {
