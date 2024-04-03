@@ -8,14 +8,14 @@ export function CallDetailPane() {
   const [searchParams] = useSearchParams();
   const { monitorData } = useMonitor();
 
-  const span = () =>
+  const call = () =>
     searchParams.span
       ? monitorData.spans.get(BigInt(searchParams.span))
       : undefined;
 
   return (
     <Show
-      when={span()}
+      when={call()}
       fallback={
         <div class="h-full grid gap-4 text-center content-center justify-center items-center border-l p-4 border-gray-800 min-w-[200px]">
           <Heading>No Call Selected</Heading>
@@ -23,7 +23,7 @@ export function CallDetailPane() {
         </div>
       }
     >
-      {(detailSpan) => <Detail span={detailSpan()} />}
+      {(detailCall) => <Detail call={detailCall()} />}
     </Show>
   );
 }

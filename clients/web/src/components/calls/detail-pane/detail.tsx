@@ -1,15 +1,15 @@
-import { For, Show, Suspense, createMemo, createSignal } from "solid-js";
+import { createMemo, createSignal } from "solid-js";
 import { Span } from "~/lib/connection/monitor";
-import { View } from "./view";
-import { spanFieldsToObject } from "~/lib/span/span-fields-to-object";
 import { treeEntries } from "~/lib/span/get-span-children";
-import { CodeHighlighter } from "../../code-highlighter";
-import { Loader } from "../../loader";
 import { Metadata_Level } from "~/lib/proto/common";
 import { useMonitor } from "~/context/monitor-provider";
-import { LogEventEntry } from "~/components/console/log-event-entry";
+import { Args } from "./args";
+import { Header } from "./header";
+import { Traces } from "./traces";
+import { AssociatedLogs } from "./associated-logs";
+import { IpcResponse } from "./ipc-response";
 
-export function Detail(props: { span: Span }) {
+export function Detail(props: { call: Span }) {
   const { monitorData } = useMonitor();
 
   const [minLevel, setMinLevel] = createSignal<Metadata_Level>(
@@ -19,7 +19,7 @@ export function Detail(props: { span: Span }) {
   const children = createMemo(() => {
     const level = minLevel();
     return treeEntries(
-      props.span,
+      props.call,
       (span) => span.metadata && span.metadata.level <= level,
     );
   });
@@ -35,70 +35,17 @@ export function Detail(props: { span: Span }) {
     );
   });
 
-  const valuesSectionTitle = () => {
-    if (props.span.ipcData?.inputs) {
-      return "Inputs";
-    }
-
-    switch (props.span.kind) {
-      case "ipc":
-        return "Inputs";
-      case "event":
-        return "Args";
-      default:
-        return "Fields";
-    }
-  };
-
-  const values = () => {
-    return [
-      props.span.ipcData?.tauriInputs ?? {},
-      props.span.ipcData?.inputs ?? {},
-      spanFieldsToObject(props.span),
-    ];
-  };
-
   return (
-    <View
-      name={props.span.displayName ?? props.span.name ?? "-"}
-      minLevel={minLevel()}
-      setMinLevel={setMinLevel}
-      hasError={props.span.hasError}
-      parentId={props.span.parentId}
-      rootSpan={props.span.rootSpan}
-      spanChildren={children()}
-      valuesSectionTitle={valuesSectionTitle()}
-      values={values()}
-    >
-      <Show when={props.span.ipcData?.response}>
-        {(raw) => (
-          <div class="grid gap-2">
-            <h2 class="text-xl p-4">Response</h2>
-            <pre class="bg-black rounded max-w-full overflow-auto">
-              <Suspense fallback={<Loader />}>
-                <CodeHighlighter text={raw()} lang="rust" />
-              </Suspense>
-            </pre>
-          </div>
-        )}
-      </Show>
-      <Show when={associatedLogs().length}>
-        <div class="grid gap-2 border-gray-800 border-b">
-          <h2 class="text-xl p-4 border-gray-800 border-b">
-            Logs ({associatedLogs().length})
-          </h2>
-          <For each={associatedLogs()}>
-            {(log, idx) => (
-              <LogEventEntry
-                event={log}
-                showAttributes={true}
-                showTimestamp={true}
-                odd={idx() % 2 == 0}
-              />
-            )}
-          </For>
-        </div>
-      </Show>
-    </View>
+    <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800 min-w-[420px]">
+      <Header call={props.call} />
+      <Args call={props.call} />
+      <IpcResponse response={props.call.ipcData?.response} />
+      <AssociatedLogs logs={associatedLogs()} />
+      <Traces
+        minLevel={minLevel()}
+        setMinLevel={setMinLevel}
+        spanChildren={children()}
+      />
+    </div>
   );
 }

@@ -8,8 +8,8 @@ import { Popover } from "@kobalte/core";
 import clsx from "clsx";
 import { useSearchParams } from "@solidjs/router";
 import { determineCallColor } from "~/lib/calls/determine-call-color";
-import { Content } from "./trace/popover/content";
-import { Slice } from "./trace/slice";
+import { Content } from "./popover/content";
+import { Slice } from "./slice";
 
 export function Trace(props: {
   depth: number;
