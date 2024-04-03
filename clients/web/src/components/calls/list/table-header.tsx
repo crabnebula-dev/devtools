@@ -1,4 +1,4 @@
-import { SortCaret } from "../topbar/sort-caret";
+import { SortCaret } from "../tool-bar/sort-caret";
 import { For } from "solid-js";
 import type { SetStoreFunction } from "solid-js/store";
 import type {

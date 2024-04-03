@@ -1,10 +1,10 @@
 import { SplitPane } from "~/components/split-pane";
 import { CallDetailPane } from "~/components/calls/call-detail-pane";
 import { CallsList } from "~/components/calls/calls-list";
-import { CallsScaleSlider } from "~/components/calls/topbar/calls-scale-slider";
+import { CallsScaleSlider } from "~/components/calls/tool-bar/calls-scale-slider";
 import { CallsContextProvider } from "~/components/calls/calls-context";
 import { useMonitor } from "~/context/monitor-provider";
-import { CallsClearButton } from "~/components/calls/topbar/calls-clear-button";
+import { CallsClearButton } from "~/components/calls/tool-bar/calls-clear-button";
 import { filterSpans } from "~/lib/span/filter-spans";
 import { Span } from "~/lib/connection/monitor";
 import { createMemo, createSignal } from "solid-js";
