@@ -1,4 +1,4 @@
-import { createSignal, untrack, createEffect } from "solid-js";
+import { createSignal, untrack, createEffect, For, Setter } from "solid-js";
 import { AutoScrollPane } from "~/components/auto-scroll-pane";
 import { FilterToggle } from "~/components/filter-toggle";
 import { Toolbar } from "~/components/toolbar";
@@ -15,10 +15,27 @@ export default function Console() {
   const [showAttributes, toggleAttributes] = createSignal(true);
   const [showTimestamp, toggleTimeStamp] = createSignal(true);
   const [shouldAutoScroll, toggleAutoScroll] = createSignal<boolean>(true);
+
+  const filterToggles: { label: string; setter: Setter<boolean> }[] = [
+    {
+      label: "Attributes",
+      setter: toggleAttributes,
+    },
+    {
+      label: "Timestamps",
+      setter: toggleTimeStamp,
+    },
+    {
+      label: "Autoscroll",
+      setter: toggleAutoScroll,
+    },
+  ];
+
   const initialFilters = () => ({
     textContent: "",
     levels: [0, 1, 2, 3, 4],
   });
+
   const [filter, setFilter] = createStore<LogFilterObject>(initialFilters());
 
   const [filteredLogs, setFilteredLogs] = createSignal<ILogEvent[]>([]);
@@ -72,27 +89,17 @@ export default function Console() {
           class="bg-slate-900 px-1 rounded text-white focus:outline-none focus:border focus:border-slate-400"
         />
         <LogLevelFilter filter={filter} setFilter={setFilter} />
-        <FilterToggle
-          defaultPressed
-          aria-label="attributes"
-          changeHandler={() => toggleAttributes((prev) => !prev)}
-        >
-          <span>Attributes</span>
-        </FilterToggle>
-        <FilterToggle
-          defaultPressed
-          aria-label="time stamps"
-          changeHandler={() => toggleTimeStamp((prev) => !prev)}
-        >
-          <span>Timestamps</span>
-        </FilterToggle>
-        <FilterToggle
-          aria-label="auto scroll"
-          defaultPressed
-          changeHandler={() => toggleAutoScroll((prev) => !prev)}
-        >
-          <span>Autoscroll</span>
-        </FilterToggle>
+        <For each={filterToggles}>
+          {(filterToggle) => (
+            <FilterToggle
+              defaultPressed
+              aria-label={filterToggle.label}
+              changeHandler={() => filterToggle.setter((prev) => !prev)}
+            >
+              <span>{filterToggle.label}</span>
+            </FilterToggle>
+          )}
+        </For>
       </Toolbar>
       <AutoScrollPane
         dataStream={filteredLogs()}
