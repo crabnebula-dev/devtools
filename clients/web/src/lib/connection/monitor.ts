@@ -73,7 +73,6 @@ export type MonitorData = {
   metadata: Map<bigint, Metadata>;
   logs: LogEvent[];
   spans: ReactiveMap<bigint, Span>;
-  // rootSpans: ReactiveMap<bigint, RootSpan>;
   durations: Durations;
   /** The original/parsed tauri configuration we receive from instrumentation */
   tauriConfig?: Record<"build" | "package" | "plugins" | "tauri", object>;
