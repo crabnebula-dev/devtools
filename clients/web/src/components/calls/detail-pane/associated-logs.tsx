@@ -1,6 +1,7 @@
 import type { LogEvent as ILogEvent } from "~/lib/proto/logs";
 import { LogEvent } from "~/components/console/log-event";
-import { Show, For } from "solid-js";
+import { Show } from "solid-js";
+import { VirtualList } from "~/components/virtual-list";
 
 export function AssociatedLogs(props: { logs: ILogEvent[] }) {
   return (
@@ -9,16 +10,21 @@ export function AssociatedLogs(props: { logs: ILogEvent[] }) {
         <h2 class="text-xl p-4 border-gray-800 border-b">
           Logs ({props.logs.length})
         </h2>
-        <For each={props.logs}>
-          {(log, idx) => (
+        <VirtualList
+          class="max-h-[400px] overflow-x-auto"
+          dataStream={props.logs}
+          estimateSize={28}
+          overscan={25}
+        >
+          {(item, index) => (
             <LogEvent
-              event={log}
+              event={item}
               showAttributes={true}
               showTimestamp={true}
-              odd={idx() % 2 == 0}
+              odd={index % 2 == 0}
             />
           )}
-        </For>
+        </VirtualList>
       </div>
     </Show>
   );

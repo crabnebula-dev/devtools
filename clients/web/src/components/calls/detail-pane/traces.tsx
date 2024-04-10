@@ -22,7 +22,7 @@ export function Traces(props: {
   };
   return (
     <div class="grid gap-2">
-      <h2 class="text-xl p-4">Trace</h2>
+      <h2 class="text-xl p-4">Trace ({props.spanChildren.length})</h2>
       <div class="items-center flex justify-end h-toolbar p-2 gap-4">
         <FilterToggle
           defaultPressed={props.minLevel > Metadata_Level.DEBUG}

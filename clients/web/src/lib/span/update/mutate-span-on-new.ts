@@ -23,13 +23,18 @@ export function mutateSpanOnNew(
       parent.children.push(span);
       span.parent = parent;
     }
+  }
 
-    const root = getRootSpan(span, currentSpans);
+  const root = getRootSpan(span, currentSpans);
 
-    if (root != null) {
-      span.rootSpan = root;
-      dirtyRoots.add(root);
-      if (span.hasError) erroredRoots.add(root);
-    }
+  if (root != null && root !== span) {
+    span.rootSpan = root;
+    dirtyRoots.add(root);
+    if (span.hasError) erroredRoots.add(root);
+  }
+
+  if (!span.parent) {
+    dirtyRoots.add(span);
+    if (span.hasError) erroredRoots.add(span);
   }
 }

@@ -1,6 +1,7 @@
 import { Span } from "../connection/monitor";
 
 const emitSpanNames = [
+  "app::emit",
   "app::emit::all",
   "app::emit::filter",
   "app::emit::to",

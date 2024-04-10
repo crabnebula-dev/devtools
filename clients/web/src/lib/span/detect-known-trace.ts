@@ -95,6 +95,7 @@ function detectEventTrace(root: Span): EventData | undefined {
   // First we check the root name is one of the expected kinds.
   let kind: EventKind;
   switch (root.metadata?.name) {
+    case "app::emit":
     case "app::emit::all":
     case "app::emit::filter":
     case "app::emit::to":

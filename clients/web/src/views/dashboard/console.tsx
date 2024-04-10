@@ -1,5 +1,11 @@
-import { createSignal, untrack, createEffect, For, Setter } from "solid-js";
-import { AutoScrollPane } from "~/components/auto-scroll-pane";
+import {
+  createSignal,
+  untrack,
+  createEffect,
+  For,
+  Setter,
+  Show,
+} from "solid-js";
 import { FilterToggle } from "~/components/filter-toggle";
 import { Toolbar } from "~/components/toolbar";
 import { useMonitor } from "~/context/monitor-provider";
@@ -9,6 +15,7 @@ import { LogLevelFilter } from "~/components/console/log-level-filter";
 import { NoLogs } from "~/components/console/no-logs";
 import { LogEvent } from "~/components/console/log-event";
 import type { LogEvent as ILogEvent } from "~/lib/proto/logs";
+import { VirtualList } from "~/components/virtual-list";
 
 export default function Console() {
   const { monitorData } = useMonitor();
@@ -101,17 +108,29 @@ export default function Console() {
           )}
         </For>
       </Toolbar>
-      <AutoScrollPane
-        dataStream={filteredLogs()}
-        displayComponent={LogEvent}
-        displayOptions={{
-          showLinks: true,
-          showAttributes: showAttributes(),
-          showTimestamp: showTimestamp(),
-        }}
-        shouldAutoScroll={shouldAutoScroll}
+
+      <Show
+        when={filteredLogs() && filteredLogs().length > 0}
         fallback={<NoLogs filter={filter} reset={resetFilter} />}
-      />
+      >
+        <VirtualList
+          class="h-[calc(100%-var(--toolbar-height))]"
+          dataStream={filteredLogs()}
+          shouldAutoScroll={shouldAutoScroll()}
+          estimateSize={28}
+          overscan={25}
+        >
+          {(item, index) => (
+            <LogEvent
+              event={item}
+              odd={Boolean(index & 1)}
+              showLinks={true}
+              showAttributes={showAttributes()}
+              showTimestamp={showTimestamp()}
+            />
+          )}
+        </VirtualList>
+      </Show>
     </>
   );
 }
