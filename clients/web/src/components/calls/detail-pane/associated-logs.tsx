@@ -11,10 +11,10 @@ export function AssociatedLogs(props: { logs: ILogEvent[] }) {
           Logs ({props.logs.length})
         </h2>
         <VirtualList
-          class="max-h-[400px] overflow-x-auto"
+          class="max-h-[250px] overflow-x-auto"
           dataStream={props.logs}
           estimateSize={28}
-          overscan={25}
+          overscan={10}
         >
           {(item, index) => (
             <LogEvent
