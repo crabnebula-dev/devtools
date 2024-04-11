@@ -10,35 +10,37 @@ type Props = {
 
 export function NoLogs(props: Props) {
   return (
-    <div class="flex items-center h-full content-center justify-center">
-      <div class="grid gap-4 text-center">
-        <Heading>No Logs</Heading>
-        <div>
-          <span>
-            We could not find any logs for your application.
-            <br />
-            Interacting with your application may help.
-          </span>
-        </div>
-        <Show
-          when={
-            props.filter.textContent.length > 0 ||
-            props.filter.levels.length < 5
-          }
-        >
+    <div class="h-[calc(100%-var(--toolbar-height))]">
+      <div class="flex items-center h-full content-center justify-center">
+        <div class="grid gap-4 text-center">
+          <Heading>No Logs</Heading>
           <div>
-            You've also got some filters set.
-            <br />
-            Would you like to{" "}
-            <Button.Root
-              onClick={() => props.reset()}
-              class="underline underline-offset-2"
-            >
-              reset them
-            </Button.Root>
-            ?
+            <span>
+              We could not find any logs for your application.
+              <br />
+              Interacting with your application may help.
+            </span>
           </div>
-        </Show>
+          <Show
+            when={
+              props.filter.textContent.length > 0 ||
+              props.filter.levels.length < 5
+            }
+          >
+            <div>
+              You've also got some filters set.
+              <br />
+              Would you like to{" "}
+              <Button.Root
+                onClick={() => props.reset()}
+                class="underline underline-offset-2"
+              >
+                reset them
+              </Button.Root>
+              ?
+            </div>
+          </Show>
+        </div>
       </div>
     </div>
   );
