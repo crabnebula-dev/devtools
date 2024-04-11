@@ -1,14 +1,20 @@
 import { type JSXElement, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { encodeFileName } from "~/lib/sources/file-entries";
+import { useConnection } from "~/context/connection-provider";
 
 export function MaybeLinkedSource(props: {
-  baseSources: string;
   maybeRelativePath?: string;
   lineNumber?: number;
   class: string;
   children: JSXElement;
 }) {
+  const {
+    connectionStore: { host, port },
+  } = useConnection();
+
+  const baseSources = `/dash/${host}/${port}/sources/`;
+
   return (
     <Show
       when={props.maybeRelativePath}
@@ -17,7 +23,7 @@ export function MaybeLinkedSource(props: {
       {(path) => (
         <A
           href={
-            props.baseSources +
+            baseSources +
             encodeFileName(path()) +
             (props.lineNumber ? `#${props.lineNumber}` : "")
           }
