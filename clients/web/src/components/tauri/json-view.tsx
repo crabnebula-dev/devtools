@@ -1,9 +1,6 @@
-import {
-  findLineNumberByKey,
-  scrollToHighlighted,
-} from "~/lib/tauri/tauri-conf-lib";
+import { findLineNumberByKey } from "~/lib/tauri/tauri-conf-lib";
 import { useConfiguration } from "./configuration-context";
-import { createEffect, Show, Suspense } from "solid-js";
+import { Show, Suspense } from "solid-js";
 import { Loader } from "../loader";
 import { useParams } from "@solidjs/router";
 import { retrieveConfigurationByKey } from "~/lib/tauri/config/retrieve-configurations";
@@ -18,11 +15,6 @@ export function JsonView() {
   } = useConfiguration();
 
   const lineNumber = () => findLineNumberByKey(highlightKey());
-
-  createEffect(() => {
-    highlightKey();
-    scrollToHighlighted();
-  });
 
   return (
     <Show when={params.config}>

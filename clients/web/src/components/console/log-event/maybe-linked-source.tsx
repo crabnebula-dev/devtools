@@ -5,6 +5,7 @@ import { encodeFileName } from "~/lib/sources/file-entries";
 export function MaybeLinkedSource(props: {
   baseSources: string;
   maybeRelativePath?: string;
+  lineNumber?: number;
   class: string;
   children: JSXElement;
 }) {
@@ -15,7 +16,11 @@ export function MaybeLinkedSource(props: {
     >
       {(path) => (
         <A
-          href={props.baseSources + encodeFileName(path())}
+          href={
+            props.baseSources +
+            encodeFileName(path()) +
+            (props.lineNumber ? `#${props.lineNumber}` : "")
+          }
           class={props.class}
         >
           {props.children}

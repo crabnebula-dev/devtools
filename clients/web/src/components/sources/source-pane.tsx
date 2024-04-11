@@ -1,12 +1,13 @@
 import { UnknownView } from "~/components/sources/unknown-view.tsx";
 import { ImageView } from "~/components/sources/image-view.tsx";
-import { Match, Show, Suspense, Switch } from "solid-js";
+import { Match, Show, Suspense, Switch, createMemo } from "solid-js";
 import { useParams, useSearchParams } from "@solidjs/router";
 import { decodeFileName, guessContentType } from "~/lib/sources/file-entries";
 import CodeView from "./code-view";
 import { Loader } from "~/components/loader";
 import { HighlighterLang } from "~/lib/code-highlight";
 import { Heading } from "../heading";
+import { useLocation } from "@solidjs/router";
 
 export function SourcePane() {
   const params = useParams<Record<"source", string>>();
@@ -15,6 +16,12 @@ export function SourcePane() {
 
   const contentType = () => guessContentType(filePath());
   const sizeHint = () => parseInt(searchParams.sizeHint);
+
+  const location = useLocation();
+
+  const highlightedLine = createMemo(() =>
+    parseInt(location.hash.replace("#", "")),
+  );
 
   return (
     <Show
@@ -41,6 +48,7 @@ export function SourcePane() {
                       "",
                     ) as HighlighterLang
                   }
+                  highlightedLine={highlightedLine()}
                 />
               </Match>
               <Match when={resolvedContentType().startsWith("image/")} keyed>

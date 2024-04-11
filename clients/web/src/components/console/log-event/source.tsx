@@ -53,6 +53,7 @@ export function Source(props: { processedEvent: ProcessedLogEvent }) {
       class="ml-auto flex gap-2 items-center text-xs"
       baseSources={`/dash/${host}/${port}/sources/`}
       maybeRelativePath={maybeRelativePath()}
+      lineNumber={props.processedEvent.metadata?.location?.line}
     >
       <Show when={props.processedEvent.target}>
         {(logTarget) => (
