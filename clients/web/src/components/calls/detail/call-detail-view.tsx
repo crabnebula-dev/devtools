@@ -2,6 +2,7 @@ import { For, JSXElement } from "solid-js";
 import { Span } from "~/lib/connection/monitor";
 import { CallDetailTrace } from "./call-detail-trace";
 import { CallDetailArgs } from "./call-detail-args";
+import { computeDurationsFromSpanArray } from "~/lib/calls/compute-durations-from-span-array";
 
 type Props = {
   name: string;
@@ -13,15 +14,7 @@ type Props = {
 
 export function CallDetailView(props: Props) {
   const closedSpans = () => props.spanChildren.filter((s) => s.closedAt > 0);
-
-  const durations = () => {
-    return {
-      start: Math.min(...closedSpans().map((s) => s.createdAt)),
-      end: Math.max(...closedSpans().map((s) => s.closedAt)),
-      shortest: Math.min(...closedSpans().map((s) => s.duration)),
-      longest: Math.max(...closedSpans().map((s) => s.duration)),
-    };
-  };
+  const durations = () => computeDurationsFromSpanArray(closedSpans());
 
   return (
     <div class="h-full overflow-auto grid gap-4 content-start border-l border-gray-800 min-w-[420px]">
