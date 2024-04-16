@@ -65,8 +65,8 @@ export type MonitorData = {
 
 export function initialDurations() {
   return {
-    start: undefined,
-    end: Date.now() * 1e6,
+    start: Infinity,
+    end: -Infinity,
     shortestTime: undefined,
     longestTime: undefined,
     average: 0,
