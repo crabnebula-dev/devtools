@@ -9,12 +9,9 @@ export function triggerRenameOnRoot(
 ) {
   span.kind = span.kind ? span.kind : getSpanKind(span) ?? span.kind;
   span.name = getSpanName(span) ?? span.name;
-  //uiSpansMap.set(span.id, span);
 
   if (span.parentId) {
     const parentSpan = spansMap.get(span.parentId);
     if (parentSpan) triggerRenameOnRoot(parentSpan, spansMap);
   }
-
-  return;
 }
