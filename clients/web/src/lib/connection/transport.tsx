@@ -16,7 +16,7 @@ import { updatedSpans } from "../span/update/update-spans";
 import { MonitorData } from "./monitor";
 import * as Sentry from "@sentry/browser";
 import { Metadata_Level } from "../proto/common";
-import { convertTimestampToNanoseconds } from "../formatters";
+import { updateLogs } from "../span/update/update-logs";
 
 export async function checkConnection(url: string) {
   const abortController = new AbortController();
@@ -131,21 +131,7 @@ export function addStreamListeners(
     );
 
     if (logsUpdate && logsUpdate.logEvents.length > 0) {
-      setMonitorData("logs", (prev) => {
-        // HACK: ensure we're only inserting logs newer than the latest we already had.
-        // Workaround for https://linear.app/crabnebula/issue/DT-121/bug-logs-are-duplicated-when-reconnecting
-        const maxNs: number = prev.reduce(
-          (max, log) =>
-            Math.max(max, log.at ? convertTimestampToNanoseconds(log.at) : 0),
-          0,
-        );
-        return [
-          ...prev,
-          ...logsUpdate.logEvents.filter(
-            (log) => log.at && convertTimestampToNanoseconds(log.at) > maxNs,
-          ),
-        ];
-      });
+      setMonitorData("logs", (prev) => updateLogs(prev, logsUpdate.logEvents));
       Sentry.setMeasurement(
         "droppedLogEvents",
         Number(logsUpdate.droppedEvents),
