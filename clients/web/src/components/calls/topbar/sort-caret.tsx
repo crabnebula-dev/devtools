@@ -1,4 +1,4 @@
-import type { SortDirection } from "~/views/dashboard/calls";
+import type { SortDirection } from "../calls-list";
 
 export function SortCaret(props: { direction: SortDirection }) {
   return (

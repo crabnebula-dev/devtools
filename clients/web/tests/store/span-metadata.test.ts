@@ -5,7 +5,7 @@ import {
 } from "~/lib/proto/common";
 import { updateSpanMetadata } from "~/lib/span/update-span-metadata";
 
-const MOCK_METADATA = (
+export const MOCK_METADATA = (
   kind = Metadata_Kind.SPAN,
   level = Metadata_Level.INFO,
 ) => ({

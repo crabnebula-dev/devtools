@@ -1,7 +1,7 @@
-import { UiSpan } from "./format-spans-for-ui";
+import { Span } from "../connection/monitor";
 import { processFieldValue } from "./process-field-value";
 
-export function spanFieldsToObject(span: UiSpan) {
+export function spanFieldsToObject(span: Span) {
   return (span.fields?.reduce(
     (acc, field) => ({ ...acc, [field.name]: processFieldValue(field.value) }),
     {},

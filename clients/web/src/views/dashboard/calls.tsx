@@ -1,44 +1,46 @@
-import { createEffect } from "solid-js";
 import { SplitPane } from "~/components/split-pane";
-import { SpanDetailPanel } from "~/components/span/span-detail-panel";
-import { SpanList } from "~/components/span/span-list";
-import { SpanScaleSlider } from "~/components/span/span-scale-slider";
+import { CallDetailPanel } from "~/components/calls/call-detail-panel";
+import { CallsList } from "~/components/calls/calls-list";
+import { CallsScaleSlider } from "~/components/calls/topbar/calls-scale-slider";
+import { CallsContextProvider } from "~/components/calls/calls-context";
 import { useMonitor } from "~/context/monitor-provider";
-import { CallsContextProvider } from "~/components/span/calls-context";
-import { updateUiSpansFromStream } from "~/lib/span/update-ui-spans-from-stream";
-import { useCalls } from "~/components/span/calls-context";
+import { CallsClearButton } from "~/components/calls/topbar/calls-clear-button";
+import { filterSpans } from "~/lib/span/filter-spans";
+import { Span } from "~/lib/connection/monitor";
+import { createMemo } from "solid-js";
+import { Toolbar } from "~/components/toolbar";
 
 function Calls() {
   const { monitorData } = useMonitor();
-  const callsContext = useCalls();
 
-  createEffect((prevHealth) => {
-    // If the connection goes bad we make sure to remove the unclosed spans from their pending state
-    if (monitorData.health === 0) callsContext.clearIntervals();
+  let spanProcessingPointer = 0;
 
-    // If the connection comes back we have to clear the old calls
-    if (prevHealth === 0 && monitorData.health === 1) callsContext.resetCalls();
-
-    return monitorData.health;
-  });
-
-  createEffect(() => {
-    updateUiSpansFromStream(monitorData.spans);
-  });
+  const filteredCalls = createMemo<Span[]>((alreadyFiltered) => {
+    const [filteredCalls, newPointer] = filterSpans(
+      alreadyFiltered,
+      spanProcessingPointer,
+      monitorData.spans,
+    );
+    spanProcessingPointer = newPointer;
+    return filteredCalls;
+  }, []);
 
   return (
-    <div class={"h-[calc(100%-24px)]"}>
+    <div class={"h-[calc(100%-var(--toolbar-height))]"}>
+      <Toolbar>
+        <CallsClearButton />
+        <span>Displayed calls: {filteredCalls().length}</span>
+        <span>Running calls: {monitorData.durations.openSpans}</span>
+        <CallsScaleSlider />
+      </Toolbar>
       <SplitPane
         initialSizes={[70, 30]}
-        defaultMinSizes={[600, 300]}
+        defaultMinSizes={[50, 50]}
         defaultPrefix="span-waterfall"
       >
-        <SpanList />
-        <SpanDetailPanel />
+        <CallsList calls={filteredCalls()} />
+        <CallDetailPanel />
       </SplitPane>
-      <div class="bg-gray-900 px-2 flex justify-center w-full">
-        <SpanScaleSlider />
-      </div>
     </div>
   );
 }

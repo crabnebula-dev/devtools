@@ -1,5 +1,4 @@
 import { For, JSXElement, Show } from "solid-js";
-import { UiSpan } from "~/lib/span/format-spans-for-ui";
 import { Span } from "~/lib/connection/monitor";
 import {
   computeWaterfallStyle,
@@ -8,8 +7,8 @@ import {
 import { Popover } from "@kobalte/core";
 import { getDetailedTime } from "~/lib/formatters.ts";
 
-export function SpanDetailTrace(props: {
-  span: UiSpan;
+export function CallDetailTrace(props: {
+  span: Span;
   durations: {
     start: number;
     end: number;
@@ -38,7 +37,7 @@ export function SpanDetailTrace(props: {
               )}
             >
               {/* Slices is "time slices" as in multiple entry points to a given span */}
-              <For each={computeSlices(props.span.original)}>
+              <For each={computeSlices(props.span)}>
                 {(slice) => <SpanDetailSlice slice={slice} />}
               </For>
             </div>
@@ -53,7 +52,7 @@ export function SpanDetailTrace(props: {
   );
 }
 
-function SpanDetailPopOverContent(props: { span: UiSpan }) {
+function SpanDetailPopOverContent(props: { span: Span }) {
   const busy = (span: Span) =>
     span.enters.reduce((acc, enter, i) => {
       const exit = span.exits[i];
@@ -69,10 +68,10 @@ function SpanDetailPopOverContent(props: { span: UiSpan }) {
       <ToolTipContent>
         <ToolTipRow title={props.span.name} />
         <ToolTipRow title="Busy">
-          {(busy(props.span.original) / 1e6).toFixed(3)}ms
+          {(busy(props.span) / 1e6).toFixed(3)}ms
         </ToolTipRow>
         <ToolTipRow title="Idle">
-          {(props.span.time - busy(props.span.original) / 1e6).toFixed(3)}ms
+          {(props.span.time - busy(props.span) / 1e6).toFixed(3)}ms
         </ToolTipRow>
         <ToolTipRow title="Total">{props.span.time.toFixed(3)}ms</ToolTipRow>
       </ToolTipContent>

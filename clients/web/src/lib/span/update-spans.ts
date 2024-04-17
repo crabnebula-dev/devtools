@@ -1,32 +1,44 @@
-import { type Span } from "~/lib/connection/monitor";
+import { type Span, type Durations } from "~/lib/connection/monitor";
 import { type SpanEvent } from "~/lib/proto/spans";
 import { convertTimestampToNanoseconds } from "../formatters";
+import { formatSpan } from "./format-span";
+import { Metadata } from "../proto/common";
+import { type ReactiveMap } from "@solid-primitives/map";
+import { triggerRenameOnRoot } from "./trigger-rename-on-root";
 
-export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
+export function updatedSpans(
+  currentSpans: ReactiveMap<bigint, Span>,
+  spanEvents: SpanEvent[],
+  metadata: Map<bigint, Metadata>,
+  oldDurations: Durations,
+) {
+  let { start, end, shortestTime, longestTime, average, counted, openSpans } =
+    oldDurations;
+
   for (const event of spanEvents) {
     switch (event.event.oneofKind) {
       case "newSpan": {
-        const span: Span = {
-          id: event.event.newSpan.id,
-          parentId: event.event.newSpan.parent,
-          metadataId: event.event.newSpan.metadataId,
-          fields: event.event.newSpan.fields,
-          createdAt: event.event.newSpan.at
-            ? convertTimestampToNanoseconds(event.event.newSpan.at)
-            : -1,
-          enters: [],
-          exits: [],
-          closedAt: -1,
-          duration: -1,
-        };
+        const span: Span = formatSpan(event.event.newSpan, metadata);
 
-        currentSpans.push(span);
+        if (span.parentId) {
+          const parent = currentSpans.get(span.parentId);
+          if (parent) {
+            parent.children.push(span);
+            span.parent = parent;
+          }
 
+          triggerRenameOnRoot(span, currentSpans);
+        }
+        currentSpans.set(span.id, span);
+
+        if (!start || span.createdAt < start) start = span.createdAt;
+
+        openSpans++;
         break;
       }
       case "enterSpan": {
         const spanId = event.event.enterSpan.spanId;
-        const span = currentSpans.find((s) => s.id === spanId);
+        const span = currentSpans.get(spanId);
         const enteredAt = event.event.enterSpan.at
           ? convertTimestampToNanoseconds(event.event.enterSpan.at)
           : -1;
@@ -35,13 +47,14 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
             timestamp: enteredAt,
             threadID: Number(event.event.enterSpan.threadId),
           });
+          currentSpans.set(span.id, span);
         }
 
         break;
       }
       case "exitSpan": {
         const spanId = event.event.exitSpan.spanId;
-        const span = currentSpans.find((s) => s.id === spanId);
+        const span = currentSpans.get(spanId);
         const exitedAt = event.event.exitSpan.at
           ? convertTimestampToNanoseconds(event.event.exitSpan.at)
           : -1;
@@ -50,27 +63,51 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
             timestamp: exitedAt,
             threadID: Number(event.event.exitSpan.threadId),
           });
+          currentSpans.set(span.id, span);
         }
         break;
       }
 
       case "closeSpan": {
         const spanId = event.event.closeSpan.spanId;
-        const span = currentSpans.find((s) => s.id === spanId);
+        const span = currentSpans.get(spanId);
         if (span) {
           span.closedAt = event.event.closeSpan.at
             ? convertTimestampToNanoseconds(event.event.closeSpan.at)
             : -1;
           span.duration = span.closedAt - span.createdAt;
+
+          span.isProcessing = span.closedAt < 0;
+
+          span.time = !span.isProcessing
+            ? span.duration / 1e6
+            : Date.now() - span.createdAt / 1e6;
+
+          currentSpans.set(span.id, span);
+
+          if (span.closedAt > end) end = span.closedAt;
+          if (!shortestTime || span.duration < shortestTime)
+            shortestTime = span.duration;
+          if (!longestTime || span.duration > longestTime)
+            longestTime = span.duration;
+
+          if (span.kind) {
+            average = (average * counted + span.duration) / (counted + 1);
+            counted++;
+          }
+
+          openSpans--;
         }
+
         break;
       }
 
       case "recorded": {
         const spanId = event.event.recorded.spanId;
-        const span = currentSpans.find((s) => s.id === spanId);
+        const span = currentSpans.get(spanId);
         if (span) {
           span.fields = [...span.fields, ...event.event.recorded.fields];
+          currentSpans.set(span.id, span);
         }
         break;
       }
@@ -85,5 +122,13 @@ export function updatedSpans(currentSpans: Span[], spanEvents: SpanEvent[]) {
     }
   }
 
-  return currentSpans;
+  return {
+    start,
+    end,
+    longestTime,
+    shortestTime,
+    average,
+    counted,
+    openSpans,
+  } satisfies Durations;
 }

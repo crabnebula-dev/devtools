@@ -1,5 +1,5 @@
 import { HealthCheckResponse_ServingStatus } from "~/lib/proto/health";
-import { Show, createEffect, createSignal, onMount } from "solid-js";
+import { Show, createEffect, createSignal, onMount, batch } from "solid-js";
 import { ErrorDialog } from "./dialogs/error-dialog";
 import {
   addStreamListeners,
@@ -118,10 +118,27 @@ export function HealthStatus() {
   }
 
   function reconnect() {
-    setMonitorData("spans", reconcile([]));
+    /** set all open spans to aborted */
+    batch(() => {
+      monitorData.spans.forEach((span) => {
+        if (span.closedAt === -1) {
+          span.aborted = true;
+          monitorData.spans.set(span.id, span);
+        }
+      });
+    });
+    setMonitorData("durations", { openSpans: 0 });
+
     const newConnection = connect(connectionStore.serviceUrl);
+
     setConnection(reconcile(newConnection, { merge: false }));
-    addStreamListeners(connectionStore.stream.update, setMonitorData);
+
+    addStreamListeners(
+      connectionStore.stream.update,
+      setMonitorData,
+      monitorData,
+    );
+
     connectionStore.stream.health.responses.onError(healthErrorHandler);
     connectionStore.stream.update.responses.onError(updateErrorHandler);
   }
