@@ -35,16 +35,7 @@ const variant = (status: HealthCheckResponse_ServingStatus) => {
 export function HealthStatus() {
   const updateErrorHandler = () => {
     console.error("an error happened on Updates Stream");
-    // if (isConnectionDead()) {
-    /**
-     * we do nothing because it's not an instrumentation issue.
-     */
-    return;
-    // }
-  };
 
-  const healthErrorHandler = () => {
-    console.error("an error happened on Health Stream");
     setMonitorData("health", 0);
     setConnectionDead(true);
 
@@ -57,7 +48,6 @@ export function HealthStatus() {
         attempts: 5,
       });
   };
-
   /*  undefined = failed to reconnect 
       -1 = reconnecting
       > 0 = time until reconnect 
@@ -139,7 +129,6 @@ export function HealthStatus() {
       monitorData,
     );
 
-    connectionStore.stream.health.responses.onError(healthErrorHandler);
     connectionStore.stream.update.responses.onError(updateErrorHandler);
   }
 
@@ -148,7 +137,6 @@ export function HealthStatus() {
   const [isConnectionDead, setConnectionDead] = createSignal(false);
 
   onMount(() => {
-    connectionStore.stream.health.responses.onError(healthErrorHandler);
     connectionStore.stream.update.responses.onError(updateErrorHandler);
   });
 
