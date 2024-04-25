@@ -1,76 +1,7 @@
-import { EventData, EventKind, IpcData, Span } from "../connection/monitor";
+import { EventData, IpcData, Span } from "../connection/monitor";
 import { processFieldValue } from "./process-field-value";
-
-/**
- * Like Array.find but recursively for the tree of children.
- *
- * Performs a depth-first search and returns on the first match.
- * When the predicate returns a *truthy* value it's considered a match.
- *
- * Note: this may match the root span as well.
- */
-export function findSpan(
-  value: Span,
-  predicate: (value: Span, depth: number) => unknown,
-  // Add max depth before current depth, as you may want to set a max when calling.
-  maxDepth = 10,
-  depth = 0,
-): Span | undefined {
-  // Try to match ourself.
-  if (predicate(value, depth)) return value;
-
-  // Break before looping if we shouldn't go deeper.
-  if (depth === maxDepth) return;
-
-  // Go depth-first on the children.
-  for (const child of value.children) {
-    const match = findSpan(child, predicate, maxDepth, depth + 1);
-    if (match) return match;
-  }
-}
-
-/**
- * Like Array.filter but recursively for the tree of children.
- *
- * Performs a depth-first search and returns all matches as an iterable.
- * When the predicate returns a *truthy* value it's considered a match.
- *
- * Note: this may match the root span as well.
- */
-export function* filterSpan(
-  value: Span,
-  predicate: (value: Span, depth: number) => unknown,
-  // Add max depth before current depth, as you may want to set a max when calling.
-  maxDepth = 10,
-  depth = 0,
-): Iterable<Span> {
-  // Try to match ourself.
-  if (predicate(value, depth)) yield value;
-
-  // Break before looping if we shouldn't go deeper.
-  if (depth === maxDepth) return;
-
-  // Go depth-first on the children.
-  for (const child of value.children) {
-    for (const match of filterSpan(child, predicate, maxDepth, depth + 1)) {
-      yield match;
-    }
-  }
-}
-
-export function findNamedSpan(
-  value: Span,
-  partialTarget: string,
-  name: string,
-  maxDepth = 10,
-): Span | undefined {
-  return findSpan(
-    value,
-    (s) =>
-      s.metadata?.target.startsWith(partialTarget) && s.metadata?.name === name,
-    maxDepth,
-  );
-}
+import { findNamedSpan } from "./find-named-span";
+import { detectEventKind } from "./update/type/event/detect-event-kind";
 
 export function mutateWhenKnownKind(root: Span): boolean {
   try {
@@ -92,28 +23,8 @@ function mutateWhenEventTrace(root: Span): boolean {
 
 function detectEventTrace(root: Span): EventData | undefined {
   // First we check the root name is one of the expected kinds.
-  let kind: EventKind;
-  switch (root.metadata?.name) {
-    case "app::emit":
-    case "app::emit::all":
-    case "app::emit::filter":
-    case "app::emit::to":
-    case "app::emit::rust":
-      kind = "global event";
-      break;
-    case "window::trigger":
-      kind = "rust event";
-      break;
-    case "window::emit":
-    case "window::emit::to":
-    case "window::emit::all":
-      kind = "event";
-      break;
-
-    // Didn't match any known root names.
-    default:
-      return;
-  }
+  const kind = detectEventKind(root);
+  if (!kind) return;
 
   const eventField = root.fields.find((f) => f.name === "event");
   if (!eventField) return;
