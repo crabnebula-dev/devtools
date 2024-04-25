@@ -1,5 +1,4 @@
 import { EventData, EventKind, IpcData, Span } from "../connection/monitor";
-import { getSpanChildren } from "./get-span-children";
 import { processFieldValue } from "./process-field-value";
 
 /**
@@ -214,14 +213,7 @@ function detectIpcTrace(root: Span): IpcData | undefined {
   }
 
   // Note: allow this to be null, so that commands that are still running are detected as IPC calls.
-  const responseSpan = findNamedSpan(root, "tauri::", "ipc::request::response");
-  const responseField = responseSpan?.fields.find((f) => f.name === "response");
-  const response = responseField
-    ? processFieldValue(responseField.value).replace(
-        /\\n/gim, // Turn escaped newlines into actual newlines
-        "\n",
-      )
-    : null;
+  const response = getResponse(root);
 
   const responseKind = !response
     ? undefined
@@ -244,40 +236,14 @@ function detectIpcTrace(root: Span): IpcData | undefined {
   };
 }
 
-export function getSpanValues(span: Span): Record<string, unknown> | undefined {
-  switch (span.kind) {
-    case "ipc": {
-      const field = getSpanChildren(span, "ipc::request")[0]?.fields.find(
-        (f) => f.name === "request",
-      );
-      if (!field) return;
-
-      const obj = JSON.parse(processFieldValue(field.value));
-      if (typeof obj !== "object") return;
-      return obj;
-    }
-
-    default:
-      return;
-  }
-}
-
-export function getCode(span: Span): string | null {
-  switch (span.kind) {
-    case "ipc": {
-      const field = getSpanChildren(
-        span,
-        "ipc::request::response",
-      )[0]?.fields.find((f) => f.name === "response");
-      return field
-        ? processFieldValue(field.value).replace(
-            /\\n/gim, // Turn escaped newlines into actual newlines
-            "\n",
-          )
-        : null;
-    }
-
-    default:
-      return null;
-  }
+function getResponse(root: Span): string | null {
+  const responseSpan = findNamedSpan(root, "tauri::", "ipc::request::response");
+  const responseField = responseSpan?.fields.find((f) => f.name === "response");
+  const response = responseField
+    ? processFieldValue(responseField.value).replace(
+        /\\n/gim, // Turn escaped newlines into actual newlines
+        "\n",
+      )
+    : null; // Note: allow this to be null, so that commands that are still running are detected as IPC calls.
+  return response;
 }
