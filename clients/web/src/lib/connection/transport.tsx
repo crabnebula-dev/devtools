@@ -63,12 +63,6 @@ export function connect(url: string) {
   const sourcesClient = new SourcesClient(transport);
   const metaClient = new MetadataClient(transport);
 
-  const healthStream = healthClient.watch(
-    /**
-     * empty string means all services.
-     */
-    HealthCheckRequest.create({ service: "" }),
-  );
   const updateStream = instrumentClient.watchUpdates(
     InstrumentRequest.create({}),
   );
@@ -84,7 +78,6 @@ export function connect(url: string) {
       meta: metaClient,
     },
     stream: {
-      health: healthStream,
       update: updateStream,
     },
   };
