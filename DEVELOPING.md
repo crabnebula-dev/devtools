@@ -10,34 +10,44 @@ There are a couple components to devtools that you should know about:
 
 ## The `cargo-deny` check is failing! What do I do?
 
-The [`cargo-deny`](https://github.com/EmbarkStudios/cargo-deny) action checks for various dependency-related issues, such as problematic licenses, CVEs and the like. Sometimes when opening a PR this check just fails. It's usually a good idea to inspect its output to see exactyl _why_ the check is failing.
+The [`cargo-deny`](https://github.com/EmbarkStudios/cargo-deny) action checks for various dependency-related issues,
+such as problematic licenses, CVEs and the like. Sometimes when opening a PR this check just fails. It's usually a good
+idea to inspect its output to see exactyl _why_ the check is failing.
 
-If it's something like, security vulnerabilities chances are high you just need to update the repos lockfiles. You can do so by running this command from the repo root:
+If it's something like, security vulnerabilities chances are high you just need to update the repos lockfiles. You can
+do so by running this command from the repo root:
 
 ```bash
-cargo update && cargo update --manifest-path examples/tauri-v1/Cargo.toml && cargo update --manifest-path
+cargo update && cargo update --manifest-path examples/tauri-v1/Cargo.toml && cargo update --manifest-path crates/devtools-v1/Cargo.toml
 ```
 
 ## Developing locally
 
-By default the instrumentation has strict CORS checks enabled to ensure only the legitimate frontend hosted at `devtools.crabnebula.dev` can access the data, as this would also block the frontend running locally in development mode (`localhost` doesn't match `devtools.crabnebula.dev`) these checks can be disabled by setting the environment variable `__DEVTOOLS_LOCAL_DEVELOPMENT=true`. If you run the examples contained within this repo through `cargo` or the Tauri CLI nothing needs to be done, that environment variable is set automatically.
+By default the instrumentation has strict CORS checks enabled to ensure only the legitimate frontend hosted
+at `devtools.crabnebula.dev` can access the data, as this would also block the frontend running locally in development
+mode (`localhost` doesn't match `devtools.crabnebula.dev`) these checks can be disabled by setting the environment
+variable `__DEVTOOLS_LOCAL_DEVELOPMENT=true`. If you run the examples contained within this repo through `cargo` or the
+Tauri CLI nothing needs to be done, that environment variable is set automatically.
 
 # Architecture
 
 The core observation behind DevTools is that Tauri apps are _interactive_ and _long-running_ processes,
 and being able to gather, aggregate and visualize data _in realtime_ is therefore very important.
-I believe this is the only paradigm applicable to the highly interactive and playful nature of web development used for Tauri apps.
+I believe this is the only paradigm applicable to the highly interactive and playful nature of web development used for
+Tauri apps.
 
 To archive realtime data collection with minimal overhead, DevTools consists of two main components:
 The app instrumentation and user-facing UI.
 
 ## Core paradigms
 
-Below are a few core paradigms that have influenced the design decisions taken so far and should be respected by all new code:
+Below are a few core paradigms that have influenced the design decisions taken so far and should be respected by all new
+code:
 
 ### Client initiated streams
 
-All data transfers are initiated by the _Client_ and should include the possibility for the _Client_ to specify a filter.
+All data transfers are initiated by the _Client_ and should include the possibility for the _Client_ to specify a
+filter.
 This further helps to reduce the network traffic by only sending information that the _Client_ truly cares about.
 
 ## Overview
@@ -90,7 +100,8 @@ and the `Layer` implementation is kept as lightweight as possible as to not dist
 layer of isolation from the rest of the app.
 This also means that a crash in the instrumentation will not bring down the app with it.
 
-The above is exposed through the [`Instrumentation`](./crates/wire/proto/instrument.proto) gRPC service, but there are a couple more:
+The above is exposed through the [`Instrumentation`](./crates/wire/proto/instrument.proto) gRPC service, but there are a
+couple more:
 
 #### `Metadata`
 
