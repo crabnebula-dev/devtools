@@ -14,21 +14,12 @@ export type IpcSpanName =
   /*  @todo describe 👇 */
   | "wry::eval";
 
-export const ipcSpans: IpcSpanName[] = [
-  "ipc::request",
-  "ipc::request::deserialize_arg",
-  "ipc::request::run",
-  "ipc::request::respond",
-  "ipc::request::response",
-  "wry::eval",
-];
-
-export const ipcSpanNameMap: Record<IpcSpanName, string> = {
-  "ipc::request": "Request",
-  "ipc::request::run": "Command Run",
-  "ipc::request::respond": "Response",
-  "wry::eval": "Eval Response",
-  "ipc::request::deserialize_arg": "Deserialize Args",
-  "ipc::request::handler": "Command Handler",
-  "ipc::request::response": "Response",
-};
+export const NamedSpanMap = new Map<string, string>([
+  ["ipc::request", "Request"],
+  ["ipc::request::run", "Command Run"],
+  ["ipc::request::respond", "Response"],
+  ["wry::eval", "Eval Response"],
+  ["ipc::request::deserialize_arg", "Deserialize Args"],
+  ["ipc::request::handler", "Command Handler"],
+  ["ipc::request::response", "Response"],
+]);

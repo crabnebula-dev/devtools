@@ -1,4 +1,5 @@
-import { filterSpan, mutateWhenKnownKind } from "../detect-known-trace";
+import { mutateWhenKnownKind } from "./kinds/mutate-when-known-kind";
+import { filterSpan } from "../filter-span";
 import type { Span } from "~/lib/connection/monitor";
 import type { ReactiveMap } from "@solid-primitives/map";
 

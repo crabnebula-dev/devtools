@@ -11,6 +11,7 @@ import { mutateSpanOnClose } from "./mutate-span-on-close";
 import { mutateSpanOnRecorded } from "./mutate-span-on-recorded";
 import { mutateDurationsOnNew } from "./mutate-durations-on-new";
 import { mutateDurationsOnClose } from "./mutate-durations-on-close";
+import { mutateWhenKnownKind } from "./kinds/mutate-when-known-kind";
 
 export function updatedSpans(
   errorMetadata: Set<bigint>,
@@ -41,6 +42,7 @@ export function updatedSpans(
           erroredRoots,
         );
         mutateDurationsOnNew(span, durations);
+        mutateWhenKnownKind(span);
         currentSpans.set(span.id, span);
 
         break;

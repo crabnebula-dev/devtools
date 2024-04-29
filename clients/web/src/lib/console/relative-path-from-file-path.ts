@@ -2,7 +2,6 @@ export function relativePathFromFilePath(path: string | undefined) {
   if (!path) return;
 
   let file: string | undefined = path.replaceAll(`\\`, `/`);
-  console.log(file);
   if (!file) return;
 
   if (file.includes("src-tauri")) {

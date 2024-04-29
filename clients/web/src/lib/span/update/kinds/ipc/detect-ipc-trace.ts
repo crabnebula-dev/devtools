@@ -1,55 +1,9 @@
-import { EventData, IpcData, Span } from "../connection/monitor";
-import { processFieldValue } from "./process-field-value";
-import { findNamedSpan } from "./find-named-span";
-import { detectEventKind } from "./update/type/event/detect-event-kind";
+import type { Span, IpcData } from "~/lib/connection/monitor";
+import { findNamedSpan } from "~/lib/span/find-named-span";
+import { processFieldValue } from "~/lib/span/process-field-value";
+import { getIpcResponse } from "./get-ipc-response";
 
-export function mutateWhenKnownKind(root: Span): boolean {
-  try {
-    return mutateWhenEventTrace(root) || mutateWhenIpcTrace(root);
-  } catch (e) {
-    console.error("An error happened interpreting traces", e);
-    return false;
-  }
-}
-
-function mutateWhenEventTrace(root: Span): boolean {
-  const eventData = detectEventTrace(root);
-  if (!eventData) return false;
-  root.kind = "event";
-  root.displayName = `${eventData.kind}: ${eventData.event}`;
-  root.eventData = eventData;
-  return true;
-}
-
-function detectEventTrace(root: Span): EventData | undefined {
-  // First we check the root name is one of the expected kinds.
-  const kind = detectEventKind(root);
-  if (!kind) return;
-
-  const eventField = root.fields.find((f) => f.name === "event");
-  if (!eventField) return;
-
-  return {
-    kind,
-    event: processFieldValue(eventField.value),
-  };
-}
-
-function mutateWhenIpcTrace(root: Span): boolean {
-  const ipcData = detectIpcTrace(root);
-  if (!ipcData) return false;
-  root.kind = "ipc";
-  root.displayName = ipcData.pluginName
-    ? `plugin: ${ipcData.pluginName}.${ipcData.pluginCmd}`
-    : ipcData.tauriModule
-      ? `${ipcData.tauriModule}.${ipcData.tauriCmd}`
-      : `command: ${ipcData.cmd}`;
-  root.ipcData = ipcData;
-  root.hasError = root.hasError || ipcData.responseKind === "Err";
-  return true;
-}
-
-function detectIpcTrace(root: Span): IpcData | undefined {
+export function detectIpcTrace(root: Span): IpcData | undefined {
   const ipcNames = ["wry::ipc::handle", "wry::custom_protocol::handle"];
 
   // First we'd like to be sure the root has a specific name.
@@ -124,7 +78,7 @@ function detectIpcTrace(root: Span): IpcData | undefined {
   }
 
   // Note: allow this to be null, so that commands that are still running are detected as IPC calls.
-  const response = getResponse(root);
+  const response = getIpcResponse(root);
 
   const responseKind = !response
     ? undefined
@@ -145,16 +99,4 @@ function detectIpcTrace(root: Span): IpcData | undefined {
     pluginName,
     pluginCmd,
   };
-}
-
-function getResponse(root: Span): string | null {
-  const responseSpan = findNamedSpan(root, "tauri::", "ipc::request::response");
-  const responseField = responseSpan?.fields.find((f) => f.name === "response");
-  const response = responseField
-    ? processFieldValue(responseField.value).replace(
-        /\\n/gim, // Turn escaped newlines into actual newlines
-        "\n",
-      )
-    : null; // Note: allow this to be null, so that commands that are still running are detected as IPC calls.
-  return response;
 }

@@ -1,6 +1,4 @@
 import { Metadata } from "../proto/common";
-import { getSpanName } from "./get-span-name";
-import { getSpanKind } from "./get-span-kind";
 import type { Span } from "../connection/monitor";
 import type { SpanEvent_Span } from "../proto/spans";
 import { convertTimestampToNanoseconds } from "../formatters";
@@ -13,12 +11,14 @@ export function formatSpan(
     ? convertTimestampToNanoseconds(spanEvent.at)
     : -1;
 
+  const spanMetadata = metadata.get(spanEvent.metadataId);
+
   const span: Span = {
     id: spanEvent.id,
-    name: "",
+    name: spanMetadata?.name ?? "-", // NOTE: this is a fallback
     parentId: spanEvent.parent,
     metadataId: spanEvent.metadataId,
-    metadata: metadata.get(spanEvent.metadataId),
+    metadata: spanMetadata,
     fields: spanEvent.fields,
     createdAt: createdAt,
     enters: [],
@@ -33,8 +33,5 @@ export function formatSpan(
     hasError: null,
   };
 
-  // NOTE: we're still doing this here, so detection is still partially migrated to `detect-known-traces.ts`.
-  span.kind = getSpanKind(span);
-  span.name = getSpanName(span) || "-";
   return span;
 }

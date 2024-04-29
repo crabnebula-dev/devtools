@@ -44,7 +44,7 @@ function Calls() {
   });
 
   return (
-    <div class={"h-[calc(100%-24px)]"}>
+    <div class={"h-[calc(100%-26px)]"}>
       <SplitPane
         initialSizes={[70, 30]}
         defaultMinSizes={[50, 50]}
@@ -53,7 +53,7 @@ function Calls() {
         <CallsList calls={filteredCalls()} />
         <CallDetailPane />
       </SplitPane>
-      <div class="bg-gray-900 px-2 flex justify-center w-full">
+      <div class="bg-gray-900 px-2 flex justify-start gap-4 w-full">
         <CallsClearButton />
         <input
           value={textFilter()}
