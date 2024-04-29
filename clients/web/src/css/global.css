@@ -73,6 +73,7 @@
     border: 0px;
     min-width: 1.5px;
     width: 1px !important;
+    z-index: 1;
     @apply cursor-col-resize bg-slate-800;
     transition: 120ms ease;
   }
