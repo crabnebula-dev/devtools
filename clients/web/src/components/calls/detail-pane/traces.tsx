@@ -1,5 +1,5 @@
 import { Metadata_Level } from "~/lib/proto/common";
-import { TreeEntry } from "~/lib/span/get-span-children";
+import { SpanTreeEntry } from "~/lib/span/span-tree-entries";
 import { FilterToggle } from "~/components/filter-toggle";
 import { For, Setter } from "solid-js";
 import { Trace } from "./traces/trace";
@@ -7,7 +7,7 @@ import { Trace } from "./traces/trace";
 export function Traces(props: {
   minLevel: Metadata_Level;
   setMinLevel: Setter<Metadata_Level>;
-  spanChildren: TreeEntry[];
+  spanChildren: SpanTreeEntry[];
 }) {
   const closedSpans = () =>
     props.spanChildren.filter((s) => s.span.closedAt > 0);

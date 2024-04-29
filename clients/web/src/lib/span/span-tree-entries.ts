@@ -1,6 +1,6 @@
 import type { Span } from "../connection/monitor";
 
-export type TreeEntry = {
+export type SpanTreeEntry = {
   depth: number;
   span: Span;
 };
@@ -11,7 +11,7 @@ export function spanTreeEntries(
   filter: (span: Span) => unknown = () => true,
   maxDepth = 10,
   depth = 0,
-): TreeEntry[] {
+): SpanTreeEntry[] {
   const self = { depth, span };
   const showMe = filter(span);
   if (depth === maxDepth) return showMe ? [self] : [];
