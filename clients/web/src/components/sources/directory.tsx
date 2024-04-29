@@ -6,6 +6,7 @@ import {
   Show,
   Suspense,
   untrack,
+  JSXElement,
 } from "solid-js";
 import { Entry } from "~/lib/proto/sources.ts";
 import { A } from "@solidjs/router";
@@ -116,6 +117,13 @@ export function Directory(props: DirectoryProps) {
     </Suspense>
   );
 }
+
+type TreeEntryProps = {
+  caret?: JSXElement;
+  icon: JSXElement;
+  isAssetOrResource: boolean;
+  children: JSXElement;
+};
 
 function TreeEntry(props: TreeEntryProps) {
   return (
