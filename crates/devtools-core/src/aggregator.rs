@@ -38,6 +38,13 @@ pub struct Aggregator {
     /// Buffered span events.
     /// Up to 512 events are retained before the oldest will be dropped.
     spans: EventBuf<SpanEvent, 512>,
+    /// Separate buffer for span close events.
+    /// Span close events are important for correct calculations and animations in the UI,
+    /// so it is paramount that we do not drop them even under heavy event pressure.
+    ///
+    /// Since we will have vastly fewer close events at any given time then all other span events
+    /// we just separate them out we just store them separately.
+    span_close_events: EventBuf<SpanEvent, 1024>,
 
     /// All connected clients
     watchers: Vec<Watcher>,
@@ -68,6 +75,7 @@ impl Aggregator {
             watchers: vec![],
             logs: EventBuf::new(),
             spans: EventBuf::new(),
+            span_close_events: EventBuf::new(),
             all_metadata: vec![],
             new_metadata: vec![],
             base_time: TimeAnchor::new(),
@@ -197,7 +205,7 @@ impl Aggregator {
                 ));
             }
             Event::CloseSpan { at, span_id } => {
-                self.spans.push_overwrite(SpanEvent::close_span(
+                self.span_close_events.push_overwrite(SpanEvent::close_span(
                     self.base_time.to_timestamp(at),
                     &span_id,
                 ));
@@ -230,8 +238,18 @@ impl Aggregator {
 
     fn span_update(&mut self, include: Include) -> spans::Update {
         let span_events = match include {
-            Include::All => self.spans.iter().cloned().collect(),
-            Include::IncrementalOnly => self.spans.take_unsent().cloned().collect(),
+            Include::All => self
+                .spans
+                .iter()
+                .chain(self.span_close_events.iter())
+                .cloned()
+                .collect(),
+            Include::IncrementalOnly => self
+                .spans
+                .take_unsent()
+                .chain(self.span_close_events.take_unsent())
+                .cloned()
+                .collect(),
         };
 
         let dropped_events = match include {
