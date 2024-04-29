@@ -1,6 +1,6 @@
 import { Field } from "../proto/common";
 
-function processFieldValue(field: Field["value"]): string {
+export function processFieldValue(field: Field["value"]): string {
   switch (field.oneofKind) {
     case "debugVal":
       return field.debugVal;
@@ -18,5 +18,3 @@ function processFieldValue(field: Field["value"]): string {
       throw new Error(`Unknown field type: ${field.oneofKind}`);
   }
 }
-
-export { processFieldValue };
