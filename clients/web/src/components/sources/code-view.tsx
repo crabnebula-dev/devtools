@@ -1,13 +1,13 @@
 import { JSXElement, Suspense, createEffect, createResource } from "solid-js";
 import { Loader } from "~/components/loader";
 import { useConnection } from "~/context/connection-provider";
-import { HighlighterLang, getText } from "~/lib/code-highlight";
+import { SupportedLanguages, getText } from "~/lib/code-highlight";
 import { CodeHighlighter } from "../code-highlighter";
 
 type CodeViewProps = {
   path: string;
   size: number;
-  lang: HighlighterLang;
+  lang: SupportedLanguages;
   highlightedLine?: number;
 };
 

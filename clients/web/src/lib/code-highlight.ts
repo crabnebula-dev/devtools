@@ -28,6 +28,8 @@ export const SUPPORTED_LANGS = [
   "yaml",
 ] satisfies BundledLanguage[];
 
+export type SupportedLanguages = (typeof SUPPORTED_LANGS)[number];
+
 const TEXT_DECODER = new TextDecoder();
 
 export function bytesToText(bytes: Uint8Array | undefined): string {
