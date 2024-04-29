@@ -1,6 +1,6 @@
 import { createMemo, createSignal } from "solid-js";
 import { Span } from "~/lib/connection/monitor";
-import { treeEntries } from "~/lib/span/get-span-children";
+import { spanTreeEntries } from "~/lib/span/span-tree-entries";
 import { Metadata_Level } from "~/lib/proto/common";
 import { useMonitor } from "~/context/monitor-provider";
 import { Args } from "./args";
@@ -18,7 +18,7 @@ export function Detail(props: { call: Span }) {
 
   const children = createMemo(() => {
     const level = minLevel();
-    return treeEntries(
+    return spanTreeEntries(
       props.call,
       (span) => span.metadata && span.metadata.level <= level,
     );
