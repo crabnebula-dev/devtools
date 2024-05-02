@@ -9,6 +9,7 @@ import { filterSpans } from "~/lib/span/filter-spans";
 import { Span } from "~/lib/connection/monitor";
 import { createMemo, createSignal } from "solid-js";
 import { FilterToggle } from "~/components/filter-toggle";
+import { Toolbar } from "~/components/toolbar";
 
 function Calls() {
   const { monitorData } = useMonitor();
@@ -44,16 +45,8 @@ function Calls() {
   });
 
   return (
-    <div class={"h-[calc(100%-26px)]"}>
-      <SplitPane
-        initialSizes={[70, 30]}
-        defaultMinSizes={[50, 50]}
-        defaultPrefix="span-waterfall"
-      >
-        <CallsList calls={filteredCalls()} />
-        <CallDetailPane />
-      </SplitPane>
-      <div class="bg-gray-900 px-2 flex justify-start gap-4 w-full">
+    <div class={"h-[calc(100%-var(--toolbar-height))]"}>
+      <Toolbar>
         <CallsClearButton />
         <input
           value={textFilter()}
@@ -72,7 +65,15 @@ function Calls() {
         <span>Displayed calls: {filteredCalls().length}</span>
         <span>Running calls: {monitorData.durations.openSpans}</span>
         <CallsScaleSlider />
-      </div>
+      </Toolbar>
+      <SplitPane
+        initialSizes={[70, 30]}
+        defaultMinSizes={[50, 50]}
+        defaultPrefix="span-waterfall"
+      >
+        <CallsList calls={filteredCalls()} />
+        <CallDetailPane />
+      </SplitPane>
     </div>
   );
 }

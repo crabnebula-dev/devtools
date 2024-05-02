@@ -100,7 +100,14 @@ jobs:
           components: rustfmt
       - run: cargo fmt --all -- --check
 
-  check-licenses:
+  cargo-deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Rust Code
+        uses: EmbarkStudios/cargo-deny-action@v1
+
+  check-js-licenses:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -111,16 +118,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
-          cache-dependency-path: 'clients/web/pnpm-lock.yaml'
+          cache: "pnpm"
+          cache-dependency-path: "clients/web/pnpm-lock.yaml"
       - name: Install dependencies
         run: pnpm install -g license-checker
       - name: Check JavaScript Licenses
         working-directory: clients/web
-        run:  license-checker --summary --onlyAllow="MIT;Apache-2.0;BSD-2-Clause" --excludePackages="spa-client@0.0.0"
-      - name: Check Rust Licenses
-        uses: EmbarkStudios/cargo-deny-action@v1
-
+        run: license-checker --summary --onlyAllow="MIT;Apache-2.0;BSD-2-Clause" --excludePackages="spa-client@0.0.0"
 #  outdated:
 #     name: Outdated
 #     runs-on: ubuntu-latest

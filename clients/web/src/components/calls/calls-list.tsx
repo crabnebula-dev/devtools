@@ -29,15 +29,13 @@ export function CallsList(props: { calls: Span[] }) {
   /**  */
   let sortInterval: NodeJS.Timeout | undefined = undefined;
   const [sortSwitch, setSortSwitch] = createSignal(false);
+  const anyOpenSpans = createMemo(() => monitorData.durations.openSpans > 0);
   createEffect(() => {
-    if (monitorData.durations.openSpans > 0 && !sortInterval) {
+    if (anyOpenSpans() && !sortInterval) {
       sortInterval = setInterval(() => {
         setSortSwitch((prev) => !prev);
       }, 400);
-      return;
-    }
-
-    if (sortInterval) {
+    } else if (!anyOpenSpans() && sortInterval) {
       clearInterval(sortInterval);
       sortInterval = undefined;
     }
