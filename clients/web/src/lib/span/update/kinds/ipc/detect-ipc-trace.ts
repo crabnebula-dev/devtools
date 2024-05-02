@@ -3,6 +3,7 @@ import { findNamedSpan } from "~/lib/span/find-named-span";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { getIpcResponse } from "./get-ipc-response";
 
+// TODO: Revisit this function to see if we can improve on the logic and the eslint disable comments.
 export function detectIpcTrace(root: Span): IpcData | undefined {
   const ipcNames = ["wry::ipc::handle", "wry::custom_protocol::handle"];
 
