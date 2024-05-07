@@ -39,22 +39,22 @@ export function Args(props: { call: Span }) {
                     typeof arg === "string" ? JSON.parse(arg) : arg,
                   )}
                 >
-                  {([k, v]) => (
+                  {([key, value]) => (
                     <Show
                       when={
                         !["cmd", "callback", "error", "__tauriModule"].includes(
-                          k,
+                          key,
                         )
                       }
                     >
                       <tr class="even:bg-nearly-invisible">
-                        <Show when={k}>
-                          <td class="py-1 px-4 font-bold">{k}</td>
+                        <Show when={key}>
+                          <td class="py-1 px-4 font-bold">{key}</td>
                         </Show>
                         <td class="py-1 px-4">
-                          {typeof v === "object"
-                            ? JSON.stringify(v)
-                            : String(v)}
+                          {typeof value === "object"
+                            ? JSON.stringify(value)
+                            : String(value)}
                         </td>
                       </tr>
                     </Show>
