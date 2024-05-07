@@ -7,5 +7,5 @@ export function getRootSpan(
 ): Span | null {
   if (!span.parentId) return span;
   const parentSpan = spansMap.get(span.parentId);
-  return parentSpan ? getRootSpan(parentSpan, spansMap) : null;
+  return parentSpan ? getRootSpan(parentSpan, spansMap) : span;
 }
