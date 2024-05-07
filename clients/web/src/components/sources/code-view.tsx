@@ -1,4 +1,9 @@
-import { JSXElement, Suspense, createEffect, createResource } from "solid-js";
+import {
+  type JSXElement,
+  Suspense,
+  createEffect,
+  createResource,
+} from "solid-js";
 import { Loader } from "~/components/loader";
 import { useConnection } from "~/context/connection-provider";
 import { SupportedLanguages, getText } from "~/lib/code-highlight";
