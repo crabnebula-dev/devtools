@@ -1,5 +1,6 @@
 import { Field as IField } from "~/lib/proto/common";
 import { processFieldValue } from "~/lib/span/process-field-value";
+import { shortenLogFilePath, makeBreakable } from "~/lib/formatters";
 
 export function Field(props: { field: IField }) {
   // HACK: overflow isn't handled nicely right now.
@@ -8,8 +9,27 @@ export function Field(props: { field: IField }) {
   const fullStrVal = () => processFieldValue(props.field.value);
   const strVal = () => {
     const val = fullStrVal();
-    if (val.length > maxLen) return val.substring(0, maxLen) + "…";
-    return val;
+    if (/\/|\\/.test(val)) {
+      return (
+        <>
+          {makeBreakable(shortenLogFilePath(val))}
+          <button
+            class="ml-2"
+            onClick={() => navigator.clipboard.writeText(val)}
+            title="copy full path to clipboard"
+          >
+            <img
+              class="h-4 w-4"
+              src="/icons/copy.svg"
+              alt="copy full path to clipboard"
+            />
+          </button>
+        </>
+      );
+    }
+    if (val.length > maxLen)
+      return makeBreakable(val.substring(0, maxLen) + "…");
+    return makeBreakable(val);
   };
 
   return (
