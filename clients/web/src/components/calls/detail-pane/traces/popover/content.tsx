@@ -10,7 +10,10 @@ export function Content(props: { span: Span }) {
     span.enters.reduce((acc, enter, i) => {
       const exit = span.exits[i];
 
-      return acc + (exit.timestamp - enter.timestamp);
+      //Don't count enters without exits
+      if (!exit) return acc;
+      const duration = exit.timestamp - enter.timestamp;
+      return acc + duration;
     }, 0);
 
   return (
