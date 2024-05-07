@@ -4,6 +4,7 @@ import type { Span } from "../connection/monitor";
 import type { SpanEvent_Span } from "../proto/spans";
 import { convertTimestampToNanoseconds } from "../formatters";
 import { IpcData } from "../connection/monitor";
+import { getSpanKind } from "./get-span-kind";
 
 export function formatSpan(
   spanEvent: SpanEvent_Span,
@@ -47,6 +48,9 @@ export function formatSpan(
     aborted: false,
     hasError: null,
   };
-
+  span.kind = getSpanKind(span);
+  if (span.name === "wry::custom_protocol::handle") {
+    console.log("ipc span", span);
+  }
   return span;
 }
