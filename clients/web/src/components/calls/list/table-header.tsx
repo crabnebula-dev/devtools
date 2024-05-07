@@ -1,5 +1,5 @@
 import { SortCaret } from "../tool-bar/sort-caret";
-import { For } from "solid-js";
+import { For, Show } from "solid-js";
 import type { SetStoreFunction } from "solid-js/store";
 import type {
   SortColumn,
@@ -43,6 +43,12 @@ export function TableHeader(props: {
     });
   };
 
+  const isCurrentlySorted = (column: Column) => {
+    return (
+      props.currentSort.column.name === column.name && "isSortable" in column
+    );
+  };
+
   return (
     <thead class="sticky">
       <tr class="text-left">
@@ -70,10 +76,9 @@ export function TableHeader(props: {
               >
                 <div class="flex uppercase select-none items-center gap-2">
                   {column.name}
-                  {props.currentSort.column.name === column.name &&
-                    "isSortable" in column && (
-                      <SortCaret direction={props.currentSort.direction} />
-                    )}
+                  <Show when={isCurrentlySorted(column)}>
+                    <SortCaret direction={props.currentSort.direction} />
+                  </Show>
                 </div>
               </th>
             );
