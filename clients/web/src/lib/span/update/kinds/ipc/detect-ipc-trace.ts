@@ -2,13 +2,12 @@ import type { Span, IpcData } from "~/lib/connection/monitor";
 import { findNamedSpan } from "~/lib/span/find-named-span";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { getIpcResponse } from "./get-ipc-response";
+import { detectIpcKind } from "./detect-ipc-kind";
 
 // TODO: Revisit this function to see if we can improve on the logic and the eslint disable comments.
 export function detectIpcTrace(root: Span): IpcData | undefined {
-  const ipcNames = ["wry::ipc::handle", "wry::custom_protocol::handle"];
-
   // First we'd like to be sure the root has a specific name.
-  if (!root.metadata?.name || !ipcNames.includes(root.metadata?.name)) return;
+  if (!detectIpcKind(root)) return;
 
   // Then we try to parse a child span with request data.
   const requestSpan = findNamedSpan(root, "tauri::", "ipc::request");

@@ -4,6 +4,7 @@ import type { Span } from "../connection/monitor";
 import type { SpanEvent_Span } from "../proto/spans";
 import { convertTimestampToNanoseconds } from "../formatters";
 import { IpcData } from "../connection/monitor";
+import { detectKind } from "./update/kinds/detectKind";
 
 export function formatSpan(
   spanEvent: SpanEvent_Span,
@@ -48,5 +49,6 @@ export function formatSpan(
     hasError: null,
   };
 
+  span.kind = detectKind(span);
   return span;
 }
