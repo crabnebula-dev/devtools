@@ -3,6 +3,7 @@ import { SpanTreeEntry } from "~/lib/span/span-tree-entries";
 import { FilterToggle } from "~/components/filter-toggle";
 import { For, Setter } from "solid-js";
 import { Trace } from "./traces/trace";
+import { computeDurationsFromSpanTreeArray } from "~/lib/calls/compute-durations-from-span-tree-array";
 
 export function Traces(props: {
   minLevel: Metadata_Level;
@@ -12,14 +13,8 @@ export function Traces(props: {
   const closedSpans = () =>
     props.spanChildren.filter((s) => s.span.closedAt > 0);
 
-  const durations = () => {
-    return {
-      start: Math.min(...closedSpans().map((s) => s.span.createdAt)),
-      end: Math.max(...closedSpans().map((s) => s.span.closedAt)),
-      shortest: Math.min(...closedSpans().map((s) => s.span.duration)),
-      longest: Math.max(...closedSpans().map((s) => s.span.duration)),
-    };
-  };
+  const durations = () => computeDurationsFromSpanTreeArray(closedSpans());
+
   return (
     <div class="grid gap-2">
       <h2 class="text-xl p-4">Trace ({props.spanChildren.length})</h2>
