@@ -8,11 +8,13 @@
   <body>
     <h1>Welcome to Tauri!</h1>
     <button id="test1">test command</button>
+    <button id="duplication-test">duplication test</button>
     <a href="/test.html">go to test</a>
     <script>
       window.onload = function () {
         const rpcApiUrl = window.location.hash.slice(1);
         const test1 = document.getElementById("test1");
+        const duplicationTest = document.getElementById("duplication-test");
 
         window.__TAURI__.event.listen("from-window", (event) => {
           console.log("got from window event", event);
@@ -28,6 +30,25 @@
             .then(() => {
               console.log("done");
             });
+        };
+
+        duplicationTest.onclick = async function (e) {
+          e.preventDefault();
+          window.__TAURI_INVOKE__("duplicate", { number: 1 });
+          window.__TAURI_INVOKE__("duplicate", { number: 2 });
+          window.__TAURI_INVOKE__("duplicate", { number: 3 });
+          window.__TAURI_INVOKE__("duplicate", { number: 4 });
+          window.__TAURI_INVOKE__("duplicate", { number: 5 });
+          window.__TAURI_INVOKE__("duplicate", { number: 6 });
+          window.__TAURI_INVOKE__("duplicate", { number: 7 });
+          window.__TAURI_INVOKE__("duplicate", { number: 8 });
+          window.__TAURI_INVOKE__("duplicate", { number: 9 });
+          window.__TAURI_INVOKE__("duplicate", { number: 10 });
+          window.__TAURI_INVOKE__("duplicate", { number: 11 });
+          window.__TAURI_INVOKE__("duplicate", { number: 12 });
+          window.__TAURI_INVOKE__("duplicate", { number: 13 });
+          window.__TAURI_INVOKE__("duplicate", { number: 14 });
+          window.__TAURI_INVOKE__("duplicate", { number: 15 });
         };
       };
     </script>

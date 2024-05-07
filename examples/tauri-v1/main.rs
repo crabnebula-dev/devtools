@@ -55,6 +55,20 @@ async fn test1(
         .expect("valid text")
 }
 
+#[tauri::command]
+async fn duplicate(app: tauri::AppHandle,
+    window: tauri::Window, number: u32) {
+        window
+        .emit(
+            "duplicate-me",
+            &EventPayload {
+                key: "duplicate",
+                value: number.to_string(),
+            },
+        )
+        .unwrap();
+}
+
 fn main() {
     #[cfg(dev)]
     {
@@ -101,7 +115,7 @@ fn main() {
     let devtools = devtools::init();
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![test1])
+        .invoke_handler(tauri::generate_handler![test1, duplicate])
         .plugin(devtools)
         .run(tauri::generate_context!("./tauri.conf.json"))
         .expect("error while running tauri application");

@@ -59,6 +59,50 @@ async fn test1(
         .expect("valid text")
 }
 
+#[tauri::command]
+async fn spam_test(app: tauri::AppHandle,
+    window: tauri::Window) {
+        let mut count = 0;
+
+    // Infinite loop
+    loop {
+        count += 1;
+
+        tokio::time::sleep(Duration::from_millis(50)).await;
+
+        window
+        .emit(
+            format!("test{}-event", count).as_str(),
+            &EventPayload {
+                key: "count",
+                value: count.to_string(),
+            },
+        )
+        .unwrap();
+    
+        tracing::error!("test error event");
+
+        if count == 200 {
+            // Exit this loop
+            break;
+        }
+    }
+}
+
+#[tauri::command]
+async fn duplicate(app: tauri::AppHandle,
+    window: tauri::Window, number: u32) {
+        window
+        .emit(
+            "duplicate-me",
+            &EventPayload {
+                key: "duplicate",
+                value: number.to_string(),
+            },
+        )
+        .unwrap();
+}
+
 /// Run the application.
 ///
 /// # Panics
@@ -69,7 +113,7 @@ pub fn run() {
     let devtools = tauri_plugin_devtools::init();
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![test1])
+        .invoke_handler(tauri::generate_handler![test1, spam_test, duplicate])
         .plugin(devtools)
         .run(tauri::generate_context!("./tauri.conf.json"))
         .expect("error while running tauri application");
