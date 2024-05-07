@@ -12,7 +12,7 @@ There are a couple components to devtools that you should know about:
 
 The [`cargo-deny`](https://github.com/EmbarkStudios/cargo-deny) action checks for various dependency-related issues,
 such as problematic licenses, CVEs and the like. Sometimes when opening a PR this check just fails. It's usually a good
-idea to inspect its output to see exactyl _why_ the check is failing.
+idea to inspect its output to see exactly _why_ the check is failing.
 
 If it's something like, security vulnerabilities chances are high you just need to update the repos lockfiles. You can
 do so by running this command from the repo root:
