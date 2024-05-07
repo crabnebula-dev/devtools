@@ -60,6 +60,7 @@
     "@sentry/browser": "^7.101.0",
     "@sentry/vite-plugin": "^2.14.0",
     "@solid-primitives/map": "^0.4.9",
+    "@solid-primitives/script-loader": "^2.1.2",
     "@solidjs/router": "^0.12.0",
     "@tanstack/solid-virtual": "^3.0.4",
     "clsx": "^2.1.0",
