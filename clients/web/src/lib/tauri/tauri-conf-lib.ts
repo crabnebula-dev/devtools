@@ -30,14 +30,6 @@ export function generateDescriptions(
   );
 }
 
-export function scrollToHighlighted() {
-  const highlightedLine = document.querySelector(".line.highlighted");
-
-  if (!highlightedLine) return;
-
-  highlightedLine.scrollIntoView({ behavior: "smooth", block: "center" });
-}
-
 export function findLineNumberByKey(key: string) {
   const params = useParams<{ config: string }>();
   const config = retrieveConfigurationByKey(params.config);

@@ -46,3 +46,18 @@ export function getDetailedTime(date: Date) {
     fractionalSecondDigits: 3,
   }).format(date);
 }
+
+export function getRootPathByUrlSegment(path: string, segment: string) {
+  return path
+    .split("/")
+    .slice(
+      0,
+      path.split("/").findIndex((e) => e === segment),
+    )
+    .concat(segment)
+    .join("/");
+}
+
+export function shortenFilePath(fullPath: string): string {
+  return fullPath.substring(fullPath.lastIndexOf("\\") + 1);
+}

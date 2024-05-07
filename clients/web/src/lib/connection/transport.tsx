@@ -11,10 +11,12 @@ import {
   HealthCheckResponse_ServingStatus,
 } from "../proto/health";
 import { InstrumentRequest } from "../proto/instrument";
-import { updateSpanMetadata } from "../span/update-span-metadata";
-import { updatedSpans } from "../span/update-spans";
+import { updateSpanMetadata } from "../span/update/update-span-metadata";
+import { updatedSpans } from "../span/update/update-spans";
 import { MonitorData } from "./monitor";
 import * as Sentry from "@sentry/browser";
+import { Metadata_Level } from "../proto/common";
+import { updateLogs } from "../span/update/update-logs";
 
 export async function checkConnection(url: string) {
   const abortController = new AbortController();
@@ -85,8 +87,9 @@ export function connect(url: string) {
   return connectionStore;
 }
 
-export function setup(url: string) {
-  const [connectionStore, setConnection] = createStore(connect(url));
+export function setup(url: string, host: string, port: string) {
+  const connection = { ...connect(url), host, port };
+  const [connectionStore, setConnection] = createStore(connection);
 
   return { connectionStore, setConnection };
 }
@@ -104,9 +107,24 @@ export function addStreamListeners(
       setMonitorData("metadata", (prev) => updateSpanMetadata(prev, update));
     }
 
+    const errorMetadata = new Set(
+      update.newMetadata
+        .filter(
+          (m) => m.id != null && m.metadata?.level === Metadata_Level.ERROR,
+        )
+        .map((m) => m.id ?? BigInt(-1)),
+    );
+
     const logsUpdate = update.logsUpdate;
+
+    const errorEventParents = new Set(
+      update.logsUpdate?.logEvents
+        .filter((ev) => ev.parent != null && errorMetadata.has(ev.metadataId))
+        .map((ev) => ev.parent ?? BigInt(-1)),
+    );
+
     if (logsUpdate && logsUpdate.logEvents.length > 0) {
-      setMonitorData("logs", (prev) => [...prev, ...logsUpdate.logEvents]);
+      setMonitorData("logs", (prev) => updateLogs(prev, logsUpdate.logEvents));
       Sentry.setMeasurement(
         "droppedLogEvents",
         Number(logsUpdate.droppedEvents),
@@ -119,6 +137,8 @@ export function addStreamListeners(
     if (spansUpdate && spansUpdate.spanEvents.length > 0) {
       batch(() => {
         const durations = updatedSpans(
+          errorMetadata,
+          errorEventParents,
           monitorData.spans,
           spansUpdate.spanEvents,
           monitorData.metadata,

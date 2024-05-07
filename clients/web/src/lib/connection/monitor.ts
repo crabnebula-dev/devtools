@@ -21,12 +21,38 @@ export type Durations = {
   openSpans: number;
 };
 
+export type IpcData = {
+  cmd: string;
+  inputs: Record<string, unknown>;
+  response: string | null;
+  responseKind?: "Ok" | "Err";
+  tauriModule?: string;
+  tauriCmd?: string;
+  tauriInputs?: Record<string, unknown>;
+  pluginName?: string;
+  pluginCmd?: string;
+};
+
+export type EventKind = "global event" | "rust event" | "event";
+export type EventData = {
+  kind: EventKind;
+  event: string;
+};
+
 export type Span = {
   id: bigint;
   name: string;
   kind?: "ipc" | "event";
+
+  displayName?: string;
+  ipcData?: IpcData;
+  eventData?: EventData;
+  hasChildError?: boolean;
+  hasError: boolean | null;
+
   parentId?: bigint;
   parent?: Span;
+  rootSpan?: Span;
   metadataId: bigint;
   metadata?: Metadata;
   fields: Field[];

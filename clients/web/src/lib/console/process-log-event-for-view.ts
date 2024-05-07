@@ -5,9 +5,13 @@ import { useMonitor } from "~/context/monitor-provider";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { LogEvent } from "../proto/logs";
 
+export type ProcessedLogEvent = NonNullable<
+  ReturnType<typeof processLogEventForView>
+>;
+
 export function processLogEventForView(logEvent: LogEvent) {
   const { monitorData } = useMonitor();
-  const { message, at } = logEvent;
+  const { message, at, fields, parent } = logEvent;
   if (!at) return;
 
   const metadata = getLogMetadata(monitorData, logEvent);
@@ -28,5 +32,7 @@ export function processLogEventForView(logEvent: LogEvent) {
     levelStyle,
     target,
     metadata,
+    fields,
+    parent,
   };
 }
