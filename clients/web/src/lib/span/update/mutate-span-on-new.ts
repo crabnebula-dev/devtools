@@ -20,7 +20,7 @@ export function mutateSpanOnNew(
   if (span.parentId) {
     const parent = currentSpans.get(span.parentId);
     if (parent) {
-      parent.children.push(span);
+      parent.children = [...parent.children, span];
       span.parent = parent;
     }
   }

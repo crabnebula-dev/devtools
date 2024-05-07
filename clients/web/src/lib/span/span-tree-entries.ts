@@ -17,7 +17,7 @@ export function spanTreeEntries(
   if (depth === maxDepth) return showMe ? [self] : [];
 
   // Ensure children are chronologically ordered before recursion.
-  const children = [...span.children].sort((a, b) => a.createdAt - b.createdAt);
+  const children = span.children.toSorted((a, b) => a.createdAt - b.createdAt);
 
   // Concat each of the child trees.
   return children.reduce(

@@ -1,7 +1,9 @@
+import { createSignal } from "solid-js";
 import { Metadata } from "../proto/common";
 import type { Span } from "../connection/monitor";
 import type { SpanEvent_Span } from "../proto/spans";
 import { convertTimestampToNanoseconds } from "../formatters";
+import { IpcData } from "../connection/monitor";
 
 export function formatSpan(
   spanEvent: SpanEvent_Span,
@@ -13,6 +15,8 @@ export function formatSpan(
 
   const spanMetadata = metadata.get(spanEvent.metadataId);
 
+  const [children, setChildren] = createSignal<Span[]>([]);
+  const [ipcData, setIpcData] = createSignal<IpcData>();
   const span: Span = {
     id: spanEvent.id,
     name: spanMetadata?.name ?? "-", // NOTE: this is a fallback
@@ -27,7 +31,18 @@ export function formatSpan(
     time: -1,
     duration: -1,
     isProcessing: true,
-    children: [],
+    get children() {
+      return children();
+    },
+    set children(spans: Span[]) {
+      setChildren(spans);
+    },
+    get ipcData(): IpcData | undefined {
+      return ipcData();
+    },
+    set ipcData(data: IpcData) {
+      setIpcData(data);
+    },
     closedAt: -1,
     aborted: false,
     hasError: null,
