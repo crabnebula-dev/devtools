@@ -35,6 +35,9 @@ dependencies:
   '@solid-primitives/map':
     specifier: ^0.4.9
     version: 0.4.9(solid-js@1.8.14)
+  '@solid-primitives/script-loader':
+    specifier: ^2.1.2
+    version: 2.1.2(solid-js@1.8.14)
   '@solidjs/router':
     specifier: ^0.12.0
     version: 0.12.0(solid-js@1.8.14)
@@ -1326,6 +1329,14 @@ packages:
       solid-js: ^1.6.12
     dependencies:
       '@solid-primitives/utils': 6.2.1(solid-js@1.8.14)
+      solid-js: 1.8.14
+    dev: false
+
+  /@solid-primitives/script-loader@2.1.2(solid-js@1.8.14):
+    resolution: {integrity: sha512-dIeJ3FWfBAlYZzQ0XLpv1ukHcTxPYphCURS01Hri18ykb28eCOdYtgn3OVNgYzAvm9y8rW5IoyIMY+JzYD6Fhw==}
+    peerDependencies:
+      solid-js: ^1.6.12
+    dependencies:
       solid-js: 1.8.14
     dev: false
 
