@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1](https://github.com/crabnebula-dev/devtools/compare/devtools-wire-format-v0.5.0...devtools-wire-format-v0.5.1) - 2024-05-13
+
+### Other
+- update protobuf generated files
+
 ## [0.2.5](https://github.com/crabnebula-dev/devtools/compare/devtools-wire-format-v0.2.4...devtools-wire-format-v0.2.5) - 2023-12-11
 
 ### Other
