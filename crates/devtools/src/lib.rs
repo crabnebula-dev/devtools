@@ -12,7 +12,7 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener};
 use std::sync::Arc;
 use std::thread;
 use std::time::Duration;
-use tauri::Runtime;
+use tauri::{Manager, Runtime};
 use tokio::sync::mpsc;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
@@ -50,6 +50,10 @@ mod ios {
     ));
 }
 
+pub struct Devtools {
+    pub connection: ConnectionInfo,
+}
+
 fn init_plugin<R: Runtime>(
     addr: SocketAddr,
     publish_interval: Duration,
@@ -59,6 +63,10 @@ fn init_plugin<R: Runtime>(
     tauri::plugin::Builder::new("probe")
         .setup(move |app_handle, _api| {
             let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
+
+            app_handle.manage(Devtools {
+                connection: connection_info(&addr),
+            });
 
             health_reporter
                 .set_serving::<TauriServer<server::TauriService<R>>>()
@@ -280,7 +288,8 @@ impl Builder {
         // initialize early so we don't miss any spans
         tracing_subscriber::registry()
             .with(layer.with_filter(tracing_subscriber::filter::LevelFilter::TRACE))
-            .try_init()?;
+            .try_init()
+            .map_err(devtools_core::Error::from)?;
 
         let mut port = self.port;
         if !self.strict_port && !port_is_available(&self.host, port) {
@@ -300,16 +309,14 @@ fn port_is_available(host: &IpAddr, port: u16) -> bool {
     TcpListener::bind(SocketAddr::new(*host, port)).is_ok()
 }
 
-fn print_link(addr: &SocketAddr) {
-    let url = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
-        "http://localhost:5173/dash/"
-    } else {
-        "https://devtools.crabnebula.dev/dash/"
-    };
+pub struct ConnectionInfo {
+    pub host: IpAddr,
+    pub port: u16,
+}
 
-    let url = format!(
-        "{url}{}/{}",
-        if addr.ip() == Ipv4Addr::UNSPECIFIED {
+fn connection_info(addr: &SocketAddr) -> ConnectionInfo {
+    ConnectionInfo {
+        host: if addr.ip() == Ipv4Addr::UNSPECIFIED {
             #[cfg(target_os = "ios")]
             {
                 local_ip_address::list_afinet_netifas()
@@ -333,8 +340,19 @@ fn print_link(addr: &SocketAddr) {
         } else {
             addr.ip()
         },
-        addr.port()
-    );
+        port: addr.port(),
+    }
+}
+
+fn print_link(addr: &SocketAddr) {
+    let url = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
+        "http://localhost:5173/dash/"
+    } else {
+        "https://devtools.crabnebula.dev/dash/"
+    };
+
+    let connection = connection_info(addr);
+    let url = format!("{url}{}/{}", connection.host, connection.port);
 
     #[cfg(target_os = "ios")]
     unsafe {
