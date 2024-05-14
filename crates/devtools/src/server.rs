@@ -313,7 +313,7 @@ mod tests {
             .await
             .unwrap();
 
-        // this will list this crates directory, so should produce the `Cargo.toml`, `build.rs`, `.gitignore`, `ios` and `src` entry
+        // this will list this crates directory, so should produce the `Cargo.toml`, `build.rs`, `.gitignore`, `ios`, `permissions` and `src` entry
         let entries: Vec<_> = stream.into_inner().collect().await;
         assert!(entries.len() > 0);
     }
