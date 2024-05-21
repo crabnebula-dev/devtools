@@ -9,7 +9,6 @@ use devtools_wire_format::sources::sources_server::SourcesServer;
 use devtools_wire_format::tauri::tauri_server;
 use devtools_wire_format::tauri::tauri_server::TauriServer;
 use futures::{FutureExt, TryStreamExt};
-use http::HeaderValue;
 use std::net::SocketAddr;
 use tokio::sync::mpsc;
 use tonic::codegen::http::Method;
