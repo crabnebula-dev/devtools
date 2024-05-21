@@ -55,13 +55,8 @@ impl Server {
         let cors = CorsLayer::new()
             // allow `GET` and `POST` when accessing the resource
             .allow_methods([Method::GET, Method::POST])
-            .allow_headers(AllowHeaders::any());
-
-        let cors = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
-            cors.allow_origin(tower_http::cors::Any)
-        } else {
-            cors.allow_origin(HeaderValue::from_str("https://devtools.crabnebula.dev").unwrap())
-        };
+            .allow_headers(AllowHeaders::any())
+            .allow_origin(tower_http::cors::Any);
 
         let router = tonic::transport::Server::builder()
             .accept_http1(true)
