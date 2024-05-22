@@ -44,12 +44,15 @@ pub struct Server {
 }
 
 /// A handle to a server that is allowed to modify its properties (such as CORS allowed origins)
+#[allow(clippy::module_name_repetitions)]
 #[derive(Clone)]
 pub struct ServerHandle {
     allowed_origins: Arc<Mutex<Vec<AllowOrigin>>>,
 }
 
 impl ServerHandle {
+    /// Allow the given origin in the instrumentation server CORS.
+    #[allow(clippy::missing_panics_doc)]
     pub fn allow_origin(&self, origin: impl Into<AllowOrigin>) {
         self.allowed_origins.lock().unwrap().push(origin.into());
     }
@@ -158,6 +161,7 @@ impl Server {
         }
     }
 
+    #[must_use]
     pub fn handle(&self) -> ServerHandle {
         self.handle.clone()
     }
