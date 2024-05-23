@@ -656,6 +656,7 @@ dependencies = [
  "devtools-wire-format",
  "futures",
  "http",
+ "hyper",
  "prost-types",
  "ringbuf",
  "thiserror",
@@ -664,6 +665,7 @@ dependencies = [
  "tonic",
  "tonic-health",
  "tonic-web",
+ "tower",
  "tower-http",
  "tower-layer",
  "tracing",
@@ -3434,6 +3436,7 @@ version = "0.1.40"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3523ab5a71916ccf420eebdf5521fcef02141234bbc0b8a49f2fdc4544364ef"
 dependencies = [
+ "log",
  "pin-project-lite",
  "tracing-attributes",
  "tracing-core",
