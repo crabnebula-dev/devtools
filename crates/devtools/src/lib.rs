@@ -3,7 +3,7 @@ mod server;
 use devtools_core::aggregator::Aggregator;
 use devtools_core::layer::Layer;
 use devtools_core::server::wire::tauri::tauri_server::TauriServer;
-use devtools_core::server::Server;
+use devtools_core::server::{Server, ServerHandle};
 use devtools_core::Command;
 pub use devtools_core::Error;
 use devtools_core::{Result, Shared};
@@ -52,6 +52,7 @@ mod ios {
 
 pub struct Devtools {
     pub connection: ConnectionInfo,
+    pub server_handle: ServerHandle,
 }
 
 fn init_plugin<R: Runtime>(
@@ -63,10 +64,6 @@ fn init_plugin<R: Runtime>(
     tauri::plugin::Builder::new("probe")
         .setup(move |app_handle, _api| {
             let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
-
-            app_handle.manage(Devtools {
-                connection: connection_info(&addr),
-            });
 
             health_reporter
                 .set_serving::<TauriServer<server::TauriService<R>>>()
@@ -87,6 +84,12 @@ fn init_plugin<R: Runtime>(
                     app_handle: app_handle.clone(),
                 },
             );
+            let server_handle = server.handle();
+
+            app_handle.manage(Devtools {
+                connection: connection_info(&addr),
+                server_handle,
+            });
 
             #[cfg(not(target_os = "ios"))]
             print_link(&addr);

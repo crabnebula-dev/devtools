@@ -321,7 +321,6 @@ impl<T, const CAP: usize> EventBuf<T, CAP> {
     }
 
     /// Push an event into the buffer, overwriting the oldest event if the buffer is full.
-    // TODO does it really make sense to track the dropped events here?
     pub fn push_overwrite(&mut self, item: T) {
         if self.inner.push_overwrite(item).is_some() {
             self.sent = self.sent.saturating_sub(1);
