@@ -21,15 +21,34 @@ Ensure you have [Tauri](https://tauri.app/v1/guides/getting-started/setup/) set 
 cargo add devtools
 ```
 
-You also have to use Tauri **1.5.3** (or later) so your `Cargo.toml` file should look as follows::
+You also have to use Tauri **1.5.4** (or later) so your `Cargo.toml` file should look as follows::
 
 ```toml
 [dependencies]
+tauri = "1.5.4"
 devtools = "0.3.0"
-tauri = "1.5.3"
 [build-dependencies]
 tauri-build = "1.5.0"
 ```
+
+The primary export of the devtools crate is a Tauri Plugin that interfaces with the system, therefore you will need to initialize and register the plugin with Tauri itself before you can use the DevTools. To do that, edit your main.rs file like so:
+
+```rust
+fn main() {
+    let devtools = devtools::init(); // initialize the plugin as early as possible
+
+    tauri::Builder::default()
+        .plugin(devtools) // then register it with Tauri
+        .run(tauri::generate_context!("./tauri.conf.json"))
+        .expect("error while running tauri application");
+}
+```
+
+> Note: You should disable devtools in production builds, as it bloats your app unnecessarily and poses a possible security risk.
+
+And that’s it! If you run your app now (cargo tauri dev), you will notice the following new output in your terminal:
+
+[Terminal input](https://docs.crabnebula.dev/_astro/stdout.08yrN9L2_Z1wy72E.webp)
 
 ### Tauri v2
 
