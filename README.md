@@ -48,7 +48,7 @@ fn main() {
 
 And that’s it! If you run your app now (cargo tauri dev), you will notice the following new output in your terminal:
 
-[Terminal input](./docs/devtools-running.webp)
+[Terminal input](./docs/devtools-running.png)
 
 ### Tauri v2
 
