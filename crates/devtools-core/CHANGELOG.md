@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.1...devtools-core-v0.3.2) - 2024-05-27
+
+### Added
+- allow tauri app to connect
+
 ## [0.3.1](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.0...devtools-core-v0.3.1) - 2024-05-13
 
 ### Fixed
