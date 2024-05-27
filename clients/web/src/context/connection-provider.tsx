@@ -37,7 +37,7 @@ export function ConnectionProvider(props: ProviderProps) {
       return undefined;
     }
 
-    return setup(url);
+    return setup(url, props.host, props.port);
   };
 
   const [connection] = createResource(fetchConnection);

@@ -46,3 +46,29 @@ export function getDetailedTime(date: Date) {
     fractionalSecondDigits: 3,
   }).format(date);
 }
+
+export function getRootPathByUrlSegment(path: string, segment: string) {
+  return path
+    .split("/")
+    .slice(
+      0,
+      path.split("/").findIndex((e) => e === segment),
+    )
+    .concat(segment)
+    .join("/");
+}
+
+/** adds zero-width spaces to make entries break-able */
+export function makeBreakable(path: string) {
+  return path.replace(/([_/\\:]+|[^_/\\:]{20})/g, "$1\u200b");
+}
+
+export function shortenFilePath(fullPath: string): string {
+  return fullPath.substring(fullPath.lastIndexOf("\\") + 1);
+}
+
+export function shortenLogFilePath(path: string) {
+  const sep = /[/\\]/.exec(path)?.[0] === "\\" ? "\\\\" : "/";
+  const expr = new RegExp(`.*(${sep}.*?${sep}src.*$)`);
+  return path.replace(expr, "…$1");
+}

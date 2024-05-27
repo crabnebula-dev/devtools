@@ -1,9 +1,10 @@
+import { createSignal } from "solid-js";
 import { Metadata } from "../proto/common";
-import { getSpanName } from "./get-span-name";
-import { getSpanKind } from "./get-span-kind";
 import type { Span } from "../connection/monitor";
 import type { SpanEvent_Span } from "../proto/spans";
 import { convertTimestampToNanoseconds } from "../formatters";
+import { IpcData } from "../connection/monitor";
+import { detectKind } from "./update/kinds/detectKind";
 
 export function formatSpan(
   spanEvent: SpanEvent_Span,
@@ -13,12 +14,16 @@ export function formatSpan(
     ? convertTimestampToNanoseconds(spanEvent.at)
     : -1;
 
+  const spanMetadata = metadata.get(spanEvent.metadataId);
+
+  const [children, setChildren] = createSignal<Span[]>([]);
+  const [ipcData, setIpcData] = createSignal<IpcData>();
   const span: Span = {
     id: spanEvent.id,
-    name: "",
+    name: spanMetadata?.name ?? "-", // NOTE: this is a fallback
     parentId: spanEvent.parent,
     metadataId: spanEvent.metadataId,
-    metadata: metadata.get(spanEvent.metadataId),
+    metadata: spanMetadata,
     fields: spanEvent.fields,
     createdAt: createdAt,
     enters: [],
@@ -27,12 +32,23 @@ export function formatSpan(
     time: -1,
     duration: -1,
     isProcessing: true,
-    children: [],
+    get children() {
+      return children();
+    },
+    set children(spans: Span[]) {
+      setChildren(spans);
+    },
+    get ipcData(): IpcData | undefined {
+      return ipcData();
+    },
+    set ipcData(data: IpcData) {
+      setIpcData(data);
+    },
     closedAt: -1,
     aborted: false,
+    hasError: null,
   };
 
-  span.kind = getSpanKind(span);
-  span.name = getSpanName(span) || "-";
+  span.kind = detectKind(span);
   return span;
 }

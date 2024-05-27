@@ -1,14 +1,14 @@
 import { createResource } from "solid-js";
 import {
   createHighlighter,
-  type HighlighterLang,
+  type SupportedLanguages,
   getHighlightedCode,
 } from "~/lib/code-highlight";
 import { Highlighter } from "shiki";
 
 type Props = {
   text: string | undefined;
-  lang: HighlighterLang;
+  lang: SupportedLanguages;
   highlightedLine?: number;
 };
 
@@ -19,7 +19,7 @@ export function CodeHighlighter(props: Props) {
   const html = (
     text: string | undefined,
     highlighter: Highlighter | undefined,
-    lang: HighlighterLang,
+    lang: SupportedLanguages,
     highlightedLine?: number,
   ) => {
     if (!text || !highlighter) return undefined;

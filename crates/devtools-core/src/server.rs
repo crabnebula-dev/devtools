@@ -10,8 +10,13 @@ use devtools_wire_format::tauri::tauri_server;
 use devtools_wire_format::tauri::tauri_server::TauriServer;
 use futures::{FutureExt, TryStreamExt};
 use http::HeaderValue;
+use hyper::Body;
 use std::net::SocketAddr;
+use std::pin::Pin;
+use std::sync::{Arc, Mutex};
+use std::task::{Context, Poll};
 use tokio::sync::mpsc;
+use tonic::body::BoxBody;
 use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
 use tonic::codegen::BoxStream;
@@ -19,7 +24,9 @@ use tonic::{Request, Response, Status};
 use tonic_health::pb::health_server::{Health, HealthServer};
 use tonic_health::server::HealthReporter;
 use tonic_health::ServingStatus;
-use tower_http::cors::{AllowHeaders, CorsLayer};
+use tower::Service;
+use tower_http::cors::{AllowHeaders, AllowOrigin, CorsLayer};
+use tower_layer::Layer;
 
 /// Default maximum capacity for the channel of events sent from a
 /// [`Server`] to each subscribed client.
@@ -29,13 +36,82 @@ use tower_http::cors::{AllowHeaders, CorsLayer};
 const DEFAULT_CLIENT_BUFFER_CAPACITY: usize = 1024 * 4;
 
 /// The `gRPC` server that exposes the instrumenting API
-pub struct Server(
-    tonic::transport::server::Router<tower_layer::Stack<CorsLayer, tower_layer::Identity>>,
-);
+pub struct Server {
+    router: tonic::transport::server::Router<
+        tower_layer::Stack<DynamicCorsLayer, tower_layer::Identity>,
+    >,
+    handle: ServerHandle,
+}
+
+/// A handle to a server that is allowed to modify its properties (such as CORS allowed origins)
+#[allow(clippy::module_name_repetitions)]
+#[derive(Clone)]
+pub struct ServerHandle {
+    allowed_origins: Arc<Mutex<Vec<AllowOrigin>>>,
+}
+
+impl ServerHandle {
+    /// Allow the given origin in the instrumentation server CORS.
+    #[allow(clippy::missing_panics_doc)]
+    pub fn allow_origin(&self, origin: impl Into<AllowOrigin>) {
+        self.allowed_origins.lock().unwrap().push(origin.into());
+    }
+}
 
 struct InstrumentService {
     tx: mpsc::Sender<Command>,
     health_reporter: HealthReporter,
+}
+
+#[derive(Clone)]
+struct DynamicCorsLayer {
+    allowed_origins: Arc<Mutex<Vec<AllowOrigin>>>,
+}
+
+impl<S> Layer<S> for DynamicCorsLayer {
+    type Service = DynamicCors<S>;
+
+    fn layer(&self, service: S) -> Self::Service {
+        DynamicCors {
+            inner: service,
+            allowed_origins: self.allowed_origins.clone(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+struct DynamicCors<S> {
+    inner: S,
+    allowed_origins: Arc<Mutex<Vec<AllowOrigin>>>,
+}
+
+type BoxFuture<'a, T> = Pin<Box<dyn std::future::Future<Output = T> + Send + 'a>>;
+
+impl<S> Service<hyper::Request<Body>> for DynamicCors<S>
+where
+    S: Service<hyper::Request<Body>, Response = hyper::Response<BoxBody>> + Clone + Send + 'static,
+    S::Future: Send + 'static,
+{
+    type Response = S::Response;
+    type Error = S::Error;
+    type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
+
+    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+        self.inner.poll_ready(cx)
+    }
+
+    fn call(&mut self, req: hyper::Request<Body>) -> Self::Future {
+        let mut cors = CorsLayer::new()
+            // allow `GET` and `POST` when accessing the resource
+            .allow_methods([Method::GET, Method::POST])
+            .allow_headers(AllowHeaders::any());
+
+        for origin in &*self.allowed_origins.lock().unwrap() {
+            cors = cors.allow_origin(origin.clone());
+        }
+
+        Box::pin(cors.layer(self.inner.clone()).call(req))
+    }
 }
 
 impl Server {
@@ -52,20 +128,22 @@ impl Server {
             .set_serving::<InstrumentServer<InstrumentService>>()
             .now_or_never();
 
-        let cors = CorsLayer::new()
-            // allow `GET` and `POST` when accessing the resource
-            .allow_methods([Method::GET, Method::POST])
-            .allow_headers(AllowHeaders::any());
-
-        let cors = if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
-            cors.allow_origin(tower_http::cors::Any)
-        } else {
-            cors.allow_origin(HeaderValue::from_str("https://devtools.crabnebula.dev").unwrap())
-        };
+        let allowed_origins =
+            Arc::new(Mutex::new(vec![
+                if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
+                    AllowOrigin::from(tower_http::cors::Any)
+                } else {
+                    HeaderValue::from_str("https://devtools.crabnebula.dev")
+                        .unwrap()
+                        .into()
+                },
+            ]));
 
         let router = tonic::transport::Server::builder()
             .accept_http1(true)
-            .layer(cors)
+            .layer(DynamicCorsLayer {
+                allowed_origins: allowed_origins.clone(),
+            })
             .add_service(tonic_web::enable(health_service))
             .add_service(tonic_web::enable(InstrumentServer::new(
                 InstrumentService {
@@ -77,7 +155,15 @@ impl Server {
             .add_service(tonic_web::enable(MetadataServer::new(metadata_server)))
             .add_service(tonic_web::enable(SourcesServer::new(sources_server)));
 
-        Self(router)
+        Self {
+            router,
+            handle: ServerHandle { allowed_origins },
+        }
+    }
+
+    #[must_use]
+    pub fn handle(&self) -> ServerHandle {
+        self.handle.clone()
     }
 
     /// Consumes this [`Server`] and returns a future that will execute the server.
@@ -88,7 +174,7 @@ impl Server {
     pub async fn run(self, addr: SocketAddr) -> crate::Result<()> {
         tracing::info!("Listening on {}", addr);
 
-        self.0.serve(addr).await?;
+        self.router.serve(addr).await?;
 
         Ok(())
     }

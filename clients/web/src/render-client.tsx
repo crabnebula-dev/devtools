@@ -3,6 +3,7 @@ import "~/css/global.css";
 import Entry from "./entry";
 import * as Sentry from "@sentry/browser";
 import { DEV } from "solid-js";
+import { loadFathom } from "./lib/load-fathom";
 
 if (!DEV) {
   Sentry.init({
@@ -11,6 +12,7 @@ if (!DEV) {
     integrations: (def) => [...def, Sentry.browserTracingIntegration()],
     tracesSampleRate: 0.1,
   });
+  loadFathom();
 }
 
 const app = document.getElementById("app");
