@@ -48,7 +48,7 @@ fn main() {
 
 And that’s it! If you run your app now (cargo tauri dev), you will notice the following new output in your terminal:
 
-[Terminal input](https://docs.crabnebula.dev/_astro/stdout.08yrN9L2_Z1wy72E.webp)
+[Terminal input](./docs/devtools-running.webp)
 
 ### Tauri v2
 
