@@ -36,7 +36,7 @@ tauri-build = "1.5.0"
 Ensure you have [Tauri](https://beta.tauri.app/guides/create/) set up correctly. Then install the Rust instrumentation from crates.io:
 
 ```sh
-cargo add tauri-plugin-devtools --git https://github.com/crabnebula-dev/devtools
+cargo add tauri-plugin-devtools@2.0.0-beta
 ```
 
 You also have to use Tauri **2.0.0-beta.1** (or later) so your `Cargo.toml` file should look as follows:

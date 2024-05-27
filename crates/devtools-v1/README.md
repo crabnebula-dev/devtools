@@ -14,16 +14,6 @@ Ensure you have [Tauri](https://tauri.app/v1/guides/getting-started/setup/) set 
 cargo add devtools
 ```
 
-You also have to enable the `tracing` feature for Tauri, so your `Cargo.toml` file should look as follows:
-
-```toml
-[dependencies]
-devtools = "0.2.4" # replace with latest
-tauri = { version = "1.5.3", features = ["tracing"] }
-[build-dependencies]
-tauri-build = "1.5.0"
-```
-
 Then add the following snippet to your tauri initialization code:
 
 ```rust
@@ -37,7 +27,7 @@ fn main() {
     let builder = builder.plugin(devtools);
 
     builder
-        .run(tauri::generate_context!("./tauri.conf.json"))
+        .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 ```

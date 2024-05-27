@@ -11,17 +11,7 @@ Inspect, monitor, and understand your [Tauri](https://tauri.app) application wit
 Ensure you have [Tauri](https://tauri.app/v1/guides/getting-started/setup/) set up correctly. Then install the Rust instrumentation from crates.io:
 
 ```sh
-cargo add devtools
-```
-
-You also have to enable the `tracing` feature for Tauri, so your `Cargo.toml` file should look as follows:
-
-```toml
-[dependencies]
-devtools = "0.2.4" # replace with latest
-tauri = { version = "1.5.3", features = ["tracing"] }
-[build-dependencies]
-tauri-build = "1.5.0"
+cargo add tauri-plugin-devtools@2.0.0-beta
 ```
 
 Then add the following snippet to your tauri initialization code:
@@ -29,7 +19,7 @@ Then add the following snippet to your tauri initialization code:
 ```rust
 fn main() {
     #[cfg(debug_assertions)] // only enable instrumentation in development builds
-    let devtools = devtools::init();
+    let devtools = tauri_plugin_devtools::init();
 
     let builder = tauri::Builder::default();
 
@@ -37,7 +27,7 @@ fn main() {
     let builder = builder.plugin(devtools);
 
     builder
-        .run(tauri::generate_context!("./tauri.conf.json"))
+        .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 ```
