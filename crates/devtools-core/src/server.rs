@@ -128,16 +128,16 @@ impl Server {
             .set_serving::<InstrumentServer<InstrumentService>>()
             .now_or_never();
 
-        let allowed_origins =
-            Arc::new(Mutex::new(vec![
-                if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
-                    AllowOrigin::from(tower_http::cors::Any)
-                } else {
-                    HeaderValue::from_str("https://devtools.crabnebula.dev")
-                        .unwrap()
-                        .into()
-                },
-            ]));
+        let allowed_origins = Arc::new(Mutex::new(vec![
+            if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
+                AllowOrigin::from(tower_http::cors::Any)
+            } else {
+                HeaderValue::from_str("https://devtools.crabnebula.dev")
+                    .unwrap()
+                    .into()
+            },
+            HeaderValue::from_str("tauri://localhost").unwrap().into(),
+        ]));
 
         let router = tonic::transport::Server::builder()
             .accept_http1(true)
