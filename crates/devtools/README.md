@@ -11,7 +11,7 @@ Inspect, monitor, and understand your [Tauri](https://tauri.app) application wit
 Ensure you have [Tauri](https://tauri.app/v1/guides/getting-started/setup/) set up correctly. Then install the Rust instrumentation from crates.io:
 
 ```sh
-cargo add tauri-plugin-devtools
+cargo add tauri-plugin-devtools@2.0.0-beta
 ```
 
 Then add the following snippet to your tauri initialization code:
