@@ -137,6 +137,10 @@ impl Server {
                     .into()
             },
             HeaderValue::from_str("tauri://localhost").unwrap().into(),
+            #[cfg(windows)]
+            HeaderValue::from_str("http://tauri.localhost")
+                .unwrap()
+                .into(),
         ]));
 
         let router = tonic::transport::Server::builder()
