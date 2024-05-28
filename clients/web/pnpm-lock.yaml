@@ -75,7 +75,7 @@ dependencies:
 devDependencies:
   '@protobuf-ts/protoc':
     specifier: ^2.9.3
-    version: 2.9.3
+    version: 2.9.4
   '@sentry/netlify-build-plugin':
     specifier: ^1.1.1
     version: 1.1.1
@@ -884,14 +884,14 @@ packages:
     hasBin: true
     dependencies:
       '@protobuf-ts/plugin-framework': 2.9.3
-      '@protobuf-ts/protoc': 2.9.3
+      '@protobuf-ts/protoc': 2.9.4
       '@protobuf-ts/runtime': 2.9.3
       '@protobuf-ts/runtime-rpc': 2.9.3
       typescript: 3.9.10
     dev: false
 
-  /@protobuf-ts/protoc@2.9.3:
-    resolution: {integrity: sha512-TJ0Ycx/CIBqpB4wpKt6K05kjXj6zv36s/qpdCT/wdJBhpayOVBqLF5NpLp3WIiw1PmIxvqalB6QHKjvnLzGKLA==}
+  /@protobuf-ts/protoc@2.9.4:
+    resolution: {integrity: sha512-hQX+nOhFtrA+YdAXsXEDrLoGJqXHpgv4+BueYF0S9hy/Jq0VRTVlJS1Etmf4qlMt/WdigEes5LOd/LDzui4GIQ==}
     hasBin: true
 
   /@protobuf-ts/runtime-rpc@2.9.3:
