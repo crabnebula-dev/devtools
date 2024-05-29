@@ -10,7 +10,7 @@ path = "main.rs"
 
 [dependencies]
 tauri = "1.6.1"
-devtools = { path = "../../crates/devtools-v1" }
+devtools = { path = "../../crates/v1/crates/devtools" }
 tracing = "0.1"
 tokio = { version = "1.36", features = ["time"] }
 reqwest = "0.11"
