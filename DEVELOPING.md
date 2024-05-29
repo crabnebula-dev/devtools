@@ -18,7 +18,7 @@ If it's something like, security vulnerabilities chances are high you just need 
 do so by running this command from the repo root:
 
 ```bash
-cargo update && cargo update --manifest-path examples/tauri-v1/Cargo.toml && cargo update --manifest-path crates/devtools-v1/Cargo.toml
+cargo update && cargo update --manifest-path examples/tauri-v1/Cargo.toml && cargo update --manifest-path crates/v1/Cargo.toml
 ```
 
 ## Developing locally
