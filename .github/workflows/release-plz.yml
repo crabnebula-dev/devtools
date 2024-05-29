@@ -12,6 +12,7 @@ on:
   push:
     branches:
       - main
+      - fix/v1-release
 
 jobs:
   release-plz:
