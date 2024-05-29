@@ -47,14 +47,14 @@ pub struct Server {
 #[allow(clippy::module_name_repetitions)]
 #[derive(Clone)]
 pub struct ServerHandle {
-    allowed_origins: Arc<Mutex<Vec<AllowOrigin>>>,
+    allowed_origins: Arc<Mutex<Vec<HeaderValue>>>,
 }
 
 impl ServerHandle {
     /// Allow the given origin in the instrumentation server CORS.
     #[allow(clippy::missing_panics_doc)]
-    pub fn allow_origin(&self, origin: impl Into<AllowOrigin>) {
-        self.allowed_origins.lock().unwrap().push(origin.into());
+    pub fn allow_origin(&self, origin: HeaderValue) {
+        self.allowed_origins.lock().unwrap().push(origin);
     }
 }
 
@@ -65,7 +65,7 @@ struct InstrumentService {
 
 #[derive(Clone)]
 struct DynamicCorsLayer {
-    allowed_origins: Arc<Mutex<Vec<AllowOrigin>>>,
+    allowed_origins: Arc<Mutex<Vec<HeaderValue>>>,
 }
 
 impl<S> Layer<S> for DynamicCorsLayer {
@@ -82,7 +82,7 @@ impl<S> Layer<S> for DynamicCorsLayer {
 #[derive(Debug, Clone)]
 struct DynamicCors<S> {
     inner: S,
-    allowed_origins: Arc<Mutex<Vec<AllowOrigin>>>,
+    allowed_origins: Arc<Mutex<Vec<HeaderValue>>>,
 }
 
 type BoxFuture<'a, T> = Pin<Box<dyn std::future::Future<Output = T> + Send + 'a>>;
@@ -101,14 +101,16 @@ where
     }
 
     fn call(&mut self, req: hyper::Request<Body>) -> Self::Future {
-        let mut cors = CorsLayer::new()
+        let allowed_origins = self.allowed_origins.lock().unwrap().clone();
+        let cors = CorsLayer::new()
             // allow `GET` and `POST` when accessing the resource
             .allow_methods([Method::GET, Method::POST])
-            .allow_headers(AllowHeaders::any());
-
-        for origin in &*self.allowed_origins.lock().unwrap() {
-            cors = cors.allow_origin(origin.clone());
-        }
+            .allow_headers(AllowHeaders::any())
+            .allow_origin(if allowed_origins.iter().any(|o| o == "*") {
+                AllowOrigin::any()
+            } else {
+                AllowOrigin::list(allowed_origins)
+            });
 
         Box::pin(cors.layer(self.inner.clone()).call(req))
     }
@@ -130,17 +132,13 @@ impl Server {
 
         let allowed_origins = Arc::new(Mutex::new(
             if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
-                vec![AllowOrigin::from(tower_http::cors::Any)]
+                vec![HeaderValue::from_str("*").unwrap()]
             } else {
                 vec![
-                    HeaderValue::from_str("https://devtools.crabnebula.dev")
-                        .unwrap()
-                        .into(),
-                    HeaderValue::from_str("tauri://localhost").unwrap().into(),
+                    HeaderValue::from_str("https://devtools.crabnebula.dev").unwrap(),
+                    HeaderValue::from_str("tauri://localhost").unwrap(),
                     #[cfg(windows)]
-                    HeaderValue::from_str("http://tauri.localhost")
-                        .unwrap()
-                        .into(),
+                    HeaderValue::from_str("http://tauri.localhost").unwrap(),
                 ]
             },
         ));
