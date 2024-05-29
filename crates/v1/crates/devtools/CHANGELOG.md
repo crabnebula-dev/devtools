@@ -9,7 +9,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.2](https://github.com/crabnebula-dev/devtools/compare/v0.3.1...v0.3.2) - 2024-05-29
 
 ### Fixed
-- *(ci)* v1 release-plz
-
-### Other
-- downgrade
+- Fixed CORS issues
