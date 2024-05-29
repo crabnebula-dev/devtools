@@ -31,11 +31,7 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.0-dev webkit2gtk-4.1
       - uses: Swatinem/rust-cache@v2
 
-      - name: Run release-plz
-        uses: MarcoIeni/release-plz-action@v0.5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+     
 
       - name: Run release-plz (devtools for Tauri v1)
         uses: MarcoIeni/release-plz-action@v0.5
