@@ -22,7 +22,7 @@ dependencies:
     version: 2.9.3
   '@protobuf-ts/runtime':
     specifier: ^2.9.3
-    version: 2.9.3
+    version: 2.9.4
   '@protobuf-ts/runtime-rpc':
     specifier: ^2.9.3
     version: 2.9.3
@@ -911,14 +911,14 @@ packages:
   /@protobuf-ts/grpcweb-transport@2.9.3:
     resolution: {integrity: sha512-BP9oThZzrr1WJKJZKJ/o5yiDVaQe/T95Ef9eDZAkBbW6ObSnUAPi0I03xeJF8sjn6gRXabCSfpBbDXlxCefKEw==}
     dependencies:
-      '@protobuf-ts/runtime': 2.9.3
+      '@protobuf-ts/runtime': 2.9.4
       '@protobuf-ts/runtime-rpc': 2.9.3
     dev: false
 
   /@protobuf-ts/plugin-framework@2.9.3:
     resolution: {integrity: sha512-iqdkhAu7fGPvBCVOoAEEFJ1/oaGIBoNIMgSv2WonTNJVHxv5FvvAfWFn6nG/eta34fHRZT38ZXTaYcMUkv8AiQ==}
     dependencies:
-      '@protobuf-ts/runtime': 2.9.3
+      '@protobuf-ts/runtime': 2.9.4
       typescript: 3.9.10
     dev: false
 
@@ -928,7 +928,7 @@ packages:
     dependencies:
       '@protobuf-ts/plugin-framework': 2.9.3
       '@protobuf-ts/protoc': 2.9.4
-      '@protobuf-ts/runtime': 2.9.3
+      '@protobuf-ts/runtime': 2.9.4
       '@protobuf-ts/runtime-rpc': 2.9.3
       typescript: 3.9.10
     dev: false
@@ -940,11 +940,11 @@ packages:
   /@protobuf-ts/runtime-rpc@2.9.3:
     resolution: {integrity: sha512-WelHpctvZeG8yhbb7tnsrLzotq9xjMCXuGuhJ8qMyEdNoBBEodbXseofAYFTebo2/PN2LzyEq3X6vwr5f8jqTA==}
     dependencies:
-      '@protobuf-ts/runtime': 2.9.3
+      '@protobuf-ts/runtime': 2.9.4
     dev: false
 
-  /@protobuf-ts/runtime@2.9.3:
-    resolution: {integrity: sha512-nivzCpg/qYD0RX2OmHOahJALb8ndjGmUhNBcTJ0BbXoqKwCSM6vYA+vegzS3rhuaPgbyC7Ec8idlnizzUfIRuw==}
+  /@protobuf-ts/runtime@2.9.4:
+    resolution: {integrity: sha512-vHRFWtJJB/SiogWDF0ypoKfRIZ41Kq+G9cEFj6Qm1eQaAhJ1LDFvgZ7Ja4tb3iLOQhz0PaoPnnOijF1qmEqTxg==}
     dev: false
 
   /@rollup/rollup-android-arm-eabi@4.12.1:
