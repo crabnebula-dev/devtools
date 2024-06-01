@@ -19,7 +19,7 @@ dependencies:
     version: 2.9.3
   '@protobuf-ts/plugin':
     specifier: ^2.9.3
-    version: 2.9.3
+    version: 2.9.4
   '@protobuf-ts/runtime':
     specifier: ^2.9.3
     version: 2.9.3
@@ -915,21 +915,21 @@ packages:
       '@protobuf-ts/runtime-rpc': 2.9.3
     dev: false
 
-  /@protobuf-ts/plugin-framework@2.9.3:
-    resolution: {integrity: sha512-iqdkhAu7fGPvBCVOoAEEFJ1/oaGIBoNIMgSv2WonTNJVHxv5FvvAfWFn6nG/eta34fHRZT38ZXTaYcMUkv8AiQ==}
+  /@protobuf-ts/plugin-framework@2.9.4:
+    resolution: {integrity: sha512-9nuX1kjdMliv+Pes8dQCKyVhjKgNNfwxVHg+tx3fLXSfZZRcUHMc1PMwB9/vTvc6gBKt9QGz5ERqSqZc0++E9A==}
     dependencies:
-      '@protobuf-ts/runtime': 2.9.3
+      '@protobuf-ts/runtime': 2.9.4
       typescript: 3.9.10
     dev: false
 
-  /@protobuf-ts/plugin@2.9.3:
-    resolution: {integrity: sha512-tHYACv+nnIV2eoiMxeZhrgMqGiUktzUzrhfgnROg/rr8TecPLp9v5/yqNibN+bad5k7d57aqlTuQKhFl+J4W/g==}
+  /@protobuf-ts/plugin@2.9.4:
+    resolution: {integrity: sha512-Db5Laq5T3mc6ERZvhIhkj1rn57/p8gbWiCKxQWbZBBl20wMuqKoHbRw4tuD7FyXi+IkwTToaNVXymv5CY3E8Rw==}
     hasBin: true
     dependencies:
-      '@protobuf-ts/plugin-framework': 2.9.3
+      '@protobuf-ts/plugin-framework': 2.9.4
       '@protobuf-ts/protoc': 2.9.4
-      '@protobuf-ts/runtime': 2.9.3
-      '@protobuf-ts/runtime-rpc': 2.9.3
+      '@protobuf-ts/runtime': 2.9.4
+      '@protobuf-ts/runtime-rpc': 2.9.4
       typescript: 3.9.10
     dev: false
 
@@ -943,8 +943,18 @@ packages:
       '@protobuf-ts/runtime': 2.9.3
     dev: false
 
+  /@protobuf-ts/runtime-rpc@2.9.4:
+    resolution: {integrity: sha512-y9L9JgnZxXFqH5vD4d7j9duWvIJ7AShyBRoNKJGhu9Q27qIbchfzli66H9RvrQNIFk5ER7z1Twe059WZGqERcA==}
+    dependencies:
+      '@protobuf-ts/runtime': 2.9.4
+    dev: false
+
   /@protobuf-ts/runtime@2.9.3:
     resolution: {integrity: sha512-nivzCpg/qYD0RX2OmHOahJALb8ndjGmUhNBcTJ0BbXoqKwCSM6vYA+vegzS3rhuaPgbyC7Ec8idlnizzUfIRuw==}
+    dev: false
+
+  /@protobuf-ts/runtime@2.9.4:
+    resolution: {integrity: sha512-vHRFWtJJB/SiogWDF0ypoKfRIZ41Kq+G9cEFj6Qm1eQaAhJ1LDFvgZ7Ja4tb3iLOQhz0PaoPnnOijF1qmEqTxg==}
     dev: false
 
   /@rollup/rollup-android-arm-eabi@4.12.1:
