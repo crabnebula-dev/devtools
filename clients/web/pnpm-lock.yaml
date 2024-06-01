@@ -16,7 +16,7 @@ dependencies:
     version: 0.9.0(tailwindcss@3.4.3)
   '@protobuf-ts/grpcweb-transport':
     specifier: ^2.9.3
-    version: 2.9.3
+    version: 2.9.4
   '@protobuf-ts/plugin':
     specifier: ^2.9.3
     version: 2.9.3
@@ -908,11 +908,11 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@protobuf-ts/grpcweb-transport@2.9.3:
-    resolution: {integrity: sha512-BP9oThZzrr1WJKJZKJ/o5yiDVaQe/T95Ef9eDZAkBbW6ObSnUAPi0I03xeJF8sjn6gRXabCSfpBbDXlxCefKEw==}
+  /@protobuf-ts/grpcweb-transport@2.9.4:
+    resolution: {integrity: sha512-6aQgwPTgX6FkqWqmNts3uk8T/C5coJoH7U87zgaZY/Wo2EVa9SId5bXTM8uo4WR+CN8j9W4c9ij1yG13Hc3xUw==}
     dependencies:
-      '@protobuf-ts/runtime': 2.9.3
-      '@protobuf-ts/runtime-rpc': 2.9.3
+      '@protobuf-ts/runtime': 2.9.4
+      '@protobuf-ts/runtime-rpc': 2.9.4
     dev: false
 
   /@protobuf-ts/plugin-framework@2.9.3:
@@ -943,8 +943,18 @@ packages:
       '@protobuf-ts/runtime': 2.9.3
     dev: false
 
+  /@protobuf-ts/runtime-rpc@2.9.4:
+    resolution: {integrity: sha512-y9L9JgnZxXFqH5vD4d7j9duWvIJ7AShyBRoNKJGhu9Q27qIbchfzli66H9RvrQNIFk5ER7z1Twe059WZGqERcA==}
+    dependencies:
+      '@protobuf-ts/runtime': 2.9.4
+    dev: false
+
   /@protobuf-ts/runtime@2.9.3:
     resolution: {integrity: sha512-nivzCpg/qYD0RX2OmHOahJALb8ndjGmUhNBcTJ0BbXoqKwCSM6vYA+vegzS3rhuaPgbyC7Ec8idlnizzUfIRuw==}
+    dev: false
+
+  /@protobuf-ts/runtime@2.9.4:
+    resolution: {integrity: sha512-vHRFWtJJB/SiogWDF0ypoKfRIZ41Kq+G9cEFj6Qm1eQaAhJ1LDFvgZ7Ja4tb3iLOQhz0PaoPnnOijF1qmEqTxg==}
     dev: false
 
   /@rollup/rollup-android-arm-eabi@4.12.1:
