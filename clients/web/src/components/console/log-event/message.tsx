@@ -82,39 +82,47 @@ export function Message(props: {
               </Show>
             </span>
             <Show when={overflows() || !collapse()}>
-              <span class="hidden group-hover:block absolute bg-black right-2 top-0 z-51 pl-1 pb-1 ">
+              <span class="hidden absolute bg-black/50 right-[-0.5rem] top-[-1rem] z-51 p-1 group-hover:flex flex-row">
                 <button
                   onClick={() => navigator.clipboard.writeText(message())}
-                  title="copy full message to clipboard"
+                  title="Copy full message to clipboard"
                 >
                   <img
                     class="h-4 w-4"
                     src="/icons/copy.svg"
-                    alt="copy full message to clipboard"
+                    alt="Copy full message to clipboard"
                   />
                 </button>
                 <Show when={untrack(() => /\r|\n|\t|\s\s+/.test(message()))}>
                   <button
                     class="ml-1"
                     onClick={() => setPre(!pre())}
-                    title="toggle show indentation"
+                    title={pre() ? "Hide indentation" : "Show indentation"}
                   >
                     <img
                       class="h-4 w-4"
-                      src="/icons/code.svg"
-                      alt="toggle show indentation"
+                      src={
+                        pre()
+                          ? "/icons/text--align--justify.svg"
+                          : "/icons/text--align--center.svg"
+                      }
+                      alt={pre() ? "Hide indentation" : "Show indentation"}
                     />
                   </button>
                 </Show>
                 <button
                   class="ml-1"
                   onClick={() => setCollapse(!collapse())}
-                  title="toggle collapse entry"
+                  title={collapse() ? "Row expand" : "Row collapse"}
                 >
                   <img
                     class="h-4 w-4"
-                    src="/icons/code.svg"
-                    alt="toggle collapse entry"
+                    src={
+                      collapse()
+                        ? "/icons/row--expand.svg"
+                        : "/icons/row--collapse.svg"
+                    }
+                    alt={collapse() ? "Row expand" : "Row collapse"}
                   />
                 </button>
               </span>
