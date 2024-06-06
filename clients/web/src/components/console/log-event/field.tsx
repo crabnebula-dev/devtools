@@ -33,7 +33,7 @@ export function Field(props: { field: IField }) {
   };
 
   return (
-    <span class="group-hover:text-slate-300 text-slate-500 transition-colors hackathon">
+    <span class="group-hover:text-slate-300 min-w-24 text-slate-500 transition-colors hackathon">
       <span class="fname">{props.field.name}</span>
       <span class="fequal"> = </span>
       <span

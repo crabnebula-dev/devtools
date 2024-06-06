@@ -3,6 +3,7 @@ import { Show } from "solid-js";
 import { A } from "@solidjs/router";
 import MigrateAlt from "~/components/icons/migrate--alt";
 import { useConnection } from "~/context/connection-provider";
+import { makeBreakable } from "~/lib/formatters";
 
 export function Message(props: {
   processedEvent: ProcessedLogEvent;
@@ -25,7 +26,28 @@ export function Message(props: {
             </span>
           </A>
         </Show>
-        {props.processedEvent.message}
+        <span
+          style="block-overflow: ellipsis"
+          class="line-clamp-3 max-h-16"
+          title={props.processedEvent.message}
+        >
+          {makeBreakable(props.processedEvent.message, 150)}
+        </span>
+        <Show when={props.processedEvent.message.length > 50}>
+          <button
+            class="ml-2"
+            onClick={() =>
+              navigator.clipboard.writeText(props.processedEvent.message)
+            }
+            title="copy full message to clipboard"
+          >
+            <img
+              class="h-4 w-4"
+              src="/icons/copy.svg"
+              alt="copy full message to clipboard"
+            />
+          </button>
+        </Show>
       </span>
     </Show>
   );
