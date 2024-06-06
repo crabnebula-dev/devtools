@@ -69,7 +69,7 @@ export function Message(props: {
                 !collapse(),
               "whitespace-pre-wrap": pre(),
             }}
-            title={message()}
+            title={overflows() && collapse() ? message() : undefined}
             ref={setRef}
           >
             <span
