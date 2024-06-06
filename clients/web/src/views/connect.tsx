@@ -7,7 +7,8 @@ import { checkConnection } from "~/lib/connection/transport";
 import { GithubIcon } from "~/components/icons/github";
 import { ConnectionFailedDialog } from "~/components/dialogs/connection-failed-dialog";
 import { createStore } from "solid-js/store";
-import { createSignal } from "solid-js";
+import { createSignal, DEV, Show } from "solid-js";
+import { SafariNotSupportedDialog } from "~/components/dialogs/safari-not-supported-dialog";
 
 export default function Connect() {
   const navigate = useNavigate();
@@ -134,6 +135,9 @@ export default function Connect() {
         port={connectionStore.port}
         retry={tryToConnect}
       />
+      <Show when={!DEV}>
+        <SafariNotSupportedDialog />
+      </Show>
     </div>
   );
 }
