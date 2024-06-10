@@ -1,4 +1,4 @@
-import { createSignal, untrack, For, Setter, Show, createMemo } from "solid-js";
+import { Accessor, createMemo, createSignal, untrack, For, Setter, Show } from "solid-js";
 import { FilterToggle } from "~/components/filter-toggle";
 import { Toolbar } from "~/components/toolbar";
 import { useMonitor } from "~/context/monitor-provider";
@@ -11,21 +11,28 @@ import { VirtualList } from "~/components/virtual-list";
 
 export default function Console() {
   const { monitorData } = useMonitor();
-  const [showAttributes, toggleAttributes] = createSignal(true);
+  const [showAttributes, toggleAttributes] = createSignal(false);
   const [showTimestamp, toggleTimeStamp] = createSignal(true);
   const [shouldAutoScroll, toggleAutoScroll] = createSignal<boolean>(true);
 
-  const filterToggles: { label: string; setter: Setter<boolean> }[] = [
+  const filterToggles: {
+    label: string;
+    getter: Accessor<boolean>;
+    setter: Setter<boolean>;
+  }[] = [
     {
       label: "Attributes",
+      getter: showAttributes,
       setter: toggleAttributes,
     },
     {
       label: "Timestamps",
+      getter: showTimestamp,
       setter: toggleTimeStamp,
     },
     {
       label: "Autoscroll",
+      getter: shouldAutoScroll,
       setter: toggleAutoScroll,
     },
   ];
@@ -66,7 +73,7 @@ export default function Console() {
         <For each={filterToggles}>
           {(filterToggle) => (
             <FilterToggle
-              defaultPressed
+              defaultPressed={filterToggle.getter() || undefined}
               aria-label={filterToggle.label}
               changeHandler={() => filterToggle.setter((prev) => !prev)}
             >

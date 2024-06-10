@@ -25,7 +25,7 @@ export function Source(props: { processedEvent: ProcessedLogEvent }) {
 
   return (
     <MaybeLinkedSource
-      class="ml-auto flex gap-2 items-center text-xs"
+      class="ml-auto flex gap-2 items-center text-xs relative"
       maybeRelativePath={relativePathFromFilePath(
         props.processedEvent.metadata?.location?.file,
       )}
@@ -51,11 +51,22 @@ export function Source(props: { processedEvent: ProcessedLogEvent }) {
         {(line) => (
           <Tooltip.Root>
             <Tooltip.Trigger>
-              <span>{shortenFilePath(line())}</span>
+              <span>
+                <span class="flex flex-row absolute bg-gray-950/50 right-[-0.25rem] top-[-1rem] z-51 p-1 opacity-45 group-hover:opacity-100">
+                  <img
+                    src="/icons/code.svg"
+                    width="16"
+                    height="16"
+                    class=""
+                    alt="Jump to code"
+                  />
+                </span>
+                {shortenFilePath(line())}
+              </span>
             </Tooltip.Trigger>
-            <Tooltip.Content>
+            <Tooltip.Content class="z-[99]">
               <div class="rounded p-2 border border-slate-500 bg-black shadow">
-                {line()}
+                Jump to code: {line()}
               </div>
             </Tooltip.Content>
           </Tooltip.Root>

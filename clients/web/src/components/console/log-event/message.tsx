@@ -8,6 +8,7 @@ import {
   untrack,
 } from "solid-js";
 import { A } from "@solidjs/router";
+import { Tooltip } from "@kobalte/core";
 import MigrateAlt from "~/components/icons/migrate--alt";
 import { useConnection } from "~/context/connection-provider";
 import { makeBreakable } from "~/lib/formatters";
@@ -60,16 +61,16 @@ export function Message(props: {
         >
           <span
             classList={{
-              [`block relative bg-black z-50
+              [`block relative z-50
                 before:shadow-[0_0_1rem_rgba(255,255,255,0.2)]
+                before:border-gray-800 before:border-2
                 before:absolute before:rounded-lg
-                before:bg-black before:left-[-1rem]
+                before:bg-gray-950/90 before:left-[-1rem]
                 before:top-[-1rem] before:right-[-1rem]
                 before:bottom-[-1rem] before:z-0 before:pointer-events-none`]:
                 !collapse(),
               "whitespace-pre-wrap": pre(),
             }}
-            title={overflows() && collapse() ? message() : undefined}
             ref={setRef}
           >
             <span
@@ -81,52 +82,82 @@ export function Message(props: {
                 {makeBreakable(message())}
               </Show>
             </span>
-            <Show when={overflows() || !collapse()}>
-              <span class="hidden absolute bg-black/50 right-[-0.5rem] top-[-1rem] z-51 p-1 group-hover:flex flex-row">
-                <button
-                  onClick={() => navigator.clipboard.writeText(message())}
-                  title="Copy full message to clipboard"
-                >
-                  <img
-                    class="h-4 w-4"
-                    src="/icons/copy.svg"
-                    alt="Copy full message to clipboard"
-                  />
-                </button>
-                <Show when={untrack(() => /\r|\n|\t|\s\s+/.test(message()))}>
+
+            <span class="flex flex-row absolute bg-gray-950/50 border-box right-[-0.5rem] top-[-1rem] z-51 p-1 opacity-45 group-hover:opacity-100">
+              <Tooltip.Root>
+                <Tooltip.Trigger>
                   <button
-                    class="ml-1"
-                    onClick={() => setPre(!pre())}
-                    title={pre() ? "Hide indentation" : "Show indentation"}
+                    onClick={() => navigator.clipboard.writeText(message())}
+                    aria-label="Copy full message to clipboard"
                   >
                     <img
                       class="h-4 w-4"
-                      src={
-                        pre()
-                          ? "/icons/text--align--justify.svg"
-                          : "/icons/text--align--center.svg"
-                      }
-                      alt={pre() ? "Hide indentation" : "Show indentation"}
+                      src="/icons/copy.svg"
+                      alt="Copy full message to clipboard"
                     />
                   </button>
-                </Show>
-                <button
-                  class="ml-1"
-                  onClick={() => setCollapse(!collapse())}
-                  title={collapse() ? "Row expand" : "Row collapse"}
-                >
-                  <img
-                    class="h-4 w-4"
-                    src={
-                      collapse()
-                        ? "/icons/row--expand.svg"
-                        : "/icons/row--collapse.svg"
-                    }
-                    alt={collapse() ? "Row expand" : "Row collapse"}
-                  />
-                </button>
-              </span>
-            </Show>
+                </Tooltip.Trigger>
+                <Tooltip.Content class="z-[99]">
+                  <div class="rounded p-2 border border-slate-500 bg-black shadow">
+                    Copy full message to clipboard
+                  </div>
+                </Tooltip.Content>
+              </Tooltip.Root>
+              <Show when={untrack(() => /\r|\n|\t|\s\s+/.test(message()))}>
+                <Tooltip.Root>
+                  <Tooltip.Trigger>
+                    <button
+                      class="ml-1"
+                      onClick={() => setPre(!pre())}
+                      aria-label={
+                        pre() ? "Hide indentation" : "Show indentation"
+                      }
+                    >
+                      <img
+                        class="h-4 w-4"
+                        src={
+                          pre()
+                            ? "/icons/text--align--justify.svg"
+                            : "/icons/text--align--center.svg"
+                        }
+                        alt={pre() ? "Hide indentation" : "Show indentation"}
+                      />
+                    </button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content class="z-[99]">
+                    <div class="rounded p-2 border border-slate-500 bg-black shadow">
+                      {pre() ? "Hide indentation" : "Show indentation"}
+                    </div>
+                  </Tooltip.Content>
+                </Tooltip.Root>
+              </Show>
+              <Show when={overflows()}>
+                <Tooltip.Root>
+                  <Tooltip.Trigger>
+                    <button
+                      class="ml-1"
+                      onClick={() => setCollapse(!collapse())}
+                      aria-label={collapse() ? "Row expand" : "Row collapse"}
+                    >
+                      <img
+                        class="h-4 w-4"
+                        src={
+                          collapse()
+                            ? "/icons/row--expand.svg"
+                            : "/icons/row--collapse.svg"
+                        }
+                        alt={collapse() ? "Row expand" : "Row collapse"}
+                      />
+                    </button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content class="z-[99]">
+                    <div class="rounded p-2 border border-slate-500 bg-black shadow">
+                      {collapse() ? "Row expand" : "Row collapse"}
+                    </div>
+                  </Tooltip.Content>
+                </Tooltip.Root>
+              </Show>
+            </span>
           </span>
         </span>
       </span>

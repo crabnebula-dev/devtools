@@ -1,4 +1,4 @@
-import { type JSXElement, Show, For, createEffect } from "solid-js";
+import { type JSXElement, Show, For, createEffect, untrack } from "solid-js";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
 
@@ -18,7 +18,7 @@ export function VirtualList<VirtualItem>(props: {
     },
     getScrollElement: () => virtualScrollElement ?? null,
     estimateSize: () => props.estimateSize,
-    overscan: props.overscan,
+    overscan: untrack(() => props.overscan),
   });
 
   // Auto scroll on new element effect

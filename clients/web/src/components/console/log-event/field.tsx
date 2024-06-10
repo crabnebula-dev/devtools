@@ -1,6 +1,7 @@
 import { Field as IField } from "~/lib/proto/common";
 import { processFieldValue } from "~/lib/span/process-field-value";
 import { shortenLogFilePath, makeBreakable } from "~/lib/formatters";
+import { Tooltip } from "@kobalte/core";
 
 export function Field(props: { field: IField }) {
   // HACK: overflow isn't handled nicely right now.
@@ -10,22 +11,7 @@ export function Field(props: { field: IField }) {
   const strVal = () => {
     const val = fullStrVal();
     if (/\/|\\/.test(val)) {
-      return (
-        <>
-          {makeBreakable(shortenLogFilePath(val))}
-          <button
-            class="ml-2"
-            onClick={() => navigator.clipboard.writeText(val)}
-            title="copy full path to clipboard"
-          >
-            <img
-              class="h-4 w-4"
-              src="/icons/copy.svg"
-              alt="copy full path to clipboard"
-            />
-          </button>
-        </>
-      );
+      return makeBreakable(shortenLogFilePath(val));
     }
     if (val.length > maxLen)
       return makeBreakable(val.substring(0, maxLen) + "…");
@@ -33,7 +19,7 @@ export function Field(props: { field: IField }) {
   };
 
   return (
-    <span class="group-hover:text-slate-300 min-w-24 text-slate-500 transition-colors hackathon">
+    <span class="group-hover:text-slate-300 min-w-24 text-slate-500 transition-colors hackathon relative">
       <span class="fname">{props.field.name}</span>
       <span class="fequal"> = </span>
       <span
@@ -41,6 +27,27 @@ export function Field(props: { field: IField }) {
         title={fullStrVal()}
       >
         {strVal()}
+      </span>
+      <span class="flex flex-row absolute bg-gray-950/50 right-[-0.5rem] top-[-1rem] z-51 p-1 opacity-45 group-hover:opacity-100">
+        <Tooltip.Root>
+          <Tooltip.Trigger>
+            <button
+              onClick={() => navigator.clipboard.writeText(fullStrVal())}
+              aria-label="Copy data to clipboard"
+            >
+              <img
+                class="h-4 w-4"
+                src="/icons/copy.svg"
+                alt="Copy data to clipboard"
+              />
+            </button>
+          </Tooltip.Trigger>
+          <Tooltip.Content class="z-[99]">
+            <div class="rounded p-2 border border-slate-500 bg-black shadow">
+              Copy full message to clipboard
+            </div>
+          </Tooltip.Content>
+        </Tooltip.Root>
       </span>
     </span>
   );
