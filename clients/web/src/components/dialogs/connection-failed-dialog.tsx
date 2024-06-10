@@ -31,6 +31,7 @@ export function ConnectionFailedDialog(props: Props) {
           </AlertDialog.CloseButton>
         </>
       }
+      belowTheFold={<BraveWarning />}
     >
       <p class="text-xl">
         You tried to connect to{" "}
@@ -42,7 +43,6 @@ export function ConnectionFailedDialog(props: Props) {
       <p class="text-xl">
         Are you sure your app is running and setup with the DevTools plugin?
       </p>
-      <BraveWarning />
     </Dialog>
   );
 }

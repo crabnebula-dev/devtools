@@ -1,4 +1,4 @@
-import { Show, Suspense } from "solid-js";
+import { JSXElement, Show, Suspense } from "solid-js";
 
 // The Brave browser exports a navigator function to determine whether we are using it.
 declare global {
@@ -15,24 +15,33 @@ export function BraveWarning() {
   return (
     <Suspense>
       <Show when={isBrave}>
-        <section class="text-3xl pt-8">
-          <h1 class="text-orange-300 font-semibold text-4xl">
-            Info: We noticed you are using the Brave browser.
+        <section class="text-base border border-neutral-800 rounded-lg p-3 shadow-lg shadow-navy-600 my-2 break-words">
+          <h1 class="text-slate-200 text-xl pb-2 font-semibold">
+            We noticed you are using the <Highlight>Brave browser</Highlight>
           </h1>
-          <p>
+          <p class="pb-2">
             Users have reported that requests to{" "}
-            <strong>localhost will be blocked</strong> by the{" "}
-            <strong>Brave browser shield</strong> by default.
+            <Highlight>localhost will be blocked</Highlight> by the{" "}
+            <Highlight>Brave browser shield</Highlight> by default.
           </p>
           <p>
             We have a little section in our docs on how to add an exception to
-            this rule for <strong>devtools.crabnebula.dev</strong>:{" "}
-            <a href="https://docs.crabnebula.dev/devtools/brave-browser">
-              docs.crabnebula.dev/devtools/brave-browser
-            </a>
+            this rule for <Highlight>DevTools Web</Highlight>:{" "}
+            <Highlight>
+              <a
+                class="underline"
+                href="https://docs.crabnebula.dev/devtools/brave-browser"
+              >
+                docs.crabnebula.dev/devtools/brave-browser
+              </a>
+            </Highlight>
           </p>
         </section>
       </Show>
     </Suspense>
   );
+}
+
+function Highlight(props: { children: JSXElement }) {
+  return <strong class="bg-slate-800 px-1 rounded-sm">{props.children}</strong>;
 }

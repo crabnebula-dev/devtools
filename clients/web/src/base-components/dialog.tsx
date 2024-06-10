@@ -7,6 +7,7 @@ type Props = {
   children: JSXElement;
   title: JSXElement;
   buttons: JSXElement;
+  belowTheFold?: JSXElement;
   defaultOpen?: boolean;
   open?: Signal<boolean>;
 };
@@ -39,14 +40,15 @@ function Content(props: Props) {
     <AlertDialog.Portal mount={document.getElementById("app") ?? undefined}>
       <AlertDialog.Overlay class="fixed h-screen w-screen grid place-items-center backdrop-blur-md z-50 top-0 left-0" />
       <div class="fixed inset-0 z-50 flex items-center justify-center text-xl">
-        <AlertDialog.Content class="z-50 text-4xl max-w-prose md:max-w-96 border border-neutral-800 rounded-lg p-10 bg-navy-700 bg-opacity-80 shadow-lg shadow-navy-600 kb-expanded:animate-content-show kb-disabled:animate-content-hide">
+        <AlertDialog.Content class="z-50 text-4xl max-w-[125ch] md:max-w-96 border border-neutral-800 rounded-lg p-10 bg-navy-700 bg-opacity-80 shadow-lg shadow-navy-600 kb-expanded:animate-content-show kb-disabled:animate-content-hide">
           <div class="flex items-baseline justify-between mb-3">
             {props.title}
           </div>
           <AlertDialog.Description class="text-base text-neutral-300">
             {props.children}
           </AlertDialog.Description>
-          <div class="pt-8 flex gap-10 justify-center">{props.buttons}</div>
+          <div class="py-8 flex gap-10 justify-center">{props.buttons}</div>
+          {props.belowTheFold}
         </AlertDialog.Content>
       </div>
     </AlertDialog.Portal>
