@@ -1,4 +1,5 @@
 import { JSXElement, Show, Suspense } from "solid-js";
+import { Info } from "../icons/info";
 
 // The Brave browser exports a navigator function to determine whether we are using it.
 declare global {
@@ -16,6 +17,9 @@ export function BraveWarning() {
     <Suspense>
       <Show when={isBrave}>
         <section class="text-base border border-neutral-800 rounded-lg p-3 shadow-lg shadow-navy-600 my-2 break-words">
+          <p class="text-2xl text-slate-200">
+            <Info /> Info
+          </p>
           <h1 class="text-slate-200 text-xl pb-2 font-semibold">
             We noticed you are using the <Highlight>Brave browser</Highlight>
           </h1>
@@ -30,9 +34,10 @@ export function BraveWarning() {
             <Highlight>
               <a
                 class="underline"
-                href="https://docs.crabnebula.dev/devtools/brave-browser"
+                href="https://docs.crabnebula.dev/devtools/troubleshooting/web/brave-browser"
+                target="_blank"
               >
-                docs.crabnebula.dev/devtools/brave-browser
+                docs.crabnebula.dev/devtools/troubleshooting/web/brave-browser
               </a>
             </Highlight>
           </p>

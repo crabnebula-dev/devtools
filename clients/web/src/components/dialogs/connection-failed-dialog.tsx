@@ -2,6 +2,7 @@ import { Dialog } from "~/base-components/dialog";
 import { AlertDialog } from "@kobalte/core";
 import { Signal } from "solid-js";
 import { BraveWarning } from "../warnings/brave-warning";
+import { Troubleshooting } from "../warnings/troubleshooting";
 
 type Props = {
   host: string;
@@ -43,6 +44,7 @@ export function ConnectionFailedDialog(props: Props) {
       <p class="text-xl">
         Are you sure your app is running and setup with the DevTools plugin?
       </p>
+      <Troubleshooting />
     </Dialog>
   );
 }

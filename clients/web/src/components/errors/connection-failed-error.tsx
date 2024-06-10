@@ -1,3 +1,4 @@
+import { Troubleshooting } from "../warnings/troubleshooting";
 import { BraveWarning } from "../warnings/brave-warning";
 
 export function ConnectionFailedError() {
@@ -12,8 +13,9 @@ export function ConnectionFailedError() {
           Make sure that your app is running and you are trying to reach it on
           the correct ip and port.
         </p>
-        <BraveWarning />
       </div>
+      <BraveWarning />
+      <Troubleshooting />
     </>
   );
 }
