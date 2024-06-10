@@ -18,8 +18,8 @@ export function SafariNotSupportedDialog() {
         DevTools currently does not support the use of Safari. Sadly Safari does
         not allow you to make requests to localhost. More information in our
         docs:{" "}
-        <a href="https://docs.crabnebula.dev/devtools/safari-not-supported/">
-          https://docs.crabnebula.dev/devtools/safari-not-supported/
+        <a href="https://docs.crabnebula.dev/devtools/troubleshooting/web/safari-not-supported/">
+          https://docs.crabnebula.dev/devtools/troubleshooting/web/safari-not-supported/
         </a>
       </p>
     </Dialog>
