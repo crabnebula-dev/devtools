@@ -1,3 +1,6 @@
+import { Troubleshooting } from "../warnings/troubleshooting";
+import { BraveWarning } from "../warnings/brave-warning";
+
 export function ConnectionFailedError() {
   return (
     <>
@@ -11,6 +14,8 @@ export function ConnectionFailedError() {
           the correct ip and port.
         </p>
       </div>
+      <BraveWarning />
+      <Troubleshooting />
     </>
   );
 }
