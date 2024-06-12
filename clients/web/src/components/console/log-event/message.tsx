@@ -66,7 +66,7 @@ export function Message(props: {
                 before:border-gray-800 before:border-2
                 before:absolute before:rounded-lg
                 before:bg-gray-950/90 before:left-[-1rem]
-                before:top-[-1rem] before:right-[-1rem]
+                before:-top-4 before:right-[-1rem]
                 before:bottom-[-1rem] before:z-0 before:pointer-events-none`]:
                 !collapse(),
               "whitespace-pre-wrap": pre(),
@@ -83,7 +83,7 @@ export function Message(props: {
               </Show>
             </span>
 
-            <span class="flex flex-row absolute bg-gray-950/50 border-box right-[-0.5rem] top-[-1rem] z-51 p-1 opacity-45 group-hover:opacity-100">
+            <span class="flex flex-row absolute bg-gray-950/50 border-box -right-2 -top-4 z-40 p-1 opacity-45 group-hover:opacity-100">
               <Tooltip.Root>
                 <Tooltip.Trigger>
                   <button
@@ -97,7 +97,7 @@ export function Message(props: {
                     />
                   </button>
                 </Tooltip.Trigger>
-                <Tooltip.Content class="z-[99]">
+                <Tooltip.Content class="z-50">
                   <div class="rounded p-2 border border-slate-500 bg-black shadow">
                     Copy full message to clipboard
                   </div>
@@ -124,7 +124,7 @@ export function Message(props: {
                       />
                     </button>
                   </Tooltip.Trigger>
-                  <Tooltip.Content class="z-[99]">
+                  <Tooltip.Content class="z-50">
                     <div class="rounded p-2 border border-slate-500 bg-black shadow">
                       {pre() ? "Hide indentation" : "Show indentation"}
                     </div>
@@ -150,7 +150,7 @@ export function Message(props: {
                       />
                     </button>
                   </Tooltip.Trigger>
-                  <Tooltip.Content class="z-[99]">
+                  <Tooltip.Content class="z-50">
                     <div class="rounded p-2 border border-slate-500 bg-black shadow">
                       {collapse() ? "Row expand" : "Row collapse"}
                     </div>

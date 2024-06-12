@@ -52,7 +52,7 @@ export function Source(props: { processedEvent: ProcessedLogEvent }) {
           <Tooltip.Root>
             <Tooltip.Trigger>
               <span>
-                <span class="flex flex-row absolute bg-gray-950/50 right-[-0.25rem] top-[-1rem] z-51 p-1 opacity-45 group-hover:opacity-100">
+                <span class="flex flex-row absolute bg-gray-950/50 right-[-0.25rem] -top-4 z-40 p-1 opacity-45 group-hover:opacity-100">
                   <img
                     src="/icons/code.svg"
                     width="16"
@@ -64,7 +64,7 @@ export function Source(props: { processedEvent: ProcessedLogEvent }) {
                 {shortenFilePath(line())}
               </span>
             </Tooltip.Trigger>
-            <Tooltip.Content class="z-[99]">
+            <Tooltip.Content class="z-50">
               <div class="rounded p-2 border border-slate-500 bg-black shadow">
                 Jump to code: {line()}
               </div>
