@@ -87,7 +87,7 @@ export function Message(props: {
               </Show>
             </span>
 
-            <span class="flex flex-row absolute bg-gray-950/75 border-box -right-5 -top-2 z-40 p-1 opacity-45 group-hover:opacity-100">
+            <span class="flex flex-row absolute bg-gray-950/75 border-box -right-5 -top-2 z-10 p-1 opacity-45 group-hover:opacity-100">
               <Tooltip.Root>
                 <Tooltip.Trigger>
                   <button
@@ -101,11 +101,13 @@ export function Message(props: {
                     />
                   </button>
                 </Tooltip.Trigger>
-                <Tooltip.Content class="z-50">
-                  <div class="rounded p-2 border border-slate-500 bg-black shadow">
-                    Copy full message to clipboard
-                  </div>
-                </Tooltip.Content>
+                <Tooltip.Portal>
+                  <Tooltip.Content>
+                    <div class="rounded p-2 border border-slate-500 bg-black shadow relative z-50">
+                      Copy full message to clipboard
+                    </div>
+                  </Tooltip.Content>
+                </Tooltip.Portal>
               </Tooltip.Root>
               <Show when={untrack(() => /\r|\n|\t|\s\s+/.test(message()))}>
                 <Tooltip.Root>
@@ -126,11 +128,13 @@ export function Message(props: {
                       />
                     </button>
                   </Tooltip.Trigger>
-                  <Tooltip.Content class="z-50">
-                    <div class="rounded p-2 border border-slate-500 bg-black shadow">
-                      {indentationLabel()}
-                    </div>
-                  </Tooltip.Content>
+                  <Tooltip.Portal>
+                    <Tooltip.Content>
+                      <div class="rounded p-2 border border-slate-500 bg-black shadow z-50">
+                        {indentationLabel()}
+                      </div>
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
                 </Tooltip.Root>
               </Show>
               <Show when={overflows()}>
@@ -152,11 +156,13 @@ export function Message(props: {
                       />
                     </button>
                   </Tooltip.Trigger>
-                  <Tooltip.Content class="z-50">
-                    <div class="rounded p-2 border border-slate-500 bg-black shadow">
-                      {collapseLabel()}
-                    </div>
-                  </Tooltip.Content>
+                  <Tooltip.Portal>
+                    <Tooltip.Content>
+                      <div class="rounded p-2 border border-slate-500 bg-black shadow z-50">
+                        {collapseLabel()}
+                      </div>
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
                 </Tooltip.Root>
               </Show>
             </span>

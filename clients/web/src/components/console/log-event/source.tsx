@@ -67,11 +67,13 @@ export function Source(props: { processedEvent: ProcessedLogEvent }) {
                   <span>{shortenFilePath(line())}</span>
                 </span>
               </Tooltip.Trigger>
-              <Tooltip.Content class="z-50">
-                <div class="rounded p-2 border border-slate-500 bg-black shadow">
-                  Jump to code: {line()}
-                </div>
-              </Tooltip.Content>
+              <Tooltip.Portal>
+                <Tooltip.Content class="z-50">
+                  <div class="rounded p-2 border border-slate-500 bg-black shadow z-50">
+                    Jump to code: {line()}
+                  </div>
+                </Tooltip.Content>
+              </Tooltip.Portal>
             </Tooltip.Root>
           </Show>
         )}
