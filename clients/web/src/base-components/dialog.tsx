@@ -40,7 +40,7 @@ function Content(props: Props) {
     <AlertDialog.Portal mount={document.getElementById("app") ?? undefined}>
       <AlertDialog.Overlay class="fixed h-screen w-screen grid place-items-center backdrop-blur-md z-50 top-0 left-0" />
       <div class="fixed inset-0 z-50 flex items-center justify-center text-xl">
-        <AlertDialog.Content class="z-50 text-4xl max-w-[75ch] md:max-w-2xl border border-neutral-800 rounded-lg p-10 bg-navy-700 bg-opacity-80 shadow-lg shadow-navy-600 kb-expanded:animate-content-show kb-disabled:animate-content-hide">
+        <AlertDialog.Content class="z-50 text-4xl max-h-full overflow-auto max-w-full md:max-w-2xl border border-neutral-800 rounded-lg p-10 bg-navy-700 bg-opacity-80 shadow-lg shadow-navy-600 kb-expanded:animate-content-show kb-disabled:animate-content-hide">
           <div class="flex items-baseline justify-between mb-3">
             {props.title}
           </div>
