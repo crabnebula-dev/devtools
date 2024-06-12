@@ -28,7 +28,7 @@ export function Field(props: { field: IField }) {
       >
         {strVal()}
       </span>
-      <span class="flex flex-row absolute bg-gray-950/50 -right-2 -top-4 z-40 p-1 opacity-45 group-hover:opacity-100">
+      <span class="flex flex-row absolute bg-gray-950/75-right-5 -top-2 z-40 p-1 opacity-45 group-hover:opacity-100">
         <Tooltip.Root>
           <Tooltip.Trigger>
             <button

@@ -23,12 +23,13 @@ export function Source(props: { processedEvent: ProcessedLogEvent }) {
     return parentSpan.displayName ?? parentSpan.name;
   });
 
+  const maybeRelativePath = () =>
+    relativePathFromFilePath(props.processedEvent.metadata?.location?.file);
+
   return (
     <MaybeLinkedSource
       class="ml-auto flex gap-2 items-center text-xs relative"
-      maybeRelativePath={relativePathFromFilePath(
-        props.processedEvent.metadata?.location?.file,
-      )}
+      maybeRelativePath={maybeRelativePath()}
       lineNumber={props.processedEvent.metadata?.location?.line}
     >
       <Show when={props.processedEvent.target}>
@@ -49,25 +50,30 @@ export function Source(props: { processedEvent: ProcessedLogEvent }) {
         when={getFileLineFromLocation(props.processedEvent.metadata?.location)}
       >
         {(line) => (
-          <Tooltip.Root>
-            <Tooltip.Trigger>
-              <span>
-                <span class="flex flex-row absolute bg-gray-950/50 right-[-0.25rem] -top-4 z-40 p-1 opacity-45 group-hover:opacity-100">
-                  <img
-                    src="/icons/code.svg"
-                    class="w-4 h-4"
-                    alt="Jump to code"
-                  />
+          <Show
+            when={maybeRelativePath()}
+            fallback={<span>{shortenFilePath(line())}</span>}
+          >
+            <Tooltip.Root>
+              <Tooltip.Trigger>
+                <span class="flex justify-items-center">
+                  <span class="bg-gray-950/75 p-1 -mt-1 -mb-1 opacity-45 group-hover:opacity-100">
+                    <img
+                      src="/icons/code.svg"
+                      class="w-4 h-4"
+                      alt="Jump to code"
+                    />
+                  </span>
+                  <span>{shortenFilePath(line())}</span>
                 </span>
-                {shortenFilePath(line())}
-              </span>
-            </Tooltip.Trigger>
-            <Tooltip.Content class="z-50">
-              <div class="rounded p-2 border border-slate-500 bg-black shadow">
-                Jump to code: {line()}
-              </div>
-            </Tooltip.Content>
-          </Tooltip.Root>
+              </Tooltip.Trigger>
+              <Tooltip.Content class="z-50">
+                <div class="rounded p-2 border border-slate-500 bg-black shadow">
+                  Jump to code: {line()}
+                </div>
+              </Tooltip.Content>
+            </Tooltip.Root>
+          </Show>
         )}
       </Show>
     </MaybeLinkedSource>
