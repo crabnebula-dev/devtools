@@ -24,7 +24,9 @@ fn main() {
     let builder = tauri::Builder::default();
 
     #[cfg(debug_assertions)]
-    let builder = builder.plugin(devtools);
+    {
+        let builder = builder.plugin(devtools);
+    }
 
     builder
         .run(tauri::generate_context!())
