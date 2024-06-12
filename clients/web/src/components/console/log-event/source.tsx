@@ -55,9 +55,7 @@ export function Source(props: { processedEvent: ProcessedLogEvent }) {
                 <span class="flex flex-row absolute bg-gray-950/50 right-[-0.25rem] -top-4 z-40 p-1 opacity-45 group-hover:opacity-100">
                   <img
                     src="/icons/code.svg"
-                    width="16"
-                    height="16"
-                    class=""
+                    class="w-4 h-4"
                     alt="Jump to code"
                   />
                 </span>

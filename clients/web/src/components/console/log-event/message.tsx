@@ -22,6 +22,10 @@ export function Message(props: {
   const [collapse, setCollapse] = createSignal(true);
   const [pre, setPre] = createSignal(false);
 
+  const indentationLabel = () =>
+    pre() ? "Hide indentation" : "Show indentation";
+  const collapseLabel = () => (collapse() ? "Row expand" : "Row collapse");
+
   onMount(() => {
     const measure = () =>
       setOverflows(
@@ -109,9 +113,7 @@ export function Message(props: {
                     <button
                       class="ml-1"
                       onClick={() => setPre(!pre())}
-                      aria-label={
-                        pre() ? "Hide indentation" : "Show indentation"
-                      }
+                      aria-label={indentationLabel()}
                     >
                       <img
                         class="h-4 w-4"
@@ -120,13 +122,13 @@ export function Message(props: {
                             ? "/icons/text--align--justify.svg"
                             : "/icons/text--align--center.svg"
                         }
-                        alt={pre() ? "Hide indentation" : "Show indentation"}
+                        alt={indentationLabel()}
                       />
                     </button>
                   </Tooltip.Trigger>
                   <Tooltip.Content class="z-50">
                     <div class="rounded p-2 border border-slate-500 bg-black shadow">
-                      {pre() ? "Hide indentation" : "Show indentation"}
+                      {indentationLabel()}
                     </div>
                   </Tooltip.Content>
                 </Tooltip.Root>
@@ -137,7 +139,7 @@ export function Message(props: {
                     <button
                       class="ml-1"
                       onClick={() => setCollapse(!collapse())}
-                      aria-label={collapse() ? "Row expand" : "Row collapse"}
+                      aria-label={collapseLabel()}
                     >
                       <img
                         class="h-4 w-4"
@@ -146,13 +148,13 @@ export function Message(props: {
                             ? "/icons/row--expand.svg"
                             : "/icons/row--collapse.svg"
                         }
-                        alt={collapse() ? "Row expand" : "Row collapse"}
+                        alt={collapseLabel()}
                       />
                     </button>
                   </Tooltip.Trigger>
                   <Tooltip.Content class="z-50">
                     <div class="rounded p-2 border border-slate-500 bg-black shadow">
-                      {collapse() ? "Row expand" : "Row collapse"}
+                      {collapseLabel()}
                     </div>
                   </Tooltip.Content>
                 </Tooltip.Root>
