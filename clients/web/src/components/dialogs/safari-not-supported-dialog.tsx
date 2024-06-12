@@ -21,9 +21,9 @@ export function SafariNotSupportedDialog() {
         <strong>
           <a
             class="break-words underline"
-            href="https://docs.crabnebula.dev/devtools/troubleshooting/web/safari-not-supported/"
+            href="https://docs.crabnebula.dev/devtools/troubleshoot/broken-connection/#safari-not-supported"
           >
-            docs.crabnebula.dev/devtools/troubleshooting/web/safari-not-supported/
+            docs.crabnebula.dev/devtools/troubleshoot/broken-connection/#safari-not-supported
           </a>
         </strong>
       </p>
