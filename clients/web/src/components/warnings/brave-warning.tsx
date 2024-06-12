@@ -33,10 +33,10 @@ export function BraveWarning() {
           <Highlight>
             <a
               class="underline"
-              href="https://docs.crabnebula.dev/devtools/troubleshooting/web/brave-browser"
+              href="https://docs.crabnebula.dev/devtools/troubleshoot/broken-connection/#brave-browser-shield"
               target="_blank"
             >
-              docs.crabnebula.dev/devtools/troubleshooting/web/brave-browser
+              docs.crabnebula.dev/devtools/troubleshoot/broken-connection/#brave-browser-shield
             </a>
           </Highlight>
         </p>

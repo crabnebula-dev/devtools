@@ -11,10 +11,10 @@ export function Troubleshooting() {
         <strong class="bg-slate-800 px-1 rounded-sm">
           <a
             class="underline"
-            href="https://docs.crabnebula.dev/devtools/troubleshooting"
+            href="https://docs.crabnebula.dev/devtools/troubleshoot/broken-connection/"
             target="_blank"
           >
-            docs.crabnebula.dev/devtools/troubleshooting
+            docs.crabnebula.dev/devtools/troubleshoot/broken-connection/
           </a>
         </strong>
       </p>
