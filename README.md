@@ -78,10 +78,12 @@ fn main() {
     #[cfg(debug_assertions)] // only enable instrumentation in development builds
     let devtools = tauri_plugin_devtools::init();
 
-    let builder = tauri::Builder::default();
+    let mut builder = tauri::Builder::default();
 
     #[cfg(debug_assertions)]
-    let builder = builder.plugin(devtools);
+    {
+        builder = builder.plugin(devtools);
+    }
 
     builder
         .run(tauri::generate_context!())
