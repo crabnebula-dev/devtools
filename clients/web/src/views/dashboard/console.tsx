@@ -1,11 +1,4 @@
-import {
-  createSignal,
-  untrack,
-  createEffect,
-  For,
-  Setter,
-  Show,
-} from "solid-js";
+import { createSignal, untrack, For, Setter, Show, createMemo } from "solid-js";
 import { FilterToggle } from "~/components/filter-toggle";
 import { Toolbar } from "~/components/toolbar";
 import { useMonitor } from "~/context/monitor-provider";
@@ -14,7 +7,6 @@ import { LogFilterObject, filterLogs } from "~/lib/console/filter-logs";
 import { LogLevelFilter } from "~/components/console/log-level-filter";
 import { NoLogs } from "~/components/console/no-logs";
 import { LogEvent } from "~/components/console/log-event";
-import type { LogEvent as ILogEvent } from "~/lib/proto/logs";
 import { VirtualList } from "~/components/virtual-list";
 
 export default function Console() {
@@ -45,40 +37,15 @@ export default function Console() {
 
   const [filter, setFilter] = createStore<LogFilterObject>(initialFilters());
 
-  const [filteredLogs, setFilteredLogs] = createSignal<ILogEvent[]>([]);
-
-  // If the filter changes we want to do a full filter on the list
-  createEffect(() => {
-    setFilteredLogs(
-      filterLogs(
-        untrack(() => monitorData),
-        filter,
-        untrack(() => monitorData.logs),
-      ),
-    );
-  });
+  const filteredLogs = createMemo(() =>
+    filterLogs(
+      untrack(() => monitorData),
+      filter,
+      monitorData.logs,
+    ),
+  );
 
   // If there is new logs coming in, we only want to perform filtering on the newly received logs
-  createEffect((oldLength: number) => {
-    const newLength = monitorData.logs.length;
-
-    // Partial filter
-    if (newLength > oldLength) {
-      const metadata = untrack(() => monitorData);
-      const alreadyFilteredLogs = untrack(() => filteredLogs());
-      setFilteredLogs(
-        alreadyFilteredLogs.concat(
-          filterLogs(
-            metadata,
-            untrack(() => filter),
-            monitorData.logs.slice(oldLength - 1, newLength - 1),
-          ),
-        ),
-      );
-    }
-
-    return newLength;
-  }, 0);
 
   const resetFilter = () => setFilter(initialFilters);
 
