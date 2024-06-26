@@ -231,7 +231,7 @@ impl Builder {
     /// Make sure to check out the `examples` sub folder for a fully working setup.
     ///
     /// ```no_run
-    /// let devtools_plugin = devtools::Builder::default().init();
+    /// let devtools_plugin = tauri_plugin_devtools::Builder::default().init();
     ///
     /// tauri::Builder::default()
     ///     .plugin(devtools_plugin)
@@ -262,7 +262,7 @@ impl Builder {
     ///
     /// ```no_run
     /// fn main() -> Result<(), Box<dyn std::error::Error>> {
-    ///     let devtools_plugin = devtools::Builder::default().try_init()?;
+    ///     let devtools_plugin = tauri_plugin_devtools::Builder::default().try_init()?;
     ///
     ///     tauri::Builder::default()
     ///         .plugin(devtools_plugin)
