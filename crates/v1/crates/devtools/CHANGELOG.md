@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3](https://github.com/crabnebula-dev/devtools/compare/v0.3.2...v0.3.3) - 2024-06-27
+
+### Fixed
+- use correct rust syntax for cfg on expressions ([#314](https://github.com/crabnebula-dev/devtools/pull/314))
+
 ## [0.3.2](https://github.com/crabnebula-dev/devtools/compare/v0.3.1...v0.3.2) - 2024-05-29
 
 ### Fixed
