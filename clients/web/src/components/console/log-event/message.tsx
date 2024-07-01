@@ -87,7 +87,7 @@ export function Message(props: {
               </Show>
             </span>
 
-            <span class="flex flex-row absolute bg-gray-950/75 border-box -right-5 -top-2 z-10 p-1 opacity-45 group-hover:opacity-100">
+            <span class="flex flex-row absolute bg-gray-950/75 border-box -right-3 -top-2 z-10 p-1 opacity-0 group-hover:opacity-100">
               <Tooltip.Root>
                 <Tooltip.Trigger>
                   <button
@@ -103,7 +103,7 @@ export function Message(props: {
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
                   <Tooltip.Content>
-                    <div class="rounded p-2 border border-slate-500 bg-black shadow relative z-50">
+                    <div class="rounded p-2 border border-slate-500 bg-black shadow relative z-50 pointer-events-none">
                       Copy full message to clipboard
                     </div>
                   </Tooltip.Content>
@@ -113,7 +113,7 @@ export function Message(props: {
                 <Tooltip.Root>
                   <Tooltip.Trigger>
                     <button
-                      class="ml-1"
+                      class="mt-1"
                       onClick={() => setPre(!pre())}
                       aria-label={indentationLabel()}
                     >
@@ -130,7 +130,7 @@ export function Message(props: {
                   </Tooltip.Trigger>
                   <Tooltip.Portal>
                     <Tooltip.Content>
-                      <div class="rounded p-2 border border-slate-500 bg-black shadow z-50">
+                      <div class="rounded p-2 border border-slate-500 bg-black shadow z-50 pointer-events-none">
                         {indentationLabel()}
                       </div>
                     </Tooltip.Content>
@@ -141,7 +141,7 @@ export function Message(props: {
                 <Tooltip.Root>
                   <Tooltip.Trigger>
                     <button
-                      class="ml-1"
+                      class="mt-1"
                       onClick={() => setCollapse(!collapse())}
                       aria-label={collapseLabel()}
                     >
@@ -158,7 +158,7 @@ export function Message(props: {
                   </Tooltip.Trigger>
                   <Tooltip.Portal>
                     <Tooltip.Content>
-                      <div class="rounded p-2 border border-slate-500 bg-black shadow z-50">
+                      <div class="rounded p-2 border border-slate-500 bg-black shadow z-50 pointer-events-none">
                         {collapseLabel()}
                       </div>
                     </Tooltip.Content>

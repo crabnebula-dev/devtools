@@ -28,7 +28,7 @@ export function Field(props: { field: IField }) {
       >
         {strVal()}
       </span>
-      <span class="flex flex-row absolute bg-gray-950/75-right-5 -top-2 z-10 p-1 opacity-45 group-hover:opacity-100">
+      <span class="hidden group-hover:flex flex-row absolute bg-gray-950/75 -right-6 -top-2 z-10 p-1">
         <Tooltip.Root>
           <Tooltip.Trigger>
             <button
@@ -44,7 +44,7 @@ export function Field(props: { field: IField }) {
           </Tooltip.Trigger>
           <Tooltip.Portal>
             <Tooltip.Content>
-              <div class="rounded p-2 border border-slate-500 bg-black shadow z-50">
+              <div class="rounded p-2 border border-slate-500 bg-black shadow z-50 pointer-events-none">
                 Copy full message to clipboard
               </div>
             </Tooltip.Content>
