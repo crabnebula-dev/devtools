@@ -101,7 +101,7 @@ importers:
         version: 6.21.0(eslint@8.57.0)(typescript@5.4.5)
       autoprefixer:
         specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.38)
+        version: 10.4.19(postcss@8.4.39)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -128,7 +128,7 @@ importers:
         version: 15.2.5
       postcss:
         specifier: ^8.4.38
-        version: 8.4.38
+        version: 8.4.39
       prettier:
         specifier: ^3.3.1
         version: 3.3.1
@@ -448,6 +448,7 @@ packages:
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -455,6 +456,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   '@internationalized/date@3.5.4':
     resolution: {integrity: sha512-qoVJVro+O0rBaw+8HPjUB1iH8Ihf8oziEnqMnvhJUSuVIrHOuZ6eNLHNvzXJKUvAtaDiqMnRlg8Z2mgh09BlUw==}
@@ -2232,8 +2234,8 @@ packages:
   postcss-value-parser@4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
 
-  postcss@8.4.38:
-    resolution: {integrity: sha512-Wglpdk03BSfXkHoQa3b/oulrotAkwrlLDRSOb9D0bN86FdRyE9lppSp33aHNPgBa0JKCoB+drFLZkQoRRYae5A==}
+  postcss@8.4.39:
+    resolution: {integrity: sha512-0vzE+lAiG7hZl1/9I8yzKLx3aR9Xbof3fBHKunvMfOCYAtMhrsnccJY2iTURb9EZd5+pLuiNV9/c/GZJOHsgIw==}
     engines: {node: ^10 || ^12 || >=14}
 
   prelude-ls@1.2.1:
@@ -3829,14 +3831,14 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  autoprefixer@10.4.19(postcss@8.4.38):
+  autoprefixer@10.4.19(postcss@8.4.39):
     dependencies:
       browserslist: 4.23.0
       caniuse-lite: 1.0.30001628
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.0.1
-      postcss: 8.4.38
+      postcss: 8.4.39
       postcss-value-parser: 4.2.0
 
   babel-plugin-jsx-dom-expressions@0.37.21(@babel/core@7.24.6):
@@ -5133,28 +5135,28 @@ snapshots:
       mlly: 1.7.1
       pathe: 1.1.2
 
-  postcss-import@15.1.0(postcss@8.4.38):
+  postcss-import@15.1.0(postcss@8.4.39):
     dependencies:
-      postcss: 8.4.38
+      postcss: 8.4.39
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.8
 
-  postcss-js@4.0.1(postcss@8.4.38):
+  postcss-js@4.0.1(postcss@8.4.39):
     dependencies:
       camelcase-css: 2.0.1
-      postcss: 8.4.38
+      postcss: 8.4.39
 
-  postcss-load-config@4.0.2(postcss@8.4.38):
+  postcss-load-config@4.0.2(postcss@8.4.39):
     dependencies:
       lilconfig: 3.1.1
       yaml: 2.4.3
     optionalDependencies:
-      postcss: 8.4.38
+      postcss: 8.4.39
 
-  postcss-nested@6.0.1(postcss@8.4.38):
+  postcss-nested@6.0.1(postcss@8.4.39):
     dependencies:
-      postcss: 8.4.38
+      postcss: 8.4.39
       postcss-selector-parser: 6.1.0
 
   postcss-selector-parser@6.1.0:
@@ -5164,7 +5166,7 @@ snapshots:
 
   postcss-value-parser@4.2.0: {}
 
-  postcss@8.4.38:
+  postcss@8.4.39:
     dependencies:
       nanoid: 3.3.7
       picocolors: 1.0.1
@@ -5498,11 +5500,11 @@ snapshots:
       normalize-path: 3.0.0
       object-hash: 3.0.0
       picocolors: 1.0.1
-      postcss: 8.4.38
-      postcss-import: 15.1.0(postcss@8.4.38)
-      postcss-js: 4.0.1(postcss@8.4.38)
-      postcss-load-config: 4.0.2(postcss@8.4.38)
-      postcss-nested: 6.0.1(postcss@8.4.38)
+      postcss: 8.4.39
+      postcss-import: 15.1.0(postcss@8.4.39)
+      postcss-js: 4.0.1(postcss@8.4.39)
+      postcss-load-config: 4.0.2(postcss@8.4.39)
+      postcss-nested: 6.0.1(postcss@8.4.39)
       postcss-selector-parser: 6.1.0
       resolve: 1.22.8
       sucrase: 3.35.0
@@ -5705,7 +5707,7 @@ snapshots:
   vite@5.2.12(@types/node@20.14.2):
     dependencies:
       esbuild: 0.20.2
-      postcss: 8.4.38
+      postcss: 8.4.39
       rollup: 4.18.0
     optionalDependencies:
       '@types/node': 20.14.2
