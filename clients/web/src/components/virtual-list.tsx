@@ -1,4 +1,4 @@
-import { type JSXElement, Show, For, createEffect } from "solid-js";
+import { type JSXElement, Show, For, createEffect, untrack } from "solid-js";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
 
@@ -18,15 +18,49 @@ export function VirtualList<VirtualItem>(props: {
     },
     getScrollElement: () => virtualScrollElement ?? null,
     estimateSize: () => props.estimateSize,
-    overscan: props.overscan,
+    overscan: untrack(() => props.overscan),
   });
 
-  // Auto scroll on new element effect
-  createEffect(() => {
-    if (props.shouldAutoScroll && virtualizer.getTotalSize() > 0) {
-      if (virtualizer.options.count > 0)
-        virtualizer.scrollToIndex(virtualizer.options.count - 1);
+  let autoScrollStarted: number | undefined;
+  let scrolledBack: number | undefined;
+
+  const autoScroll = (timestamp: number) => {
+    if (!autoScrollStarted) autoScrollStarted = timestamp;
+    const elapsed = timestamp - autoScrollStarted;
+    const justScrolledBack = Date.now() - (scrolledBack ?? 0);
+    if (
+      !props.shouldAutoScroll ||
+      justScrolledBack < 500 ||
+      elapsed > 750 ||
+      !virtualizer.scrollElement?.scrollHeight
+    ) {
+      autoScrollStarted = undefined;
+      return;
     }
+
+    virtualizer.scrollToOffset(virtualizer.scrollElement?.scrollHeight, {
+      align: "end",
+    });
+
+    requestAnimationFrame(autoScroll);
+  };
+
+  const checkScrollDirection = (event: WheelEvent) => {
+    if (event.deltaY < 0) scrolledBack = Date.now();
+  };
+
+  createEffect(() => {
+    virtualizer.scrollElement?.addEventListener("wheel", checkScrollDirection);
+  });
+
+  createEffect(() => {
+    if (
+      autoScrollStarted ||
+      !props.shouldAutoScroll ||
+      !props.dataStream.length
+    )
+      return;
+    requestAnimationFrame(autoScroll);
   });
 
   return (
