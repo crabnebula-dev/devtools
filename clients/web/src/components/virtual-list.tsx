@@ -53,14 +53,16 @@ export function VirtualList<VirtualItem>(props: {
     virtualizer.scrollElement?.addEventListener("wheel", checkScrollDirection);
   });
 
-  createEffect(() => {
-    if (
-      autoScrollStarted ||
-      !props.shouldAutoScroll ||
-      !props.dataStream.length
-    )
-      return;
+  const initAutoScroll = (
+    shouldAutoScroll: boolean | undefined,
+    length: number,
+  ) => {
+    if (!shouldAutoScroll || !length || autoScrollStarted) return;
     requestAnimationFrame(autoScroll);
+  };
+
+  createEffect(() => {
+    initAutoScroll(props.shouldAutoScroll, props.dataStream.length);
   });
 
   return (
