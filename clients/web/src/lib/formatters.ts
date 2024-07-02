@@ -60,7 +60,7 @@ export function getRootPathByUrlSegment(path: string, segment: string) {
 
 /** adds zero-width spaces to make entries break-able */
 export function makeBreakable(path: string) {
-  return path.replace(/([_/\\:]+|[^_/\\:]{20})/g, "$1\u200b");
+  return path.replace(/([_/\\:]+|[^_/\\:]{20}|[a-z](?:[A-Z]))/g, "$1\u200b");
 }
 
 export function shortenFilePath(fullPath: string): string {
