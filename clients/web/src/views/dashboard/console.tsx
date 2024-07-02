@@ -1,4 +1,12 @@
-import { Accessor, createMemo, createSignal, untrack, For, Setter, Show } from "solid-js";
+import {
+  Accessor,
+  createMemo,
+  createSignal,
+  untrack,
+  For,
+  Setter,
+  Show,
+} from "solid-js";
 import { FilterToggle } from "~/components/filter-toggle";
 import { Toolbar } from "~/components/toolbar";
 import { useMonitor } from "~/context/monitor-provider";
