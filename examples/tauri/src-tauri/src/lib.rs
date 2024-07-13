@@ -3,7 +3,7 @@
 
 use std::time::Duration;
 
-use tauri::{EventTarget, Manager};
+use tauri::{Emitter, EventTarget};
 
 #[derive(serde::Serialize)]
 struct EventPayload {
