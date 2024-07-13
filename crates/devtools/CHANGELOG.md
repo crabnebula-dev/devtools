@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-beta.4](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.0.0-beta.3...tauri-plugin-devtools-v2.0.0-beta.4) - 2024-07-13
+
+### Fixed
+- use correct rust syntax for cfg on expressions ([#314](https://github.com/crabnebula-dev/devtools/pull/314))
+
 ## [2.0.0-beta.3](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.0.0-beta.2...tauri-plugin-devtools-v2.0.1) - 2024-05-29
 
 ### Other
