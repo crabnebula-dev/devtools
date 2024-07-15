@@ -9,6 +9,7 @@ import { ConnectionFailedDialog } from "~/components/dialogs/connection-failed-d
 import { createStore } from "solid-js/store";
 import { createSignal, DEV, Show } from "solid-js";
 import { SafariNotSupportedDialog } from "~/components/dialogs/safari-not-supported-dialog";
+import { TosTimestamp } from "~/components/tos-timestamp";
 
 export default function Connect() {
   const navigate = useNavigate();
@@ -123,6 +124,22 @@ export default function Connect() {
           Your data is yours. No private information collected from you or your
           app.
         </p>
+        <div>
+          Check CrabNebula's{" "}
+          <a class="underline" href="https://crabnebula.dev/terms-of-service/">
+            terms of service
+          </a>
+          ,{" "}
+          <a class="underline" href="https://crabnebula.dev/privacy-policy/">
+            privacy policy
+          </a>
+          , and{" "}
+          <a class="underline" href="https://crabnebula.dev/cookie-policy/">
+            cookie policy
+          </a>
+          .
+          <TosTimestamp />
+        </div>
       </footer>
 
       <div class="surf-container">
