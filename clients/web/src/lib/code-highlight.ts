@@ -1,8 +1,8 @@
 import {
   BundledTheme,
   CodeToHastOptions,
-  Highlighter,
   getHighlighter,
+  Highlighter,
 } from "shiki";
 import { transformerCompactLineOptions } from "@shikijs/transformers";
 import { type BundledLanguage } from "shiki/langs";
@@ -10,23 +10,31 @@ import { SourcesClient } from "~/lib/proto/sources.client";
 import { getEntryBytes } from "~/lib/sources/file-entries";
 
 type HighlighterCodeParamsForSources = Readonly<
-  [string, Highlighter, BundledLanguage, number?]
+  [string, Highlighter, SupportedLanguages, number?]
 >;
 
 type HighlighterCodeParamsForSpans = Readonly<{
-  lang: BundledLanguage;
+  lang: SupportedLanguages;
   highlighter: Highlighter;
 }>;
 
+export type AvailableLanguages = BundledLanguage | "text";
+
 export const SUPPORTED_LANGS = [
   "js",
+  "jsx",
+  "ts",
+  "tsx",
+  "typescript",
+  "javascript",
   "rust",
   "toml",
   "html",
   "json",
   "md",
   "yaml",
-] satisfies BundledLanguage[];
+  "text",
+] satisfies AvailableLanguages[];
 
 export type SupportedLanguages = (typeof SUPPORTED_LANGS)[number];
 
@@ -39,12 +47,15 @@ export function bytesToText(bytes: Uint8Array | undefined): string {
 export function textToHtml(
   text: string,
   highlighter: Highlighter | undefined,
-  lang: BundledLanguage,
+  lang: SupportedLanguages,
   highlightedLine?: number,
 ) {
   if (!highlighter) return "";
 
-  const options: CodeToHastOptions<BundledLanguage, BundledTheme> = {
+  if (!SUPPORTED_LANGS.find((supportedLang) => supportedLang === lang))
+    lang = "text";
+
+  const options: CodeToHastOptions<AvailableLanguages, BundledTheme> = {
     lang,
     theme: "material-theme-ocean",
   };
@@ -92,7 +103,10 @@ export function getHighlightedCode(
   if ("lang" in arg) {
     const { lang } = arg;
     return (code: string) =>
-      highlighter.codeToHtml(code, { lang, theme: "material-theme-ocean" });
+      highlighter.codeToHtml(code, {
+        lang,
+        theme: "material-theme-ocean",
+      });
   }
 
   const [text, highlighter, lang, highlightedLine] = arg;

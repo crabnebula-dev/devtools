@@ -5,7 +5,7 @@ import { useParams, useSearchParams } from "@solidjs/router";
 import { decodeFileName, guessContentType } from "~/lib/sources/file-entries";
 import CodeView from "./code-view";
 import { Loader } from "~/components/loader";
-import { HighlighterLang } from "~/lib/code-highlight";
+import type { SupportedLanguages } from "~/lib/code-highlight";
 import { Heading } from "../heading";
 import { useLocation } from "@solidjs/router";
 
@@ -15,7 +15,7 @@ export function SourcePane() {
   const [searchParams] = useSearchParams();
 
   const contentType = () => guessContentType(filePath());
-  const sizeHint = () => parseInt(searchParams.sizeHint);
+  const sizeHint = () => parseInt(searchParams.sizeHint ?? "0");
 
   const location = useLocation();
 
@@ -46,7 +46,7 @@ export function SourcePane() {
                     resolvedContentType().replace(
                       "code/",
                       "",
-                    ) as HighlighterLang
+                    ) as SupportedLanguages
                   }
                   highlightedLine={highlightedLine()}
                 />
