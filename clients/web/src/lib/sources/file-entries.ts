@@ -114,16 +114,17 @@ export function guessContentType(path: string): string | undefined {
 
   return {
     rs: "code/rust",
+    txt: "code/txt",
     toml: "code/toml",
     lock: "code/toml",
-    js: "code/javascript",
-    jsx: "code/javascript",
-    ts: "code/typescript",
-    tsx: "code/typescript",
+    js: "code/js",
+    jsx: "code/jsx",
+    ts: "code/ts",
+    tsx: "code/tsx",
     json: "code/json",
     html: "code/html",
     css: "code/css",
-    md: "code/markdown",
+    md: "code/md",
     yml: "code/yaml",
     yaml: "code/yaml",
 
