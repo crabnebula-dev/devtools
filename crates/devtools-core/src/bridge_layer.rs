@@ -9,6 +9,7 @@ pub struct BridgeLayer {
 }
 
 impl BridgeLayer {
+    #[must_use]
     pub fn new(loggers: Vec<Box<dyn log::Log>>) -> Self {
         Self { loggers }
     }
