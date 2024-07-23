@@ -68,8 +68,6 @@ tauri = "2.0.0-beta.3"
 tauri-build = "2.0.0-beta"
 ```
 
-### Plugin Initialization
-
 Then add the following snippet to your tauri initialization code:
 
 ```rust
@@ -97,6 +95,42 @@ And then run your app as usual, if everything is set up correctly devtools will 
 
 You can click or copy & paste the link into your browser to open up the UI.
 Alternatively you can navigate to https://devtools.crabnebula.dev and connect from there.
+
+#### Compatibility with tauri-plugin-log
+
+```rust
+fn main() {
+    tauri::Builder::default()
+        .setup(|app| {
+            // create the log plugin as usual, but call split() instead of build()
+            let (tauri_plugin_log, max_level, logger) = tauri_plugin_log::Builder::new().split(app.handle())?;
+
+            // on debug builds, set up the DevTools plugin and pipe the logger from tauri-plugin-log
+            #[cfg(debug_assertions)]
+            {
+                let mut devtools_builder = tauri_plugin_devtools::Builder::default();
+                devtools_builder.attach_logger(logger);
+                app.handle().plugin(devtools_builder.init())?;
+            }
+            // on release builds, only attach the logger from tauri-plugin-log
+            #[cfg(not(debug_assertions))]
+            {
+                tauri_plugin_log::attach_logger(max_level, logger);
+            }
+
+            app.handle().plugin(tauri_plugin_log)?;
+
+            Ok(())
+        })
+}
+```
+
+The Rust [log](https://docs.rs/log/latest/log/) crate only allows registering a single logging system,
+so by default the DevTools plugin conflicts with the official Tauri [log plugin](https://docs.rs/tauri-plugin-log/2.0.0-beta/tauri_plugin_log/).
+To use both plugins simultaneously, you must pipe the logging system from tauri-plugin-log into this crate:
+
+```rust
+```
 
 ### Android
 
