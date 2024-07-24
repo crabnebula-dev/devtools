@@ -143,7 +143,7 @@ fn run() {
 
 Another approach is to pipe other logging system through `tauri-plugin-devtools` via the `attach_logger` function,
 which register the logging system to receive log records propagated by this plugin's tracing subscriber.
-The following snipet demonstrates how to use the `attach_logger` function for compatibility between
+The following snippet demonstrates how to use the `attach_logger` function for compatibility between
 `tauri-plugin-devtools` and `tauri-plugin-log`:
 
 ```rust
