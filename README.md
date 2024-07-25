@@ -34,7 +34,7 @@ tauri-build = "1.5.0"
 The primary export of the devtools crate is a Tauri Plugin that interfaces with the system, therefore you will need to initialize and register the plugin with Tauri itself before you can use the DevTools. To do that, edit your main.rs file like so:
 
 ```rust
-fn main() {
+fn run() {
     let devtools = devtools::init(); // initialize the plugin as early as possible
 
     tauri::Builder::default()
@@ -68,8 +68,6 @@ tauri = "2.0.0-beta.3"
 tauri-build = "2.0.0-beta"
 ```
 
-### Plugin Initialization
-
 Then add the following snippet to your tauri initialization code:
 
 ```rust
@@ -97,6 +95,83 @@ And then run your app as usual, if everything is set up correctly devtools will 
 
 You can click or copy & paste the link into your browser to open up the UI.
 Alternatively you can navigate to https://devtools.crabnebula.dev and connect from there.
+
+### Usage with other logging systems
+
+If you're running the DevTools plugin next to another tracing or logging system, you will face a crash
+stating you cannot define multiple logging systems on the same process:
+
+```
+thread 'main' panicked at src/main.rs:24:10:
+error while running tauri application: PluginInitialization("log", "attempted to set a logger after the logging system was already initialized")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+```
+
+An alternative is to use tauri-plugin-devtools in debug builds (`tauri dev` and `tauri build --debug` modes)
+and use a separate logging system in production (such as `fern` or `tauri-plugin-log`) letting you persist logs or have custom functionality:
+
+```rust
+fn run() {
+    let mut builder = tauri::Builder::default();
+
+    #[cfg(debug_assertions)]
+    {
+        let devtools = tauri_plugin_devtools::init();
+        builder = builder.plugin(devtools);
+    }
+
+    #[cfg(not(debug_assertions))]
+    {
+        use tauri_plugin_log::{Builder, Target, TargetKind};
+
+        let log_plugin = Builder::default()
+            .targets([
+                Target::new(TargetKind::Stdout),
+                Target::new(TargetKind::LogDir { file_name: None }),
+                Target::new(TargetKind::Webview),
+            ])
+            .build();
+
+        builder = builder.plugin(log_plugin);
+    }
+
+    builder
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}
+```
+
+Another approach is to pipe other logging system through `tauri-plugin-devtools` via the `attach_logger` function,
+which register the logging system to receive log records propagated by this plugin's tracing subscriber.
+The following snippet demonstrates how to use the `attach_logger` function for compatibility between
+`tauri-plugin-devtools` and `tauri-plugin-log`:
+
+```rust
+fn run() {
+    tauri::Builder::default()
+        .setup(|app| {
+            // create the log plugin as usual, but call split() instead of build()
+            let (tauri_plugin_log, max_level, logger) = tauri_plugin_log::Builder::new().split(app.handle())?;
+
+            // on debug builds, set up the DevTools plugin and pipe the logger from tauri-plugin-log
+            #[cfg(debug_assertions)]
+            {
+                let mut devtools_builder = tauri_plugin_devtools::Builder::default();
+                devtools_builder.attach_logger(logger);
+                app.handle().plugin(devtools_builder.init())?;
+            }
+            // on release builds, only attach the logger from tauri-plugin-log
+            #[cfg(not(debug_assertions))]
+            {
+                tauri_plugin_log::attach_logger(max_level, logger);
+            }
+
+            app.handle().plugin(tauri_plugin_log)?;
+
+            Ok(())
+        })
+}
+```
 
 ### Android
 

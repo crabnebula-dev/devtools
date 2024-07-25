@@ -1,6 +1,7 @@
 mod server;
 
 use devtools_core::aggregator::Aggregator;
+use devtools_core::bridge_layer::BridgeLayer;
 use devtools_core::layer::Layer;
 use devtools_core::server::wire::tauri::tauri_server::TauriServer;
 use devtools_core::server::{Server, ServerHandle};
@@ -159,6 +160,7 @@ pub struct Builder {
     port: u16,
     publish_interval: Duration,
     strict_port: bool,
+    bridge_layer: BridgeLayer,
 }
 
 impl Default for Builder {
@@ -171,6 +173,7 @@ impl Default for Builder {
             port: 3000,
             publish_interval: Duration::from_millis(200),
             strict_port: false,
+            bridge_layer: BridgeLayer::new(Vec::new()),
         }
     }
 }
@@ -204,6 +207,16 @@ impl Builder {
     /// **default:** `false`
     pub fn strict_port(&mut self, strict: bool) -> &mut Self {
         self.strict_port = strict;
+        self
+    }
+
+    /// Attaches the given logger to our tracing subscriber.
+    ///
+    /// Internally we will bridge all log events to this logger.
+    ///
+    /// This is particularly useful to have compatibility with tauri-plugin-log.
+    pub fn attach_logger(&mut self, logger: Box<dyn log::Log>) -> &mut Self {
+        self.bridge_layer.add_logger(logger);
         self
     }
 
@@ -291,6 +304,10 @@ impl Builder {
         // initialize early so we don't miss any spans
         tracing_subscriber::registry()
             .with(layer.with_filter(tracing_subscriber::filter::LevelFilter::TRACE))
+            .with(
+                self.bridge_layer
+                    .with_filter(tracing_subscriber::filter::LevelFilter::TRACE),
+            )
             .try_init()
             .map_err(devtools_core::Error::from)?;
 

@@ -8,6 +8,7 @@
 //! and [`tracing`](https://docs.rs/tracing/latest/tracing/) ecosystems out-of-the-box.
 
 pub mod aggregator;
+pub mod bridge_layer;
 mod error;
 pub mod layer;
 pub mod server;
