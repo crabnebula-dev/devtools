@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.3...devtools-core-v0.3.4) - 2024-07-25
+
+### Added
+- compatibility with tauri-plugin-log, closes [#150](https://github.com/crabnebula-dev/devtools/pull/150)
+
+### Other
+- #[must_use]
+
 ## [0.3.3](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.2...devtools-core-v0.3.3) - 2024-05-29
 
 ### Fixed
