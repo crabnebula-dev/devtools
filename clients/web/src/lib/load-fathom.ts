@@ -4,5 +4,10 @@ export function loadFathom() {
   const fathomUrl = import.meta.env.VITE_FATHOM_URL;
   const fathomId = import.meta.env.VITE_FATHOM_ID;
   if (fathomUrl && fathomId)
-    createScriptLoader({ src: fathomUrl, "data-site": fathomId, defer: true });
+    createScriptLoader({
+      src: fathomUrl,
+      "data-site": fathomId,
+      "data-spa": "auto",
+      defer: true,
+    });
 }
