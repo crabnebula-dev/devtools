@@ -6,13 +6,6 @@
     "main"
   ],
   "permissions": [
-    "path:default",
-    "event:default",
-    "window:default",
-    "webview:default",
-    "app:default",
-    "resources:default",
-    "menu:default",
-    "tray:default"
+    "core:default"
   ]
 }
