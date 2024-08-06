@@ -1,17 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Press+Start+2P"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/nes.css@latest/css/nes.min.css"
+      rel="stylesheet"
+    />
+    <title>Welcome to Tauri!</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to Tauri!</title>
-</head>
+  <style>
+    body {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      background-color: #212529;
+    }
 
-<body>
-  <h1>Welcome to Tauri!</h1>
-  <button id="test1">test command</button>
-  <a href="/test.html">go to test</a>
-  <script src="index.js"></script>
-</body>
+    header {
+      padding: 2rem 0;
+      font-weight: normal;
+    }
+  </style>
 
+  <body class="is-dark">
+    <div class="nes-container is-centered with-title is-dark">
+      <header>
+        <h1>CrabNebula DevTools</h1>
+        <span
+          >Tauri v2 with
+          <code class="nes-text is-success">tauri-plugin-devtools</code></span
+        >
+      </header>
+      <button id="test1" class="nes-btn is-warning">Fire flaky request</button>
+      <a href="/test.html" class="nes-text is-primary">Navigate</a>
+    </div>
+    <script src="index.js"></script>
+  </body>
 </html>
