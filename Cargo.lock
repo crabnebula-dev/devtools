@@ -650,7 +650,7 @@ dependencies = [
  "bytes",
  "devtools-wire-format",
  "futures",
- "http 0.2.12",
+ "http 1.1.0",
  "hyper 0.14.28",
  "log",
  "prost-types",
