@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0-rc.1](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.0.0-rc.0...tauri-plugin-devtools-v2.0.0-rc.1) - 2024-09-05
+
+### Other
+- update dependencies
+
 ## [2.0.0-beta.5](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.0.0-beta.4...tauri-plugin-devtools-v2.0.0-beta.5) - 2024-07-25
 
 ### Added
