@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.5](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.4...devtools-core-v0.3.5) - 2024-09-05
+
+### Other
+- update dependencies
+
 ## [0.3.4](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.3...devtools-core-v0.3.4) - 2024-07-25
 
 ### Added
