@@ -15,7 +15,7 @@ tonic.workspace = true
 prost.workspace = true
 prost-types.workspace = true
 tracing-core.workspace = true
-bitflags = "2.4"
+bitflags = "2.6"
 
 [dev-dependencies]
 tonic-build = "0.10"
