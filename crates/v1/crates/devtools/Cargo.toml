@@ -15,7 +15,7 @@ devtools-core = { path = "../../../devtools-core", version = "0.3.3" }
 tauri = { version = "1.6.1", features = ["tracing"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-tonic = "0.10"
+tonic = "0.12"
 tokio = "1.36.0"
 tonic-health = "0.10"
 colored = "2.1"
