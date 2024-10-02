@@ -26,7 +26,7 @@ where
     fn on_event(&self, event: &tracing_core::Event<'_>, _ctx: Context<'_, S>) {
         let metadata = event.metadata();
 
-        let mut visitor = EventVisitor::new(metadata as *const _ as u64);
+        let mut visitor = EventVisitor::new(std::ptr::from_ref(metadata) as u64);
         event.record(&mut visitor);
         let (message, _fields) = visitor.result();
 
