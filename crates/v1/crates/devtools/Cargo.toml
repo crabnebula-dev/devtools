@@ -4,7 +4,7 @@ authors = ["CrabNebula <hello@crabnebula.dev>"]
 edition = "2021"
 version = "0.3.3"
 description = "CrabNebula devtools for Tauri: Inspect, monitor, and understand your application with ease."
-rust-version = "1.73.0"
+rust-version = "1.78.0"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/crabnebula-dev/devtools"
 
