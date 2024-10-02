@@ -20,7 +20,7 @@ impl SpanEvent {
         Self {
             event: Some(span_event::Event::NewSpan(span_event::Span {
                 id: id.into_u64(),
-                metadata_id: metadata as *const _ as u64,
+                metadata_id: std::ptr::from_ref(metadata) as u64,
                 fields,
                 at: Some(at),
                 parent: parent.map(|id| id.into_u64()),

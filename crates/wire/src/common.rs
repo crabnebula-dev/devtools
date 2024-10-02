@@ -51,7 +51,7 @@ impl<'a> From<&'a tracing_core::Metadata<'a>> for Metadata {
 impl From<&'static tracing_core::Metadata<'static>> for NewMetadata {
     fn from(value: &'static tracing_core::Metadata<'static>) -> Self {
         NewMetadata {
-            id: Some(value as *const _ as u64),
+            id: Some(std::ptr::from_ref(value) as u64),
             metadata: Some(value.into()),
         }
     }
