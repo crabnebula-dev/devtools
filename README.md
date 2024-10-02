@@ -55,17 +55,17 @@ And that’s it! If you run your app now (cargo tauri dev), you will notice the 
 Ensure you have [Tauri](https://v2.tauri.app/guides/create/) set up correctly. Then install the Rust instrumentation from crates.io:
 
 ```sh
-cargo add tauri-plugin-devtools@2.0.0-rc
+cargo add tauri-plugin-devtools@2.0.0
 ```
 
-You also have to use Tauri **2.0.0-rc.0** (or later) so your `Cargo.toml` file should look as follows:
+You also have to use Tauri **2.0** so your `Cargo.toml` file should look as follows:
 
 ```toml
 [dependencies]
-tauri-plugin-devtools = "2.0.0-rc"
-tauri = "2.0.0-rc"
+tauri-plugin-devtools = "2.0.0"
+tauri = "2.0.0"
 [build-dependencies]
-tauri-build = "2.0.0-rc"
+tauri-build = "2.0.0"
 ```
 
 Then add the following snippet to your tauri initialization code:

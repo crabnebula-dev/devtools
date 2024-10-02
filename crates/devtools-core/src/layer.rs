@@ -82,7 +82,7 @@ where
     ) {
         let span = ctx.span(id).expect("Span not in context, probably a bug");
         let metadata = span.metadata();
-        let mut visitor = FieldVisitor::new(metadata as *const _ as u64);
+        let mut visitor = FieldVisitor::new(std::ptr::from_ref(metadata) as u64);
         values.record(&mut visitor);
         let fields = visitor.result();
 
@@ -102,7 +102,7 @@ where
             let metadata = span.metadata();
             let maybe_parent = span.parent().map(|s| s.id());
 
-            let mut visitor = FieldVisitor::new(metadata as *const _ as u64);
+            let mut visitor = FieldVisitor::new(std::ptr::from_ref(metadata) as u64);
             attrs.record(&mut visitor);
             let fields = visitor.result();
 
@@ -125,7 +125,7 @@ where
         });
 
         self.send_event(&self.shared.dropped_log_events, || {
-            let mut visitor = EventVisitor::new(metadata as *const _ as u64);
+            let mut visitor = EventVisitor::new(std::ptr::from_ref(metadata) as u64);
             event.record(&mut visitor);
             let (message, fields) = visitor.result();
 
