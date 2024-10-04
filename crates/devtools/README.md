@@ -36,7 +36,7 @@ fn main() {
 
 And then run your app as usual, if everything is set up correctly devtools will print the following message:
 
-![Screenshot 2023-11-28 at 14.05.20.png](https://github.com/crabnebula-dev/devtools/blob/f9970a0daa40757256aa1b32c93d66039cbdd041/Screenshot.png)
+![Screenshot.png](https://raw.githubusercontent.com/crabnebula-dev/devtools/f9970a0daa40757256aa1b32c93d66039cbdd041/Screenshot.png)
 
 You can click or copy & paste the link into your browser to open up the UI.
 Alternatively you can navigate to https://devtools.crabnebula.dev and connect from there.
