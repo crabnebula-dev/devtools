@@ -2058,9 +2058,9 @@ export const tauriConfigSchemaV2 = z
           .union([
             z
               .literal("v1Compatible")
-              .describe("Generates lagacy zipped v1 compatible updaters")
-              .describe("Generates lagacy zipped v1 compatible updaters")
-              .describe("Generates lagacy zipped v1 compatible updaters"),
+              .describe("Generates legacy zipped v1 compatible updaters")
+              .describe("Generates legacy zipped v1 compatible updaters")
+              .describe("Generates legacy zipped v1 compatible updaters"),
             z
               .boolean()
               .describe("Produce updaters and their signatures or not"),
