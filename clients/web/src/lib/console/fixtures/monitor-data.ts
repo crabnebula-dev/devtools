@@ -4965,7 +4965,7 @@ export const fakeMonitorData: any = {
         {
           label: "main",
           url: "index.html",
-          fileDropEnabled: true,
+          dragDropEnabled: true,
           center: false,
           width: 800,
           height: 600,
