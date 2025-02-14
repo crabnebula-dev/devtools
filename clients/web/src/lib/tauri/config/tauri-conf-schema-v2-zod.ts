@@ -80,7 +80,7 @@ export const tauriConfigSchemaV2 = z
                   ])
                   .describe("The user agent for the webview")
                   .optional(),
-                fileDropEnabled: z
+                  dragDropEnabled: z
                   .boolean()
                   .describe(
                     "Whether the file drop is enabled or not on the webview. By default it is enabled.\n\nDisabling it is required to use drag and drop on the frontend on Windows.",
