@@ -1,9 +1,9 @@
 {
+  "identifier": "com.tauri.dev",
   "//broken": "we add an broken parameter on purpose here",
   "//broken2": {
     "//this is broken": "test"
   },
-  "$schema": false,
   "build": {
     "//broken3": "this is a test",
     "distDir": ["index.html", "test.html"],
@@ -11,36 +11,30 @@
     "beforeDevCommand": "",
     "beforeBuildCommand": ""
   },
-  "package": {
-    "productName": "Hello World",
-    "version": "0.1.0"
+  "productName": "Hello World",
+  "version": "0.1.0",
+  "bundle": {
+    "active": "broken",
+    "targets": "all",
+    "icon": [
+      ".icons/32x32.png",
+      ".icons/128x128.png",
+      ".icons/128x128@2x.png",
+      ".icons/icon.icns",
+      ".icons/icon.ico"
+    ],
+    "resources": [],
+    "externalBin": [],
+    "copyright": "",
+    "category": "DeveloperTool",
+    "shortDescription": "",
+    "longDescription": "",
+    "macOS": {
+      "frameworks": [],
+      "exceptionDomain": ""
+    }
   },
-  "tauri": {
-    "bundle": {
-      "active": "broken",
-      "targets": "all",
-      "identifier": "com.tauri.dev",
-      "icon": [
-        ".icons/32x32.png",
-        ".icons/128x128.png",
-        ".icons/128x128@2x.png",
-        ".icons/icon.icns",
-        ".icons/icon.ico"
-      ],
-      "resources": [],
-      "externalBin": [],
-      "copyright": "",
-      "category": "DeveloperTool",
-      "shortDescription": "",
-      "longDescription": "",
-      "deb": {
-        "depends": []
-      },
-      "macOS": {
-        "frameworks": [],
-        "exceptionDomain": ""
-      }
-    },
+  "app": {
     "windows": [
       {
         "title": "Welcome to Tauri!",
