@@ -78,12 +78,6 @@ importers:
       '@protobuf-ts/protoc':
         specifier: ^2.9.4
         version: 2.9.4
-      '@sentry/cli':
-        specifier: ^2.46.0
-        version: 2.46.0
-      '@sentry/netlify-build-plugin':
-        specifier: ^1.1.1
-        version: 1.1.1
       '@shikijs/transformers':
         specifier: ^1.12.1
         version: 1.12.1
@@ -693,11 +687,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@sentry/cli@1.77.3':
-    resolution: {integrity: sha512-c3eDqcDRmy4TFz2bFU5Y6QatlpoBPPa8cxBooaS4aMQpnIdLYPF1xhyyiW0LQlDUNc3rRjNF7oN5qKoaRoMTQQ==}
-    engines: {node: '>= 8'}
-    hasBin: true
-
   '@sentry/cli@2.46.0':
     resolution: {integrity: sha512-nqoPl7UCr446QFkylrsRrUXF51x8Z9dGquyf4jaQU+OzbOJMqclnYEvU6iwbwvaw3tu/2DnoZE/Og+Nq1h63sA==}
     engines: {node: '>= 10'}
@@ -710,10 +699,6 @@ packages:
   '@sentry/integrations@7.118.0':
     resolution: {integrity: sha512-C2rR4NvIMjokF8jP5qzSf1o2zxDx7IeYnr8u15Kb2+HdZtX559owALR0hfgwnfeElqMhGlJBaKUWZ48lXJMzCQ==}
     engines: {node: '>=8'}
-
-  '@sentry/netlify-build-plugin@1.1.1':
-    resolution: {integrity: sha512-VBMw/sFnRhwvA3p0f3yW3mgnuYIPmoMkaMiwMl/2SptKr7fDqtwMDBsH+LKx2biffFuigSpW+7nV2+L/yEhUmw==}
-    engines: {node: '>=8.12.0'}
 
   '@sentry/replay@7.118.0':
     resolution: {integrity: sha512-boQfCL+1L/tSZ9Huwi00+VtU+Ih1Lcg8HtxBuAsBCJR9pQgUL5jp7ECYdTeeHyCh/RJO7JqV1CEoGTgohe10mA==}
@@ -2013,9 +1998,6 @@ packages:
     resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
     engines: {node: '>=16 || 14 >=14.17'}
 
-  minimist@1.2.8:
-    resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
-
   minipass@4.2.8:
     resolution: {integrity: sha512-fNzuVyifolSLFL4NzpF+wEF4qrgqaaKX0haXPQEdQ7NKAN+WecoKMHV09YcuL/DHxrUsYQOK3MiuDf7Ip2OXfQ==}
     engines: {node: '>=8'}
@@ -2023,10 +2005,6 @@ packages:
   minipass@7.1.2:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
     engines: {node: '>=16 || 14 >=14.17'}
-
-  mkdirp@0.5.6:
-    resolution: {integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==}
-    hasBin: true
 
   mlly@1.7.1:
     resolution: {integrity: sha512-rrVRZRELyQzrIUAVMHxP97kv+G786pHmOKzuFII8zDYahFBS7qnHh2AlYSl1GAHhaMPCz6/oHjVMcfFYgFYHgA==}
@@ -3365,18 +3343,6 @@ snapshots:
   '@sentry/cli-win32-x64@2.46.0':
     optional: true
 
-  '@sentry/cli@1.77.3':
-    dependencies:
-      https-proxy-agent: 5.0.1
-      mkdirp: 0.5.6
-      node-fetch: 2.7.0
-      progress: 2.0.3
-      proxy-from-env: 1.1.0
-      which: 2.0.2
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-
   '@sentry/cli@2.46.0':
     dependencies:
       https-proxy-agent: 5.0.1
@@ -3408,13 +3374,6 @@ snapshots:
       '@sentry/types': 7.118.0
       '@sentry/utils': 7.118.0
       localforage: 1.10.0
-
-  '@sentry/netlify-build-plugin@1.1.1':
-    dependencies:
-      '@sentry/cli': 1.77.3
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
 
   '@sentry/replay@7.118.0':
     dependencies:
@@ -4986,15 +4945,9 @@ snapshots:
     dependencies:
       brace-expansion: 2.0.1
 
-  minimist@1.2.8: {}
-
   minipass@4.2.8: {}
 
   minipass@7.1.2: {}
-
-  mkdirp@0.5.6:
-    dependencies:
-      minimist: 1.2.8
 
   mlly@1.7.1:
     dependencies:

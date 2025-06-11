@@ -10,7 +10,6 @@
     "proto": "protoc --ts_out src/lib/proto --proto_path ../../crates/wire/proto ../../crates/wire/proto/common.proto ../../crates/wire/proto/instrument.proto ../../crates/wire/proto/logs.proto ../../crates/wire/proto/spans.proto ../../crates/wire/proto/tauri.proto ../../crates/wire/proto/sources.proto ../../crates/wire/proto/meta.proto ../../crates/wire/proto/health.proto",
     "dev": "pnpm proto --experimental_allow_proto3_optional && vite",
     "build:csp": "node csp.js -i",
-    "prebuild": "node -e \"require('fs/promises').symlink('node_modules/@sentry/cli/bin/sentry-cli', 'node_modules/@sentry/cli/sentry-cli')\"",
     "build": "pnpm proto && vite build",
     "preview": "pnpm proto && vite preview",
     "format": "prettier --write --cache .",
@@ -25,8 +24,6 @@
   },
   "devDependencies": {
     "@protobuf-ts/protoc": "^2.9.4",
-    "@sentry/netlify-build-plugin": "^1.1.1",
-    "@sentry/cli": "^2.46.0",
     "@shikijs/transformers": "^1.12.1",
     "@solidjs/testing-library": "^0.8.9",
     "@testing-library/jest-dom": "^6.4.8",
