@@ -36,7 +36,7 @@ jobs:
     name: Rust ${{matrix.rust}}
     needs: pre_ci
     if: needs.pre_ci.outputs.continue
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -60,7 +60,7 @@ jobs:
     name: Rust MSRV
     needs: pre_ci
     if: needs.pre_ci.outputs.continue
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
@@ -76,7 +76,7 @@ jobs:
 
   clippy:
     name: Clippy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.event_name != 'pull_request'
     timeout-minutes: 45
     steps:
@@ -93,7 +93,7 @@ jobs:
 
   rustfmt:
     name: Rustfmt
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.event_name != 'pull_request'
     timeout-minutes: 45
     steps:
@@ -105,7 +105,7 @@ jobs:
       - run: cargo fmt --manifest-path crates/v1/Cargo.toml -- --check
 
   check-licenses:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - name: Check Rust Licenses
@@ -115,7 +115,7 @@ jobs:
 
 #  outdated:
 #     name: Outdated
-#     runs-on: ubuntu-latest
+#     runs-on: ubuntu-22.04
 #     if: github.event_name != 'pull_request'
 #     timeout-minutes: 45
 #     steps:
