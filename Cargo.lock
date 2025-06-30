@@ -708,7 +708,7 @@ dependencies = [
 
 [[package]]
 name = "devtools-core"
-version = "0.3.5"
+version = "0.3.6"
 dependencies = [
  "async-stream",
  "bytes",
@@ -735,7 +735,7 @@ dependencies = [
 
 [[package]]
 name = "devtools-wire-format"
-version = "0.5.2"
+version = "0.5.3"
 dependencies = [
  "bitflags 2.6.0",
  "prost",
@@ -3746,7 +3746,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-devtools"
-version = "2.0.0"
+version = "2.0.1"
 dependencies = [
  "async-stream",
  "bytes",
