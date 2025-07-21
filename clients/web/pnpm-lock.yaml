@@ -13,7 +13,7 @@ importers:
         version: 0.1.0
       '@kobalte/core':
         specifier: ^0.12.6
-        version: 0.12.6(solid-js@1.8.19)
+        version: 0.12.6(solid-js@1.9.4)
       '@kobalte/tailwindcss':
         specifier: ^0.9.0
         version: 0.9.0(tailwindcss@3.4.7)
@@ -37,16 +37,16 @@ importers:
         version: 2.21.1
       '@solid-primitives/map':
         specifier: ^0.4.11
-        version: 0.4.11(solid-js@1.8.19)
+        version: 0.4.11(solid-js@1.9.4)
       '@solid-primitives/script-loader':
         specifier: ^2.2.0
-        version: 2.2.0(solid-js@1.8.19)
+        version: 2.2.0(solid-js@1.9.4)
       '@solidjs/router':
         specifier: ^0.12.5
-        version: 0.12.5(solid-js@1.8.19)
+        version: 0.12.5(solid-js@1.9.4)
       '@tanstack/solid-virtual':
         specifier: ^3.8.4
-        version: 3.8.4(solid-js@1.8.19)
+        version: 3.8.4(solid-js@1.9.4)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -61,10 +61,10 @@ importers:
         version: 1.12.1
       solid-js:
         specifier: ^1.8.19
-        version: 1.8.19
+        version: 1.9.4
       solid-markdown:
         specifier: ^1.2.2
-        version: 1.2.2(solid-js@1.8.19)
+        version: 1.2.2(solid-js@1.9.4)
       split.js:
         specifier: ^1.6.5
         version: 1.6.5
@@ -83,7 +83,7 @@ importers:
         version: 1.12.1
       '@solidjs/testing-library':
         specifier: ^0.8.9
-        version: 0.8.9(@solidjs/router@0.12.5(solid-js@1.8.19))(solid-js@1.8.19)
+        version: 0.8.9(@solidjs/router@0.12.5(solid-js@1.9.4))(solid-js@1.9.4)
       '@testing-library/jest-dom':
         specifier: ^6.4.8
         version: 6.4.8
@@ -140,7 +140,7 @@ importers:
         version: 5.3.5(@types/node@22.1.0)
       vite-plugin-solid:
         specifier: ^2.10.2
-        version: 2.10.2(@testing-library/jest-dom@6.4.8)(solid-js@1.8.19)(vite@5.3.5(@types/node@22.1.0))
+        version: 2.10.2(@testing-library/jest-dom@6.4.8)(solid-js@1.9.4)(vite@5.3.5(@types/node@22.1.0))
       vite-plugin-static-copy:
         specifier: ^1.0.6
         version: 1.0.6(vite@5.3.5(@types/node@22.1.0))
@@ -1372,6 +1372,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@9.6.1:
@@ -2344,14 +2345,14 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  seroval-plugins@1.1.1:
-    resolution: {integrity: sha512-qNSy1+nUj7hsCOon7AO4wdAIo9P0jrzAMp18XhiOzA6/uO5TKtP7ScozVJ8T293oRIvi5wyCHSM4TrJo/c/GJA==}
+  seroval-plugins@1.3.2:
+    resolution: {integrity: sha512-0QvCV2lM3aj/U3YozDiVwx9zpH0q8A60CTWIv4Jszj/givcudPb48B+rkU5D51NJ0pTpweGMttHjboPa9/zoIQ==}
     engines: {node: '>=10'}
     peerDependencies:
       seroval: ^1.0
 
-  seroval@1.1.1:
-    resolution: {integrity: sha512-rqEO6FZk8mv7Hyv4UCj3FD3b6Waqft605TLfsCe/BiaylRpyyMC0b+uA5TJKawX3KzMrdi3wsLbCaLplrQmBvQ==}
+  seroval@1.3.2:
+    resolution: {integrity: sha512-RbcPH1n5cfwKrru7v7+zrZvjLurgHhGyso3HTyGtRivGWgYjbOmGuivCQaORNELjNONoK35nj28EoWul9sb1zQ==}
     engines: {node: '>=10'}
 
   shebang-command@2.0.0:
@@ -2388,8 +2389,8 @@ packages:
     resolution: {integrity: sha512-Osg9LmvGeAG/hyao4mldbflLOkkr3a+h4m1lwKCK5U8M6ZAr7tdXEz/+/vr752TSGE4MNUlUl9cIK2cB8cgzXg==}
     engines: {node: '>=0.10'}
 
-  solid-js@1.8.19:
-    resolution: {integrity: sha512-h8z/TvTQYsf894LM9Iau/ZW2iAKrCzAWDwjPhMcXnonmW1OIIihc28wp82b1wwei1p81fH5+gnfNOe8RzLbDRQ==}
+  solid-js@1.9.4:
+    resolution: {integrity: sha512-ipQl8FJ31bFUoBNScDQTG3BjN6+9Rg+Q+f10bUbnO6EOTTf5NGerJeHc7wyu5I4RMHEl/WwZwUmy/PTRgxxZ8g==}
 
   solid-markdown@1.2.2:
     resolution: {integrity: sha512-ohRnAgGqMyUCsiDx0uHWpo++6+2YEKnGwYBIR0ioJV0p601s5Ln0fOBXxBYN3DbgFiD/IDwgv4l9hMPxtUwoXA==}
@@ -2980,10 +2981,10 @@ snapshots:
       '@babel/helper-validator-identifier': 7.24.7
       to-fast-properties: 2.0.0
 
-  '@corvu/utils@0.3.2(solid-js@1.8.19)':
+  '@corvu/utils@0.3.2(solid-js@1.9.4)':
     dependencies:
       '@floating-ui/dom': 1.6.8
-      solid-js: 1.8.19
+      solid-js: 1.9.4
 
   '@crabnebula/file-icons@0.1.0': {}
 
@@ -3153,29 +3154,29 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@kobalte/core@0.12.6(solid-js@1.8.19)':
+  '@kobalte/core@0.12.6(solid-js@1.9.4)':
     dependencies:
       '@floating-ui/dom': 1.6.8
       '@internationalized/date': 3.5.5
       '@internationalized/number': 3.5.3
-      '@kobalte/utils': 0.9.0(solid-js@1.8.19)
-      solid-js: 1.8.19
-      solid-prevent-scroll: 0.1.9(solid-js@1.8.19)
+      '@kobalte/utils': 0.9.0(solid-js@1.9.4)
+      solid-js: 1.9.4
+      solid-prevent-scroll: 0.1.9(solid-js@1.9.4)
 
   '@kobalte/tailwindcss@0.9.0(tailwindcss@3.4.7)':
     dependencies:
       tailwindcss: 3.4.7
 
-  '@kobalte/utils@0.9.0(solid-js@1.8.19)':
+  '@kobalte/utils@0.9.0(solid-js@1.9.4)':
     dependencies:
-      '@solid-primitives/event-listener': 2.3.3(solid-js@1.8.19)
-      '@solid-primitives/keyed': 1.2.2(solid-js@1.8.19)
-      '@solid-primitives/map': 0.4.11(solid-js@1.8.19)
-      '@solid-primitives/media': 2.2.9(solid-js@1.8.19)
-      '@solid-primitives/props': 3.1.11(solid-js@1.8.19)
-      '@solid-primitives/refs': 1.0.8(solid-js@1.8.19)
-      '@solid-primitives/utils': 6.2.3(solid-js@1.8.19)
-      solid-js: 1.8.19
+      '@solid-primitives/event-listener': 2.3.3(solid-js@1.9.4)
+      '@solid-primitives/keyed': 1.2.2(solid-js@1.9.4)
+      '@solid-primitives/map': 0.4.11(solid-js@1.9.4)
+      '@solid-primitives/media': 2.2.9(solid-js@1.9.4)
+      '@solid-primitives/props': 3.1.11(solid-js@1.9.4)
+      '@solid-primitives/refs': 1.0.8(solid-js@1.9.4)
+      '@solid-primitives/utils': 6.2.3(solid-js@1.9.4)
+      solid-js: 1.9.4
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -3406,80 +3407,80 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
-  '@solid-primitives/event-listener@2.3.3(solid-js@1.8.19)':
+  '@solid-primitives/event-listener@2.3.3(solid-js@1.9.4)':
     dependencies:
-      '@solid-primitives/utils': 6.2.3(solid-js@1.8.19)
-      solid-js: 1.8.19
+      '@solid-primitives/utils': 6.2.3(solid-js@1.9.4)
+      solid-js: 1.9.4
 
-  '@solid-primitives/keyed@1.2.2(solid-js@1.8.19)':
+  '@solid-primitives/keyed@1.2.2(solid-js@1.9.4)':
     dependencies:
-      solid-js: 1.8.19
+      solid-js: 1.9.4
 
-  '@solid-primitives/map@0.4.11(solid-js@1.8.19)':
+  '@solid-primitives/map@0.4.11(solid-js@1.9.4)':
     dependencies:
-      '@solid-primitives/trigger': 1.0.11(solid-js@1.8.19)
-      solid-js: 1.8.19
+      '@solid-primitives/trigger': 1.0.11(solid-js@1.9.4)
+      solid-js: 1.9.4
 
-  '@solid-primitives/media@2.2.9(solid-js@1.8.19)':
+  '@solid-primitives/media@2.2.9(solid-js@1.9.4)':
     dependencies:
-      '@solid-primitives/event-listener': 2.3.3(solid-js@1.8.19)
-      '@solid-primitives/rootless': 1.4.5(solid-js@1.8.19)
-      '@solid-primitives/static-store': 0.0.8(solid-js@1.8.19)
-      '@solid-primitives/utils': 6.2.3(solid-js@1.8.19)
-      solid-js: 1.8.19
+      '@solid-primitives/event-listener': 2.3.3(solid-js@1.9.4)
+      '@solid-primitives/rootless': 1.4.5(solid-js@1.9.4)
+      '@solid-primitives/static-store': 0.0.8(solid-js@1.9.4)
+      '@solid-primitives/utils': 6.2.3(solid-js@1.9.4)
+      solid-js: 1.9.4
 
-  '@solid-primitives/props@3.1.11(solid-js@1.8.19)':
+  '@solid-primitives/props@3.1.11(solid-js@1.9.4)':
     dependencies:
-      '@solid-primitives/utils': 6.2.3(solid-js@1.8.19)
-      solid-js: 1.8.19
+      '@solid-primitives/utils': 6.2.3(solid-js@1.9.4)
+      solid-js: 1.9.4
 
-  '@solid-primitives/refs@1.0.8(solid-js@1.8.19)':
+  '@solid-primitives/refs@1.0.8(solid-js@1.9.4)':
     dependencies:
-      '@solid-primitives/utils': 6.2.3(solid-js@1.8.19)
-      solid-js: 1.8.19
+      '@solid-primitives/utils': 6.2.3(solid-js@1.9.4)
+      solid-js: 1.9.4
 
-  '@solid-primitives/rootless@1.4.5(solid-js@1.8.19)':
+  '@solid-primitives/rootless@1.4.5(solid-js@1.9.4)':
     dependencies:
-      '@solid-primitives/utils': 6.2.3(solid-js@1.8.19)
-      solid-js: 1.8.19
+      '@solid-primitives/utils': 6.2.3(solid-js@1.9.4)
+      solid-js: 1.9.4
 
-  '@solid-primitives/script-loader@2.2.0(solid-js@1.8.19)':
+  '@solid-primitives/script-loader@2.2.0(solid-js@1.9.4)':
     dependencies:
-      solid-js: 1.8.19
+      solid-js: 1.9.4
 
-  '@solid-primitives/static-store@0.0.8(solid-js@1.8.19)':
+  '@solid-primitives/static-store@0.0.8(solid-js@1.9.4)':
     dependencies:
-      '@solid-primitives/utils': 6.2.3(solid-js@1.8.19)
-      solid-js: 1.8.19
+      '@solid-primitives/utils': 6.2.3(solid-js@1.9.4)
+      solid-js: 1.9.4
 
-  '@solid-primitives/trigger@1.0.11(solid-js@1.8.19)':
+  '@solid-primitives/trigger@1.0.11(solid-js@1.9.4)':
     dependencies:
-      '@solid-primitives/utils': 6.2.3(solid-js@1.8.19)
-      solid-js: 1.8.19
+      '@solid-primitives/utils': 6.2.3(solid-js@1.9.4)
+      solid-js: 1.9.4
 
-  '@solid-primitives/utils@6.2.3(solid-js@1.8.19)':
+  '@solid-primitives/utils@6.2.3(solid-js@1.9.4)':
     dependencies:
-      solid-js: 1.8.19
+      solid-js: 1.9.4
 
-  '@solidjs/router@0.12.5(solid-js@1.8.19)':
+  '@solidjs/router@0.12.5(solid-js@1.9.4)':
     dependencies:
-      solid-js: 1.8.19
+      solid-js: 1.9.4
 
-  '@solidjs/testing-library@0.8.9(@solidjs/router@0.12.5(solid-js@1.8.19))(solid-js@1.8.19)':
+  '@solidjs/testing-library@0.8.9(@solidjs/router@0.12.5(solid-js@1.9.4))(solid-js@1.9.4)':
     dependencies:
       '@testing-library/dom': 10.4.0
-      solid-js: 1.8.19
+      solid-js: 1.9.4
     optionalDependencies:
-      '@solidjs/router': 0.12.5(solid-js@1.8.19)
+      '@solidjs/router': 0.12.5(solid-js@1.9.4)
 
   '@swc/helpers@0.5.12':
     dependencies:
       tslib: 2.6.3
 
-  '@tanstack/solid-virtual@3.8.4(solid-js@1.8.19)':
+  '@tanstack/solid-virtual@3.8.4(solid-js@1.9.4)':
     dependencies:
       '@tanstack/virtual-core': 3.8.4
-      solid-js: 1.8.19
+      solid-js: 1.9.4
 
   '@tanstack/virtual-core@3.8.4': {}
 
@@ -5265,11 +5266,11 @@ snapshots:
 
   semver@7.6.3: {}
 
-  seroval-plugins@1.1.1(seroval@1.1.1):
+  seroval-plugins@1.3.2(seroval@1.3.2):
     dependencies:
-      seroval: 1.1.1
+      seroval: 1.3.2
 
-  seroval@1.1.1: {}
+  seroval@1.3.2: {}
 
   shebang-command@2.0.0:
     dependencies:
@@ -5302,13 +5303,13 @@ snapshots:
     dependencies:
       nearley: 2.20.1
 
-  solid-js@1.8.19:
+  solid-js@1.9.4:
     dependencies:
       csstype: 3.1.3
-      seroval: 1.1.1
-      seroval-plugins: 1.1.1(seroval@1.1.1)
+      seroval: 1.3.2
+      seroval-plugins: 1.3.2(seroval@1.3.2)
 
-  solid-markdown@1.2.2(solid-js@1.8.19):
+  solid-markdown@1.2.2(solid-js@1.9.4):
     dependencies:
       '@types/hast': 2.3.10
       '@types/prop-types': 15.7.12
@@ -5318,7 +5319,7 @@ snapshots:
       remark-gfm: 3.0.1
       remark-parse: 10.0.2
       remark-rehype: 10.1.0
-      solid-js: 1.8.19
+      solid-js: 1.9.4
       space-separated-tokens: 2.0.2
       style-to-object: 0.4.4
       unified: 10.1.2
@@ -5327,17 +5328,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  solid-prevent-scroll@0.1.9(solid-js@1.8.19):
+  solid-prevent-scroll@0.1.9(solid-js@1.9.4):
     dependencies:
-      '@corvu/utils': 0.3.2(solid-js@1.8.19)
-      solid-js: 1.8.19
+      '@corvu/utils': 0.3.2(solid-js@1.9.4)
+      solid-js: 1.9.4
 
-  solid-refresh@0.6.3(solid-js@1.8.19):
+  solid-refresh@0.6.3(solid-js@1.9.4):
     dependencies:
       '@babel/generator': 7.25.0
       '@babel/helper-module-imports': 7.24.7
       '@babel/types': 7.25.2
-      solid-js: 1.8.19
+      solid-js: 1.9.4
     transitivePeerDependencies:
       - supports-color
 
@@ -5622,14 +5623,14 @@ snapshots:
       - supports-color
       - terser
 
-  vite-plugin-solid@2.10.2(@testing-library/jest-dom@6.4.8)(solid-js@1.8.19)(vite@5.3.5(@types/node@22.1.0)):
+  vite-plugin-solid@2.10.2(@testing-library/jest-dom@6.4.8)(solid-js@1.9.4)(vite@5.3.5(@types/node@22.1.0)):
     dependencies:
       '@babel/core': 7.25.2
       '@types/babel__core': 7.20.5
       babel-preset-solid: 1.8.19(@babel/core@7.25.2)
       merge-anything: 5.1.7
-      solid-js: 1.8.19
-      solid-refresh: 0.6.3(solid-js@1.8.19)
+      solid-js: 1.9.4
+      solid-refresh: 0.6.3(solid-js@1.9.4)
       vite: 5.3.5(@types/node@22.1.0)
       vitefu: 0.2.5(vite@5.3.5(@types/node@22.1.0))
     optionalDependencies:
