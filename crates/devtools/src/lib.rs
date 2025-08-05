@@ -170,7 +170,7 @@ impl Default for Builder {
             host: IpAddr::V4(Ipv4Addr::UNSPECIFIED),
             #[cfg(not(any(target_os = "ios", target_os = "android")))]
             host: IpAddr::V4(Ipv4Addr::LOCALHOST),
-            port: 3000,
+            port: 3030,
             publish_interval: Duration::from_millis(200),
             strict_port: false,
             bridge_layer: BridgeLayer::new(Vec::new()),
@@ -194,7 +194,7 @@ impl Builder {
     /// Currently `devtools` **does not** pick a random free port if the configured one
     /// is already taken, so you will need to configure a different one manually.
     ///
-    /// **default:** `3000`
+    /// **default:** `3030`
     pub fn port(&mut self, port: u16) -> &mut Self {
         self.port = port;
         self
