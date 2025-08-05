@@ -16,7 +16,7 @@ export default function Connect() {
 
   const [connectionStore, setConnectionStore] = createStore({
     host: "127.0.0.1",
-    port: "3000",
+    port: "3033",
   });
 
   const [connectionFailed, setConnectionFailed] = createSignal(false);
@@ -106,8 +106,8 @@ export default function Connect() {
         <FormField
           name="port"
           type="text"
-          placeholder="3000"
-          defaultValue="3000"
+          placeholder="3033"
+          defaultValue="3033"
           label="Port"
           required
         />

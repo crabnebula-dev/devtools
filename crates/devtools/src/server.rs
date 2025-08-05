@@ -296,7 +296,7 @@ mod tests {
         assert_eq!(
             cfg.into_inner(),
             devtools_core::server::wire::tauri::Config {
-                raw: serde_json::to_string(&*tauri.app_handle.config()).unwrap()
+                raw: serde_json::to_string(tauri.app_handle.config()).unwrap()
             }
         );
     }
@@ -315,7 +315,7 @@ mod tests {
 
         // this will list this crates directory, so should produce the `Cargo.toml`, `build.rs`, `.gitignore`, `ios`, `permissions` and `src` entry
         let entries: Vec<_> = stream.into_inner().collect().await;
-        assert!(entries.len() > 0);
+        assert!(!entries.is_empty());
     }
 
     #[tokio::test]
@@ -393,7 +393,7 @@ mod tests {
 
         // we don't want to hard code the exact size of Cargo.toml, that would be flaky
         // but it should definitely be larger than zero
-        assert!(buf.len() > 0);
+        assert!(!buf.is_empty());
     }
 
     #[tokio::test]
