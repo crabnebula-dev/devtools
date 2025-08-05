@@ -46,7 +46,7 @@ fn main() {
 }
 ```
 
-With the plugin added, you can start serving your app. The instrumentation server is exposed in `127.0.0.1:3030` by default.
+With the plugin added, you can start serving your app. The instrumentation server is exposed in `127.0.0.1:3033` by default.
 
 ## Stack 📦
 

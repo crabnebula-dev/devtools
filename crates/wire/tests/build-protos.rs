@@ -57,7 +57,7 @@ fn build_protos() {
 
     match status {
         Ok(status) if !status.success() => panic!("You should commit the protobuf files"),
-        Err(error) => panic!("failed to run `git diff`: {}", error),
+        Err(error) => panic!("failed to run `git diff`: {error}"),
         Ok(_) => {}
     }
 }

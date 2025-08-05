@@ -170,7 +170,7 @@ impl Default for Builder {
             host: IpAddr::V4(Ipv4Addr::UNSPECIFIED),
             #[cfg(not(any(target_os = "ios", target_os = "android")))]
             host: IpAddr::V4(Ipv4Addr::LOCALHOST),
-            port: 3030,
+            port: 3033,
             publish_interval: Duration::from_millis(200),
             strict_port: false,
             bridge_layer: BridgeLayer::new(Vec::new()),
@@ -194,7 +194,7 @@ impl Builder {
     /// Currently `devtools` **does not** pick a random free port if the configured one
     /// is already taken, so you will need to configure a different one manually.
     ///
-    /// **default:** `3030`
+    /// **default:** `3033`
     pub fn port(&mut self, port: u16) -> &mut Self {
         self.port = port;
         self
@@ -380,10 +380,10 @@ fn print_link(addr: &SocketAddr) {
             3,
             ios::NSString::new(
                 format!(
-                    r#"
+                    r"
    {} {}{}
    {}   Local:   {}
-"#,
+",
                     "Tauri Devtools",
                     "v",
                     env!("CARGO_PKG_VERSION"),
@@ -400,10 +400,10 @@ fn print_link(addr: &SocketAddr) {
     {
         use colored::Colorize;
         println!(
-            r#"
+            r"
    {} {}{}
    {}   Local:   {}
-"#,
+",
             "Tauri Devtools".bright_purple(),
             "v".purple(),
             env!("CARGO_PKG_VERSION").purple(),

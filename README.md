@@ -181,7 +181,7 @@ To access the WebSocket server started by the Devtools on your machine, you must
 - Via adb:
 
 ```
-adb forward tcp:3030 tcp:3030
+adb forward tcp:3033 tcp:3033
 ```
 
 - Via the emulator console:
@@ -190,8 +190,8 @@ adb forward tcp:3030 tcp:3030
 # first emulator launches on port 5554, you might need to find out the port via `$ adb devices`
 telnet localhost 5554
 auth <insert-auth-token-here> # insert token from `$HOME/.emulator_console_auth_token`
-# redirect host connections to 3030 to emulator port 3030
-redir add tcp:3030:3030
+# redirect host connections to 3033 to emulator port 3033
+redir add tcp:3033:3033
 ```
 
 For more information, see the [official documentation](https://developer.android.com/studio/run/emulator-networking#redirection).
