@@ -1,6 +1,6 @@
 [package]
 name = "devtools-core"
-version = "0.3.5"
+version = "0.3.6"
 description = "CrabNebula devtools for Tauri: Inspect, monitor, and understand your application with ease."
 authors.workspace = true
 edition.workspace = true
@@ -11,7 +11,7 @@ repository.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-devtools-wire-format = { path = "../wire", version = "0.5.2" }
+devtools-wire-format = { path = "../wire", version = "0.5.3" }
 tracing.workspace = true
 tracing-core.workspace = true
 tracing-subscriber.workspace = true
