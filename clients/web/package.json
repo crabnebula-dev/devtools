@@ -33,7 +33,7 @@
     "autoprefixer": "^10.4.27",
     "cross-env": "^7.0.3",
     "csp-header": "^5.2.1",
-    "eslint": "^8.57.1",
+    "eslint": "^10.0",
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-solid": "^0.13.2",
     "husky": "^9.1.7",
