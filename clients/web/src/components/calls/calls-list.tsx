@@ -16,7 +16,6 @@ import { useMonitor } from "~/context/monitor-provider";
 
 export function CallsList(props: { calls: Span[] }) {
   const { monitorData } = useMonitor();
-  let virtualList: HTMLDivElement | undefined;
 
   const [currentSort, setCurrentSort] = createStore<CurrentSort>({
     column: {
@@ -52,6 +51,7 @@ export function CallsList(props: { calls: Span[] }) {
     return [...props.calls.sort((a, b) => sortCalls(a, b, currentSort))];
   });
 
+  let virtualList: HTMLDivElement | undefined;
   const virtualizer = createVirtualizer({
     get count() {
       return props.calls.length;

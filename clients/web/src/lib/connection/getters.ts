@@ -12,7 +12,7 @@ export function getTauriConfig(client: TauriClient) {
     try {
       return JSON.parse(buffer.response.raw);
     } catch (e) {
-      throw new Error("failed parsing Tauri config");
+      throw new Error("failed parsing Tauri config", { cause: e });
     }
   });
 }
@@ -23,7 +23,7 @@ export function getTauriMetrics(client: TauriClient) {
       const a = await client.getMetrics({});
       return a.response;
     } catch (e) {
-      throw new Error("failed parsing Tauri metrics");
+      throw new Error("failed parsing Tauri metrics", { cause: e });
     }
   });
 }
@@ -34,7 +34,7 @@ export function getVersions(client: TauriClient) {
       const a = await client.getVersions({});
       return a.response;
     } catch (e) {
-      throw new Error("failed parsing Tauri versions");
+      throw new Error("failed parsing Tauri versions", { cause: e });
     }
   });
 }
@@ -45,7 +45,7 @@ export function getMetadata(client: MetadataClient) {
       const a = await client.getAppMetadata({});
       return a.response;
     } catch (e) {
-      throw new Error("failed parsing app metadata");
+      throw new Error("failed parsing app metadata", { cause: e });
     }
   });
 }

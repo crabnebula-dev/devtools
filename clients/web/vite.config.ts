@@ -49,16 +49,13 @@ export default defineConfig({
         },
         {
           src: normalizePath(
-            path.resolve(__dirname, "node_modules/shiki/languages/") + "/*",
+            path.resolve(__dirname, "node_modules/shiki/dist/langs/") + "/*",
           ),
           dest: "./shiki/languages/",
         },
         {
           src: normalizePath(
-            path.resolve(
-              __dirname,
-              "node_modules/shiki/themes/material-theme-ocean.json",
-            ),
+            path.resolve(__dirname, "node_modules/shiki/dist/themes/") + "/*",
           ),
           dest: "./shiki/themes/",
         },

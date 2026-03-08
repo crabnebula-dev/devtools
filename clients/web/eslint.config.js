@@ -6,7 +6,11 @@ import prettierConfig from "eslint-config-prettier";
 
 export default tseslint.config(
   {
-    ignores: ["src/lib/proto/**/*", "dist/**/*"],
+    ignores: [
+      "src/lib/proto/**/*",
+      "dist/**/*",
+      "src/lib/console/fixtures/monitor-data.ts",
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
