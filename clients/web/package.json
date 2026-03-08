@@ -13,8 +13,8 @@
     "build": "pnpm proto && vite build",
     "preview": "pnpm proto && vite preview",
     "format": "prettier --write --cache .",
-    "lint": "eslint . --ext .ts,.tsx",
-    "lint:fix": "eslint . --fix --ext .ts,.tsx",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "cross-env TZ=UTC pnpm proto && vitest",
     "prepare": "cd ../.. && husky clients/web/.husky"
   },
@@ -23,6 +23,7 @@
     "*.{ts,tsx}": "pnpm lint"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@protobuf-ts/protoc": "^2.11.1",
     "@shikijs/transformers": "^1.29.2",
     "@solidjs/testing-library": "^0.8.10",
@@ -34,8 +35,9 @@
     "cross-env": "^7.0.3",
     "csp-header": "^5.2.1",
     "eslint": "^9.35",
-    "eslint-config-prettier": "^9.1",
-    "eslint-plugin-solid": "^0.14",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-solid": "^0.14.5",
+    "globals": "^17.4.0",
     "husky": "^9.1.7",
     "jsdom": "^28.1",
     "lint-staged": "^15.5.2",
@@ -43,6 +45,7 @@
     "prettier": "^3.8.1",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1",
     "vite": "^7.3",
     "vite-plugin-solid": "^2.11",
     "vite-plugin-static-copy": "^3.2",
