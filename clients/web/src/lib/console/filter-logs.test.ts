@@ -1,6 +1,5 @@
 /* Since this is a test with fake monitor data we don't care about the linter warnings */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { filterLogs } from "./filter-logs";
 import { fakeMonitorData } from "./fixtures/monitor-data";

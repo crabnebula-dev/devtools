@@ -39,7 +39,7 @@ export function awaitEntries(path: string) {
 
       return entries;
     } catch (e) {
-      throw new Error(`Failed to list entries for path ${path}`);
+      throw new Error(`Failed to list entries for path ${path}`, { cause: e });
     }
   });
 }
