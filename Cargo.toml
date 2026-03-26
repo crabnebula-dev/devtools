@@ -21,7 +21,7 @@ tracing-core = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 thiserror = "1.0"
 tokio-stream = "0.1"
-tauri = { version = "2.0.0", features = ["tracing"] }
+tauri = { version = "2.0.0", default-features = false, features = ["tracing"] }
 tauri-build = "2.0.0"
 tauri-plugin = "2.0.0"
 tonic = "0.10"

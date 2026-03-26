@@ -42,3 +42,7 @@ log = "0.4"
 swift-rs = "1.0.7"
 objc = "0.2"
 cocoa = "0.26"
+
+[features]
+default = ["wry"]
+wry = ["tauri/wry"]
