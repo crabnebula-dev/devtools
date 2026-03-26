@@ -28,6 +28,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - disable Tauri default features
 
+### Other
+
+- *(tauri-plugin-devtools)* release v2.1.0
+
+## [2.1.0](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.0.1...tauri-plugin-devtools-v2.1.0) - 2026-03-26
+
+### Added
+
+- disable Tauri default features
+
 ## [2.0.0-rc.1](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.0.0-rc.0...tauri-plugin-devtools-v2.0.0-rc.1) - 2024-09-05
 
 ### Other
