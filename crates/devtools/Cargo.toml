@@ -1,6 +1,6 @@
 [package]
 name = "tauri-plugin-devtools"
-version = "2.1.0"
+version = "2.1.1"
 description = "CrabNebula devtools for Tauri: Inspect, monitor, and understand your application with ease."
 authors.workspace = true
 edition.workspace = true
