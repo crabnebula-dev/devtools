@@ -45,7 +45,7 @@
     "typescript": "^5.5.4",
     "vite": "^5.3.5",
     "vite-plugin-solid": "^2.10.2",
-    "vite-plugin-static-copy": "^1.0.6",
+    "vite-plugin-static-copy": "^2.0.0",
     "vite-plugin-wasm": "^3.3.0",
     "vitest": "^1.6.0"
   },
