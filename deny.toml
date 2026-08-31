@@ -41,14 +41,13 @@ ignore = [
 # [possible values: any SPDX 3.11 short identifier (+ optional exception)].
 allow = [
     "ISC",
-    "MIT", # requires license notice
-    "Apache-2.0", # requires license notice
-    "Unicode-DFS-2016",  # requires license notice
+    "MIT",                            # requires license notice
+    "Apache-2.0",                     # requires license notice
     "Apache-2.0 WITH LLVM-exception",
-    "BSD-3-Clause", # requires license notice and link to source code TODO allow?
-    "MPL-2.0", # requires license notice and link to source code TODO allow?
-    "OpenSSL", # requires license notice and custom notice
+    "BSD-3-Clause",                   # requires license notice and link to source code TODO allow?
+    "MPL-2.0",                        # requires license notice and link to source code TODO allow?
     "Unicode-3.0",
+    "Zlib",
 ]
 
 # Sigh
