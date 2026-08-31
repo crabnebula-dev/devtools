@@ -12,6 +12,9 @@ on:
       - ".github/workflows/ci.yml"
       - "clients/web/**"
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -19,11 +22,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
-          version: 8
-      - name: Use Node.js 20
+          version: 11
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: "pnpm"
           cache-dependency-path: "clients/web/pnpm-lock.yaml"
 
