@@ -10,7 +10,6 @@ export function VirtualList<VirtualItem>(props: {
   children: (item: VirtualItem, index: number) => JSXElement;
   shouldAutoScroll?: boolean;
 }) {
-
   let virtualScrollElement: HTMLDivElement | undefined;
   const virtualizer = createVirtualizer({
     get count() {
