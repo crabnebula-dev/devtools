@@ -230,7 +230,7 @@ version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cdeb9d870516001442e364c5220d3574d2da8dc765554b4a617230d33fa58ef5"
 dependencies = [
- "objc2",
+ "objc2 0.5.2",
 ]
 
 [[package]]
@@ -523,6 +523,19 @@ dependencies = [
  "bitflags 2.11.0",
  "core-foundation",
  "core-graphics-types",
+ "foreign-types",
+ "libc",
+]
+
+[[package]]
+name = "core-graphics"
+version = "0.25.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "064badf302c3194842cf2c5d61f56cc88e54a759313879cdf03abdd27d0c3b97"
+dependencies = [
+ "bitflags 2.6.0",
+ "core-foundation 0.10.0",
+ "core-graphics-types 0.2.0",
  "foreign-types",
  "libc",
 ]
@@ -1623,6 +1636,7 @@ dependencies = [
  "base64 0.22.1",
  "bytes",
  "futures-channel",
+ "futures-core",
  "futures-util",
  "http 1.4.0",
  "http-body 1.0.1",
@@ -1828,6 +1842,16 @@ name = "iri-string"
 version = "0.7.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c91338f0783edbd6195decb37bae672fd3b165faffb89bf7b9e6942f8b1a731a"
+dependencies = [
+ "memchr",
+ "serde",
+]
+
+[[package]]
+name = "iri-string"
+version = "0.7.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8e7418f59cc01c88316161279a7f665217ae316b388e58a0d10e29f54f1e5eb"
 dependencies = [
  "memchr",
  "serde",
@@ -2327,6 +2351,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "objc2"
+version = "0.6.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3a12a8ed07aefc768292f076dc3ac8c48f3781c8f2d5851dd3d98950e8c5a89f"
+dependencies = [
+ "objc2-encode",
+ "objc2-exception-helper",
+]
+
+[[package]]
 name = "objc2-app-kit"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2375,7 +2409,10 @@ version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c7a1c5fbb72d7735b076bb47b578523aedc40f3c439bea6dfd595c089d79d98a"
 dependencies = [
- "cc",
+ "bitflags 2.6.0",
+ "objc2 0.6.4",
+ "objc2-core-foundation",
+ "objc2-foundation 0.3.2",
 ]
 
 [[package]]
@@ -2859,7 +2896,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "22505a5c94da8e3b7c2996394d1c933236c4d743e81a410bcca4e6989fc066a4"
 dependencies = [
  "bytes",
- "heck 0.5.0",
+ "heck 0.4.1",
  "itertools",
  "log",
  "multimap",
@@ -3878,7 +3915,6 @@ dependencies = [
  "dlopen2",
  "dpi",
  "gdkwayland-sys",
- "gdkx11-sys",
  "gtk",
  "jni",
  "libc",
@@ -3898,7 +3934,6 @@ dependencies = [
  "windows",
  "windows-core 0.61.2",
  "windows-version",
- "x11-dl",
 ]
 
 [[package]]
@@ -3962,7 +3997,6 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "tracing",
- "tray-icon",
  "url",
  "webkit2gtk",
  "webview2-com",
@@ -3999,7 +4033,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d4a24476afd977c5d5d169f72425868613d82747916dd29e0a357c84c4bd6d29"
 dependencies = [
  "base64 0.22.1",
- "brotli",
  "ico",
  "json-patch",
  "plist",
@@ -4065,7 +4098,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-devtools"
-version = "2.0.1"
+version = "2.1.0"
 dependencies = [
  "async-stream",
  "bytes",
@@ -5802,7 +5835,6 @@ dependencies = [
  "dirs",
  "dpi",
  "dunce",
- "gdkx11",
  "gtk",
  "html5ever",
  "http 1.4.0",
@@ -5832,12 +5864,11 @@ dependencies = [
  "windows",
  "windows-core 0.61.2",
  "windows-version",
- "x11-dl",
 ]
 
 [[package]]
-name = "x11"
-version = "2.21.0"
+name = "zmij"
+version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "502da5464ccd04011667b11c435cb992822c2c0dbde1770c988480d312a0db2e"
 dependencies = [
