@@ -71,7 +71,7 @@ jobs:
       - id: msrv
         name: Find out the MSRV from Cargo.toml
         run: |
-          msrv=$(yq -e '.package.rust-version' ./Cargo.toml);
+          msrv=$(yq -e '.workspace.package.rust-version' ./Cargo.toml);
           echo "msrv=$msrv" >> "$GITHUB_OUTPUT"
       - uses: dtolnay/rust-toolchain@stable
         with:
