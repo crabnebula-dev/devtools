@@ -77,3 +77,5 @@ ignore = true
 [bans]
 # Warn when a crate version requirement is `*`
 wildcards = "warn"
+# Having different versions of the same crate is common and produces too much warning noise.
+multiple-versions = "allow"
