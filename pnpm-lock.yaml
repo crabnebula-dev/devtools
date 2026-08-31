@@ -163,7 +163,7 @@ importers:
   examples/tauri:
     devDependencies:
       '@tauri-apps/cli':
-        specifier: ^2.0.0
+        specifier: ^2.10
         version: 2.10.1
       http-server:
         specifier: ^14.1.1
