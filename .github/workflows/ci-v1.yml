@@ -68,9 +68,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.0-dev protobuf-compiler
+      - id: msrv
+        name: Find out the MSRV from Cargo.toml
+        if: ${{ matrix.rust == 'msrv' }}
+        run: |
+          msrv=$(yq -e '.package.rust-version' ./Cargo.toml);
+          echo "msrv=$msrv" >> "$GITHUB_OUTPUT"
       - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.78.0 # MSRV
+          toolchain: ${{ steps.msrv.outputs.msrv }}
       - uses: Swatinem/rust-cache@v2
       - run: cargo check --manifest-path crates/v1/Cargo.toml --tests
 
