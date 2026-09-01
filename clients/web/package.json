@@ -79,10 +79,15 @@
     "zod": "^3.25.76"
   },
   "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11",
+      "onFail": "error"
+    },
     "runtime": {
       "name": "node",
-      "version": "24.20.0",
-      "onFail": "warn"
+      "version": "^24",
+      "onFail": "error"
     }
   }
 }
