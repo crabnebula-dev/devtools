@@ -21,8 +21,7 @@ jobs:
           persist-credentials: false
       - uses: pnpm/setup@v2.1.0
         with:
-          version: ^11
-          runtime: node@24
+          cache: true
           require-lockfile: true
       - name: Check JavaScript Licenses
         working-directory: clients/web
@@ -36,8 +35,6 @@ jobs:
           persist-credentials: false
       - uses: pnpm/setup@v2.1.0
         with:
-          version: ^11
-          runtime: node@24
           require-lockfile: true
           install: false
       - run: pnpm audit
@@ -50,8 +47,6 @@ jobs:
           persist-credentials: false
       - uses: pnpm/setup@v2.1.0
         with:
-          version: ^11
-          runtime: node@24
           cache: true
           require-lockfile: true
       - name: Linting
@@ -69,8 +64,6 @@ jobs:
           persist-credentials: false
       - uses: pnpm/setup@v2.1.0
         with:
-          version: ^11
-          runtime: node@24
           cache: true
           require-lockfile: true
       - name: Unit tests
