@@ -81,12 +81,12 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "^11",
+      "version": "11.25.0",
       "onFail": "error"
     },
     "runtime": {
       "name": "node",
-      "version": "^24",
+      "version": "24",
       "onFail": "error"
     }
   }
