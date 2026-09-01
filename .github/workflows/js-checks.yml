@@ -1,0 +1,78 @@
+name: JS checks
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/js-checks.yml"
+      - "clients/web/**"
+      - "examples/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  check-js-licenses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/setup@v2
+        with:
+          version: ^11
+          runtime: node@24
+          require-lockfile: true
+      - name: Check JavaScript Licenses
+        working-directory: clients/web
+        run: pnpm check-licenses
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/setup@v2
+        with:
+          version: ^11
+          runtime: node@24
+          require-lockfile: true
+          install: false
+      - run: pnpm audit
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/setup@v2
+        with:
+          version: ^11
+          runtime: node@24
+          cache: true
+          require-lockfile: true
+      - name: Linting
+        working-directory: clients/web
+        run: pnpm lint
+      - name: Format
+        working-directory: clients/web
+        run: pnpm prettier --check '**/*.{ts,tsx,js,jsx,json}'
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/setup@v2
+        with:
+          version: ^11
+          runtime: node@24
+          cache: true
+          require-lockfile: true
+      - name: Unit tests
+        working-directory: clients/web
+        run: pnpm test -- --run
