@@ -77,17 +77,6 @@
     "split.js": "^1.6.5",
     "tailwind-scrollbar": "^3.1.0",
     "zod": "^3.25.76"
-  },
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "11.25.0",
-      "onFail": "error"
-    },
-    "runtime": {
-      "name": "node",
-      "version": "24",
-      "onFail": "error"
-    }
   }
+  
 }
