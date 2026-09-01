@@ -11,7 +11,6 @@ export function VirtualList<VirtualItem>(props: {
   shouldAutoScroll?: boolean;
 }) {
   let virtualScrollElement: HTMLDivElement | undefined;
-
   const virtualizer = createVirtualizer({
     get count() {
       return props.dataStream.length;

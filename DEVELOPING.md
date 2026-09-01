@@ -8,6 +8,19 @@ There are a couple components to devtools that you should know about:
 - `crates/wire` The protobuf files that define the message protocol between the instrumentation and GUI.
 - `clients/web` The user-facing web GUI that is hosted at `devtools.crabnebula.dev`
 
+## Prerequisites
+
+To compile the project and run tests, you must have the **Protocol Buffers compiler (`protoc`)** installed on your system. This is required by `prost-build` to generate Rust code from the `.proto` files in `crates/wire/proto`.
+
+### Installation
+
+*   **macOS**: `brew install protobuf`
+*   **Ubuntu/Debian**: `sudo apt install -y protobuf-compiler`
+*   **Windows (Chocolatey)**: `choco install protoc`
+*   **Other**: Download from [GitHub Releases](https://github.com/protocolbuffers/protobuf/releases)
+
+Ensure `protoc` is in your `PATH`. You can verify by running `protoc --version`.
+
 ## The `cargo-deny` check is failing! What do I do?
 
 The [`cargo-deny`](https://github.com/EmbarkStudios/cargo-deny) action checks for various dependency-related issues,

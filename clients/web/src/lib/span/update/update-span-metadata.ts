@@ -11,10 +11,8 @@ export function updateSpanMetadata(
       /**
        * protobuf generated types have these as optional.
        */
-      //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const id = new_metadata.id!;
-      //  eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const metadata = new_metadata.metadata!;
+      const id = new_metadata.id as bigint;
+      const metadata = new_metadata.metadata as Metadata;
 
       return [id, metadata] as const;
     }),

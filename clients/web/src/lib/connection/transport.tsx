@@ -44,7 +44,7 @@ export async function checkConnection(url: string) {
         message: `server status is: ${HealthCheckResponse_ServingStatus[statusCode]}. Try again...`,
       };
     }
-  } catch (e) {
+  } catch (_e) {
     return { status: "error", message: `failed to connect to ${url}` };
   } finally {
     abortController.abort();

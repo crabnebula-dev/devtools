@@ -77,8 +77,7 @@ export function ConfigurationTooltip(props: {
 
 type ToolTipValue = TooltipRecord | string | [] | boolean;
 
-/* eslint-disable-next-line @typescript-eslint/no-empty-interface */
-interface TooltipRecord extends Record<string, ToolTipValue> {}
+type TooltipRecord = Record<string, ToolTipValue>;
 
 interface ToolTipValueProps {
   value: ToolTipValue;

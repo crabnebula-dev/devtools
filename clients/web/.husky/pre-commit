@@ -1,3 +1,0 @@
-#!/usr/bin/env sh
-cd clients/web
-pnpm dlx lint-staged

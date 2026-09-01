@@ -93,7 +93,7 @@ async function readListOfConfigurations(
       let bytes;
       try {
         bytes = await getEntryBytes(client, entry, 0);
-      } catch (e) {
+      } catch (_e) {
         return null;
       }
 

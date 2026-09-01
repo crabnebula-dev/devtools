@@ -21,11 +21,11 @@ describe("formatters", () => {
   it("should formatTimestamp", () => {
     expect(
       formatTimestamp(new Date("2019-08-19T00:00:00")),
-    ).toMatchInlineSnapshot('"24:00:00:000"');
+    ).toMatchInlineSnapshot(`"00:00:00:000"`);
   });
   it("should getTime", () => {
     expect(getTime(new Date("2019-08-19T00:00:00"))).toMatchInlineSnapshot(
-      '"24:00:00"',
+      `"00:00:00"`,
     );
   });
   it("should timestampToDate", () => {

@@ -1,10 +1,37 @@
-# Target triples to include when checking. This is essentially our supported target list.
+[graph]
 targets = [
     { triple = "x86_64-unknown-linux-gnu" },
     { triple = "aarch64-unknown-linux-gnu" },
     { triple = "x86_64-pc-windows-msvc" },
     { triple = "x86_64-apple-darwin" },
     { triple = "aarch64-apple-darwin" },
+]
+
+[advisories]
+ignore = [
+    # gtk-rs GTK3 bindings - unmaintained (required by Tauri v2 for Linux)
+    "RUSTSEC-2024-0411",
+    "RUSTSEC-2024-0412",
+    "RUSTSEC-2024-0413",
+    "RUSTSEC-2024-0414",
+    "RUSTSEC-2024-0415",
+    "RUSTSEC-2024-0416",
+    "RUSTSEC-2024-0417",
+    "RUSTSEC-2024-0418",
+    "RUSTSEC-2024-0419",
+    "RUSTSEC-2024-0420",
+    # proc-macro-error - unmaintained (required by gtk3/glib macros)
+    "RUSTSEC-2024-0370",
+    # instant - unmaintained (required by v1 tao crate)
+    "RUSTSEC-2024-0384",
+    # fxhash - unmaintained (required by tauri-utils via kuchikiki)
+    "RUSTSEC-2025-0057",
+    # unic-* crates - unmaintained (required by tauri-utils via urlpattern)
+    "RUSTSEC-2025-0075",
+    "RUSTSEC-2025-0080",
+    "RUSTSEC-2025-0081",
+    "RUSTSEC-2025-0098",
+    "RUSTSEC-2025-0100",
 ]
 
 # This section is considered when running `cargo deny check licenses`
@@ -16,13 +43,13 @@ targets = [
 # [possible values: any SPDX 3.11 short identifier (+ optional exception)].
 allow = [
     "ISC",
-    "MIT", # requires license notice
-    "Apache-2.0", # requires license notice
-    "Unicode-DFS-2016",  # requires license notice
+    "MIT",                            # requires license notice
+    "Apache-2.0",                     # requires license notice
     "Apache-2.0 WITH LLVM-exception",
-    "BSD-3-Clause", # requires license notice and link to source code TODO allow?
-    "MPL-2.0", # requires license notice and link to source code TODO allow?
-    "OpenSSL" # requires license notice and custom notice
+    "BSD-3-Clause",                   # requires license notice and link to source code TODO allow?
+    "MPL-2.0",                        # requires license notice and link to source code TODO allow?
+    "Unicode-3.0",
+    "Zlib",
 ]
 
 # Sigh
@@ -51,3 +78,5 @@ ignore = true
 [bans]
 # Warn when a crate version requirement is `*`
 wildcards = "warn"
+# Having different versions of the same crate is common and produces too much warning noise.
+multiple-versions = "allow"

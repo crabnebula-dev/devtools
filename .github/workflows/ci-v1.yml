@@ -68,9 +68,14 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.0-dev protobuf-compiler
+      - id: msrv
+        name: Find out the MSRV from Cargo.toml
+        run: |
+          msrv=$(yq -e '.package.rust-version' ./crates/v1/crates/devtools/Cargo.toml);
+          echo "msrv=$msrv" >> "$GITHUB_OUTPUT"
       - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.78.0 # MSRV
+          toolchain: ${{ steps.msrv.outputs.msrv }}
       - uses: Swatinem/rust-cache@v2
       - run: cargo check --manifest-path crates/v1/Cargo.toml --tests
 
@@ -109,7 +114,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check Rust Licenses
-        uses: EmbarkStudios/cargo-deny-action@v1
+        uses: EmbarkStudios/cargo-deny-action@v2
         with:
           manifest-path: crates/v1/Cargo.toml
 

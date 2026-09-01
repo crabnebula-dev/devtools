@@ -1,33 +1,33 @@
-import {
-  getCSP,
-  SELF,
-  NONE,
-  UNSAFE_INLINE,
-  WASM_UNSAFE_EVAL,
-  UNSAFE_EVAL,
-} from "csp-header";
-import { env, argv } from "node:process";
+import getCSP from "content-security-policy-builder";
+import { argv } from "node:process";
 import { readFile, writeFile } from "node:fs/promises";
 
-export function generateCSP(isDev = false) {
-  const FATHOM_HOST = env.VITE_FATHOM_URL
-    ? new URL(env.VITE_FATHOM_URL).host
-    : undefined;
+const SELF = "'self'";
+const NONE = "'none'";
+const UNSAFE_INLINE = "'unsafe-inline'";
+const WASM_UNSAFE_EVAL = "'wasm-unsafe-eval'";
+const UNSAFE_EVAL = "'unsafe-eval'";
+
+export function generateCSP(isDev = false, fathomUrl) {
+  const fathomHost = fathomUrl ? new URL(fathomUrl).host : undefined;
 
   return getCSP({
-    reportUri: isDev
-      ? ""
-      : "https://o4506303762464768.ingest.sentry.io/api/4506303812272128/security/?sentry_key=57614e75ac5f8c480aed3a2dd1528f13",
     directives: {
       "default-src": [SELF],
       "frame-src": [SELF],
       "script-src": isDev
-        ? [SELF, UNSAFE_EVAL, FATHOM_HOST].filter(Boolean)
-        : [SELF, WASM_UNSAFE_EVAL, FATHOM_HOST].filter(Boolean),
+        ? [SELF, UNSAFE_EVAL, fathomHost].filter(Boolean)
+        : [SELF, WASM_UNSAFE_EVAL, fathomHost].filter(Boolean),
       "style-src": [SELF, UNSAFE_INLINE],
       "connect-src": [SELF, "127.0.0.1", "127.0.0.1:*", "ws://localhost:5173/"],
-      "img-src": [SELF, FATHOM_HOST].filter(Boolean),
+      "img-src": [SELF, fathomHost].filter(Boolean),
       "object-src": [NONE],
+      ...(isDev
+        ? {}
+        : {
+            "report-uri":
+              "https://o4506303762464768.ingest.sentry.io/api/4506303812272128/security/?sentry_key=57614e75ac5f8c480aed3a2dd1528f13",
+          }),
     },
   });
 }
