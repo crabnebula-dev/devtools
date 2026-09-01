@@ -102,12 +102,12 @@ importers:
       autoprefixer:
         specifier: ^10.4.27
         version: 10.4.27(postcss@8.5.8)
+      content-security-policy-builder:
+        specifier: ^2.3.0
+        version: 2.3.0
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
-      csp-header:
-        specifier: ^5.2.1
-        version: 5.2.1
       eslint:
         specifier: ^9.35
         version: 9.39.4(jiti@1.21.7)(supports-color@7.2.0)
@@ -1527,6 +1527,10 @@ packages:
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
+  content-security-policy-builder@2.3.0:
+    resolution: {integrity: sha512-qmdEmn1M+WpadIeBLKr9Em8VJSCjtRINCSbYsyJHQ4liTwCmrLzIRpJdJpoVDnsvWUrR5iblYhQJqA4b4Hs/iw==}
+    engines: {node: '>=18.0.0'}
+
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
@@ -1542,10 +1546,6 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
-
-  csp-header@5.2.1:
-    resolution: {integrity: sha512-qOJNu39JZkPrbrAM40a1tQCePEPYVIoI6nMDhX4RA07QjU8efS+zyd/zE83XJu85KKazH9NjKlvvlswFMteMgg==}
-    engines: {node: '>=10'}
 
   csp_evaluator@1.1.5:
     resolution: {integrity: sha512-EL/iN9etCTzw/fBnp0/uj0f5BOOGvZut2mzsiiBZ/FdT6gFQCKRO/tmcKOxn5drWZ2Ndm/xBb1SI4zwWbGtmIw==}
@@ -4660,6 +4660,8 @@ snapshots:
 
   concat-map@0.0.1: {}
 
+  content-security-policy-builder@2.3.0: {}
+
   convert-source-map@2.0.0: {}
 
   corser@2.0.1: {}
@@ -4673,8 +4675,6 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
-
-  csp-header@5.2.1: {}
 
   csp_evaluator@1.1.5: {}
 

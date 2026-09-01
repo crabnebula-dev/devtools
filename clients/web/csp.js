@@ -1,21 +1,17 @@
-import {
-  getCSP,
-  SELF,
-  NONE,
-  UNSAFE_INLINE,
-  WASM_UNSAFE_EVAL,
-  UNSAFE_EVAL,
-} from "csp-header";
+import getCSP from "content-security-policy-builder";
 import { argv } from "node:process";
 import { readFile, writeFile } from "node:fs/promises";
+
+const SELF = "'self'";
+const NONE = "'none'";
+const UNSAFE_INLINE = "'unsafe-inline'";
+const WASM_UNSAFE_EVAL = "'wasm-unsafe-eval'";
+const UNSAFE_EVAL = "'unsafe-eval'";
 
 export function generateCSP(isDev = false, fathomUrl) {
   const fathomHost = fathomUrl ? new URL(fathomUrl).host : undefined;
 
   return getCSP({
-    reportUri: isDev
-      ? ""
-      : "https://o4506303762464768.ingest.sentry.io/api/4506303812272128/security/?sentry_key=57614e75ac5f8c480aed3a2dd1528f13",
     directives: {
       "default-src": [SELF],
       "frame-src": [SELF],
@@ -26,6 +22,12 @@ export function generateCSP(isDev = false, fathomUrl) {
       "connect-src": [SELF, "127.0.0.1", "127.0.0.1:*", "ws://localhost:5173/"],
       "img-src": [SELF, fathomHost].filter(Boolean),
       "object-src": [NONE],
+      ...(isDev
+        ? {}
+        : {
+            "report-uri":
+              "https://o4506303762464768.ingest.sentry.io/api/4506303812272128/security/?sentry_key=57614e75ac5f8c480aed3a2dd1528f13",
+          }),
     },
   });
 }
