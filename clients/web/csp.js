@@ -6,13 +6,11 @@ import {
   WASM_UNSAFE_EVAL,
   UNSAFE_EVAL,
 } from "csp-header";
-import { env, argv } from "node:process";
+import { argv } from "node:process";
 import { readFile, writeFile } from "node:fs/promises";
 
-export function generateCSP(isDev = false) {
-  const FATHOM_HOST = env.VITE_FATHOM_URL
-    ? new URL(env.VITE_FATHOM_URL).host
-    : undefined;
+export function generateCSP(isDev = false, fathomUrl) {
+  const fathomHost = fathomUrl ? new URL(fathomUrl).host : undefined;
 
   return getCSP({
     reportUri: isDev
@@ -22,11 +20,11 @@ export function generateCSP(isDev = false) {
       "default-src": [SELF],
       "frame-src": [SELF],
       "script-src": isDev
-        ? [SELF, UNSAFE_EVAL, FATHOM_HOST].filter(Boolean)
-        : [SELF, WASM_UNSAFE_EVAL, FATHOM_HOST].filter(Boolean),
+        ? [SELF, UNSAFE_EVAL, fathomHost].filter(Boolean)
+        : [SELF, WASM_UNSAFE_EVAL, fathomHost].filter(Boolean),
       "style-src": [SELF, UNSAFE_INLINE],
       "connect-src": [SELF, "127.0.0.1", "127.0.0.1:*", "ws://localhost:5173/"],
-      "img-src": [SELF, FATHOM_HOST].filter(Boolean),
+      "img-src": [SELF, fathomHost].filter(Boolean),
       "object-src": [NONE],
     },
   });

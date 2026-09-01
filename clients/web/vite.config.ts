@@ -16,6 +16,7 @@ export default defineConfig({
     headers: {
       "Content-Security-Policy": generateCSP(
         process.env.NODE_ENV === "development",
+        process.env.VITE_FATHOM_URL,
       ),
     },
   },
