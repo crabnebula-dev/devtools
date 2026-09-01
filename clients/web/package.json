@@ -15,6 +15,7 @@
     "format": "prettier --write --cache .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "check-licenses": "license-checker --summary --onlyAllow='MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause' --excludePackages='spa-client@0.0.0'",
     "test": "cross-env TZ=UTC pnpm proto && vitest",
     "prepare": "cd ../.. && husky clients/web/.husky"
   },
