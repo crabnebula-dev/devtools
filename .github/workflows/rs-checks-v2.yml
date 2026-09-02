@@ -1,21 +1,14 @@
-name: CI (v1)
+name: RS checks (v2)
 
 on:
   push:
-    paths:
-      - ".github/workflows/ci.yml"
-      - "crates/**/*.rs"
-      - "!crates/devtools/**/*.rs"
-      - "crates/v1/**/*.rs"
-      - "crates/wire/proto/*.proto"
-      - "**/Cargo.toml"
+    branches:
+      - main
   pull_request:
     paths:
-      - ".github/workflows/ci.yml"
-      - "crates/**/*.rs"
-      - "!crates/devtools/**/*.rs"
-      - "crates/v1/**/*.rs"
-      - "crates/wire/proto/*.proto"
+      - ".github/workflows/rs-checks-v2.yml"
+      - "**/*.rs"
+      - "**/*.proto"
       - "**/Cargo.toml"
 
 permissions:
@@ -36,7 +29,7 @@ jobs:
     name: Rust ${{matrix.rust}}
     needs: pre_ci
     if: needs.pre_ci.outputs.continue
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -47,12 +40,12 @@ jobs:
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev protobuf-compiler
+          sudo apt-get install -y webkit2gtk-4.1 protobuf-compiler
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{matrix.rust}}
       - uses: Swatinem/rust-cache@v2
-      - run: cargo test --manifest-path crates/v1/Cargo.toml
+      - run: cargo test --workspace
         env:
           RUSTFLAGS: ${{matrix.rustflags}} ${{env.RUSTFLAGS}}
 
@@ -60,28 +53,28 @@ jobs:
     name: Rust MSRV
     needs: pre_ci
     if: needs.pre_ci.outputs.continue
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev protobuf-compiler
+          sudo apt-get install -y webkit2gtk-4.1 protobuf-compiler
       - id: msrv
         name: Find out the MSRV from Cargo.toml
         run: |
-          msrv=$(yq -e '.package.rust-version' ./crates/v1/crates/devtools/Cargo.toml);
+          msrv=$(yq -e '.workspace.package.rust-version' ./Cargo.toml);
           echo "msrv=$msrv" >> "$GITHUB_OUTPUT"
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: ${{ steps.msrv.outputs.msrv }}
       - uses: Swatinem/rust-cache@v2
-      - run: cargo check --manifest-path crates/v1/Cargo.toml --tests
+      - run: cargo check --workspace --tests
 
   clippy:
     name: Clippy
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     timeout-minutes: 45
     steps:
@@ -89,16 +82,16 @@ jobs:
       - name: install native dependecies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.0-dev
+          sudo apt-get install -y webkit2gtk-4.1
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
       - uses: Swatinem/rust-cache@v2
-      - run: cargo clippy --manifest-path crates/v1/Cargo.toml -- -Dclippy::all -Dclippy::pedantic
+      - run: cargo clippy --workspace -- -Dclippy::all -Dclippy::pedantic
 
   rustfmt:
     name: Rustfmt
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     timeout-minutes: 45
     steps:
@@ -107,24 +100,18 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt
-      - run: cargo fmt --manifest-path crates/v1/Cargo.toml -- --check
+      - run: cargo fmt --all -- --check
 
   cargo-deny:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Check Cargo Deny (crates/v1)
+      - name: Check Rust Code
         uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          manifest-path: crates/v1/Cargo.toml
-      - name: Check Cargo Deny (examples/tauri-v1)
-        uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          manifest-path: examples/tauri-v1/Cargo.toml
 
 #  outdated:
 #     name: Outdated
-#     runs-on: ubuntu-22.04
+#     runs-on: ubuntu-latest
 #     if: github.event_name != 'pull_request'
 #     timeout-minutes: 45
 #     steps:
