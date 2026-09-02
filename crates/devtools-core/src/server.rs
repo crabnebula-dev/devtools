@@ -9,17 +9,20 @@ use devtools_wire_format::sources::sources_server::SourcesServer;
 use devtools_wire_format::tauri::tauri_server;
 use devtools_wire_format::tauri::tauri_server::TauriServer;
 use futures::{FutureExt, TryStreamExt};
-use http::HeaderValue;
+use http::{HeaderValue, Method};
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
 use tokio::sync::mpsc;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
 use tonic::codegen::BoxStream;
+use tonic::transport::server::Router;
 use tonic::{Request, Response, Status};
 use tonic_health::pb::health_server::{Health, HealthServer};
 use tonic_health::server::HealthReporter;
 use tonic_health::ServingStatus;
 use tonic_web::GrpcWebLayer;
+use tower_http::cors::{AllowOrigin, Any, CorsLayer};
+use tower_layer::{Identity, Stack};
 
 /// Default maximum capacity for the channel of events sent from a
 /// [`Server`] to each subscribed client.
@@ -43,8 +46,7 @@ fn default_origins(development: bool) -> Vec<HeaderValue> {
 
 /// The `gRPC` server that exposes the instrumenting API
 pub struct Server {
-    router:
-        tonic::transport::server::Router<tower_layer::Stack<GrpcWebLayer, tower_layer::Identity>>,
+    router: Router<Stack<GrpcWebLayer, Stack<CorsLayer, Identity>>>,
     handle: ServerHandle,
 }
 
@@ -101,8 +103,21 @@ impl Server {
             .now_or_never();
 
         let handle = ServerHandle::new();
+        let cors_origins = handle.allowed_origins.clone();
+        let cors = CorsLayer::new()
+            .allow_methods([Method::GET, Method::POST])
+            .allow_headers(Any)
+            .allow_origin(AllowOrigin::predicate(move |origin, _request| {
+                let allowed = cors_origins.lock().unwrap();
+
+                allowed
+                    .iter()
+                    .any(|candidate| candidate == "*" || candidate == origin)
+            }));
+
         let router = tonic::transport::Server::builder()
             .accept_http1(true)
+            .layer(cors)
             .layer(GrpcWebLayer::new())
             // .layer(DynamicCorsLayer {
             //     allowed_origins: handle.allowed_origins.clone(),
