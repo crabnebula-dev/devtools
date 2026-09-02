@@ -10,23 +10,16 @@ use devtools_wire_format::tauri::tauri_server;
 use devtools_wire_format::tauri::tauri_server::TauriServer;
 use futures::{FutureExt, TryStreamExt};
 use http::HeaderValue;
-use hyper::Body;
 use std::net::SocketAddr;
-use std::pin::Pin;
 use std::sync::{Arc, Mutex};
-use std::task::{Context, Poll};
 use tokio::sync::mpsc;
-use tonic::body::BoxBody;
-use tonic::codegen::http::Method;
 use tonic::codegen::tokio_stream::wrappers::ReceiverStream;
 use tonic::codegen::BoxStream;
 use tonic::{Request, Response, Status};
 use tonic_health::pb::health_server::{Health, HealthServer};
 use tonic_health::server::HealthReporter;
 use tonic_health::ServingStatus;
-use tower::Service;
-use tower_http::cors::{AllowHeaders, AllowOrigin, CorsLayer};
-use tower_layer::Layer;
+use tonic_web::GrpcWebLayer;
 
 /// Default maximum capacity for the channel of events sent from a
 /// [`Server`] to each subscribed client.
@@ -50,9 +43,8 @@ fn default_origins(development: bool) -> Vec<HeaderValue> {
 
 /// The `gRPC` server that exposes the instrumenting API
 pub struct Server {
-    router: tonic::transport::server::Router<
-        tower_layer::Stack<DynamicCorsLayer, tower_layer::Identity>,
-    >,
+    router:
+        tonic::transport::server::Router<tower_layer::Stack<GrpcWebLayer, tower_layer::Identity>>,
     handle: ServerHandle,
 }
 
@@ -94,64 +86,11 @@ struct InstrumentService {
     health_reporter: HealthReporter,
 }
 
-#[derive(Clone)]
-struct DynamicCorsLayer {
-    allowed_origins: Arc<Mutex<Vec<HeaderValue>>>,
-}
-
-impl<S> Layer<S> for DynamicCorsLayer {
-    type Service = DynamicCors<S>;
-
-    fn layer(&self, service: S) -> Self::Service {
-        DynamicCors {
-            inner: service,
-            allowed_origins: self.allowed_origins.clone(),
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-struct DynamicCors<S> {
-    inner: S,
-    allowed_origins: Arc<Mutex<Vec<HeaderValue>>>,
-}
-
-type BoxFuture<'a, T> = Pin<Box<dyn std::future::Future<Output = T> + Send + 'a>>;
-
-impl<S> Service<hyper::Request<Body>> for DynamicCors<S>
-where
-    S: Service<hyper::Request<Body>, Response = hyper::Response<BoxBody>> + Clone + Send + 'static,
-    S::Future: Send + 'static,
-{
-    type Response = S::Response;
-    type Error = S::Error;
-    type Future = BoxFuture<'static, Result<Self::Response, Self::Error>>;
-
-    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-        self.inner.poll_ready(cx)
-    }
-
-    fn call(&mut self, req: hyper::Request<Body>) -> Self::Future {
-        let allowed_origins = self.allowed_origins.lock().unwrap().clone();
-        let cors = CorsLayer::new()
-            // allow `GET` and `POST` when accessing the resource
-            .allow_methods([Method::GET, Method::POST])
-            .allow_headers(AllowHeaders::any())
-            .allow_origin(if allowed_origins.iter().any(|o| o == "*") {
-                AllowOrigin::any()
-            } else {
-                AllowOrigin::list(allowed_origins)
-            });
-
-        Box::pin(cors.layer(self.inner.clone()).call(req))
-    }
-}
-
 impl Server {
     #[allow(clippy::missing_panics_doc)]
     pub fn new(
         cmd_tx: mpsc::Sender<Command>,
-        mut health_reporter: HealthReporter,
+        health_reporter: HealthReporter,
         health_service: HealthServer<impl Health>,
         tauri_server: impl tauri_server::Tauri,
         metadata_server: impl metadata_server::Metadata,
@@ -164,19 +103,18 @@ impl Server {
         let handle = ServerHandle::new();
         let router = tonic::transport::Server::builder()
             .accept_http1(true)
-            .layer(DynamicCorsLayer {
-                allowed_origins: handle.allowed_origins.clone(),
-            })
-            .add_service(tonic_web::enable(health_service))
-            .add_service(tonic_web::enable(InstrumentServer::new(
-                InstrumentService {
-                    tx: cmd_tx,
-                    health_reporter,
-                },
-            )))
-            .add_service(tonic_web::enable(TauriServer::new(tauri_server)))
-            .add_service(tonic_web::enable(MetadataServer::new(metadata_server)))
-            .add_service(tonic_web::enable(SourcesServer::new(sources_server)));
+            .layer(GrpcWebLayer::new())
+            // .layer(DynamicCorsLayer {
+            //     allowed_origins: handle.allowed_origins.clone(),
+            // })
+            .add_service(health_service)
+            .add_service(InstrumentServer::new(InstrumentService {
+                tx: cmd_tx,
+                health_reporter,
+            }))
+            .add_service(TauriServer::new(tauri_server))
+            .add_service(MetadataServer::new(metadata_server))
+            .add_service(SourcesServer::new(sources_server));
 
         Self { router, handle }
     }
@@ -202,7 +140,7 @@ impl Server {
 
 impl InstrumentService {
     async fn set_status(&self, status: ServingStatus) {
-        let mut r = self.health_reporter.clone();
+        let r = self.health_reporter.clone();
         r.set_service_status("rs.devtools.instrument.Instrument", status)
             .await;
     }
