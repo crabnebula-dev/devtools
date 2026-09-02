@@ -100,6 +100,7 @@ jobs:
         with:
           components: rustfmt
       - run: cargo fmt --manifest-path crates/v1/Cargo.toml -- --check
+      - run: cargo fmt --manifest-path examples/tauri-v1/Cargo.toml -- --check
 
   cargo-deny:
     runs-on: ubuntu-22.04
