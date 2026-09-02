@@ -9,12 +9,12 @@ name = "tauri-example"
 path = "main.rs"
 
 [dependencies]
-tauri = { version = "1.6.1", features = ["custom-protocol"] }
+tauri = { version = "1.8", features = ["custom-protocol"] }
 devtools = { path = "../../crates/v1/crates/devtools" }
 tracing = "0.1"
-tokio = { version = "1.36", features = ["time"] }
-reqwest = "0.13.2"
-tiny_http = "0.12.0"
+tokio = { version = "1.53", features = ["time"] }
+reqwest = "0.13"
+tiny_http = "0.12"
 serde = "1"
 
 [build-dependencies]
