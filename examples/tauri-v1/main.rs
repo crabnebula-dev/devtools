@@ -38,7 +38,7 @@ async fn test1(
             "from-window",
             &EventPayload {
                 key: "url",
-                value: url.to_string(),
+                value: url.clone(),
             },
         )
         .unwrap();
@@ -64,14 +64,9 @@ fn main() {
             let server = tiny_http::Server::http("localhost:1420").unwrap();
 
             fn get_content_type(path: &std::path::Path) -> &'static str {
-                let extension = match path.extension() {
-                    None => return "text/plain",
-                    Some(e) => e,
-                };
-
-                match extension.to_str().unwrap() {
-                    "html" => "text/html; charset=utf8",
-                    "js" => "text/javascript; charset=utf8",
+                match path.extension().and_then(|s|s.to_str()) {
+                    Some("html") => "text/html; charset=utf8",
+                    Some("js") => "text/javascript; charset=utf8",
                     _ => "text/plain; charset=utf8",
                 }
             }

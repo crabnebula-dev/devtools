@@ -42,7 +42,7 @@ async fn test1(
             "from-window",
             &EventPayload {
                 key: "url",
-                value: url.to_string(),
+                value: url.clone(),
             },
         )
         .unwrap();

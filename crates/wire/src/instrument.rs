@@ -24,7 +24,7 @@ impl Filter {
     /// - The `file` filter is not set (`None`).
     #[must_use]
     pub fn matches_file(&self, file: &str) -> bool {
-        self.file.as_ref().map_or(true, |v| file.contains(v))
+        self.file.as_ref().is_none_or(|v| file.contains(v))
     }
 
     /// Checks if a given text matches the filter's `text` criteria.
@@ -34,7 +34,7 @@ impl Filter {
     /// - The `text` filter is not set (`None`).
     #[must_use]
     pub fn matches_text(&self, text: &str) -> bool {
-        self.text.as_ref().map_or(true, |v| text.contains(v))
+        self.text.as_ref().is_none_or(|v| text.contains(v))
     }
 
     /// Checks if a given log level matches the filter's `level` criteria.
@@ -47,6 +47,6 @@ impl Filter {
     pub fn matches_level(&self, level: &Level) -> bool {
         self.level
             .and_then(|v| Level::try_from(v).ok())
-            .map_or(true, |v| v == *level)
+            .is_none_or(|v| v == *level)
     }
 }

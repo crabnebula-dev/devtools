@@ -267,10 +267,10 @@ fn print_link(addr: &SocketAddr) {
 
     let url = format!("{url}{}/{}", addr.ip(), addr.port());
     println!(
-        r#"
+        r"
    {} {}{}
    {}   Local:   {}
-"#,
+",
         "Tauri Devtools".bright_purple(),
         "v".purple(),
         env!("CARGO_PKG_VERSION").purple(),
