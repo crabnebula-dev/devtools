@@ -121,11 +121,15 @@ impl<R: Runtime> Sources for SourcesService<R> {
             let chunks = asset
                 .bytes
                 .chunks(512)
-                .map(|b| {
-                    Ok(Chunk {
-                        bytes: bytes::Bytes::copy_from_slice(b),
-                    })
-                })
+                .map(
+                    // Tonic requires `tonic::Status` error types, which are large compared to a Bytes wrapper.
+                    #[allow(clippy::result_large_err)]
+                    |b| {
+                        Ok(Chunk {
+                            bytes: bytes::Bytes::copy_from_slice(b),
+                        })
+                    },
+                )
                 .collect::<Vec<_>>();
             let stream = futures::stream::iter(chunks);
             Ok(Response::new(Box::pin(stream)))
