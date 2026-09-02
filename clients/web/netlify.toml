@@ -19,6 +19,9 @@ to = "/:splat"
     publish = "dist/"
     command = "pnpm build"
 
+[build.environment]
+    NODE_VERSION = "24"
+
 [[headers]]
   for = "/*"
   [headers.values]
