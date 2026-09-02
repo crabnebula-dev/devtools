@@ -1,21 +1,14 @@
-name: CI (v1)
+name: RS checks (v1)
 
 on:
   push:
-    paths:
-      - ".github/workflows/ci.yml"
-      - "crates/**/*.rs"
-      - "!crates/devtools/**/*.rs"
-      - "crates/v1/**/*.rs"
-      - "crates/wire/proto/*.proto"
-      - "**/Cargo.toml"
+    branches:
+      - main
   pull_request:
     paths:
-      - ".github/workflows/ci.yml"
-      - "crates/**/*.rs"
-      - "!crates/devtools/**/*.rs"
-      - "crates/v1/**/*.rs"
-      - "crates/wire/proto/*.proto"
+      - ".github/workflows/rs-checks-v1.yml"
+      - "**/*.rs"
+      - "**/*.proto"
       - "**/Cargo.toml"
 
 permissions:
@@ -29,22 +22,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pre_ci:
-    uses: dtolnay/.github/.github/workflows/pre_ci.yml@master
-
   test:
     name: Rust ${{matrix.rust}}
-    needs: pre_ci
-    if: needs.pre_ci.outputs.continue
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        rust: [ nightly, stable ]
+        rust: [nightly, stable]
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
-      - name: install native dependecies
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: install native dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.0-dev protobuf-compiler
@@ -58,12 +48,12 @@ jobs:
 
   msrv:
     name: Rust MSRV
-    needs: pre_ci
-    if: needs.pre_ci.outputs.continue
     runs-on: ubuntu-22.04
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: install native dependecies
         run: |
           sudo apt-get update
@@ -82,10 +72,11 @@ jobs:
   clippy:
     name: Clippy
     runs-on: ubuntu-22.04
-    if: github.event_name != 'pull_request'
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: install native dependecies
         run: |
           sudo apt-get update
@@ -99,20 +90,24 @@ jobs:
   rustfmt:
     name: Rustfmt
     runs-on: ubuntu-22.04
-    if: github.event_name != 'pull_request'
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Install rustfmt with nightly toolchain
         uses: dtolnay/rust-toolchain@nightly
         with:
           components: rustfmt
       - run: cargo fmt --manifest-path crates/v1/Cargo.toml -- --check
+      - run: cargo fmt --manifest-path examples/tauri-v1/Cargo.toml -- --check
 
   cargo-deny:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - name: Check Cargo Deny (crates/v1)
         uses: EmbarkStudios/cargo-deny-action@v2
         with:
@@ -121,13 +116,3 @@ jobs:
         uses: EmbarkStudios/cargo-deny-action@v2
         with:
           manifest-path: examples/tauri-v1/Cargo.toml
-
-#  outdated:
-#     name: Outdated
-#     runs-on: ubuntu-22.04
-#     if: github.event_name != 'pull_request'
-#     timeout-minutes: 45
-#     steps:
-#       - uses: actions/checkout@v3
-#       - uses: dtolnay/install@cargo-outdated
-#       - run: cargo outdated --workspace --exit-code 1

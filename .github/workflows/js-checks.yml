@@ -1,11 +1,15 @@
 name: JS checks
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     paths:
       - ".github/workflows/js-checks.yml"
       - "clients/web/**"
       - "examples/**"
+      - "**/package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"
 
