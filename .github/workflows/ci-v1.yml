@@ -109,14 +109,18 @@ jobs:
           components: rustfmt
       - run: cargo fmt --manifest-path crates/v1/Cargo.toml -- --check
 
-  check-licenses:
+  cargo-deny:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: Check Rust Licenses
+      - name: Check Cargo Deny (crates/v1)
         uses: EmbarkStudios/cargo-deny-action@v2
         with:
           manifest-path: crates/v1/Cargo.toml
+      - name: Check Cargo Deny (examples/tauri-v1)
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          manifest-path: examples/tauri-v1/Cargo.toml
 
 #  outdated:
 #     name: Outdated
