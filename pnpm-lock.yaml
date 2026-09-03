@@ -320,8 +320,8 @@ importers:
         specifier: ^9.1.2
         version: 9.1.2(eslint@9.39.4(jiti@1.21.7)(supports-color@7.2.0))
       eslint-plugin-solid:
-        specifier: ^0.14.5
-        version: 0.14.5(eslint@9.39.4(jiti@1.21.7)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
+        specifier: ^0.17.0
+        version: 0.17.0(eslint@9.39.4(jiti@1.21.7)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
       globals:
         specifier: ^17.4.0
         version: 17.4.0
@@ -1964,11 +1964,11 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-solid@0.14.5:
-    resolution: {integrity: sha512-nfuYK09ah5aJG/oEN6P1qziy1zLgW4PDWe75VNPi4CEFYk1x2AEqwFeQfEPR7gNn0F2jOeqKhx2E+5oNCOBYWQ==}
-    engines: {node: '>=18.0.0'}
+  eslint-plugin-solid@0.17.0:
+    resolution: {integrity: sha512-0x38zjAZVm4vW5u5mS14WxO9BJsal3IxsR/8QOB2nBiXBdH1LlbbRs2YfqgtPWVpy3OIlnt6yGhoXuZmoHULwQ==}
+    engines: {node: '>=22.0.0'}
     peerDependencies:
-      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
+      eslint: ^9.0.0 || ^10.0.0
       typescript: '>=4.8.4'
 
   eslint-scope@8.4.0:
@@ -5270,7 +5270,7 @@ snapshots:
     dependencies:
       eslint: 9.39.4(jiti@1.21.7)(supports-color@7.2.0)
 
-  eslint-plugin-solid@0.14.5(eslint@9.39.4(jiti@1.21.7)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3):
+  eslint-plugin-solid@0.17.0(eslint@9.39.4(jiti@1.21.7)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3):
     dependencies:
       '@typescript-eslint/utils': 8.56.1(eslint@9.39.4(jiti@1.21.7)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@5.9.3)
       eslint: 9.39.4(jiti@1.21.7)(supports-color@7.2.0)
