@@ -109,7 +109,6 @@ impl Server {
             .allow_headers(Any)
             .allow_origin(AllowOrigin::predicate(move |origin, _request| {
                 let allowed = cors_origins.lock().unwrap();
-
                 allowed
                     .iter()
                     .any(|candidate| candidate == "*" || candidate == origin)
@@ -119,9 +118,6 @@ impl Server {
             .accept_http1(true)
             .layer(cors)
             .layer(GrpcWebLayer::new())
-            // .layer(DynamicCorsLayer {
-            //     allowed_origins: handle.allowed_origins.clone(),
-            // })
             .add_service(health_service)
             .add_service(InstrumentServer::new(InstrumentService {
                 tx: cmd_tx,
