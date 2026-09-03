@@ -8,6 +8,9 @@ targets = [
 ]
 
 [advisories]
+# Dependabot treats (transitive) unsound as security issue.
+# Reflect that in cargo deny.
+unsound = "all"
 ignore = [
     # gtk-rs GTK3 bindings - unmaintained (required by Tauri v2 for Linux)
     "RUSTSEC-2024-0411",
@@ -32,6 +35,10 @@ ignore = [
     "RUSTSEC-2025-0081",
     "RUSTSEC-2025-0098",
     "RUSTSEC-2025-0100",
+    # glib 0.18.5 unsoundness, blocked on Tauri upstream moving to gtk4
+    "RUSTSEC-2024-0429",
+    # rand 0.7 unsoundness, blocked on upstream Tauri removing kuchikiki from deps in v3
+    "RUSTSEC-2026-0097",
 ]
 
 # This section is considered when running `cargo deny check licenses`
