@@ -64,7 +64,7 @@ fn main() {
             let server = tiny_http::Server::http("localhost:1420").unwrap();
 
             fn get_content_type(path: &std::path::Path) -> &'static str {
-                match path.extension().and_then(|s|s.to_str()) {
+                match path.extension().and_then(|s| s.to_str()) {
                     Some("html") => "text/html; charset=utf8",
                     Some("js") => "text/javascript; charset=utf8",
                     _ => "text/plain; charset=utf8",
