@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.1.0...tauri-plugin-devtools-v2.2.0) - 2026-09-03
+
+### Added
+
+- add coverage for CORS features of the plugin using new `test-utils` feature ([#402](https://github.com/crabnebula-dev/devtools/pull/402))
+
+### Other
+
+- upgrade tonic, prost, http, tower ecosystem ([#407](https://github.com/crabnebula-dev/devtools/pull/407))
+- address clippy errors ([#401](https://github.com/crabnebula-dev/devtools/pull/401))
+- fix changelog
+
 ## [2.1.0](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.0.1...tauri-plugin-devtools-v2.1.0) - 2026-03-26
 
 ### Added

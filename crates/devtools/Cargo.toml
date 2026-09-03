@@ -1,6 +1,6 @@
 [package]
 name = "tauri-plugin-devtools"
-version = "2.1.0"
+version = "2.2.0"
 description = "CrabNebula devtools for Tauri: Inspect, monitor, and understand your application with ease."
 authors.workspace = true
 edition.workspace = true
@@ -23,10 +23,10 @@ tauri = { workspace = true, features = ["test"] }
 reqwest = { version = "0.13.2", default-features = false, features = [
     "rustls",
 ] }
-devtools-core = { path = "../devtools-core", version = "0.3.6", features = ["test-utils"] }
+devtools-core = { path = "../devtools-core", version = "0.3.7", features = ["test-utils"] }
 
 [dependencies]
-devtools-core = { path = "../devtools-core", version = "0.3.6" }
+devtools-core = { path = "../devtools-core", version = "0.3.7" }
 tauri.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true

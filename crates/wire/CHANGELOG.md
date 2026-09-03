@@ -24,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.4](https://github.com/crabnebula-dev/devtools/compare/devtools-wire-format-v0.5.3...devtools-wire-format-v0.5.4) - 2026-09-03
+
+### Other
+
+- upgrade tonic, prost, http, tower ecosystem ([#407](https://github.com/crabnebula-dev/devtools/pull/407))
+- address clippy errors ([#401](https://github.com/crabnebula-dev/devtools/pull/401))
+
 ## [0.5.2](https://github.com/crabnebula-dev/devtools/compare/devtools-wire-format-v0.5.1...devtools-wire-format-v0.5.2) - 2024-09-05
 
 ### Other
