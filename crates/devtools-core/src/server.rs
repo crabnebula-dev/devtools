@@ -35,6 +35,19 @@ use tower_layer::Layer;
 /// and may be disconnected.
 const DEFAULT_CLIENT_BUFFER_CAPACITY: usize = 1024 * 4;
 
+fn default_origins(development: bool) -> Vec<HeaderValue> {
+    if development {
+        vec![HeaderValue::from_str("*").unwrap()]
+    } else {
+        vec![
+            HeaderValue::from_str("https://devtools.crabnebula.dev").unwrap(),
+            HeaderValue::from_str("tauri://localhost").unwrap(),
+            #[cfg(windows)]
+            HeaderValue::from_str("http://tauri.localhost").unwrap(),
+        ]
+    }
+}
+
 /// The `gRPC` server that exposes the instrumenting API
 pub struct Server {
     router: tonic::transport::server::Router<
@@ -55,6 +68,24 @@ impl ServerHandle {
     #[allow(clippy::missing_panics_doc)]
     pub fn allow_origin(&self, origin: HeaderValue) {
         self.allowed_origins.lock().unwrap().push(origin);
+    }
+
+    fn new() -> Self {
+        Self {
+            allowed_origins: Arc::new(Mutex::new(default_origins(
+                option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some(),
+            ))),
+        }
+    }
+
+    /// Allows resetting the default origin list, to test both development/production mode.
+    /// When `development` is `true` allows any origin with a `*` wildcard response.
+    #[cfg(any(test, feature = "test-utils"))]
+    pub fn reset_defaults(&self, development: bool) {
+        let mut allowed = self.allowed_origins.lock().unwrap();
+        let origins = default_origins(development);
+        allowed.clear();
+        allowed.extend_from_slice(&origins);
     }
 }
 
@@ -130,23 +161,11 @@ impl Server {
             .set_serving::<InstrumentServer<InstrumentService>>()
             .now_or_never();
 
-        let allowed_origins = Arc::new(Mutex::new(
-            if option_env!("__DEVTOOLS_LOCAL_DEVELOPMENT").is_some() {
-                vec![HeaderValue::from_str("*").unwrap()]
-            } else {
-                vec![
-                    HeaderValue::from_str("https://devtools.crabnebula.dev").unwrap(),
-                    HeaderValue::from_str("tauri://localhost").unwrap(),
-                    #[cfg(windows)]
-                    HeaderValue::from_str("http://tauri.localhost").unwrap(),
-                ]
-            },
-        ));
-
+        let handle = ServerHandle::new();
         let router = tonic::transport::Server::builder()
             .accept_http1(true)
             .layer(DynamicCorsLayer {
-                allowed_origins: allowed_origins.clone(),
+                allowed_origins: handle.allowed_origins.clone(),
             })
             .add_service(tonic_web::enable(health_service))
             .add_service(tonic_web::enable(InstrumentServer::new(
@@ -159,10 +178,7 @@ impl Server {
             .add_service(tonic_web::enable(MetadataServer::new(metadata_server)))
             .add_service(tonic_web::enable(SourcesServer::new(sources_server)));
 
-        Self {
-            router,
-            handle: ServerHandle { allowed_origins },
-        }
+        Self { router, handle }
     }
 
     #[must_use]
