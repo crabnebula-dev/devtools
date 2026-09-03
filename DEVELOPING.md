@@ -42,6 +42,20 @@ mode (`localhost` doesn't match `devtools.crabnebula.dev`) these checks can be d
 variable `__DEVTOOLS_LOCAL_DEVELOPMENT=true`. If you run the examples contained within this repo through `cargo` or the
 Tauri CLI nothing needs to be done, that environment variable is set automatically.
 
+## Generating protobuf code
+
+You can update the `crates/wire/src/generated` code through:
+
+```bash
+cargo run -p devtools-wire-format-build
+```
+
+Running tests would also generate the new code, but fail until the changes are committed to git. For example:
+
+```bash
+cargo test -p devtools-wire-format-build
+```
+
 # Architecture
 
 The core observation behind DevTools is that Tauri apps are _interactive_ and _long-running_ processes,

@@ -64,7 +64,7 @@ fn init_plugin<R: Runtime>(
 ) -> tauri::plugin::TauriPlugin<R> {
     tauri::plugin::Builder::new("probe")
         .setup(move |app_handle, _api| {
-            let (mut health_reporter, health_service) = tonic_health::server::health_reporter();
+            let (health_reporter, health_service) = tonic_health::server::health_reporter();
 
             health_reporter
                 .set_serving::<TauriServer<server::TauriService<R>>>()
@@ -493,13 +493,29 @@ mod tests {
             .expect("the dynamically added origin should be allowed");
         assert_eq!(allowed_origin, origin);
 
-        // Finally check the development behavior is a wildcard allow.
+        // Finally check the development behavior is to reflect any domain.
         devtools.server_handle.reset_defaults(true);
         let response = send_request_retrying(&client, &req).await;
         let allowed_origin = response
             .headers()
             .get("access-control-allow-origin")
-            .expect("development should allow any origin");
-        assert_eq!(allowed_origin, "*");
+            .expect("development should reflect any origin");
+        assert_eq!(allowed_origin, origin);
+
+        let other_origin = "https://dev-origin.example";
+        let response = send_request_retrying(
+            &client,
+            &client
+                .get(format!("http://{addr}"))
+                .header("origin", other_origin)
+                .build()
+                .unwrap(),
+        )
+        .await;
+        let allowed_origin = response
+            .headers()
+            .get("access-control-allow-origin")
+            .expect("development should reflect any origin");
+        assert_eq!(allowed_origin, other_origin);
     }
 }

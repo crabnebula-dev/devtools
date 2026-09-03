@@ -1,9 +1,10 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/wire",
     "crates/devtools-core",
     "crates/devtools",
+    "crates/wire-build",
+    "crates/wire",
     "examples/*/src-tauri",
 ]
 exclude = ["crates/v1", "crates/devtools", "examples/tauri-v1"]
@@ -24,9 +25,10 @@ tokio-stream = "0.1"
 tauri = { version = "2.0.0", default-features = false, features = ["tracing"] }
 tauri-build = "2.0.0"
 tauri-plugin = "2.0.0"
-tonic = "0.10"
-prost = "0.12"
-prost-types = "0.12"
+tonic = "0.14"
+prost = "0.14"
+tonic-prost = "0.14"
+prost-types = "0.14"
 tokio = "1"
 
 [profile.release]
