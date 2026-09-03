@@ -8,8 +8,6 @@ rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 devtools-wire-format = { path = "../wire", version = "0.5.3" }
 tracing.workspace = true
@@ -32,3 +30,10 @@ http = "0.2"
 hyper = "0.14"
 tower = "0.4"
 log = "0.4"
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["io-util"] }
+
+[features]
+default = []
+test-utils = []

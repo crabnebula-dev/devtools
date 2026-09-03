@@ -20,6 +20,10 @@ tauri-plugin = { workspace = true, features = ["build"] }
 
 [dev-dependencies]
 tauri = { workspace = true, features = ["test"] }
+reqwest = { version = "0.13.2", default-features = false, features = [
+    "rustls",
+] }
+devtools-core = { path = "../devtools-core", version = "0.3.6", features = ["test-utils"] }
 
 [dependencies]
 devtools-core = { path = "../devtools-core", version = "0.3.6" }

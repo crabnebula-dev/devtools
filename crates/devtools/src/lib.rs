@@ -412,3 +412,94 @@ fn print_link(addr: &SocketAddr) {
         );
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    async fn send_request_retrying(
+        client: &reqwest::Client,
+        request: &reqwest::Request,
+    ) -> reqwest::Response {
+        let mut last_error = None;
+
+        // The server starts listening on a background thread.
+        // Give it a few retries so the test is more reliable.
+        for _ in 0..10 {
+            match client.execute(request.try_clone().unwrap()).await {
+                Ok(response) => return response,
+                Err(error) => {
+                    last_error = Some(error);
+                    tokio::time::sleep(Duration::from_millis(20)).await;
+                }
+            }
+        }
+
+        panic!("failed to connect to the devtools server: {last_error:?}");
+    }
+
+    #[tokio::test]
+    async fn plugin_supports_dynamic_cors_allowlist() {
+        // Allocate an ephemeral port.
+        let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).unwrap();
+        let addr = listener.local_addr().unwrap();
+        drop(listener);
+
+        // Setup plugin.
+        let shared = Arc::new(Shared::default());
+        let (_event_tx, event_rx) = mpsc::channel(1);
+        let (cmd_tx, cmd_rx) = mpsc::channel(1);
+        let aggregator = Aggregator::new(shared, event_rx, cmd_rx);
+        let plugin = init_plugin(addr, Duration::from_millis(200), aggregator, cmd_tx);
+
+        // Register to mock app.
+        let app = tauri::test::mock_builder()
+            .plugin(plugin)
+            .build(tauri::test::mock_context(tauri::test::noop_assets()))
+            .unwrap();
+
+        // Retrieve the Devtools state handle.
+        let devtools = app
+            .try_state::<Devtools>()
+            .expect("the plugin should expose Devtools as managed state");
+
+        // Use a clearly unrelated origin that isn't allowed by default.
+        let origin = "https://dynamic-origin.example";
+        let client = reqwest::Client::new();
+        let req = client
+            .get(format!("http://{addr}"))
+            .header("origin", origin)
+            .build()
+            .unwrap();
+
+        // First reset to default Prod origins.
+        devtools.server_handle.reset_defaults(false);
+        let response = send_request_retrying(&client, &req).await;
+        assert!(
+            response
+                .headers()
+                .get("access-control-allow-origin")
+                .is_none(),
+            "the origin must not be allowed before using the server handle; ensure \
+             __DEVTOOLS_LOCAL_DEVELOPMENT is not set while compiling this test"
+        );
+
+        // Then add it as allowed and assert again.
+        devtools.server_handle.allow_origin(origin.parse().unwrap());
+        let response = send_request_retrying(&client, &req).await;
+        let allowed_origin = response
+            .headers()
+            .get("access-control-allow-origin")
+            .expect("the dynamically added origin should be allowed");
+        assert_eq!(allowed_origin, origin);
+
+        // Finally check the development behavior is a wildcard allow.
+        devtools.server_handle.reset_defaults(true);
+        let response = send_request_retrying(&client, &req).await;
+        let allowed_origin = response
+            .headers()
+            .get("access-control-allow-origin")
+            .expect("development should allow any origin");
+        assert_eq!(allowed_origin, "*");
+    }
+}
