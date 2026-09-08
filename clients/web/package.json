@@ -16,12 +16,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "check-licenses": "license-checker --summary --onlyAllow='MIT;Apache-2.0;BSD-2-Clause;BSD-3-Clause' --excludePackages='spa-client@0.0.0'",
-    "test": "cross-env TZ=UTC pnpm proto && vitest",
-    "prepare": "cd ../.. && husky clients/web/.husky"
-  },
-  "lint-staged": {
-    "*": "pnpm format",
-    "*.{ts,tsx}": "pnpm lint"
+    "test": "cross-env TZ=UTC pnpm proto && vitest"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -39,10 +34,8 @@
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-solid": "^0.14.5",
     "globals": "^17.4.0",
-    "husky": "^9.1.7",
     "jsdom": "^28.1",
     "license-checker": "^25.0.1",
-    "lint-staged": "^15.5.2",
     "postcss": "^8.5.26",
     "prettier": "^3.8.1",
     "tailwindcss": "^3.4.19",
