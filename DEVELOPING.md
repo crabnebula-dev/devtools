@@ -14,10 +14,10 @@ To compile the project and run tests, you must have the **Protocol Buffers compi
 
 ### Installation
 
-*   **macOS**: `brew install protobuf`
-*   **Ubuntu/Debian**: `sudo apt install -y protobuf-compiler`
-*   **Windows (Chocolatey)**: `choco install protoc`
-*   **Other**: Download from [GitHub Releases](https://github.com/protocolbuffers/protobuf/releases)
+- **macOS**: `brew install protobuf`
+- **Ubuntu/Debian**: `sudo apt install -y protobuf-compiler`
+- **Windows (Chocolatey)**: `choco install protoc`
+- **Other**: Download from [GitHub Releases](https://github.com/protocolbuffers/protobuf/releases)
 
 Ensure `protoc` is in your `PATH`. You can verify by running `protoc --version`.
 
@@ -55,6 +55,18 @@ Running tests would also generate the new code, but fail until the changes are c
 ```bash
 cargo test -p devtools-wire-format-build
 ```
+
+## MSRV policy
+
+Each crate's `rust-version` covers its **default features**, resolved with [`resolver = "3"`](https://doc.rust-lang.org/cargo/reference/resolver.html#resolver-versions).
+Optional features may require a newer toolchain; that requirement is not part of the guarantee.
+
+MSRV is raised only when a default-feature dependency forces it and dependencies are not held back to avoid it.
+An MSRV increase is not a breaking change and may land in any release, including a patch.
+
+The resolver is chosen by your own workspace or top-level crate, not by this one.
+Typically this is the crate in `src-tauri` or the workspace the Tauri application is in.
+Using `resolver = "3"` is highly encouraged. Otherwise it's up to the user to pin dependencies to support the Rust version you have access to.
 
 # Architecture
 
