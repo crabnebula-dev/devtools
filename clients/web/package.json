@@ -32,7 +32,7 @@
     "cross-env": "^7.0.3",
     "eslint": "^9.35",
     "eslint-config-prettier": "^9.1.2",
-    "eslint-plugin-solid": "^0.14.5",
+    "eslint-plugin-solid": "^0.18.0",
     "globals": "^17.4.0",
     "jsdom": "^28.1",
     "license-checker": "^25.0.1",
