@@ -1,3 +1,3 @@
 export function TosTimestamp() {
-  return <p class="italic">Last modified: 29.10.2024</p>;
+  return <p class="italic">Last modified: 09.09.2026</p>;
 }
