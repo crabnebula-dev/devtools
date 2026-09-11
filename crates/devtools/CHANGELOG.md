@@ -8,16 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.0](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.1.0...tauri-plugin-devtools-v2.2.0) - 2026-09-11
 
-### Added
+### Changed
 
-- add coverage for CORS features of the plugin using new `test-utils` feature ([#402](https://github.com/crabnebula-dev/devtools/pull/402))
+- Raise MSRV to 1.85. Added MSRV policy ([#414](https://github.com/crabnebula-dev/devtools/pull/414))
+- Upgrade to tonic/prost 0.14 and http 1. ([#407](https://github.com/crabnebula-dev/devtools/pull/407))
+- Simplified CORS handling to mirror the allowed request origin in `Access-Control-Allow-Origin`, including in local development mode, instead of returning an origin list or `*`. ([#407](https://github.com/crabnebula-dev/devtools/pull/407))
+
+### Fixed
+
+- Increase span buffer size to avoid dropped spans and UX issues. ([#227](https://github.com/crabnebula-dev/devtools/pull/227))
 
 ### Other
 
-- update MSRV policy & resolver v3 ([#414](https://github.com/crabnebula-dev/devtools/pull/414))
-- upgrade tonic, prost, http, tower ecosystem ([#407](https://github.com/crabnebula-dev/devtools/pull/407))
-- address clippy errors ([#401](https://github.com/crabnebula-dev/devtools/pull/401))
-- fix changelog
+- General dependency updates
+- General CI maintenance
+- Add test coverage for CORS features of the plugin using new `test-utils` core feature ([#402](https://github.com/crabnebula-dev/devtools/pull/402))
 
 ## [2.1.0](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.0.1...tauri-plugin-devtools-v2.1.0) - 2026-03-26
 
