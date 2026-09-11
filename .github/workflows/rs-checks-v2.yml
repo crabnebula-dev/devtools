@@ -38,7 +38,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y webkit2gtk-4.1 protobuf-compiler
-      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+      - uses: dtolnay/rust-toolchain@d1031067263f94b142dd6c0ce24c5eb9d02d52a0 # master
         with:
           toolchain: ${{matrix.rust}}
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
@@ -63,7 +63,7 @@ jobs:
         run: |
           msrv=$(yq -e '.package.rust-version' ./crates/devtools/Cargo.toml);
           echo "msrv=$msrv" >> "$GITHUB_OUTPUT"
-      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+      - uses: dtolnay/rust-toolchain@d1031067263f94b142dd6c0ce24c5eb9d02d52a0 # master
         with:
           toolchain: ${{ steps.msrv.outputs.msrv }}
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
@@ -83,7 +83,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y webkit2gtk-4.1
-      - uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+      - uses: dtolnay/rust-toolchain@d1031067263f94b142dd6c0ce24c5eb9d02d52a0 # master
         with:
           toolchain: stable
           components: clippy
@@ -99,7 +99,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Install rustfmt with nightly toolchain
-        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # master
+        uses: dtolnay/rust-toolchain@d1031067263f94b142dd6c0ce24c5eb9d02d52a0 # master
         with:
           toolchain: nightly
           components: rustfmt
