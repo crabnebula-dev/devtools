@@ -3967,7 +3967,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-devtools"
-version = "2.2.0"
+version = "2.2.1"
 dependencies = [
  "async-stream",
  "bytes",
