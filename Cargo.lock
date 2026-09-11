@@ -718,7 +718,7 @@ dependencies = [
 
 [[package]]
 name = "devtools-core"
-version = "0.3.7"
+version = "0.4.0"
 dependencies = [
  "bytes",
  "devtools-wire-format",
@@ -3967,7 +3967,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-devtools"
-version = "2.2.0"
+version = "2.2.1"
 dependencies = [
  "async-stream",
  "bytes",
