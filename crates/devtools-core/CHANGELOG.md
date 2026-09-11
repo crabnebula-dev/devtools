@@ -20,6 +20,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.7](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.6...devtools-core-v0.3.7) - 2026-09-11
+
+### Added
+
+- add coverage for CORS features of the plugin using new `test-utils` feature ([#402](https://github.com/crabnebula-dev/devtools/pull/402))
+
+### Fixed
+
+- dont drop events in buffer ([#227](https://github.com/crabnebula-dev/devtools/pull/227))
+
+### Other
+
+- update MSRV policy & resolver v3 ([#414](https://github.com/crabnebula-dev/devtools/pull/414))
+- remove unused crates ([#413](https://github.com/crabnebula-dev/devtools/pull/413))
+- upgrade tonic, prost, http, tower ecosystem ([#407](https://github.com/crabnebula-dev/devtools/pull/407))
+- changelog spelling ([#409](https://github.com/crabnebula-dev/devtools/pull/409))
+
 ## [0.3.5](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.4...devtools-core-v0.3.5) - 2024-09-05
 
 ### Other
