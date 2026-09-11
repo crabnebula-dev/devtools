@@ -16,22 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Other
 
 - 3033
-# Changelog
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
-
-## [0.6.0](https://github.com/crabnebula-dev/devtools/compare/devtools-wire-format-v0.5.3...devtools-wire-format-v0.6.0) - 2026-09-11
-
-### Other
-
-- update MSRV policy & resolver v3 ([#414](https://github.com/crabnebula-dev/devtools/pull/414))
-- remove unused crates ([#413](https://github.com/crabnebula-dev/devtools/pull/413))
-- upgrade tonic, prost, http, tower ecosystem ([#407](https://github.com/crabnebula-dev/devtools/pull/407))
-- address clippy errors ([#401](https://github.com/crabnebula-dev/devtools/pull/401))
 
 ## [0.5.2](https://github.com/crabnebula-dev/devtools/compare/devtools-wire-format-v0.5.1...devtools-wire-format-v0.5.2) - 2024-09-05
 
