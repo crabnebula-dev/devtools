@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.7](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.6...devtools-core-v0.3.7) - 2026-09-11
+## [0.4.0](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.6...devtools-core-v0.4.0) - 2026-09-11
 
 ### Added
 
@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- BREAKING: updated `devtools-wire-format` to `0.6.0` including a breaking version upgrade of tonic/prost types.
 - Raise MSRV to 1.85. Added MSRV policy ([#414](https://github.com/crabnebula-dev/devtools/pull/414))
 - Upgrade to tonic/prost 0.14 and http 1. ([#407](https://github.com/crabnebula-dev/devtools/pull/407))
 - Simplified CORS handling to mirror the allowed request origin in `Access-Control-Allow-Origin`, including in local development mode, instead of returning an origin list or `*`. ([#407](https://github.com/crabnebula-dev/devtools/pull/407))
