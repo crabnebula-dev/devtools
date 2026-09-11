@@ -720,7 +720,6 @@ dependencies = [
 name = "devtools-core"
 version = "0.3.6"
 dependencies = [
- "async-stream",
  "bytes",
  "devtools-wire-format",
  "futures",
@@ -747,10 +746,8 @@ version = "0.5.3"
 dependencies = [
  "bitflags 2.13.1",
  "prost",
- "prost-build",
  "prost-types",
  "tonic",
- "tonic-build",
  "tonic-prost",
  "tracing-core",
 ]
