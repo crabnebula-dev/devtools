@@ -1,0 +1,20 @@
+[workspace]
+resolver = "3"
+members = ["crates/*", "../../examples/tauri-v3/src-tauri"]
+
+[workspace.package]
+authors = ["CrabNebula <hello@crabnebula.dev>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/crabnebula-dev/devtools"
+
+[workspace.dependencies]
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tauri = { version = "3.0.0-alpha.0", default-features = false, features = ["tracing"] }
+tauri-plugin = "3.0.0-alpha.0"
+tauri-build = "3.0.0-alpha.0"
+tauri-runtime-wry = "3.0.0-alpha.0"
+tauri-runtime-cef = "3.0.0-alpha.0"
+tonic = "0.14"
+tokio = "1"

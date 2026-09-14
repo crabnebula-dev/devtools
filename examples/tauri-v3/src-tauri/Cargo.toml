@@ -1,0 +1,45 @@
+[package]
+name = "tauri-v3-example"
+version = "0.0.0"
+description = "A Tauri App"
+authors = ["you"]
+license = ""
+repository = ""
+edition = "2021"
+publish = false
+# this example lives outside the `crates/v3` directory but is a member of that workspace,
+# so it shares the Tauri v3 lockfile and target directory with the plugin
+workspace = "../../../crates/v3"
+
+[lib]
+name = "tauri_v3_example_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build.workspace = true
+
+[dependencies]
+tauri = { workspace = true, default-features = true }
+tauri-plugin-devtools = { path = "../../../crates/v3/crates/devtools", version = "3.0.0-alpha.0" }
+tracing.workspace = true
+tokio = { workspace = true, features = ["time"] }
+reqwest = { version = "0.13.2", default-features = false, features = [
+  "rustls",
+] }
+serde = "1"
+
+# Tauri v3 does not bundle a webview runtime: the app picks one by depending on its crate
+# and passing it to `tauri::Builder::runtime`. `tauri-build` and the Tauri CLI also detect
+# the runtime from these dependencies (e.g. to ship the CEF binary distribution).
+tauri-runtime-wry = { workspace = true, optional = true }
+tauri-runtime-cef = { workspace = true, optional = true }
+
+[features]
+default = ["wry"]
+# the system webview (WebKitGTK, WebView2, WKWebView)
+wry = ["dep:tauri-runtime-wry"]
+# the Chromium Embedded Framework, shipped with the app: `cargo tauri dev --features cef`
+cef = ["dep:tauri-runtime-cef"]
+# this feature is used for production builds or when `devPath` points to the filesystem
+# DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]

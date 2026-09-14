@@ -1,0 +1,17 @@
+# release-plz configuration for the Tauri v2 line (the root workspace).
+#
+# This is deliberately not named `release-plz.toml`: that file would be picked up by every
+# release-plz job (v1, v2 and v3 all run from the repo root) and release-plz errors on
+# `[[package]]` overrides that don't exist in the workspace being released.
+# It is passed to the v2 job explicitly through the `config` input in
+# `.github/workflows/release-plz.yml`.
+
+# `tauri-plugin-devtools` is published from two workspaces under the same crate name:
+# `2.x` from `crates/devtools` and `3.x` from `crates/v3/crates/devtools`.
+# release-plz compares the local package against the highest version on crates.io,
+# prereleases included, so once a `3.0.0-alpha.x` is published the baseline for this
+# workspace becomes the v3 package. Running cargo-semver-checks against it would report
+# the v2 -> v3 API differences as breaking and bump this crate to `3.0.0`.
+[[package]]
+name = "tauri-plugin-devtools"
+semver_check = false

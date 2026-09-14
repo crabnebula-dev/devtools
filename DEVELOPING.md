@@ -4,7 +4,8 @@ There are a couple components to devtools that you should know about:
 
 - `crates/devtools-core` The core instrumentation library that will cappture and process `tracing` data from your app.
 - `crates/devtools` The user-facing Tauri plugin that hooks `devtools-core` into a Tauri app.
-- `crates/devtools-v1` The Tauri plugin for legacy Tauri v1.x versions
+- `crates/v1/crates/devtools` The Tauri plugin for legacy Tauri v1.x versions
+- `crates/v3/crates/devtools` The Tauri plugin for the upcoming Tauri v3.x versions (currently alpha). `examples/tauri-v3` is a member of that workspace and supports both the wry and CEF runtimes.
 - `crates/wire` The protobuf files that define the message protocol between the instrumentation and GUI.
 - `clients/web` The user-facing web GUI that is hosted at `devtools.crabnebula.dev`
 
@@ -31,7 +32,7 @@ If it's something like, security vulnerabilities chances are high you just need 
 do so by running this command from the repo root:
 
 ```bash
-cargo update && cargo update --manifest-path examples/tauri-v1/Cargo.toml && cargo update --manifest-path crates/v1/Cargo.toml
+cargo update && cargo update --manifest-path examples/tauri-v1/Cargo.toml && cargo update --manifest-path crates/v1/Cargo.toml && cargo update --manifest-path crates/v3/Cargo.toml
 ```
 
 ## Developing locally

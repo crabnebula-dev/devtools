@@ -1,0 +1,48 @@
+[package]
+name = "tauri-plugin-devtools"
+version = "3.0.0-alpha.0"
+description = "CrabNebula devtools for Tauri: Inspect, monitor, and understand your application with ease."
+rust-version = "1.95.0"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+links = "tauri-plugin-devtools"
+
+[package.metadata.docs.rs]
+rustc-args = ["--cfg", "docsrs"]
+rustdoc-args = ["--cfg", "docsrs"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-plugin = { workspace = true, features = ["build"] }
+
+[dev-dependencies]
+tauri = { workspace = true, features = ["test"] }
+reqwest = { version = "0.13.2", default-features = false, features = [
+    "rustls",
+] }
+devtools-core = { path = "../../../devtools-core", version = "0.4.0", features = ["test-utils"] }
+
+[dependencies]
+devtools-core = { path = "../../../devtools-core", version = "0.4.0" }
+tauri.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tokio.workspace = true
+tonic.workspace = true
+serde = "1"
+tonic-health = "0.14"
+colored = "2.1"
+serde_json = "1"
+futures = "0.3.30"
+bytes = "1.7.1"
+async-stream = "0.3.5"
+local-ip-address = "0.5"
+log = "0.4"
+
+[target."cfg(target_os = \"ios\")".dependencies]
+swift-rs = "1.0.7"
+objc = "0.2"
+cocoa = "0.26"
