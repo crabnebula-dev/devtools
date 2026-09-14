@@ -7,22 +7,25 @@ license = ""
 repository = ""
 edition = "2021"
 publish = false
-# this example lives outside the `crates/v3` directory but is a member of that workspace,
-# so it shares the Tauri v3 lockfile and target directory with the plugin
-workspace = "../../../crates/v3"
+
+# standalone package: it is excluded from the root (Tauri v2) workspace and cannot be a member
+# of `crates/v3` from outside that directory (release-plz requires members to live under the
+# workspace root), so it has its own lockfile and target directory like `examples/tauri-v1`
+[workspace]
+resolver = "3"
 
 [lib]
 name = "tauri_v3_example_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build.workspace = true
+tauri-build = "3.0.0-alpha.0"
 
 [dependencies]
-tauri = { workspace = true, default-features = true }
+tauri = "3.0.0-alpha.0"
 tauri-plugin-devtools = { path = "../../../crates/v3/crates/devtools", version = "3.0.0-alpha.0" }
-tracing.workspace = true
-tokio = { workspace = true, features = ["time"] }
+tracing = "0.1"
+tokio = { version = "1", features = ["time"] }
 reqwest = { version = "0.13.2", default-features = false, features = [
   "rustls",
 ] }
@@ -31,8 +34,8 @@ serde = "1"
 # Tauri v3 does not bundle a webview runtime: the app picks one by depending on its crate
 # and passing it to `tauri::Builder::runtime`. `tauri-build` and the Tauri CLI also detect
 # the runtime from these dependencies (e.g. to ship the CEF binary distribution).
-tauri-runtime-wry = { workspace = true, optional = true }
-tauri-runtime-cef = { workspace = true, optional = true }
+tauri-runtime-wry = { version = "3.0.0-alpha.0", optional = true }
+tauri-runtime-cef = { version = "3.0.0-alpha.0", optional = true }
 
 [features]
 default = ["wry"]

@@ -93,8 +93,11 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
-          workspaces: crates/v3
+          workspaces: |
+            crates/v3
+            examples/tauri-v3/src-tauri
       - run: cargo clippy --manifest-path crates/v3/Cargo.toml -- -Dclippy::all -Dclippy::pedantic
+      - run: cargo clippy --manifest-path examples/tauri-v3/src-tauri/Cargo.toml -- -Dclippy::all -Dclippy::pedantic
 
   rustfmt:
     name: Rustfmt
@@ -110,6 +113,7 @@ jobs:
           toolchain: nightly
           components: rustfmt
       - run: cargo fmt --manifest-path crates/v3/Cargo.toml --all -- --check
+      - run: cargo fmt --manifest-path examples/tauri-v3/src-tauri/Cargo.toml -- --check
 
   cargo-deny:
     runs-on: ubuntu-latest
@@ -117,7 +121,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
-      - name: Check Cargo Deny
+      - name: Check Cargo Deny (crates/v3)
         uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2
         with:
           manifest-path: crates/v3/Cargo.toml
+      - name: Check Cargo Deny (examples/tauri-v3)
+        uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2
+        with:
+          manifest-path: examples/tauri-v3/src-tauri/Cargo.toml
