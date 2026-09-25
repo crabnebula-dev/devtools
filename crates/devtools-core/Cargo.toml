@@ -2,7 +2,7 @@
 name = "devtools-core"
 version = "0.4.0"
 description = "CrabNebula devtools for Tauri: Inspect, monitor, and understand your application with ease."
-rust-version = "1.85.0"
+rust-version = "1.88.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -23,8 +23,8 @@ tonic-health = "0.14"
 tower-http = { version = "0.6", features = ["cors"] }
 tower-layer = "0.3"
 futures = "0.3.30"
-bytes = "1.7.1"
-ringbuf = "0.4.4"
+bytes = "1.11.1"
+ringbuf = "0.5.2"
 http = "1"
 log = "0.4"
 
