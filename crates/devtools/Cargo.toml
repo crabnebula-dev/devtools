@@ -2,7 +2,7 @@
 name = "tauri-plugin-devtools"
 version = "2.2.1"
 description = "CrabNebula devtools for Tauri: Inspect, monitor, and understand your application with ease."
-rust-version = "1.85.0"
+rust-version = "1.88.0"
 authors.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -37,7 +37,7 @@ tonic-health = "0.14"
 colored = "2.1"
 serde_json = "1"
 futures = "0.3.30"
-bytes = "1.7.1"
+bytes = "1.11.1"
 async-stream = "0.3.5"
 local-ip-address = "0.5"
 log = "0.4"
