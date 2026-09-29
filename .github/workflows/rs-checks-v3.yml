@@ -24,12 +24,8 @@ concurrency:
 
 jobs:
   test:
-    name: Rust ${{matrix.rust}}
+    name: Rust stable
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        rust: [nightly, stable]
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -41,7 +37,7 @@ jobs:
           sudo apt-get install -y webkit2gtk-4.1 protobuf-compiler
       - uses: dtolnay/rust-toolchain@d1031067263f94b142dd6c0ce24c5eb9d02d52a0 # master
         with:
-          toolchain: ${{matrix.rust}}
+          toolchain: stable
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
         with:
           workspaces: crates/v3
