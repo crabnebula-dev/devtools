@@ -11,6 +11,7 @@ on:
       - "**/*.proto"
       - "**/Cargo.toml"
       - "**/Cargo.lock"
+      - "deny.toml"
 
 permissions:
   contents: read

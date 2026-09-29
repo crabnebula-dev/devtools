@@ -12,17 +12,6 @@ targets = [
 # Reflect that in cargo deny.
 unsound = "all"
 ignore = [
-    # gtk-rs GTK3 bindings - unmaintained (required by Tauri v2 for Linux)
-    "RUSTSEC-2024-0411",
-    "RUSTSEC-2024-0412",
-    "RUSTSEC-2024-0413",
-    "RUSTSEC-2024-0414",
-    "RUSTSEC-2024-0415",
-    "RUSTSEC-2024-0416",
-    "RUSTSEC-2024-0417",
-    "RUSTSEC-2024-0418",
-    "RUSTSEC-2024-0419",
-    "RUSTSEC-2024-0420",
     # proc-macro-error - unmaintained (required by gtk3/glib macros)
     "RUSTSEC-2024-0370",
     # instant - unmaintained (required by v1 tao crate)
@@ -37,7 +26,7 @@ ignore = [
     "RUSTSEC-2025-0100",
     # glib 0.18.5 unsoundness, blocked on Tauri upstream moving to gtk4
     "RUSTSEC-2024-0429",
-    # rand 0.7 unsoundness, blocked on upstream Tauri removing kuchikiki from deps in v3
+    # rand 0.7 unsoundness, required in Tauri v1 and v2.
     "RUSTSEC-2026-0097",
 ]
 
@@ -50,16 +39,13 @@ ignore = [
 # [possible values: any SPDX 3.11 short identifier (+ optional exception)].
 allow = [
     "ISC",
-    "MIT",                            # requires license notice
-    "Apache-2.0",                     # requires license notice
-    "Apache-2.0 WITH LLVM-exception",
-    "BSD-3-Clause",                   # requires license notice and link to source code TODO allow?
-    "MPL-2.0",                        # requires license notice and link to source code TODO allow?
+    "MIT",
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "MPL-2.0",
     "Unicode-3.0",
-    "Zlib",
 ]
 
-# Sigh
 [[licenses.clarify]]
 name = "ring"
 # SPDX considers OpenSSL to encompass both the OpenSSL and SSLeay licenses
@@ -71,6 +57,21 @@ name = "ring"
 # OpenSSL - Obviously
 expression = "ISC AND MIT AND OpenSSL"
 license-files = [{ path = "LICENSE", hash = 0xbd0eed23 }]
+
+# Exceptions should be targeting just the crates that need it.
+# bzip2 is used by CEF downloader. Which is an option for Tauri v3.
+[[licenses.exceptions]]
+allow = ["bzip2-1.0.6"]
+name = "libbz2-rs-sys"
+[[licenses.exceptions]]
+allow = ["Apache-2.0 WITH LLVM-exception"]
+name = "target-lexicon"
+[[licenses.exceptions]]
+allow = ["CDLA-Permissive-2.0"]
+name = "webpki-roots"
+[[licenses.exceptions]]
+allow = ["Zlib"]
+name = "foldhash"
 
 [licenses.private]
 # If true, ignores workspace crates that aren't published, or are only
