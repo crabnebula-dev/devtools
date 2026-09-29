@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.3](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.2.2...tauri-plugin-devtools-v2.2.3) - 2026-09-29
+
+### Other
+
+- release
+- bump ringbuf to 0.5, bytes to 1.11
+
 ## [2.2.2](https://github.com/crabnebula-dev/devtools/compare/tauri-plugin-devtools-v2.2.1...tauri-plugin-devtools-v2.2.2) - 2026-09-29
 
 ### Other
