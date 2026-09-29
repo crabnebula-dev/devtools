@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.4.0...devtools-core-v0.4.1) - 2026-09-29
+
+### Other
+
+- bump ringbuf to 0.5, bytes to 1.11
+
 ## [0.4.0](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.3.6...devtools-core-v0.4.0) - 2026-09-11
 
 ### Added
