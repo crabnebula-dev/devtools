@@ -1,5 +1,13 @@
 {
   "private": true,
+  "scripts": {
+    "check:v1": "cd crates/v1; cargo check",
+    "check:v1-example": "cd examples/tauri-v1; cargo check",
+    "check:v2": "cargo check",
+    "check:v3": "cd crates/v3; cargo check",
+    "check:v3-example": "cd examples/tauri-v3/src-tauri; cargo check",
+    "check:all": "pnpm run \"/^check:v/\""
+  },
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
