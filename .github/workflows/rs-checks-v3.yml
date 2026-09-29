@@ -10,6 +10,7 @@ on:
       - "**/*.rs"
       - "**/*.proto"
       - "**/Cargo.toml"
+      - "**/Cargo.lock"
 
 permissions:
   contents: read
