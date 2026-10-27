@@ -86,7 +86,7 @@ function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
 async function readListOfConfigurations(
   entries: string[],
   client: SourcesClient,
-  zodSchema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>,
+  zodSchema: z.ZodType<TauriConfig, unknown>,
 ) {
   return await Promise.all(
     entries.map(async (entry): Promise<ConfigurationObject | null> => {

@@ -1,4 +1,4 @@
-import { ZodError, ZodIssueBase } from "zod";
+import { z } from "zod";
 import { TauriConfig } from "~/lib/tauri/config/tauri-conf";
 import { Show, For } from "solid-js";
 import { useConfiguration } from "./configuration-context";
@@ -9,7 +9,7 @@ import {
 import { findLineNumberByKey } from "~/lib/tauri/tauri-conf-lib";
 
 export function ConfigurationErrors(props: {
-  error: ZodError<TauriConfig> | undefined;
+  error: z.ZodError<TauriConfig> | undefined;
 }) {
   const {
     highlightKey: { setHighlightKey },
@@ -28,7 +28,7 @@ export function ConfigurationErrors(props: {
       <h2 class="text-2xl pt-2 text-red-900">
         ⚠ This configuration has errors ⚠
       </h2>
-      <For each={props.error?.errors}>
+      <For each={props.error?.issues}>
         {(item) => (
           <section class="py-4">
             <p class="text-red-500 text-2xl">Error: {item.message} :</p>
@@ -45,7 +45,9 @@ export function ConfigurationErrors(props: {
                 Line: {findLineNumberByKey(buildHighlightKeyForIssue(item))}
                 {" : "}
               </Show>
-              <For each={item.path}>{(path) => <span>[{path}]</span>}</For>
+              <For each={item.path}>
+                {(path) => <span>[{String(path)}]</span>}
+              </For>
               <UnrecognizedKeyIssue issue={item} />
             </h2>
           </section>
@@ -55,7 +57,7 @@ export function ConfigurationErrors(props: {
   );
 }
 
-function buildHighlightKeyForIssue(issue: ZodIssueBase) {
+function buildHighlightKeyForIssue(issue: z.core.$ZodIssueBase) {
   let key = issue.path.join(".");
   if (isUnrecognizedKeyIssue(issue))
     key += key === "" ? issue.keys[0] : "." + issue.keys[0];

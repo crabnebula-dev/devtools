@@ -44,7 +44,7 @@ export const tauriConfigSchemaV1 = z
         "The package configuration.\n\nSee more: https://tauri.app/v1/api/config#packageconfig",
       )
       .describe("Package settings.")
-      .default({ productName: null, version: null }),
+      .prefault({ productName: null, version: null }),
     tauri: z
       .object({
         pattern: z
@@ -72,23 +72,22 @@ export const tauriConfigSchemaV1 = z
             const errors = schemas.reduce(
               (errors: z.ZodError[], schema) =>
                 ((result) =>
-                  "error" in result ? [...errors, result.error] : errors)(
+                  !result.success ? [...errors, result.error] : errors)(
                   schema.safeParse(x),
                 ),
               [],
             );
             if (schemas.length - errors.length !== 1) {
               ctx.addIssue({
-                path: ctx.path,
                 code: "invalid_union",
-                unionErrors: errors,
+                errors: errors.map((e) => e.issues),
                 message: "Invalid input: Should pass single schema",
               });
             }
           })
           .describe("The application pattern.")
           .describe("The pattern to use.")
-          .default({ use: "brownfield" }),
+          .prefault({ use: "brownfield" }),
         windows: z
           .array(
             z
@@ -96,7 +95,7 @@ export const tauriConfigSchemaV1 = z
                 label: z
                   .string()
                   .describe("The window identifier. It must be alphanumeric.")
-                  .default("main"),
+                  .prefault("main"),
                 url: z
                   .union([
                     z.string().url().describe("An external URL."),
@@ -108,7 +107,7 @@ export const tauriConfigSchemaV1 = z
                   ])
                   .describe("An URL to open on a Tauri webview window.")
                   .describe("The window webview URL.")
-                  .default("index.html"),
+                  .prefault("index.html"),
                 userAgent: z
                   .union([
                     z.string().describe("The user agent for the webview"),
@@ -121,11 +120,11 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "Whether the file drop is enabled or not on the webview. By default it is enabled.\n\nDisabling it is required to use drag and drop on the frontend on Windows.",
                   )
-                  .default(true),
+                  .prefault(true),
                 center: z
                   .boolean()
                   .describe("Whether or not the window starts centered or not.")
-                  .default(false),
+                  .prefault(false),
                 x: z
                   .union([
                     z
@@ -160,8 +159,8 @@ export const tauriConfigSchemaV1 = z
                     "The vertical position of the window's top left corner",
                   )
                   .optional(),
-                width: z.number().describe("The window width.").default(800),
-                height: z.number().describe("The window height.").default(600),
+                width: z.number().describe("The window width.").prefault(800),
+                height: z.number().describe("The window height.").prefault(600),
                 minWidth: z
                   .union([
                     z.number().describe("The min window width."),
@@ -195,75 +194,75 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "Whether the window is resizable or not. When resizable is set to false, native window's maximize button is automatically disabled.",
                   )
-                  .default(true),
+                  .prefault(true),
                 maximizable: z
                   .boolean()
                   .describe(
                     'Whether the window\'s native maximize button is enabled or not. If resizable is set to false, this setting is ignored.\n\n## Platform-specific\n\n- **macOS:** Disables the "zoom" button in the window titlebar, which is also used to enter fullscreen mode. - **Linux / iOS / Android:** Unsupported.',
                   )
-                  .default(true),
+                  .prefault(true),
                 minimizable: z
                   .boolean()
                   .describe(
                     "Whether the window's native minimize button is enabled or not.\n\n## Platform-specific\n\n- **Linux / iOS / Android:** Unsupported.",
                   )
-                  .default(true),
+                  .prefault(true),
                 closable: z
                   .boolean()
                   .describe(
                     'Whether the window\'s native close button is enabled or not.\n\n## Platform-specific\n\n- **Linux:** "GTK+ will do its best to convince the window manager not to show a close button. Depending on the system, this function may not have any effect when called on a window that is already visible" - **iOS / Android:** Unsupported.',
                   )
-                  .default(true),
+                  .prefault(true),
                 title: z
                   .string()
                   .describe("The window title.")
-                  .default("Tauri App"),
+                  .prefault("Tauri App"),
                 fullscreen: z
                   .boolean()
                   .describe("Whether the window starts as fullscreen or not.")
-                  .default(false),
+                  .prefault(false),
                 focus: z
                   .boolean()
                   .describe(
                     "Whether the window will be initially focused or not.",
                   )
-                  .default(true),
+                  .prefault(true),
                 transparent: z
                   .boolean()
                   .describe(
                     "Whether the window is transparent or not.\n\nNote that on `macOS` this requires the `macos-private-api` feature flag, enabled under `tauri > macOSPrivateApi`. WARNING: Using private APIs on `macOS` prevents your application from being accepted to the `App Store`.",
                   )
-                  .default(false),
+                  .prefault(false),
                 maximized: z
                   .boolean()
                   .describe("Whether the window is maximized or not.")
-                  .default(false),
+                  .prefault(false),
                 visible: z
                   .boolean()
                   .describe("Whether the window is visible or not.")
-                  .default(true),
+                  .prefault(true),
                 decorations: z
                   .boolean()
                   .describe("Whether the window should have borders and bars.")
-                  .default(true),
+                  .prefault(true),
                 alwaysOnTop: z
                   .boolean()
                   .describe(
                     "Whether the window should always be on top of other windows.",
                   )
-                  .default(false),
+                  .prefault(false),
                 contentProtected: z
                   .boolean()
                   .describe(
                     "Prevents the window contents from being captured by other apps.",
                   )
-                  .default(false),
+                  .prefault(false),
                 skipTaskbar: z
                   .boolean()
                   .describe(
                     "If `true`, hides the window icon from the taskbar on Windows and Linux.",
                   )
-                  .default(false),
+                  .prefault(false),
                 theme: z
                   .union([
                     z
@@ -276,16 +275,15 @@ export const tauriConfigSchemaV1 = z
                         const errors = schemas.reduce(
                           (errors: z.ZodError[], schema) =>
                             ((result) =>
-                              "error" in result
+                              !result.success
                                 ? [...errors, result.error]
                                 : errors)(schema.safeParse(x)),
                           [],
                         );
                         if (schemas.length - errors.length !== 1) {
                           ctx.addIssue({
-                            path: ctx.path,
                             code: "invalid_union",
-                            unionErrors: errors,
+                            errors: errors.map((e) => e.issues),
                             message: "Invalid input: Should pass single schema",
                           });
                         }
@@ -316,16 +314,15 @@ export const tauriConfigSchemaV1 = z
                     const errors = schemas.reduce(
                       (errors: z.ZodError[], schema) =>
                         ((result) =>
-                          "error" in result
-                            ? [...errors, result.error]
-                            : errors)(schema.safeParse(x)),
+                          !result.success ? [...errors, result.error] : errors)(
+                          schema.safeParse(x),
+                        ),
                       [],
                     );
                     if (schemas.length - errors.length !== 1) {
                       ctx.addIssue({
-                        path: ctx.path,
                         code: "invalid_union",
-                        unionErrors: errors,
+                        errors: errors.map((e) => e.issues),
                         message: "Invalid input: Should pass single schema",
                       });
                     }
@@ -334,19 +331,19 @@ export const tauriConfigSchemaV1 = z
                     "How the window title bar should be displayed on macOS.",
                   )
                   .describe("The style of the macOS title bar.")
-                  .default("Visible"),
+                  .prefault("Visible"),
                 hiddenTitle: z
                   .boolean()
                   .describe(
                     "If `true`, sets the window title to be hidden on macOS.",
                   )
-                  .default(false),
+                  .prefault(false),
                 acceptFirstMouse: z
                   .boolean()
                   .describe(
                     "Whether clicking an inactive window also clicks through to the webview on macOS.",
                   )
-                  .default(false),
+                  .prefault(false),
                 tabbingIdentifier: z
                   .union([
                     z
@@ -388,7 +385,7 @@ export const tauriConfigSchemaV1 = z
               ),
           )
           .describe("The windows configuration.")
-          .default([]),
+          .prefault([]),
         cli: z
           .union([
             z
@@ -528,19 +525,19 @@ export const tauriConfigSchemaV1 = z
                               .describe(
                                 "Specifies that the argument takes a value at run time.\n\nNOTE: values for arguments may be specified in any of the following methods - Using a space such as -o value or --option value - Using an equals and no space such as -o=value or --option=value - Use a short and no space such as -ovalue",
                               )
-                              .default(false),
+                              .prefault(false),
                             multiple: z
                               .boolean()
                               .describe(
                                 "Specifies that the argument may have an unknown number of multiple values. Without any other settings, this argument may appear only once.\n\nFor example, --opt val1 val2 is allowed, but --opt val1 val2 --opt val3 is not.\n\nNOTE: Setting this requires `takes_value` to be set to true.",
                               )
-                              .default(false),
+                              .prefault(false),
                             multipleOccurrences: z
                               .boolean()
                               .describe(
                                 "Specifies that the argument may appear more than once. For flags, this results in the number of occurrences of the flag being recorded. For example -ddd or -d -d -d would count as three occurrences. For options or arguments that take a value, this does not affect how many values they can accept. (i.e. only one at a time is allowed)\n\nFor example, --opt val1 --opt val2 is allowed, but --opt val1 val2 is not.",
                               )
-                              .default(false),
+                              .prefault(false),
                             numberOfValues: z
                               .union([
                                 z
@@ -620,7 +617,7 @@ export const tauriConfigSchemaV1 = z
                               .describe(
                                 "Sets whether or not the argument is required by default.\n\n- Required by default means it is required, when no other conflicting rules have been evaluated - Conflicting rules take precedence over being required.",
                               )
-                              .default(false),
+                              .prefault(false),
                             requiredUnlessPresent: z
                               .union([
                                 z
@@ -822,7 +819,7 @@ export const tauriConfigSchemaV1 = z
                 subcommands: z
                   .union([
                     z
-                      .record(z.any())
+                      .record(z.string(), z.any())
                       .describe("List of subcommands of this command"),
                     z.null().describe("List of subcommands of this command"),
                   ])
@@ -844,7 +841,7 @@ export const tauriConfigSchemaV1 = z
               .describe(
                 "Whether Tauri should bundle your application or just output the executable.",
               )
-              .default(false),
+              .prefault(false),
             targets: z
               .union([
                 z.literal("all").describe("Bundle all targets."),
@@ -878,16 +875,15 @@ export const tauriConfigSchemaV1 = z
                         const errors = schemas.reduce(
                           (errors: z.ZodError[], schema) =>
                             ((result) =>
-                              "error" in result
+                              !result.success
                                 ? [...errors, result.error]
                                 : errors)(schema.safeParse(x)),
                           [],
                         );
                         if (schemas.length - errors.length !== 1) {
                           ctx.addIssue({
-                            path: ctx.path,
                             code: "invalid_union",
-                            unionErrors: errors,
+                            errors: errors.map((e) => e.issues),
                             message: "Invalid input: Should pass single schema",
                           });
                         }
@@ -921,16 +917,15 @@ export const tauriConfigSchemaV1 = z
                     const errors = schemas.reduce(
                       (errors: z.ZodError[], schema) =>
                         ((result) =>
-                          "error" in result
-                            ? [...errors, result.error]
-                            : errors)(schema.safeParse(x)),
+                          !result.success ? [...errors, result.error] : errors)(
+                          schema.safeParse(x),
+                        ),
                       [],
                     );
                     if (schemas.length - errors.length !== 1) {
                       ctx.addIssue({
-                        path: ctx.path,
                         code: "invalid_union",
-                        unionErrors: errors,
+                        errors: errors.map((e) => e.issues),
                         message: "Invalid input: Should pass single schema",
                       });
                     }
@@ -942,7 +937,7 @@ export const tauriConfigSchemaV1 = z
               .describe(
                 'The bundle targets, currently supports ["deb", "rpm", "appimage", "nsis", "msi", "app", "dmg", "updater"] or "all".',
               )
-              .default("all"),
+              .prefault("all"),
             identifier: z
               .string()
               .describe(
@@ -965,14 +960,14 @@ export const tauriConfigSchemaV1 = z
                 "The application's publisher. Defaults to the second element in the identifier string. Currently maps to the Manufacturer property of the Windows Installer.",
               )
               .optional(),
-            icon: z.array(z.string()).describe("The app's icons").default([]),
+            icon: z.array(z.string()).describe("The app's icons").prefault([]),
             resources: z
               .union([
                 z
                   .union([
                     z.array(z.string()).describe("A list of paths to include."),
                     z
-                      .record(z.string())
+                      .record(z.string(), z.string())
                       .describe("A map of source to target paths."),
                   ])
                   .describe(
@@ -1043,7 +1038,7 @@ export const tauriConfigSchemaV1 = z
               .describe(
                 "Whether to use the project's `target` directory, for caching build tools (e.g., Wix and NSIS) when building this application. Defaults to `false`.\n\nIf true, tools will be cached in `target\\.tauri-tools`. If false, tools will be cached in the current user's platform-specific cache directory.\n\nAn example where it can be appropriate to set this to `true` is when building this application as a Windows System user (e.g., AWS EC2 workloads), because the Window system's app data directory is restricted.",
               )
-              .default(false),
+              .prefault(false),
             appimage: z
               .object({
                 bundleMediaFramework: z
@@ -1051,14 +1046,14 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "Include additional gstreamer dependencies needed for audio and video playback. This increases the bundle size by ~15-35MB depending on your build system.",
                   )
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Configuration for AppImage bundles.\n\nSee more: https://tauri.app/v1/api/config#appimageconfig",
               )
               .describe("Configuration for the AppImage bundle.")
-              .default({ bundleMediaFramework: false }),
+              .prefault({ bundleMediaFramework: false }),
             deb: z
               .object({
                 depends: z
@@ -1112,9 +1107,9 @@ export const tauriConfigSchemaV1 = z
                   .describe("The list of package replaces.")
                   .optional(),
                 files: z
-                  .record(z.string())
+                  .record(z.string(), z.string())
                   .describe("The files to include on the package.")
-                  .default({}),
+                  .prefault({}),
                 desktopTemplate: z
                   .union([
                     z
@@ -1189,7 +1184,7 @@ export const tauriConfigSchemaV1 = z
                 "Configuration for Debian (.deb) bundles.\n\nSee more: https://tauri.app/v1/api/config#debconfig",
               )
               .describe("Configuration for the Debian bundle.")
-              .default({ files: {} }),
+              .prefault({ files: {} }),
             rpm: z
               .object({
                 license: z
@@ -1280,17 +1275,17 @@ export const tauriConfigSchemaV1 = z
                 release: z
                   .string()
                   .describe("The RPM release tag.")
-                  .default("1"),
+                  .prefault("1"),
                 epoch: z
                   .number()
                   .int()
                   .gte(0)
                   .describe("The RPM epoch.")
-                  .default(0),
+                  .prefault(0),
                 files: z
-                  .record(z.string())
+                  .record(z.string(), z.string())
                   .describe("The files to include on the package.")
-                  .default({}),
+                  .prefault({}),
                 desktopTemplate: z
                   .union([
                     z
@@ -1312,7 +1307,7 @@ export const tauriConfigSchemaV1 = z
               .strict()
               .describe("Configuration for RPM bundles.")
               .describe("Configuration for the RPM bundle.")
-              .default({ epoch: 0, files: {}, release: "1" }),
+              .prefault({ epoch: 0, files: {}, release: "1" }),
             dmg: z
               .object({
                 background: z
@@ -1361,7 +1356,7 @@ export const tauriConfigSchemaV1 = z
                   .strict()
                   .describe("Size of the window.")
                   .describe("Size of volume window.")
-                  .default({ height: 400, width: 660 }),
+                  .prefault({ height: 400, width: 660 }),
                 appPosition: z
                   .object({
                     x: z.number().int().gte(0).describe("X coordinate."),
@@ -1370,7 +1365,7 @@ export const tauriConfigSchemaV1 = z
                   .strict()
                   .describe("Position coordinates struct.")
                   .describe("Position of app file on window.")
-                  .default({ x: 180, y: 170 }),
+                  .prefault({ x: 180, y: 170 }),
                 applicationFolderPosition: z
                   .object({
                     x: z.number().int().gte(0).describe("X coordinate."),
@@ -1379,14 +1374,14 @@ export const tauriConfigSchemaV1 = z
                   .strict()
                   .describe("Position coordinates struct.")
                   .describe("Position of application folder on window.")
-                  .default({ x: 480, y: 170 }),
+                  .prefault({ x: 480, y: 170 }),
               })
               .strict()
               .describe(
                 "Configuration for Apple Disk Image (.dmg) bundles.\n\nSee more: https://tauri.app/v1/api/config#dmgconfig",
               )
               .describe("DMG-specific settings.")
-              .default({
+              .prefault({
                 appPosition: { x: 180, y: 170 },
                 applicationFolderPosition: { x: 480, y: 170 },
                 windowSize: { height: 400, width: 660 },
@@ -1417,18 +1412,18 @@ export const tauriConfigSchemaV1 = z
                       .describe(
                         "A version string indicating the minimum macOS X version that the bundled application supports. Defaults to `10.13`.\n\nSetting it to `null` completely removes the `LSMinimumSystemVersion` field on the bundle's `Info.plist` and the `MACOSX_DEPLOYMENT_TARGET` environment variable.\n\nAn empty string is considered an invalid value so the default value is used.",
                       )
-                      .default("10.13"),
+                      .prefault("10.13"),
                     z
                       .null()
                       .describe(
                         "A version string indicating the minimum macOS X version that the bundled application supports. Defaults to `10.13`.\n\nSetting it to `null` completely removes the `LSMinimumSystemVersion` field on the bundle's `Info.plist` and the `MACOSX_DEPLOYMENT_TARGET` environment variable.\n\nAn empty string is considered an invalid value so the default value is used.",
                       )
-                      .default("10.13"),
+                      .prefault("10.13"),
                   ])
                   .describe(
                     "A version string indicating the minimum macOS X version that the bundled application supports. Defaults to `10.13`.\n\nSetting it to `null` completely removes the `LSMinimumSystemVersion` field on the bundle's `Info.plist` and the `MACOSX_DEPLOYMENT_TARGET` environment variable.\n\nAn empty string is considered an invalid value so the default value is used.",
                   )
-                  .default("10.13"),
+                  .prefault("10.13"),
                 exceptionDomain: z
                   .union([
                     z
@@ -1475,7 +1470,7 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "Whether the codesign should enable [hardened runtime] (for executables) or not.\n\n[hardened runtime]: <https://developer.apple.com/documentation/security/hardened_runtime>",
                   )
-                  .default(true),
+                  .prefault(true),
                 providerShortName: z
                   .union([
                     z
@@ -1498,7 +1493,7 @@ export const tauriConfigSchemaV1 = z
                 "Configuration for the macOS bundles.\n\nSee more: https://tauri.app/v1/api/config#macconfig",
               )
               .describe("Configuration for the macOS bundles.")
-              .default({
+              .prefault({
                 hardenedRuntime: true,
                 minimumSystemVersion: "10.13",
               }),
@@ -1567,7 +1562,7 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "Whether to use Time-Stamp Protocol (TSP, a.k.a. RFC 3161) for the timestamp server. Your code signing provider may use a TSP timestamp server, like e.g. SSL.com does. If so, enable TSP by setting to true.",
                   )
-                  .default(false),
+                  .prefault(false),
                 webviewInstallMode: z
                   .any()
                   .superRefine((x, ctx) => {
@@ -1586,7 +1581,7 @@ export const tauriConfigSchemaV1 = z
                             .describe(
                               "Instructs the installer to run the bootstrapper in silent mode. Defaults to `true`.",
                             )
-                            .default(true),
+                            .prefault(true),
                         })
                         .strict()
                         .describe(
@@ -1600,7 +1595,7 @@ export const tauriConfigSchemaV1 = z
                             .describe(
                               "Instructs the installer to run the bootstrapper in silent mode. Defaults to `true`.",
                             )
-                            .default(true),
+                            .prefault(true),
                         })
                         .strict()
                         .describe(
@@ -1614,7 +1609,7 @@ export const tauriConfigSchemaV1 = z
                             .describe(
                               "Instructs the installer to run the installer in silent mode. Defaults to `true`.",
                             )
-                            .default(true),
+                            .prefault(true),
                         })
                         .strict()
                         .describe(
@@ -1637,16 +1632,15 @@ export const tauriConfigSchemaV1 = z
                     const errors = schemas.reduce(
                       (errors: z.ZodError[], schema) =>
                         ((result) =>
-                          "error" in result
-                            ? [...errors, result.error]
-                            : errors)(schema.safeParse(x)),
+                          !result.success ? [...errors, result.error] : errors)(
+                          schema.safeParse(x),
+                        ),
                       [],
                     );
                     if (schemas.length - errors.length !== 1) {
                       ctx.addIssue({
-                        path: ctx.path,
                         code: "invalid_union",
-                        unionErrors: errors,
+                        errors: errors.map((e) => e.issues),
                         message: "Invalid input: Should pass single schema",
                       });
                     }
@@ -1655,7 +1649,7 @@ export const tauriConfigSchemaV1 = z
                     "Install modes for the Webview2 runtime. Note that for the updater bundle [`Self::DownloadBootstrapper`] is used.\n\nFor more information see <https://tauri.app/v1/guides/building/windows>.",
                   )
                   .describe("The installation mode for the Webview2 runtime.")
-                  .default({ silent: true, type: "downloadBootstrapper" }),
+                  .prefault({ silent: true, type: "downloadBootstrapper" }),
                 webviewFixedRuntimePath: z
                   .union([
                     z
@@ -1678,7 +1672,7 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "Validates a second app installation, blocking the user from installing an older version if set to `false`.\n\nFor instance, if `1.2.1` is installed, the user won't be able to install app version `1.2.0` or `1.1.5`.\n\nThe default value of this flag is `true`.",
                   )
-                  .default(true),
+                  .prefault(true),
                 wix: z
                   .union([
                     z
@@ -1697,6 +1691,7 @@ export const tauriConfigSchemaV1 = z
                               ),
                             z
                               .record(
+                                z.string(),
                                 z
                                   .object({
                                     localePath: z
@@ -1730,7 +1725,7 @@ export const tauriConfigSchemaV1 = z
                           .describe(
                             "The installer languages to build. See <https://docs.microsoft.com/en-us/windows/win32/msi/localizing-the-error-and-actiontext-tables>.",
                           )
-                          .default("en-US"),
+                          .prefault("en-US"),
                         template: z
                           .union([
                             z
@@ -1745,43 +1740,43 @@ export const tauriConfigSchemaV1 = z
                           .describe(
                             "A list of paths to .wxs files with WiX fragments to use.",
                           )
-                          .default([]),
+                          .prefault([]),
                         componentGroupRefs: z
                           .array(z.string())
                           .describe(
                             "The ComponentGroup element ids you want to reference from the fragments.",
                           )
-                          .default([]),
+                          .prefault([]),
                         componentRefs: z
                           .array(z.string())
                           .describe(
                             "The Component element ids you want to reference from the fragments.",
                           )
-                          .default([]),
+                          .prefault([]),
                         featureGroupRefs: z
                           .array(z.string())
                           .describe(
                             "The FeatureGroup element ids you want to reference from the fragments.",
                           )
-                          .default([]),
+                          .prefault([]),
                         featureRefs: z
                           .array(z.string())
                           .describe(
                             "The Feature element ids you want to reference from the fragments.",
                           )
-                          .default([]),
+                          .prefault([]),
                         mergeRefs: z
                           .array(z.string())
                           .describe(
                             "The Merge element ids you want to reference from the fragments.",
                           )
-                          .default([]),
+                          .prefault([]),
                         skipWebviewInstall: z
                           .boolean()
                           .describe(
                             "Disables the Webview2 runtime installation after app install.\n\nWill be removed in v2, prefer the [`WindowsConfig::webview_install_mode`] option.",
                           )
-                          .default(false),
+                          .prefault(false),
                         license: z
                           .union([
                             z
@@ -1804,7 +1799,7 @@ export const tauriConfigSchemaV1 = z
                           .describe(
                             "Create an elevated update task within Windows Task Scheduler.",
                           )
-                          .default(false),
+                          .prefault(false),
                         bannerPath: z
                           .union([
                             z
@@ -1952,16 +1947,15 @@ export const tauriConfigSchemaV1 = z
                             const errors = schemas.reduce(
                               (errors: z.ZodError[], schema) =>
                                 ((result) =>
-                                  "error" in result
+                                  !result.success
                                     ? [...errors, result.error]
                                     : errors)(schema.safeParse(x)),
                               [],
                             );
                             if (schemas.length - errors.length !== 1) {
                               ctx.addIssue({
-                                path: ctx.path,
                                 code: "invalid_union",
-                                unionErrors: errors,
+                                errors: errors.map((e) => e.issues),
                                 message:
                                   "Invalid input: Should pass single schema",
                               });
@@ -1971,7 +1965,7 @@ export const tauriConfigSchemaV1 = z
                           .describe(
                             "Whether the installation will be for all users or just the current user.",
                           )
-                          .default("currentUser"),
+                          .prefault("currentUser"),
                         languages: z
                           .union([
                             z
@@ -1992,7 +1986,7 @@ export const tauriConfigSchemaV1 = z
                         customLanguageFiles: z
                           .union([
                             z
-                              .record(z.string())
+                              .record(z.string(), z.string())
                               .describe(
                                 "A key-value pair where the key is the language and the value is the path to a custom `.nsh` file that holds the translated text for tauri's custom messages.\n\nSee <https://github.com/tauri-apps/tauri/blob/dev/tooling/bundler/src/bundle/windows/templates/nsis-languages/English.nsh> for an example `.nsh` file.\n\n**Note**: the key must be a valid NSIS language and it must be added to [`NsisConfig`] languages array,",
                               ),
@@ -2011,7 +2005,7 @@ export const tauriConfigSchemaV1 = z
                           .describe(
                             "Whether to display a language selector dialog before the installer and uninstaller windows are rendered or not. By default the OS language is selected, with a fallback to the first language in the `languages` array.",
                           )
-                          .default(false),
+                          .prefault(false),
                         compression: z
                           .union([
                             z
@@ -2037,16 +2031,15 @@ export const tauriConfigSchemaV1 = z
                                 const errors = schemas.reduce(
                                   (errors: z.ZodError[], schema) =>
                                     ((result) =>
-                                      "error" in result
+                                      !result.success
                                         ? [...errors, result.error]
                                         : errors)(schema.safeParse(x)),
                                   [],
                                 );
                                 if (schemas.length - errors.length !== 1) {
                                   ctx.addIssue({
-                                    path: ctx.path,
                                     code: "invalid_union",
-                                    unionErrors: errors,
+                                    errors: errors.map((e) => e.issues),
                                     message:
                                       "Invalid input: Should pass single schema",
                                   });
@@ -2095,7 +2088,7 @@ export const tauriConfigSchemaV1 = z
                 "Windows bundler configuration.\n\nSee more: https://tauri.app/v1/api/config#windowsconfig",
               )
               .describe("Configuration for the Windows bundle.")
-              .default({
+              .prefault({
                 allowDowngrades: true,
                 certificateThumbprint: null,
                 digestAlgorithm: null,
@@ -2116,7 +2109,7 @@ export const tauriConfigSchemaV1 = z
             "Configuration for tauri-bundler.\n\nSee more: https://tauri.app/v1/api/config#bundleconfig",
           )
           .describe("The bundler configuration.")
-          .default({
+          .prefault({
             active: false,
             appimage: { bundleMediaFramework: false },
             deb: { files: {} },
@@ -2152,7 +2145,7 @@ export const tauriConfigSchemaV1 = z
             all: z
               .boolean()
               .describe("Use this flag to enable all API features.")
-              .default(false),
+              .prefault(false),
             fs: z
               .object({
                 scope: z
@@ -2169,13 +2162,13 @@ export const tauriConfigSchemaV1 = z
                           .describe(
                             "A list of paths that are allowed by this scope.",
                           )
-                          .default([]),
+                          .prefault([]),
                         deny: z
                           .array(z.string())
                           .describe(
                             "A list of paths that are not allowed by this scope. This gets precedence over the [`Self::Scope::allow`] list.",
                           )
-                          .default([]),
+                          .prefault([]),
                         requireLiteralLeadingDot: z
                           .union([
                             z
@@ -2200,56 +2193,56 @@ export const tauriConfigSchemaV1 = z
                     "Filesystem scope definition. It is a list of glob patterns that restrict the API access from the webview.\n\nEach pattern can start with a variable that resolves to a system base directory. The variables are: `$AUDIO`, `$CACHE`, `$CONFIG`, `$DATA`, `$LOCALDATA`, `$DESKTOP`, `$DOCUMENT`, `$DOWNLOAD`, `$EXE`, `$FONT`, `$HOME`, `$PICTURE`, `$PUBLIC`, `$RUNTIME`, `$TEMPLATE`, `$VIDEO`, `$RESOURCE`, `$APP`, `$LOG`, `$TEMP`, `$APPCONFIG`, `$APPDATA`, `$APPLOCALDATA`, `$APPCACHE`, `$APPLOG`.",
                   )
                   .describe("The access scope for the filesystem APIs.")
-                  .default([]),
+                  .prefault([]),
                 all: z
                   .boolean()
                   .describe(
                     "Use this flag to enable all file system API features.",
                   )
-                  .default(false),
+                  .prefault(false),
                 readFile: z
                   .boolean()
                   .describe("Read file from local filesystem.")
-                  .default(false),
+                  .prefault(false),
                 writeFile: z
                   .boolean()
                   .describe("Write file to local filesystem.")
-                  .default(false),
+                  .prefault(false),
                 readDir: z
                   .boolean()
                   .describe("Read directory from local filesystem.")
-                  .default(false),
+                  .prefault(false),
                 copyFile: z
                   .boolean()
                   .describe("Copy file from local filesystem.")
-                  .default(false),
+                  .prefault(false),
                 createDir: z
                   .boolean()
                   .describe("Create directory from local filesystem.")
-                  .default(false),
+                  .prefault(false),
                 removeDir: z
                   .boolean()
                   .describe("Remove directory from local filesystem.")
-                  .default(false),
+                  .prefault(false),
                 removeFile: z
                   .boolean()
                   .describe("Remove file from local filesystem.")
-                  .default(false),
+                  .prefault(false),
                 renameFile: z
                   .boolean()
                   .describe("Rename file from local filesystem.")
-                  .default(false),
+                  .prefault(false),
                 exists: z
                   .boolean()
                   .describe("Check if path exists on the local filesystem.")
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the file system APIs.\n\nSee more: https://tauri.app/v1/api/config#fsallowlistconfig",
               )
               .describe("File system API allowlist.")
-              .default({
+              .prefault({
                 all: false,
                 copyFile: false,
                 createDir: false,
@@ -2267,162 +2260,162 @@ export const tauriConfigSchemaV1 = z
                 all: z
                   .boolean()
                   .describe("Use this flag to enable all window API features.")
-                  .default(false),
+                  .prefault(false),
                 create: z
                   .boolean()
                   .describe("Allows dynamic window creation.")
-                  .default(false),
+                  .prefault(false),
                 center: z
                   .boolean()
                   .describe("Allows centering the window.")
-                  .default(false),
+                  .prefault(false),
                 requestUserAttention: z
                   .boolean()
                   .describe("Allows requesting user attention on the window.")
-                  .default(false),
+                  .prefault(false),
                 setResizable: z
                   .boolean()
                   .describe("Allows setting the resizable flag of the window.")
-                  .default(false),
+                  .prefault(false),
                 setMaximizable: z
                   .boolean()
                   .describe(
                     "Allows setting whether the window's native maximize button is enabled or not.",
                   )
-                  .default(false),
+                  .prefault(false),
                 setMinimizable: z
                   .boolean()
                   .describe(
                     "Allows setting whether the window's native minimize button is enabled or not.",
                   )
-                  .default(false),
+                  .prefault(false),
                 setClosable: z
                   .boolean()
                   .describe(
                     "Allows setting whether the window's native close button is enabled or not.",
                   )
-                  .default(false),
+                  .prefault(false),
                 setTitle: z
                   .boolean()
                   .describe("Allows changing the window title.")
-                  .default(false),
+                  .prefault(false),
                 maximize: z
                   .boolean()
                   .describe("Allows maximizing the window.")
-                  .default(false),
+                  .prefault(false),
                 unmaximize: z
                   .boolean()
                   .describe("Allows unmaximizing the window.")
-                  .default(false),
+                  .prefault(false),
                 minimize: z
                   .boolean()
                   .describe("Allows minimizing the window.")
-                  .default(false),
+                  .prefault(false),
                 unminimize: z
                   .boolean()
                   .describe("Allows unminimizing the window.")
-                  .default(false),
+                  .prefault(false),
                 show: z
                   .boolean()
                   .describe("Allows showing the window.")
-                  .default(false),
+                  .prefault(false),
                 hide: z
                   .boolean()
                   .describe("Allows hiding the window.")
-                  .default(false),
+                  .prefault(false),
                 close: z
                   .boolean()
                   .describe("Allows closing the window.")
-                  .default(false),
+                  .prefault(false),
                 setDecorations: z
                   .boolean()
                   .describe(
                     "Allows setting the decorations flag of the window.",
                   )
-                  .default(false),
+                  .prefault(false),
                 setAlwaysOnTop: z
                   .boolean()
                   .describe(
                     "Allows setting the always_on_top flag of the window.",
                   )
-                  .default(false),
+                  .prefault(false),
                 setContentProtected: z
                   .boolean()
                   .describe(
                     "Allows preventing the window contents from being captured by other apps.",
                   )
-                  .default(false),
+                  .prefault(false),
                 setSize: z
                   .boolean()
                   .describe("Allows setting the window size.")
-                  .default(false),
+                  .prefault(false),
                 setMinSize: z
                   .boolean()
                   .describe("Allows setting the window minimum size.")
-                  .default(false),
+                  .prefault(false),
                 setMaxSize: z
                   .boolean()
                   .describe("Allows setting the window maximum size.")
-                  .default(false),
+                  .prefault(false),
                 setPosition: z
                   .boolean()
                   .describe("Allows changing the position of the window.")
-                  .default(false),
+                  .prefault(false),
                 setFullscreen: z
                   .boolean()
                   .describe("Allows setting the fullscreen flag of the window.")
-                  .default(false),
+                  .prefault(false),
                 setFocus: z
                   .boolean()
                   .describe("Allows focusing the window.")
-                  .default(false),
+                  .prefault(false),
                 setIcon: z
                   .boolean()
                   .describe("Allows changing the window icon.")
-                  .default(false),
+                  .prefault(false),
                 setSkipTaskbar: z
                   .boolean()
                   .describe(
                     "Allows setting the skip_taskbar flag of the window.",
                   )
-                  .default(false),
+                  .prefault(false),
                 setCursorGrab: z
                   .boolean()
                   .describe("Allows grabbing the cursor.")
-                  .default(false),
+                  .prefault(false),
                 setCursorVisible: z
                   .boolean()
                   .describe("Allows setting the cursor visibility.")
-                  .default(false),
+                  .prefault(false),
                 setCursorIcon: z
                   .boolean()
                   .describe("Allows changing the cursor icon.")
-                  .default(false),
+                  .prefault(false),
                 setCursorPosition: z
                   .boolean()
                   .describe("Allows setting the cursor position.")
-                  .default(false),
+                  .prefault(false),
                 setIgnoreCursorEvents: z
                   .boolean()
                   .describe("Allows ignoring cursor events.")
-                  .default(false),
+                  .prefault(false),
                 startDragging: z
                   .boolean()
                   .describe("Allows start dragging on the window.")
-                  .default(false),
+                  .prefault(false),
                 print: z
                   .boolean()
                   .describe(
                     "Allows opening the system dialog to print the window content.",
                   )
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the window APIs.\n\nSee more: https://tauri.app/v1/api/config#windowallowlistconfig",
               )
               .describe("Window API allowlist.")
-              .default({
+              .prefault({
                 all: false,
                 center: false,
                 close: false,
@@ -2474,7 +2467,7 @@ export const tauriConfigSchemaV1 = z
                           .describe(
                             "The command name. It can start with a variable that resolves to a system base directory. The variables are: `$AUDIO`, `$CACHE`, `$CONFIG`, `$DATA`, `$LOCALDATA`, `$DESKTOP`, `$DOCUMENT`, `$DOWNLOAD`, `$EXE`, `$FONT`, `$HOME`, `$PICTURE`, `$PUBLIC`, `$RUNTIME`, `$TEMPLATE`, `$VIDEO`, `$RESOURCE`, `$APP`, `$LOG`, `$TEMP`, `$APPCONFIG`, `$APPDATA`, `$APPLOCALDATA`, `$APPCACHE`, `$APPLOG`.",
                           )
-                          .default(""),
+                          .prefault(""),
                         args: z
                           .union([
                             z
@@ -2518,11 +2511,11 @@ export const tauriConfigSchemaV1 = z
                           .describe(
                             "The allowed arguments for the command execution.",
                           )
-                          .default(false),
+                          .prefault(false),
                         sidecar: z
                           .boolean()
                           .describe("If this command is a sidecar command.")
-                          .default(false),
+                          .prefault(false),
                       })
                       .describe(
                         "A command allowed to be executed by the webview API.",
@@ -2534,21 +2527,21 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "Access scope for the binary execution APIs. Sidecars are automatically enabled.",
                   )
-                  .default([]),
+                  .prefault([]),
                 all: z
                   .boolean()
                   .describe("Use this flag to enable all shell API features.")
-                  .default(false),
+                  .prefault(false),
                 execute: z
                   .boolean()
                   .describe("Enable binary execution.")
-                  .default(false),
+                  .prefault(false),
                 sidecar: z
                   .boolean()
                   .describe(
                     "Enable sidecar execution, allowing the JavaScript layer to spawn a sidecar command, an executable that is shipped with the application. For more information see <https://tauri.app/v1/guides/building/sidecar>.",
                   )
-                  .default(false),
+                  .prefault(false),
                 open: z
                   .union([
                     z
@@ -2564,14 +2557,14 @@ export const tauriConfigSchemaV1 = z
                   ])
                   .describe("Defines the `shell > open` api scope.")
                   .describe("Open URL with the user's default application.")
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the shell APIs.\n\nSee more: https://tauri.app/v1/api/config#shellallowlistconfig",
               )
               .describe("Shell API allowlist.")
-              .default({
+              .prefault({
                 all: false,
                 execute: false,
                 open: false,
@@ -2583,42 +2576,42 @@ export const tauriConfigSchemaV1 = z
                 all: z
                   .boolean()
                   .describe("Use this flag to enable all dialog API features.")
-                  .default(false),
+                  .prefault(false),
                 open: z
                   .boolean()
                   .describe(
                     "Allows the API to open a dialog window to pick files.",
                   )
-                  .default(false),
+                  .prefault(false),
                 save: z
                   .boolean()
                   .describe(
                     "Allows the API to open a dialog window to pick where to save files.",
                   )
-                  .default(false),
+                  .prefault(false),
                 message: z
                   .boolean()
                   .describe("Allows the API to show a message dialog window.")
-                  .default(false),
+                  .prefault(false),
                 ask: z
                   .boolean()
                   .describe(
                     "Allows the API to show a dialog window with Yes/No buttons.",
                   )
-                  .default(false),
+                  .prefault(false),
                 confirm: z
                   .boolean()
                   .describe(
                     "Allows the API to show a dialog window with Ok/Cancel buttons.",
                   )
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the dialog APIs.\n\nSee more: https://tauri.app/v1/api/config#dialogallowlistconfig",
               )
               .describe("Dialog API allowlist.")
-              .default({
+              .prefault({
                 all: false,
                 ask: false,
                 confirm: false,
@@ -2634,22 +2627,22 @@ export const tauriConfigSchemaV1 = z
                     'HTTP API scope definition. It is a list of URLs that can be accessed by the webview when using the HTTP APIs. The scoped URL is matched against the request URL using a glob pattern.\n\nExamples: - "https://*": allows all HTTPS urls - "https://*.github.com/tauri-apps/tauri": allows any subdomain of "github.com" with the "tauri-apps/api" path - "https://myapi.service.com/users/*": allows access to any URLs that begins with "https://myapi.service.com/users/"',
                   )
                   .describe("The access scope for the HTTP APIs.")
-                  .default([]),
+                  .prefault([]),
                 all: z
                   .boolean()
                   .describe("Use this flag to enable all HTTP API features.")
-                  .default(false),
+                  .prefault(false),
                 request: z
                   .boolean()
                   .describe("Allows making HTTP requests.")
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the HTTP APIs.\n\nSee more: https://tauri.app/v1/api/config#httpallowlistconfig",
               )
               .describe("HTTP API allowlist.")
-              .default({ all: false, request: false, scope: [] }),
+              .prefault({ all: false, request: false, scope: [] }),
             notification: z
               .object({
                 all: z
@@ -2657,14 +2650,14 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "Use this flag to enable all notification API features.",
                   )
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the notification APIs.\n\nSee more: https://tauri.app/v1/api/config#notificationallowlistconfig",
               )
               .describe("Notification API allowlist.")
-              .default({ all: false }),
+              .prefault({ all: false }),
             globalShortcut: z
               .object({
                 all: z
@@ -2672,40 +2665,40 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "Use this flag to enable all global shortcut API features.",
                   )
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the global shortcut APIs.\n\nSee more: https://tauri.app/v1/api/config#globalshortcutallowlistconfig",
               )
               .describe("Global shortcut API allowlist.")
-              .default({ all: false }),
+              .prefault({ all: false }),
             os: z
               .object({
                 all: z
                   .boolean()
                   .describe("Use this flag to enable all OS API features.")
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the OS APIs.\n\nSee more: https://tauri.app/v1/api/config#osallowlistconfig",
               )
               .describe("OS allowlist.")
-              .default({ all: false }),
+              .prefault({ all: false }),
             path: z
               .object({
                 all: z
                   .boolean()
                   .describe("Use this flag to enable all path API features.")
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the path APIs.\n\nSee more: https://tauri.app/v1/api/config#pathallowlistconfig",
               )
               .describe("Path API allowlist.")
-              .default({ all: false }),
+              .prefault({ all: false }),
             protocol: z
               .object({
                 assetScope: z
@@ -2722,13 +2715,13 @@ export const tauriConfigSchemaV1 = z
                           .describe(
                             "A list of paths that are allowed by this scope.",
                           )
-                          .default([]),
+                          .prefault([]),
                         deny: z
                           .array(z.string())
                           .describe(
                             "A list of paths that are not allowed by this scope. This gets precedence over the [`Self::Scope::allow`] list.",
                           )
-                          .default([]),
+                          .prefault([]),
                         requireLiteralLeadingDot: z
                           .union([
                             z
@@ -2753,49 +2746,49 @@ export const tauriConfigSchemaV1 = z
                     "Filesystem scope definition. It is a list of glob patterns that restrict the API access from the webview.\n\nEach pattern can start with a variable that resolves to a system base directory. The variables are: `$AUDIO`, `$CACHE`, `$CONFIG`, `$DATA`, `$LOCALDATA`, `$DESKTOP`, `$DOCUMENT`, `$DOWNLOAD`, `$EXE`, `$FONT`, `$HOME`, `$PICTURE`, `$PUBLIC`, `$RUNTIME`, `$TEMPLATE`, `$VIDEO`, `$RESOURCE`, `$APP`, `$LOG`, `$TEMP`, `$APPCONFIG`, `$APPDATA`, `$APPLOCALDATA`, `$APPCACHE`, `$APPLOG`.",
                   )
                   .describe("The access scope for the asset protocol.")
-                  .default([]),
+                  .prefault([]),
                 all: z
                   .boolean()
                   .describe("Use this flag to enable all custom protocols.")
-                  .default(false),
+                  .prefault(false),
                 asset: z
                   .boolean()
                   .describe("Enables the asset protocol.")
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the custom protocols.\n\nSee more: https://tauri.app/v1/api/config#protocolallowlistconfig",
               )
               .describe("Custom protocol allowlist.")
-              .default({ all: false, asset: false, assetScope: [] }),
+              .prefault({ all: false, asset: false, assetScope: [] }),
             process: z
               .object({
                 all: z
                   .boolean()
                   .describe("Use this flag to enable all process APIs.")
-                  .default(false),
+                  .prefault(false),
                 relaunch: z
                   .boolean()
                   .describe("Enables the relaunch API.")
-                  .default(false),
+                  .prefault(false),
                 relaunchDangerousAllowSymlinkMacos: z
                   .boolean()
                   .describe(
                     "Dangerous option that allows macOS to relaunch even if the binary contains a symlink.\n\nThis is due to macOS having less symlink protection. Highly recommended to not set this flag unless you have a very specific reason too, and understand the implications of it.",
                   )
-                  .default(false),
+                  .prefault(false),
                 exit: z
                   .boolean()
                   .describe("Enables the exit API.")
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the process APIs.\n\nSee more: https://tauri.app/v1/api/config#processallowlistconfig",
               )
               .describe("Process API allowlist.")
-              .default({
+              .prefault({
                 all: false,
                 exit: false,
                 relaunch: false,
@@ -2806,50 +2799,50 @@ export const tauriConfigSchemaV1 = z
                 all: z
                   .boolean()
                   .describe("Use this flag to enable all clipboard APIs.")
-                  .default(false),
+                  .prefault(false),
                 writeText: z
                   .boolean()
                   .describe("Enables the clipboard's `writeText` API.")
-                  .default(false),
+                  .prefault(false),
                 readText: z
                   .boolean()
                   .describe("Enables the clipboard's `readText` API.")
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the clipboard APIs.\n\nSee more: https://tauri.app/v1/api/config#clipboardallowlistconfig",
               )
               .describe("Clipboard APIs allowlist.")
-              .default({ all: false, readText: false, writeText: false }),
+              .prefault({ all: false, readText: false, writeText: false }),
             app: z
               .object({
                 all: z
                   .boolean()
                   .describe("Use this flag to enable all app APIs.")
-                  .default(false),
+                  .prefault(false),
                 show: z
                   .boolean()
                   .describe("Enables the app's `show` API.")
-                  .default(false),
+                  .prefault(false),
                 hide: z
                   .boolean()
                   .describe("Enables the app's `hide` API.")
-                  .default(false),
+                  .prefault(false),
               })
               .strict()
               .describe(
                 "Allowlist for the app APIs.\n\nSee more: https://tauri.app/v1/api/config#appallowlistconfig",
               )
               .describe("App APIs allowlist.")
-              .default({ all: false, hide: false, show: false }),
+              .prefault({ all: false, hide: false, show: false }),
           })
           .strict()
           .describe(
             'Allowlist configuration. The allowlist is a translation of the [Cargo allowlist features](https://docs.rs/tauri/latest/tauri/#cargo-allowlist-features).\n\n# Notes\n\n- Endpoints that don\'t have their own allowlist option are enabled by default. - There is only "opt-in", no "opt-out". Setting an option to `false` has no effect.\n\n# Examples\n\n- * [`"app-all": true`](https://tauri.app/v1/api/config/#appallowlistconfig.all) will make the [hide](https://tauri.app/v1/api/js/app#hide) endpoint be available regardless of whether `hide` is set to `false` or `true` in the allowlist.',
           )
           .describe("The allowlist configuration.")
-          .default({
+          .prefault({
             all: false,
             app: { all: false, hide: false, show: false },
             clipboard: { all: false, readText: false, writeText: false },
@@ -2943,6 +2936,7 @@ export const tauriConfigSchemaV1 = z
                       ),
                     z
                       .record(
+                        z.string(),
                         z
                           .union([
                             z
@@ -2984,6 +2978,7 @@ export const tauriConfigSchemaV1 = z
                       ),
                     z
                       .record(
+                        z.string(),
                         z
                           .union([
                             z
@@ -3019,7 +3014,7 @@ export const tauriConfigSchemaV1 = z
               .describe(
                 "Freeze the `Object.prototype` when using the custom protocol.",
               )
-              .default(false),
+              .prefault(false),
             dangerousDisableAssetCspModification: z
               .union([
                 z
@@ -3039,7 +3034,7 @@ export const tauriConfigSchemaV1 = z
               .describe(
                 "Disables the Tauri-injected CSP sources.\n\nAt compile time, Tauri parses all the frontend assets and changes the Content-Security-Policy to only allow loading of your own scripts and styles by injecting nonce and hash sources. This stricts your CSP, which may introduce issues when using along with other flexing sources.\n\nThis configuration option allows both a boolean and a list of strings as value. A boolean instructs Tauri to disable the injection for all CSP injections, and a list of strings indicates the CSP directives that Tauri cannot inject.\n\n**WARNING:** Only disable this if you know what you are doing and have properly configured the CSP. Your application might be vulnerable to XSS attacks without this Tauri protection.",
               )
-              .default(false),
+              .prefault(false),
             dangerousRemoteDomainIpcAccess: z
               .array(
                 z
@@ -3072,11 +3067,11 @@ export const tauriConfigSchemaV1 = z
                       .describe(
                         'The list of plugins that are allowed in this scope. The names should be without the `tauri-plugin-` prefix, for example `"store"` for `tauri-plugin-store`.',
                       )
-                      .default([]),
+                      .prefault([]),
                     enableTauriAPI: z
                       .boolean()
                       .describe("Enables access to the Tauri API.")
-                      .default(false),
+                      .prefault(false),
                   })
                   .strict()
                   .describe("External command access definition."),
@@ -3084,20 +3079,20 @@ export const tauriConfigSchemaV1 = z
               .describe(
                 "Allow external domains to send command to Tauri.\n\nBy default, external domains do not have access to `window.__TAURI__`, which means they cannot communicate with the commands defined in Rust. This prevents attacks where an externally loaded malicious or compromised sites could start executing commands on the user's device.\n\nThis configuration allows a set of external domains to have access to the Tauri commands. When you configure a domain to be allowed to access the IPC, all subpaths are allowed. Subdomains are not allowed.\n\n**WARNING:** Only use this option if you either have internal checks against malicious external sites or you can trust the allowed external sites. You application might be vulnerable to dangerous Tauri command related attacks otherwise.",
               )
-              .default([]),
+              .prefault([]),
             dangerousUseHttpScheme: z
               .boolean()
               .describe(
                 "Sets whether the custom protocols should use `http://<scheme>.localhost` instead of the default `https://<scheme>.localhost` on Windows.\n\n**WARNING:** Using a `http` scheme will allow mixed content when trying to fetch `http` endpoints and is therefore less secure but will match the behavior of the `<scheme>://localhost` protocols used on macOS and Linux.",
               )
-              .default(false),
+              .prefault(false),
           })
           .strict()
           .describe(
             "Security configuration.\n\nSee more: https://tauri.app/v1/api/config#securityconfig",
           )
           .describe("Security configuration.")
-          .default({
+          .prefault({
             dangerousDisableAssetCspModification: false,
             dangerousRemoteDomainIpcAccess: [],
             dangerousUseHttpScheme: false,
@@ -3108,13 +3103,13 @@ export const tauriConfigSchemaV1 = z
             active: z
               .boolean()
               .describe("Whether the updater is active or not.")
-              .default(false),
+              .prefault(false),
             dialog: z
               .boolean()
               .describe(
                 "Display built-in dialog or use event system if disabled.",
               )
-              .default(true),
+              .prefault(true),
             endpoints: z
               .union([
                 z
@@ -3139,7 +3134,7 @@ export const tauriConfigSchemaV1 = z
                 'The updater endpoints. TLS is enforced on production.\n\nThe updater URL can contain the following variables: - {{current_version}}: The version of the app that is requesting the update - {{target}}: The operating system name (one of `linux`, `windows` or `darwin`). - {{arch}}: The architecture of the machine (one of `x86_64`, `i686`, `aarch64` or `armv7`).\n\n# Examples - "https://my.cdn.com/latest.json": a raw JSON endpoint that returns the latest version and download links for each platform. - "https://updates.app.dev/{{target}}?version={{current_version}}&arch={{arch}}": a dedicated API with positional and query string arguments.',
               )
               .optional(),
-            pubkey: z.string().describe("Signature public key.").default(""),
+            pubkey: z.string().describe("Signature public key.").prefault(""),
             windows: z
               .object({
                 installerArgs: z
@@ -3147,7 +3142,7 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "Additional arguments given to the NSIS or WiX installer.",
                   )
-                  .default([]),
+                  .prefault([]),
                 installMode: z
                   .any()
                   .superRefine((x, ctx) => {
@@ -3171,16 +3166,15 @@ export const tauriConfigSchemaV1 = z
                     const errors = schemas.reduce(
                       (errors: z.ZodError[], schema) =>
                         ((result) =>
-                          "error" in result
-                            ? [...errors, result.error]
-                            : errors)(schema.safeParse(x)),
+                          !result.success ? [...errors, result.error] : errors)(
+                          schema.safeParse(x),
+                        ),
                       [],
                     );
                     if (schemas.length - errors.length !== 1) {
                       ctx.addIssue({
-                        path: ctx.path,
                         code: "invalid_union",
-                        unionErrors: errors,
+                        errors: errors.map((e) => e.issues),
                         message: "Invalid input: Should pass single schema",
                       });
                     }
@@ -3189,21 +3183,21 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "The installation mode for the update on Windows. Defaults to `passive`.",
                   )
-                  .default("passive"),
+                  .prefault("passive"),
               })
               .strict()
               .describe(
                 "The updater configuration for Windows.\n\nSee more: https://tauri.app/v1/api/config#updaterwindowsconfig",
               )
               .describe("The Windows configuration for the updater.")
-              .default({ installMode: "passive", installerArgs: [] }),
+              .prefault({ installMode: "passive", installerArgs: [] }),
           })
           .strict()
           .describe(
             "The Updater configuration object.\n\nSee more: https://tauri.app/v1/api/config#updaterconfig",
           )
           .describe("The updater configuration.")
-          .default({
+          .prefault({
             active: false,
             dialog: true,
             pubkey: "",
@@ -3223,13 +3217,13 @@ export const tauriConfigSchemaV1 = z
                   .describe(
                     "A Boolean value that determines whether the image represents a [template](https://developer.apple.com/documentation/appkit/nsimage/1520017-template?language=objc) image on macOS.",
                   )
-                  .default(false),
+                  .prefault(false),
                 menuOnLeftClick: z
                   .boolean()
                   .describe(
                     "A Boolean value that determines whether the menu should appear when the tray icon receives a left click on macOS.",
                   )
-                  .default(true),
+                  .prefault(true),
                 title: z
                   .union([
                     z.string().describe("Title for MacOS tray"),
@@ -3251,14 +3245,14 @@ export const tauriConfigSchemaV1 = z
           .describe(
             "MacOS private API configuration. Enables the transparent background API and sets the `fullScreenEnabled` preference to `true`.",
           )
-          .default(false),
+          .prefault(false),
       })
       .strict()
       .describe(
         "The Tauri configuration object.\n\nSee more: https://tauri.app/v1/api/config#tauriconfig",
       )
       .describe("The Tauri configuration.")
-      .default({
+      .prefault({
         allowlist: {
           all: false,
           app: { all: false, hide: false, show: false },
@@ -3420,7 +3414,7 @@ export const tauriConfigSchemaV1 = z
           .describe(
             "The path to the application assets or URL to load in development.\n\nThis is usually an URL to a dev server, which serves your application assets with live reloading. Most modern JavaScript bundlers provides a way to start a dev server by default.\n\nSee [vite](https://vitejs.dev/guide/), [Webpack DevServer](https://webpack.js.org/configuration/dev-server/) and [sirv](https://github.com/lukeed/sirv) for examples on how to set up a dev server.",
           )
-          .default("http://localhost:8080/"),
+          .prefault("http://localhost:8080/"),
         distDir: z
           .union([
             z
@@ -3444,7 +3438,7 @@ export const tauriConfigSchemaV1 = z
           .describe(
             "The path to the application assets or URL to load in production.\n\nWhen a path relative to the configuration file is provided, it is read recursively and all files are embedded in the application binary. Tauri then looks for an `index.html` file unless you provide a custom window URL.\n\nYou can also provide a list of paths to be embedded, which allows granular control over what files are added to the binary. In this case, all files are added to the root and you must reference it that way in your HTML files.\n\nWhen an URL is provided, the application won't have bundled assets and the application will load that URL by default.",
           )
-          .default("../dist"),
+          .prefault("../dist"),
         beforeDevCommand: z
           .union([
             z
@@ -3467,7 +3461,7 @@ export const tauriConfigSchemaV1 = z
                       .describe(
                         "Whether `tauri dev` should wait for the command to finish or not. Defaults to `false`.",
                       )
-                      .default(false),
+                      .prefault(false),
                   })
                   .describe("Run the given script with custom options."),
               ])
@@ -3552,25 +3546,25 @@ export const tauriConfigSchemaV1 = z
           .describe(
             "Whether we should inject the Tauri API on `window.__TAURI__` or not.",
           )
-          .default(false),
+          .prefault(false),
       })
       .strict()
       .describe(
         "The Build configuration object.\n\nSee more: https://tauri.app/v1/api/config#buildconfig",
       )
       .describe("The build configuration.")
-      .default({
+      .prefault({
         devPath: "http://localhost:8080/",
         distDir: "../dist",
         withGlobalTauri: false,
       }),
     plugins: z
-      .record(z.any())
+      .record(z.string(), z.any())
       .describe(
         "The plugin configs holds a HashMap mapping a plugin name to its configuration object.\n\nSee more: https://tauri.app/v1/api/config#pluginconfig",
       )
       .describe("The plugins config.")
-      .default({}),
+      .prefault({}),
   })
   .strict()
   .describe(

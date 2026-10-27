@@ -1,7 +1,7 @@
-import { ZodIssueBase, ZodUnrecognizedKeysIssue } from "zod";
+import { z } from "zod";
 import { Show, For } from "solid-js";
 
-export function UnrecognizedKeyIssue(props: { issue: ZodIssueBase }) {
+export function UnrecognizedKeyIssue(props: { issue: z.core.$ZodIssueBase }) {
   const issue = () =>
     isUnrecognizedKeyIssue(props.issue) ? props.issue : null;
 
@@ -17,7 +17,7 @@ export function UnrecognizedKeyIssue(props: { issue: ZodIssueBase }) {
 }
 
 export function isUnrecognizedKeyIssue(
-  value: ZodIssueBase,
-): value is ZodUnrecognizedKeysIssue {
+  value: z.core.$ZodIssueBase,
+): value is z.core.$ZodIssueUnrecognizedKeys {
   return "keys" in value;
 }

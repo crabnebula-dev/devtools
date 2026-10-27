@@ -1,10 +1,9 @@
 import { z } from "zod";
-import { SafeParseError, SafeParseSuccess, ZodIssue } from "zod";
 import { TauriConfig } from "./tauri-conf";
 
 export function parseTauriConfig(
   configData: JSONValue,
-  schema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>,
+  schema: z.ZodType<TauriConfig, unknown>,
 ) {
   const config = schema.safeParse(configData);
 
@@ -14,7 +13,9 @@ export function parseTauriConfig(
   return config;
 }
 
-interface PartialSafeParseSuccess<T> extends SafeParseSuccess<T> {
+interface PartialSafeParseSuccess<T> {
+  success: true;
+  data: T;
   error: z.ZodError<T>;
 }
 
@@ -27,16 +28,14 @@ type JSONValue =
   | Array<JSONValue>;
 
 interface JSONObject {
-  [key: string | number]: JSONValue;
+  [key: PropertyKey]: JSONValue;
 }
 
 function parseErrorConfig(
   configData: JSONValue,
-  parsed: SafeParseError<TauriConfig>,
-  schema: z.ZodType<TauriConfig, z.ZodTypeDef, unknown>,
-):
-  | z.SafeParseReturnType<TauriConfig, TauriConfig>
-  | PartialSafeParseSuccess<TauriConfig> {
+  parsed: z.ZodSafeParseError<TauriConfig>,
+  schema: z.ZodType<TauriConfig, unknown>,
+): z.ZodSafeParseResult<TauriConfig> | PartialSafeParseSuccess<TauriConfig> {
   /* Create a temporary object with the corrupt data */
   const errorData = structuredClone(configData);
 
@@ -48,7 +47,7 @@ function parseErrorConfig(
     };
   }
 
-  const fieldErrors = parsed.error.errors;
+  const fieldErrors = parsed.error.issues;
 
   /* Remove all the fields with errors */
   fieldErrors.forEach((error) => {
@@ -87,20 +86,26 @@ function isJsonArray(value: JSONValue): value is Array<JSONValue> {
 }
 
 export function isValidConfig<T>(
-  value: PartialSafeParseSuccess<T> | SafeParseSuccess<T> | SafeParseError<T>,
-): value is SafeParseSuccess<T> {
+  value:
+    | PartialSafeParseSuccess<T>
+    | z.ZodSafeParseSuccess<T>
+    | z.ZodSafeParseError<T>,
+): value is z.ZodSafeParseSuccess<T> {
   return "data" in value && !("error" in value);
 }
 
 export function isPartiallyValidConfig<T>(
-  value: PartialSafeParseSuccess<T> | SafeParseSuccess<T> | SafeParseError<T>,
+  value:
+    | PartialSafeParseSuccess<T>
+    | z.ZodSafeParseSuccess<T>
+    | z.ZodSafeParseError<T>,
 ): value is PartialSafeParseSuccess<T> {
   return "data" in value && "error" in value;
 }
 
 function deleteUnrecognizedKey(
   object: JSONValue,
-  path: (string | number)[],
+  path: PropertyKey[],
   keys: string[],
 ) {
   path.forEach((path) => {
@@ -116,7 +121,7 @@ function deleteUnrecognizedKey(
   });
 }
 
-function deleteErrorKey(object: JSONValue, error: ZodIssue) {
+function deleteErrorKey(object: JSONValue, error: z.core.$ZodIssue) {
   if (error.path.length > 1) {
     const paths = error.path.slice(0, error.path.length - 1);
     paths.forEach((path) => {
