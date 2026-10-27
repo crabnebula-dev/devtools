@@ -116,6 +116,10 @@ impl Aggregator {
     }
 
     async fn attach_watcher(&mut self, watcher: Watcher) {
+        // Flush unsent events to the existing watchers first, so the next
+        // incremental update doesn't send them to the new watcher a second time.
+        self.publish();
+
         let now = Instant::now();
 
         let log_update = self.log_update(Include::All);
@@ -421,5 +425,42 @@ mod test {
 
         let updates = drain_updates(mf, cmd_tx).await;
         assert_eq!(updates.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn attach_watcher_does_not_duplicate_unsent_events() {
+        let shared = Arc::new(Shared::default());
+        let (evt_tx, evt_rx) = mpsc::channel(16);
+        let (_cmd_tx, cmd_rx) = mpsc::channel(1);
+
+        let layer = Layer::new(shared.clone(), evt_tx);
+        let mut mf = Aggregator::new(shared, evt_rx, cmd_rx);
+
+        let _guard = tracing_subscriber::registry().with(layer).set_default();
+
+        tracing::debug!("an event!");
+        tracing::debug_span!("a span").in_scope(|| {});
+
+        // buffer the events without publishing them, as happens when the
+        // aggregator drains events after a flush notification
+        while let Ok(event) = mf.events.try_recv() {
+            mf.update_state(event);
+        }
+
+        let (client_tx, mut client_rx) = mpsc::channel(4);
+        mf.attach_watcher(Watcher { tx: client_tx }).await;
+        mf.publish();
+        drop(mf);
+
+        let mut log_events = 0;
+        let mut span_events = 0;
+        while let Some(Ok(update)) = client_rx.recv().await {
+            log_events += update.logs_update.unwrap().log_events.len();
+            span_events += update.spans_update.unwrap().span_events.len();
+        }
+
+        assert_eq!(log_events, 1);
+        // new, enter, exit and close
+        assert_eq!(span_events, 4);
     }
 }
