@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.4.1...devtools-core-v0.4.2) - 2026-10-29
+
+### Fixed
+
+- don't send buffered events twice to newly attached clients ([#435](https://github.com/crabnebula-dev/devtools/pull/435))
+
 ## [0.4.1](https://github.com/crabnebula-dev/devtools/compare/devtools-core-v0.4.0...devtools-core-v0.4.1) - 2026-09-29
 
 ### Other
