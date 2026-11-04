@@ -4,4 +4,11 @@
 
   // run Renovate bot once a month
   schedule: ["* * 1 * *"],
+  "packageRules": [
+    {
+      "matchPackageNames": ["*"],
+      "semanticCommitType": "chore",
+      "minimumReleaseAge": "3 days"
+    },
+  ],
 }
