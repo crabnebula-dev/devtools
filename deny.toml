@@ -12,22 +12,8 @@ targets = [
 # Reflect that in cargo deny.
 unsound = "all"
 ignore = [
-    # proc-macro-error - unmaintained (required by gtk3/glib macros)
-    "RUSTSEC-2024-0370",
-    # instant - unmaintained (required by v1 tao crate)
-    "RUSTSEC-2024-0384",
-    # fxhash - unmaintained (required by tauri-utils via kuchikiki)
-    "RUSTSEC-2025-0057",
-    # unic-* crates - unmaintained (required by tauri-utils via urlpattern)
-    "RUSTSEC-2025-0075",
-    "RUSTSEC-2025-0080",
-    "RUSTSEC-2025-0081",
-    "RUSTSEC-2025-0098",
-    "RUSTSEC-2025-0100",
     # glib 0.18.5 unsoundness, blocked on Tauri upstream moving to gtk4
     "RUSTSEC-2024-0429",
-    # rand 0.7 unsoundness, required in Tauri v1 and v2.
-    "RUSTSEC-2026-0097",
 ]
 
 # This section is considered when running `cargo deny check licenses`
@@ -59,16 +45,9 @@ expression = "ISC AND MIT AND OpenSSL"
 license-files = [{ path = "LICENSE", hash = 0xbd0eed23 }]
 
 # Exceptions should be targeting just the crates that need it.
-# bzip2 is used by CEF downloader. Which is an option for Tauri v3.
-[[licenses.exceptions]]
-allow = ["bzip2-1.0.6"]
-name = "libbz2-rs-sys"
 [[licenses.exceptions]]
 allow = ["Apache-2.0 WITH LLVM-exception"]
 name = "target-lexicon"
-[[licenses.exceptions]]
-allow = ["CDLA-Permissive-2.0"]
-name = "webpki-roots"
 [[licenses.exceptions]]
 allow = ["Zlib"]
 name = "foldhash"
