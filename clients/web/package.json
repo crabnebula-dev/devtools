@@ -45,7 +45,7 @@
     "vite-plugin-solid": "^2.11",
     "vite-plugin-static-copy": "^3.2",
     "vite-plugin-wasm": "^3.5.0",
-    "vitest": "^4.1.0-beta.6"
+    "vitest": "^4.1.11"
   },
   "dependencies": {
     "@crabnebula/file-icons": "^0.1.0",
