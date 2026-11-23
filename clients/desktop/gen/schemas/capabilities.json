@@ -1,1 +1,0 @@
-{"default-plugins":{"identifier":"default-plugins","description":"enables the default permissions","local":true,"windows":["main"],"permissions":["core:default","opener:default","updater:default","process:allow-restart"]}}
